@@ -1,0 +1,170 @@
+// src/views/admin/Dashboard.jsx
+import React, { useState, useEffect } from 'react';
+import { Box, Portal, useDisclosure } from '@chakra-ui/react';
+import {
+  Routes,
+  Route,
+  Navigate,
+  useLocation,
+  useNavigate,
+} from 'react-router-dom';
+import Sidebar from 'components/sidebar/Sidebar.js';
+import Navbar from 'components/navbar/NavbarAdmin.js';
+import Footer from 'components/footer/FooterAdmin.js';
+import { SidebarContext } from 'contexts/SidebarContext';
+import routes from 'routes.js';
+import { useUser } from 'contexts/UserContext';   // ✅ chỉ dùng UserContext
+import { useAppToast } from 'utils/ToastHelper';
+import { useNotification } from 'contexts/NotificationContext';
+import { useChat } from 'contexts/ChatContext';
+
+export default function Dashboard(props) {
+  const { ...rest } = props;
+  const [fixed] = useState(false);
+  const [toggleSidebar, setToggleSidebar] = useState(false);
+  const { onOpen } = useDisclosure();
+  const location = useLocation();
+  const navigate = useNavigate();
+  const toast = useAppToast();
+  const { user, isAuthenticated, loadingUser } = useUser();   // ✅ lấy từ context
+  const { hasNewOrder, hasNewReturn } = useNotification();
+  const { hasNewChat } = useChat();
+
+  const [accessibleRoutes, setAccessibleRoutes] = useState([]);
+
+  // ======================================================
+  // 🔐 ROLE CHECK + ROUTE FILTERING
+  // ======================================================
+  useEffect(() => {
+    if (loadingUser) return; // đợi context load xong
+
+    if (!isAuthenticated || !user) {
+      toast.warning('Please sign in first.');
+      navigate('/auth/sign-in', { replace: true });
+      return;
+    }
+
+    const roleName = user.roleName || user.role?.name;
+
+    if (!['ADMIN', 'EMPLOYEE'].includes(roleName)) {
+      toast.error(
+        'Access denied. You do not have permission to access the admin panel.',
+      );
+      navigate('/user', { replace: true });
+      return;
+    }
+
+    const employeeAllowed = [
+      '/category-management',
+      '/product-management',
+      '/order-management',
+      '/return-management',
+    ];
+
+    const filtered = routes.filter((r) => {
+      if (r.layout !== '/admin') return false;
+      if (r.hideInSidebar) return false;
+
+      if (roleName === 'ADMIN') return true;
+      if (roleName === 'EMPLOYEE') return employeeAllowed.includes(r.path);
+
+      return false;
+    });
+
+    setAccessibleRoutes(filtered);
+  }, [user, isAuthenticated, loadingUser, navigate, toast]);
+
+  // ======================================================
+  // 📌 GET ACTIVE ROUTE
+  // ======================================================
+  const getActiveRoute = (routes, pathname) => {
+    for (let route of routes) {
+      if (route.collapse || route.category) {
+        const active = getActiveRoute(route.items, pathname);
+        if (active) return active;
+      } else if (route.layout + route.path === pathname) {
+        return route;
+      }
+    }
+    return null;
+  };
+
+  const activeRoute = getActiveRoute(routes, location.pathname);
+
+  // ======================================================
+  // 📌 RENDER ROUTES
+  // ======================================================
+  const getRoutesComponents = (routes) =>
+    routes.map((route, key) => {
+      if (route.layout === '/admin') {
+        return <Route path={route.path} element={route.component} key={key} />;
+      }
+      if (route.collapse || route.category) {
+        return getRoutesComponents(route.items);
+      }
+      return null;
+    });
+
+  // ======================================================
+  // 📌 LAYOUT
+  // ======================================================
+  return (
+    <Box>
+      <SidebarContext.Provider value={{ toggleSidebar, setToggleSidebar }}>
+        <Sidebar
+          key={`${hasNewOrder}-${hasNewReturn}-${hasNewChat}`}
+          routes={accessibleRoutes}
+          display="none"
+          {...rest}
+        />
+
+        <Box
+          float="right"
+          minHeight="100vh"
+          height="100%"
+          overflow="auto"
+          position="relative"
+          maxHeight="100%"
+          w={{ base: '100%', xl: 'calc(100% - 290px)' }}
+        >
+          <Portal>
+            <Box>
+              <Navbar
+                onOpen={onOpen}
+                logoText="Trendify Admin"
+                brandText={activeRoute?.name || 'Dashboard'}
+                secondary={activeRoute?.secondary || false}
+                message={activeRoute?.messageNavbar || ''}
+                fixed={fixed}
+                {...rest}
+              />
+            </Box>
+          </Portal>
+
+          <Box
+            mx="auto"
+            p={{ base: '20px', md: '30px' }}
+            pt={{ base: '130px', md: '100px', xl: '100px' }}
+            minH="100vh"
+          >
+            <Routes>
+              {getRoutesComponents(accessibleRoutes)}
+              <Route
+                path="/"
+                element={
+                  (user?.roleName || user?.role?.name) === 'EMPLOYEE' ? (
+                    <Navigate to="/admin/order-management" replace />
+                  ) : (
+                    <Navigate to="/admin/default" replace />
+                  )
+                }
+              />
+            </Routes>
+          </Box>
+
+          <Footer />
+        </Box>
+      </SidebarContext.Provider>
+    </Box>
+  );
+}

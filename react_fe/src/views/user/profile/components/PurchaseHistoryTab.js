@@ -1,0 +1,459 @@
+import React, { useState, useMemo } from 'react';
+import {
+  Box,
+  Heading,
+  VStack,
+  Flex,
+  Image,
+  Text,
+  Divider,
+  Button,
+  useColorModeValue,
+  Badge,
+  Spinner,
+  Tag,
+  TagLabel,
+  Modal,
+  ModalOverlay,
+  ModalContent,
+  ModalHeader,
+  ModalCloseButton,
+  ModalBody,
+  ModalFooter,
+  FormControl,
+  FormLabel,
+  Textarea,
+  useDisclosure,
+  Checkbox,
+  Input,
+} from '@chakra-ui/react';
+import ReturnOrderService from 'services/ReturnOrderService';
+import OrderService from 'services/OrderService';
+import { useAppToast } from 'utils/ToastHelper';
+import { formatUSD } from 'utils/FormatHelper';
+
+export default function PurchaseHistoryTab({
+  orders,
+  onReturnSubmitted,
+  isLoading,
+  onLoadMore,
+  hasMore = false,
+  loadingMore = false,
+}) {
+  const toast = useAppToast();
+  const [selectedOrder, setSelectedOrder] = useState(null);
+  const [reason, setReason] = useState('');
+  const [note, setNote] = useState('');
+  const [submittingReturn, setSubmittingReturn] = useState(false);
+
+  const { isOpen, onOpen, onClose } = useDisclosure();
+  const textColor = useColorModeValue('secondaryGray.900', 'white');
+  const cardBg = useColorModeValue('white', 'navy.800');
+  const borderColor = useColorModeValue('gray.200', 'navy.700');
+
+  const filteredOrders = useMemo(() => {
+  return orders.filter(order => {
+    // Ẩn nếu: là VIETQR và đang PENDING
+    if (order.paymentMethod === 'VIETQR' && order.status === 'PENDING') {
+      return false;
+    }
+    // Các trường hợp còn lại: hiện hết (COD bất kỳ, VIETQR đã PAID trở lên)
+    return true;
+  });
+}, [orders]);
+
+  const getStatusColor = (status) => {
+    switch (status?.toUpperCase()) {
+      case 'PENDING':
+        return 'yellow';
+      case 'SHIPPED':
+        return 'purple';
+      case 'DELIVERED':
+        return 'green';
+      case 'COMPLETED':
+        return 'blue';
+      case 'PAID':
+        return 'teal';
+      case 'CANCELLED':
+        return 'red';
+      case 'RETURN':
+        return 'orange';
+      default:
+        return 'gray';
+    }
+  };
+
+  const handleUpdateStatus = async (orderCode, newStatus) => {
+    try {
+      await OrderService.updateUserStatus(orderCode, newStatus);
+      toast.success(`Order ${orderCode} updated to ${newStatus}`);
+    } catch (err) {
+      console.error(err);
+      toast.error('Failed to update status');
+    }
+  };
+
+  const handleOpenReturn = (order) => {
+    setSelectedOrder(order);
+    setReason('');
+    setNote('');
+    onOpen();
+  };
+
+  const handleSubmitReturn = async () => {
+    if (!selectedOrder) return;
+    if (!reason.trim()) return toast.warning('Please enter a reason.');
+
+    const selectedItems =
+      selectedOrder.items
+        .filter((i) => i.selected)
+        .map((i) => ({
+          orderItemId: i.id,
+          quantity: i.returnQty || 1,
+          unitPrice: i.price,
+        })) || [];
+
+    if (selectedItems.length === 0)
+      return toast.warning('Please select at least one item to return.');
+
+    setSubmittingReturn(true);
+    try {
+      await ReturnOrderService.requestReturn({
+        orderCode: selectedOrder.orderCode,
+        reason,
+        note,
+        items: selectedItems,
+      });
+      toast.success('Return request submitted!');
+      onClose();
+      onReturnSubmitted?.();
+    } catch (err) {
+      console.error(err);
+      toast.error('Failed to submit return');
+    } finally {
+      setSubmittingReturn(false);
+    }
+  };
+
+  // --- Infinite scroll handler ---
+  const handleScroll = (e) => {
+    if (!onLoadMore || !hasMore || loadingMore || isLoading) return;
+
+    const { scrollTop, scrollHeight, clientHeight } = e.target;
+    // Khi còn <80px là chạm đáy => load thêm
+    if (scrollHeight - scrollTop - clientHeight < 80) {
+      onLoadMore();
+    }
+  };
+
+  if (isLoading && !orders.length) {
+    return (
+      <Flex direction="column" align="center" py={12}>
+        <Spinner size="xl" />
+      </Flex>
+    );
+  }
+
+  if (!orders.length) {
+    return (
+      <Box textAlign="center" py={10}>
+        <Text fontSize="lg" color="gray.500">
+          You haven’t placed any orders yet.
+        </Text>
+      </Box>
+    );
+  }
+  
+
+  return (
+    <Box>
+      <Heading size="md" mb={6} color={textColor}>
+        Purchase History
+      </Heading>
+
+      {/* Container có scroll */}
+      <Box
+        maxH="500px"
+        overflowY="auto"
+        onScroll={handleScroll}
+        pr={2} // tránh che nội dung bởi scrollbar
+      >
+        <VStack align="stretch" spacing={6}>
+          {filteredOrders.map((order) => (
+            <Box
+              key={order.id}
+              bg={cardBg}
+              border="1px solid"
+              borderColor={borderColor}
+              borderRadius="12px"
+              p={5}
+              shadow="md"
+            >
+              {/* Header */}
+              <Flex justify="space-between" align="center" mb={4}>
+                <Box>
+                  <Text fontWeight="bold" fontSize="lg">
+                    Order #{order.orderCode}
+                  </Text>
+                  <Text fontSize="sm" color="gray.500">
+                    {new Date(order.createdAt).toLocaleDateString()}
+                  </Text>
+                </Box>
+                <Badge colorScheme={getStatusColor(order.status)} px={3} py={1}>
+                  {order.status}
+                </Badge>
+              </Flex>
+
+              {/* Items */}
+              <VStack spacing={4} align="stretch" divider={<Divider />}>
+                {order.items.map((item) => (
+                  <Flex
+                    key={item.id}
+                    align="center"
+                    justify="space-between"
+                    gap={4}
+                  >
+                    <Box position="relative">
+                      <Image
+                        src={item.thumbnailUrl}
+                        boxSize="80px"
+                        borderRadius="8px"
+                        objectFit="cover"
+                      />
+                      <Badge
+                        position="absolute"
+                        top="-8px"
+                        right="-8px"
+                        bg="brand.500"
+                        color="white"
+                        borderRadius="full"
+                        px={2}
+                        fontSize="xs"
+                      >
+                        {item.quantity}
+                      </Badge>
+                    </Box>
+
+                    <Box flex="1">
+                      <Text fontWeight="bold">{item.productName}</Text>
+                      {(item.color || item.size) && (
+                        <Tag
+                          size="sm"
+                          variant="subtle"
+                          borderRadius="full"
+                          mt={2}
+                          bg="gray.200"
+                        >
+                          <TagLabel textTransform="capitalize">
+                            {`${item.color || ''}${
+                              item.color && item.size ? ' / ' : ''
+                            }${item.size || ''}`}
+                          </TagLabel>
+                        </Tag>
+                      )}
+                    </Box>
+
+                    <Text fontWeight="semibold">
+                      {formatUSD(item.price * item.quantity)}
+                    </Text>
+                  </Flex>
+                ))}
+              </VStack>
+
+              <Divider my={4} />
+
+              {/* Footer actions */}
+              <Flex justify="space-between" align="center">
+                <Text fontWeight="bold" color={textColor}>
+                  Total: {formatUSD(order.finalTotal)}
+                </Text>
+
+                {order.status === 'DELIVERED' && (
+                  <Flex gap={3}>
+                    <Button
+                      size="sm"
+                      colorScheme="green"
+                      onClick={() =>
+                        handleUpdateStatus(order.orderCode, 'COMPLETED')
+                      }
+                    >
+                      Confirm Received
+                    </Button>
+                    <Button
+                      size="sm"
+                      colorScheme="red"
+                      variant="outline"
+                      onClick={() => handleOpenReturn(order)}
+                    >
+                      Request Return
+                    </Button>
+                  </Flex>
+                )}
+              </Flex>
+            </Box>
+          ))}
+        </VStack>
+
+        {/* Loading + trạng thái cuối list */}
+        {loadingMore && (
+          <Flex justify="center" py={4}>
+            <Spinner size="md" />
+          </Flex>
+        )}
+
+        {!loadingMore && !hasMore && (
+          <Flex justify="center" py={4}>
+            <Text fontSize="sm" color="gray.400">
+              You’ve reached the end of your order history.
+            </Text>
+          </Flex>
+        )}
+      </Box>
+
+      {/* 🧾 Return dialog */}
+      <Modal
+        isOpen={isOpen}
+        onClose={onClose}
+        isCentered
+        size="xl"
+        scrollBehavior="inside"
+      >
+        <ModalOverlay />
+        <ModalContent borderRadius="16px">
+          <ModalHeader>Select Items to Return</ModalHeader>
+          <ModalCloseButton />
+          <ModalBody>
+            {selectedOrder && (
+              <VStack spacing={4} align="stretch" divider={<Divider />}>
+                {selectedOrder.items.map((item) => (
+                  <Flex
+                    key={item.id}
+                    align="center"
+                    justify="space-between"
+                    gap={4}
+                    flexWrap="wrap"
+                  >
+                    <Flex align="center" gap={3} flex="1">
+                      <Checkbox
+                        isChecked={item.selected || false}
+                        onChange={(e) => {
+                          const checked = e.target.checked;
+                          setSelectedOrder((prev) => ({
+                            ...prev,
+                            items: prev.items.map((it) =>
+                              it.id === item.id
+                                ? { ...it, selected: checked }
+                                : it,
+                            ),
+                          }));
+                        }}
+                        colorScheme="brand"
+                      />
+                      <Image
+                        src={item.thumbnailUrl}
+                        boxSize="60px"
+                        borderRadius="8px"
+                        objectFit="cover"
+                      />
+                      <Box>
+                        <Text fontWeight="bold">{item.productName}</Text>
+                        {(item.color || item.size) && (
+                          <Tag
+                            size="sm"
+                            variant="subtle"
+                            borderRadius="full"
+                            mt={1}
+                            bg="gray.200"
+                          >
+                            <TagLabel textTransform="capitalize">
+                              {`${item.color || ''}${
+                                item.color && item.size ? ' / ' : ''
+                              }${item.size || ''}`}
+                            </TagLabel>
+                          </Tag>
+                        )}
+                      </Box>
+                    </Flex>
+
+                    <Flex align="center" gap={2}>
+                      <Input
+                        type="number"
+                        size="sm"
+                        min={1}
+                        max={item.quantity}
+                        w="70px"
+                        isDisabled={!item.selected}
+                        value={item.returnQty ?? ''}
+                        onChange={(e) => {
+                          const val = e.target.value;
+                          setSelectedOrder((prev) => ({
+                            ...prev,
+                            items: prev.items.map((it) =>
+                              it.id === item.id
+                                ? { ...it, returnQty: val }
+                                : it,
+                            ),
+                          }));
+                        }}
+                        onBlur={(e) => {
+                          const val = Number(e.target.value);
+                          const qty = isNaN(val)
+                            ? 1
+                            : Math.max(1, Math.min(val, item.quantity));
+                          setSelectedOrder((prev) => ({
+                            ...prev,
+                            items: prev.items.map((it) =>
+                              it.id === item.id
+                                ? { ...it, returnQty: qty }
+                                : it,
+                            ),
+                          }));
+                        }}
+                      />
+                      <Text fontSize="sm" color="gray.500">
+                        / {item.quantity}
+                      </Text>
+                    </Flex>
+                  </Flex>
+                ))}
+              </VStack>
+            )}
+
+            <Divider my={4} />
+
+            <FormControl mb={4}>
+              <FormLabel>Reason for return</FormLabel>
+              <Textarea
+                placeholder="Enter your reason"
+                value={reason}
+                onChange={(e) => setReason(e.target.value)}
+              />
+            </FormControl>
+
+            <FormControl>
+              <FormLabel>Additional note</FormLabel>
+              <Textarea
+                placeholder="Optional note..."
+                value={note}
+                onChange={(e) => setNote(e.target.value)}
+              />
+            </FormControl>
+          </ModalBody>
+
+          <ModalFooter>
+            <Button variant="ghost" mr={3} onClick={onClose}>
+              Cancel
+            </Button>
+            <Button
+              colorScheme="brand"
+              onClick={handleSubmitReturn}
+              isLoading={submittingReturn}
+            >
+              Submit Return
+            </Button>
+          </ModalFooter>
+        </ModalContent>
+      </Modal>
+    </Box>
+  );
+}

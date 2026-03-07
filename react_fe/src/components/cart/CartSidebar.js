@@ -1,0 +1,264 @@
+// src/components/cart/CartSidebar.jsx
+import {
+  Drawer,
+  DrawerBody,
+  DrawerHeader,
+  DrawerOverlay,
+  DrawerContent,
+  DrawerCloseButton,
+  DrawerFooter,
+  Text,
+  Flex,
+  Icon,
+  Spinner,
+  Button,
+  Box,
+  Image,
+  HStack,
+  IconButton,
+  Tag,
+  TagLabel,
+  useColorModeValue,
+  useDisclosure,
+} from '@chakra-ui/react';
+import { IoMdCart, IoMdTrash } from 'react-icons/io';
+import { MdExpandMore } from 'react-icons/md';
+import { useNavigate } from 'react-router-dom';
+import { useState } from 'react';
+import { useCart } from 'contexts/CartContext';
+import { useAppToast } from 'utils/ToastHelper';
+import { formatUSD } from 'utils/FormatHelper';
+import ProductService from 'services/ProductService';
+import CartVariantModal from './CartVariantModal';
+
+export default function CartSidebar({ isOpen, onClose }) {
+  const {
+    cart,
+    loading,
+    updateQuantity,
+    updateVariant,
+    removeItem,
+  } = useCart();
+  const navigate = useNavigate();
+  const toast = useAppToast();
+
+  const textColor = useColorModeValue('secondaryGray.900', 'white');
+  const bgColor = useColorModeValue('white', 'navy.800');
+
+  const {
+    isOpen: isVariantOpen,
+    onOpen,
+    onClose: onVariantClose,
+  } = useDisclosure();
+  const [selectedItem, setSelectedItem] = useState(null);
+  const [productVariants, setProductVariants] = useState([]);
+
+  const handleGoToPayment = () => {
+    onClose();
+    navigate('/user/payment'); // nếu route thực tế là /user/order thì đổi lại
+  };
+
+  const handleOpenVariant = async (item) => {
+    try {
+      const { data } = await ProductService.getDetailById(item.productId);
+      if (!data) return toast.error('Product not found');
+
+      setSelectedItem({
+        ...item,
+        images: data.images || [],
+        variants: data.variants || [],
+      });
+      setProductVariants(data.variants || []);
+      onOpen();
+    } catch {
+      toast.error('Failed to load product data');
+    }
+  };
+
+  const handleUpdateQuantity = async (item, newQty) => {
+    if (newQty < 1 || newQty > 99) return;
+    await updateQuantity(item.id, item.color, item.size, newQty, toast);
+  };
+
+  const handleSaveVariant = async (updated) => {
+    const newVariant = productVariants.find(
+      (v) =>
+        (!updated.color || v.color === updated.color) &&
+        (!updated.size || v.size === updated.size),
+    );
+    if (!newVariant) return toast.error('No matching variant found');
+
+    await updateVariant(updated, newVariant, toast);
+    onVariantClose();
+  };
+
+  const handleRemoveItem = async (item) => {
+    await removeItem(item.id, item.color, item.size, toast);
+  };
+
+  return (
+    <>
+      <Drawer placement="right" onClose={onClose} isOpen={isOpen} size="sm">
+        <DrawerOverlay />
+        <DrawerContent bg={bgColor} color={textColor}>
+          <DrawerCloseButton />
+          <DrawerHeader borderBottomWidth="1px">🛒 Shopping Cart</DrawerHeader>
+
+          <DrawerBody overflowY="auto" flex="1" py={4}>
+            {loading ? (
+              <Flex justify="center" align="center" h="100%">
+                <Spinner />
+              </Flex>
+            ) : !cart?.items?.length ? (
+              <Flex
+                direction="column"
+                align="center"
+                justify="center"
+                h="100%"
+                gap={3}
+                color="gray.500"
+              >
+                <Icon as={IoMdCart} w={12} h={12} />
+                <Text>Your cart is empty</Text>
+              </Flex>
+            ) : (
+              <Flex direction="column" gap={4}>
+                {cart.items.map((item) => (
+                  <Box
+                    key={item.id}
+                    p={3}
+                    borderWidth="1px"
+                    borderRadius="2xl"
+                  >
+                    <Flex gap={3} align="flex-start">
+                      <Image
+                        src={item.thumbnailUrl}
+                        alt={item.productName || 'Product'}
+                        boxSize="100px"
+                        borderRadius="md"
+                        objectFit="cover"
+                      />
+                      <Box flex="1">
+                        <Flex
+                          justify="space-between"
+                          align="center"
+                          mb={1}
+                        >
+                          <Text fontWeight="semibold" noOfLines={1}>
+                            {item.productName}
+                          </Text>
+                          <IconButton
+                            icon={<IoMdTrash />}
+                            size="sm"
+                            colorScheme="red"
+                            variant="ghost"
+                            onClick={() => handleRemoveItem(item)}
+                          />
+                        </Flex>
+
+                        {(item.color || item.size) && (
+                          <Tag
+                            size="sm"
+                            variant="subtle"
+                            borderRadius="full"
+                            gap={2}
+                            mb={2}
+                            cursor="pointer"
+                            onClick={() => handleOpenVariant(item)}
+                          >
+                            <TagLabel textTransform="capitalize">
+                              {[item.color, item.size]
+                                .filter(Boolean)
+                                .join(' / ')}
+                            </TagLabel>
+                            <MdExpandMore />
+                          </Tag>
+                        )}
+
+                        <Flex align="center" justify="space-between">
+                          <HStack
+                            spacing={0}
+                            borderWidth="1px"
+                            borderRadius="full"
+                            overflow="hidden"
+                          >
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() =>
+                                handleUpdateQuantity(
+                                  item,
+                                  item.quantity - 1,
+                                )
+                              }
+                            >
+                              -
+                            </Button>
+                            <Box w="50px" textAlign="center">
+                              {item.quantity}
+                            </Box>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() =>
+                                handleUpdateQuantity(
+                                  item,
+                                  item.quantity + 1,
+                                )
+                              }
+                            >
+                              +
+                            </Button>
+                          </HStack>
+
+                          <Text fontWeight="semibold" color="brand.500">
+                            {formatUSD(item.price * item.quantity)}
+                          </Text>
+                        </Flex>
+                      </Box>
+                    </Flex>
+                  </Box>
+                ))}
+              </Flex>
+            )}
+          </DrawerBody>
+
+          {!loading && cart?.items?.length > 0 && (
+            <DrawerFooter
+              borderTopWidth="1px"
+              flexDirection="column"
+              alignItems="stretch"
+              gap={3}
+            >
+              <Flex justify="space-between" w="100%">
+                <Text fontWeight="bold">Total:</Text>
+                <Text fontWeight="bold" color="brand.500">
+                  {formatUSD(cart.totalPrice)}
+                </Text>
+              </Flex>
+              <Button
+                colorScheme="brand"
+                color="white"
+                size="lg"
+                w="full"
+                onClick={handleGoToPayment}
+              >
+                Go to Payment
+              </Button>
+            </DrawerFooter>
+          )}
+        </DrawerContent>
+      </Drawer>
+
+      {selectedItem && (
+        <CartVariantModal
+          isOpen={isVariantOpen}
+          onClose={onVariantClose}
+          item={selectedItem}
+          onSave={handleSaveVariant}
+          productVariants={productVariants}
+        />
+      )}
+    </>
+  );
+}
