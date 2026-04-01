@@ -34,7 +34,7 @@ const AuthService = {
   // ==== LOGIN ====
   login: async ({ email, password, keepLoggedIn }) => {
     const res = await ApiClient.post(ApiUrl.LOGIN, { email, password });
-    const { accessToken, refreshToken /*, user*/ } = res.data || {};
+    const { accessToken, refreshToken /*, user*/ } = res.data.data || {};
 
     if (accessToken && refreshToken) {
       const storage = getStorage(keepLoggedIn);
@@ -56,7 +56,7 @@ const AuthService = {
       provider,
     });
 
-    const { accessToken, refreshToken /*, user*/ } = res.data || {};
+    const { accessToken, refreshToken /*, user*/ } = res.data.data || {};
     if (accessToken && refreshToken) {
       const storage = getStorage(keepLoggedIn);
       storage.setItem('access_token', accessToken);
@@ -78,7 +78,7 @@ const AuthService = {
       params: { refresh_token: token },
     });
 
-    const { accessToken, refreshToken /*, user*/ } = res.data || {};
+    const { accessToken, refreshToken /*, user*/ } = res.data.data || {};
     if (accessToken) {
       const keepLoggedIn = AuthService.isKeepLoggedIn();
       const storage = getStorage(keepLoggedIn);

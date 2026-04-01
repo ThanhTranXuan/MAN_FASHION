@@ -99,7 +99,7 @@ function SignIn() {
     // 🧑‍💻 Luôn gọi /me để lấy full profile
     try {
       const resProfile = await ProfileService.getProfile();
-      setUser(resProfile.data);
+      setUser(resProfile.data.data);
     } catch (e) {
       console.error('❌ Failed to load profile after login:', e);
       // vẫn tiếp tục điều hướng theo role decode được nếu có

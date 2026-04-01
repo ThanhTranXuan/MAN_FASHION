@@ -4,12 +4,30 @@ import ApiUrl from 'constants/ApiUrl';
 
 const ProductService = {
   // Public
-  getAll: (params = {}) => ApiClient.get(ApiUrl.PRODUCTS, { params }),
-  getDetailBySlug: (slug) => ApiClient.get(ApiUrl.PRODUCT_DETAIL(slug)),
-
+  // getAll: (params = {}) => ApiClient.get(ApiUrl.PRODUCTS, { params }),
+  // 2. Sửa hàm lấy danh sách (getAll)
+  getAll: (params = {}) => 
+    ApiClient.get(ApiUrl.PRODUCTS, { params }).then(res => {
+        // res.data.data hiện tại là cục Page (có content, totalPages...)
+        // Ta bọc nó lại thành { data: { content: [...], totalPages: ... } }
+        return { data: res.data.data };
+    }),
+  // getDetailBySlug: (slug) => ApiClient.get(ApiUrl.PRODUCT_DETAIL(slug)),
+  getDetailBySlug: (slug) => 
+      ApiClient.get(ApiUrl.PRODUCT_DETAIL(slug)).then(res => {
+          // .data đầu tiên là của Axios
+          // .data thứ hai là trường 'data' trong ApiResponse của Spring Boot
+        return { data: res.data.data };
+      }),
   // Admin/Employee
   getDetailById: (id) => ApiClient.get(ApiUrl.PRODUCT_BY_ID(id)),
-  getStatsByCategory: () => ApiClient.get(ApiUrl.PRODUCT_STATS),
+  // getStatsByCategory: () => ApiClient.get(ApiUrl.PRODUCT_STATS),
+  getStatsByCategory: () => ApiClient.get(ApiUrl.PRODUCT_STATS).then(response => {
+      // Axios mặc định để dữ liệu trả về ở response.data
+      // Backend của ta lại bọc mảng trong trường 'data' của ApiResponse
+      // => Cần gọi .data 2 lần để lấy đúng lõi, hoặc dùng || để an toàn nếu ApiClient đã có cấu hình sẵn
+      return response.data.data || response.data; 
+  }),
 
   create: (data) => ApiClient.post(ApiUrl.CREATE_PRODUCT, data),
   update: (id, data) => ApiClient.put(ApiUrl.UPDATE_PRODUCT(id), data),

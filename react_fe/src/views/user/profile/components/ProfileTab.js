@@ -14,11 +14,13 @@ import {
   Divider,
 } from '@chakra-ui/react';
 import { useAppToast } from 'utils/ToastHelper';
+import { useUser } from 'contexts/UserContext';
 import { MdCameraAlt } from 'react-icons/md';
 import ProfileService from 'services/ProfileService';
 
 export default function ProfileTab({ user }) {
   const toast = useAppToast();
+  const { refreshUser } = useUser();
   const bgColor = useColorModeValue('white', 'navy.800');
   const textColor = useColorModeValue('secondaryGray.900', 'white');
   const sectionBg = useColorModeValue('gray.50', 'navy.700');
@@ -38,15 +40,29 @@ export default function ProfileTab({ user }) {
 
   useEffect(() => {
     if (user) {
+      // ✅ Parse combined address string into 4 fields
+      let addressStreet = '';
+      let addressWard = '';
+      let addressDistrict = '';
+      let addressCity = '';
+      
+      if (user.address) {
+        const parts = user.address.split(', ');
+        addressStreet = parts[0] || '';
+        addressWard = parts[1] || '';
+        addressDistrict = parts[2] || '';
+        addressCity = parts[3] || '';
+      }
+      
       setFormData({
         avatarUrl: user.avatarUrl || '',
         fullName: user.fullName || '',
         email: user.email || '',
         phone: user.phone || '',
-        addressStreet: user.addressStreet || '',
-        addressWard: user.addressWard || '',
-        addressDistrict: user.addressDistrict || '',
-        addressCity: user.addressCity || '',
+        addressStreet,
+        addressWard,
+        addressDistrict,
+        addressCity,
       });
     }
   }, [user]);
@@ -58,8 +74,29 @@ export default function ProfileTab({ user }) {
 
   const handleSubmit = async () => {
     try {
-      await ProfileService.updateProfile(formData);
+      // ✅ Combine 4 address fields into 1 string
+      const addressParts = [
+        formData.addressStreet,
+        formData.addressWard,
+        formData.addressDistrict,
+        formData.addressCity
+      ].filter(Boolean);
+      
+      const combinedAddress = addressParts.join(', ');
+      
+      const updateData = {
+        fullName: formData.fullName,
+        phone: formData.phone,
+        address: combinedAddress
+      };
+      
+      await ProfileService.updateProfile(updateData);
       toast.success('Profile updated successfully');
+      
+      // ✅ Refresh user context to reload updated data
+      if (refreshUser) {
+        await refreshUser();
+      }
     } catch (err) {
       console.error(err);
       toast.error('Update failed');

@@ -27,7 +27,7 @@ export const UserProvider = ({ children }) => {
     setLoadingUser(true);
     try {
       const res = await ProfileService.getProfile(); // GET /api/users/me
-      setUser(res.data);
+      setUser(res.data.data);
     } catch (err) {
       console.error('❌ Failed to load user profile:', err);
       AuthService.logout();
