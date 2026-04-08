@@ -1,4 +1,4 @@
-package com.manfashion.springboot_be.controller.Users;
+package com.manfashion.springboot_be.controller.User;
 
 import com.manfashion.springboot_be.DTO.ApiResponse.ApiResponse;
 import com.manfashion.springboot_be.DTO.User.UserChangePasswordRequest;

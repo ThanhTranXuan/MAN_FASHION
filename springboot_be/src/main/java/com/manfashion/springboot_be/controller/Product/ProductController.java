@@ -1,4 +1,4 @@
-package com.manfashion.springboot_be.controller.Products;
+package com.manfashion.springboot_be.controller.Product;
 
 import com.manfashion.springboot_be.DTO.ApiResponse.ApiResponse;
 import com.manfashion.springboot_be.DTO.Product.*;
