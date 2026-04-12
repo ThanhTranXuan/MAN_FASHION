@@ -3,8 +3,14 @@ import ApiUrl from 'constants/ApiUrl';
 
 const BlogService = {
   // Public
-  getAll: (params) => ApiClient.get(ApiUrl.BLOGS, { params }),
-  getBySlug: (slug) => ApiClient.get(ApiUrl.BLOG_DETAIL(slug)),
+  // getAll: (params) => ApiClient.get(ApiUrl.BLOGS, { params }),
+  getAll: (params = {}) => 
+      ApiClient.get(ApiUrl.BLOGS, { params }).then(res => {
+          // res.data.data hiện tại là cục Page (có content, totalPages...)
+          // Ta bọc nó lại thành { data: { content: [...], totalPages: ... } }
+          return { data: res.data.data };
+      }),
+  getBySlug: (slug) => ApiClient.get(ApiUrl.BLOG_DETAIL(slug)).then(res=>{ return { data: res.data.data };}),
 
   // Admin/Employee
   create: (data, file) => {
