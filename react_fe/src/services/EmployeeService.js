@@ -7,7 +7,7 @@ const EmployeeService = {
   checkOut: () => ApiClient.post(ApiUrl.CHECK_OUT),
 
   // admin actions
-  getAll: (params) => ApiClient.get(ApiUrl.EMPLOYEES, { params }),
+  getAll: (params) => ApiClient.get(ApiUrl.EMPLOYEES, { params }).then(res=>{ return { data: res.data.data };}),
   getById: (id, { month, year } = {}) =>
     ApiClient.get(ApiUrl.EMPLOYEE_DETAIL(id, month, year)),
   create: (data) => ApiClient.post(ApiUrl.EMPLOYEES, data),
