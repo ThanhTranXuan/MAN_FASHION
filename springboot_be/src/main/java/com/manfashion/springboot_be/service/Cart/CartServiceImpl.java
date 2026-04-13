@@ -3,6 +3,8 @@ package com.manfashion.springboot_be.service.Cart;
 import com.manfashion.springboot_be.DTO.Cart.CartItemRequest;
 import com.manfashion.springboot_be.DTO.Cart.CartItemResponse;
 import com.manfashion.springboot_be.entity.*;
+import com.manfashion.springboot_be.exception.AppException;
+import com.manfashion.springboot_be.exception.ErrorCode;
 import com.manfashion.springboot_be.mapper.CartItemMapper;
 import com.manfashion.springboot_be.repository.Cart.CartItemRepository;
 import com.manfashion.springboot_be.repository.Cart.CartRepository;
@@ -40,7 +42,7 @@ public class CartServiceImpl implements CartService {
                 .orElseGet(() -> {
                     // 1. Tìm User thật từ DB (hoặc dùng userRepo.getReferenceById(userId) cho tối ưu hiệu suất)
                     User user = userRepo.findById(userId)
-                            .orElseThrow(() -> new RuntimeException("User not found"));
+                            .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
 
                     // 2. Tạo Cart mới và gán Object User vào
                     Cart newCart = Cart.builder()
@@ -86,9 +88,9 @@ public class CartServiceImpl implements CartService {
 
         // 1. Tìm Product và Variant thật trong DB
         Product product = productRepo.findById(productId)
-                .orElseThrow(() -> new RuntimeException("Product not found"));
+                .orElseThrow(() -> new AppException(ErrorCode.PRODUCT_NOT_FOUND));
         ProductVariant variant = variantRepo.findById(variantId)
-                .orElseThrow(() -> new RuntimeException("Variant not found"));
+                .orElseThrow(() -> new AppException(ErrorCode.VARIANT_NOT_FOUND));
 
         List<CartItem> existing = cartItemRepo.findByCartIdOrderByCreatedAtDesc(cart.getId());
 
@@ -127,15 +129,15 @@ public class CartServiceImpl implements CartService {
                 .orElseThrow(() -> new RuntimeException("Cart not found for userId=" + userIdHex));
 
         CartItem item = cartItemRepo.findById(itemId)
-                .orElseThrow(() -> new RuntimeException("CartItem not found"));
+                .orElseThrow(() -> new AppException(ErrorCode.CART_ITEM_NOT_FOUND));
 
         if (!item.getCart().getId().equals(cart.getId())) {
-            throw new RuntimeException("Item not found in user's cart");
+            throw new AppException(ErrorCode.ITEM_NOT_IN_CART);
         }
         // Thay vì setVariantId, ta phải set nguyên cái Object Variant vào
         if (req.getVariantId() != null) {
             ProductVariant newVariant = variantRepo.findById(Integer.valueOf(req.getVariantId()))
-                    .orElseThrow(() -> new RuntimeException("Variant not found"));
+                    .orElseThrow(() -> new AppException(ErrorCode.VARIANT_NOT_FOUND));
             item.setVariant(newVariant);
         }
 
@@ -162,12 +164,12 @@ public class CartServiceImpl implements CartService {
         cartItemRepo.findById(itemId).ifPresentOrElse(
                 item -> {
                     if (!item.getCart().getId().equals(cart.getId())) {
-                        throw new RuntimeException("Item not found in user's cart (cart mismatch)");
+                        throw new AppException(ErrorCode.ITEM_NOT_IN_CART);
                     }
                     cartItemRepo.deleteById(itemId);
                 },
                 () -> {
-                    throw new RuntimeException("Item not found in user's cart");
+                    throw new AppException(ErrorCode.ITEM_NOT_IN_CART);
                 }
         );
     }

@@ -3,6 +3,8 @@ package com.manfashion.springboot_be.service.Coupon;
 import com.manfashion.springboot_be.DTO.Coupon.CouponRequest;
 import com.manfashion.springboot_be.DTO.Coupon.CouponResponse;
 import com.manfashion.springboot_be.entity.Coupon;
+import com.manfashion.springboot_be.exception.AppException;
+import com.manfashion.springboot_be.exception.ErrorCode;
 import com.manfashion.springboot_be.mapper.CouponMapper;
 import com.manfashion.springboot_be.repository.Coupon.CouponRepository;
 import lombok.RequiredArgsConstructor;
@@ -27,7 +29,7 @@ public class CouponServiceImpl implements CouponService {
     @Override
     public CouponResponse createCoupon(CouponRequest dto) {
         if (couponRepository.findByCode(dto.getCode()).isPresent()) {
-            throw new RuntimeException("Coupon code already exists");
+            throw new AppException(ErrorCode.COUPON_ALREADY_EXISTS);
         }
 
         Coupon c = Coupon.builder()
@@ -50,7 +52,7 @@ public class CouponServiceImpl implements CouponService {
     public CouponResponse updateCoupon(String idHex, CouponRequest dto) {
         Integer id = Integer.parseInt(idHex);
         Coupon c = couponRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Coupon not found"));
+                .orElseThrow(() -> new AppException(ErrorCode.COUPON_NOT_FOUND));
 
         c.setDiscountValue(dto.getDiscountValue());
         c.setStartDate(dto.getStartDate());
@@ -84,7 +86,7 @@ public class CouponServiceImpl implements CouponService {
     public void softDeleteCoupon(String idHex) {
         Integer id = Integer.parseInt(idHex);
         Coupon c = couponRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Coupon not found"));
+                .orElseThrow(() -> new AppException(ErrorCode.COUPON_NOT_FOUND));
         c.setDeletedAt(LocalDateTime.now());
         couponRepository.save(c);
     }

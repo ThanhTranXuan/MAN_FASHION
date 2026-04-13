@@ -226,7 +226,12 @@ public enum ErrorCode {
     NEW_PASSWORD_REQUIRED(9842, "error.field.new.password.required", HttpStatus.BAD_REQUEST),
     OLD_PASSWORD_IS_INCORECT(9843, "error.field.old.password.is.incorect", HttpStatus.BAD_REQUEST),
     INVALID_REFRESH_TOKEN(9844, "error.invalid.refresh.token", HttpStatus.BAD_REQUEST),
-    INVALID_TOKEN(9845, "error.invalid.token", HttpStatus.BAD_REQUEST);
+    INVALID_TOKEN(9845, "error.invalid.token", HttpStatus.BAD_REQUEST),
+    NO_CHECKIN_FOUND(9846,"No check-in found",HttpStatus.BAD_REQUEST),
+    CART_ITEM_NOT_FOUND(4042, "Cart item not found", HttpStatus.NOT_FOUND),
+    ITEM_NOT_IN_CART(4003, "Item does not belong to the user's cart", HttpStatus.BAD_REQUEST),
+    COUPON_ALREADY_EXISTS(4091, "Coupon code already exists", HttpStatus.CONFLICT),
+    COUPON_NOT_FOUND(4043, "Coupon not found", HttpStatus.NOT_FOUND);
     private final int code; // Changed from int to String for better readability
     private final String messageKey; // Renamed from message to messageKey for i18n
     private final HttpStatusCode httpStatusCode;

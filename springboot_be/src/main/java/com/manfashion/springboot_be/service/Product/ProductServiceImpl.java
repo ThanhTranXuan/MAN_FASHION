@@ -148,7 +148,7 @@ public class ProductServiceImpl implements ProductService{
     @Override
     public void softDelete(String id) {
         Integer idStr = Integer.parseInt(id);
-        Product p = productRepository.findById(idStr).orElseThrow(() -> new RuntimeException("Product not found"));
+        Product p = productRepository.findById(idStr).orElseThrow(() -> new AppException(ErrorCode.PRODUCT_NOT_FOUND));
         p.setIsActive(false);
         p.setDeletedAt(LocalDateTime.now());
         productRepository.save(p);

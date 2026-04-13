@@ -3,6 +3,8 @@ package com.manfashion.springboot_be.service.Category;
 import com.manfashion.springboot_be.DTO.Category.CategoryRequest;
 import com.manfashion.springboot_be.DTO.Category.CategoryResponse;
 import com.manfashion.springboot_be.entity.Category;
+import com.manfashion.springboot_be.exception.AppException;
+import com.manfashion.springboot_be.exception.ErrorCode;
 import com.manfashion.springboot_be.mapper.CategoryMapper;
 import com.manfashion.springboot_be.repository.Category.CategoryRepository;
 import com.manfashion.springboot_be.util.SlugGenerator;
@@ -127,7 +129,7 @@ public class CategoryServiceImpl implements CategoryService{
     // =====================================================
     public CategoryResponse getBySlug(String slug) {
         Category category = categoryRepo.findBySlugAndDeletedAtIsNull(slug)
-                .orElseThrow(() -> new RuntimeException("Category not found"));
+                .orElseThrow(() -> new AppException(ErrorCode.CATEGORY_NOT_FOUND));
         return categoryMapper.toResponseDTO(category);
     }
 }

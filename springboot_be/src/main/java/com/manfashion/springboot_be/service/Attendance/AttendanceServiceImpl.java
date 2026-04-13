@@ -46,7 +46,7 @@ public class AttendanceServiceImpl implements AttendanceService {
 
         Attendance att = attendanceRepo
                 .findFirstByUserIdAndCheckOutTimeIsNullOrderByCheckInTimeDesc(user.getId())
-                .orElseThrow(() -> new RuntimeException("No check-in found"));
+                .orElseThrow(() -> new AppException(ErrorCode.NO_CHECKIN_FOUND));
 
         att.setCheckOutTime(LocalDateTime.now());
 
@@ -76,6 +76,6 @@ public class AttendanceServiceImpl implements AttendanceService {
     private User findUserById(String userIdHex) {
         Integer userId = Integer.parseInt(userIdHex);
         return userRepo.findById(userId)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
     }
 }

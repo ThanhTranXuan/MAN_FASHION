@@ -3,6 +3,8 @@ package com.manfashion.springboot_be.service.Blog;
 import com.manfashion.springboot_be.DTO.Blog.BlogRequest;
 import com.manfashion.springboot_be.DTO.Blog.BlogResponse;
 import com.manfashion.springboot_be.entity.Blog;
+import com.manfashion.springboot_be.exception.AppException;
+import com.manfashion.springboot_be.exception.ErrorCode;
 import com.manfashion.springboot_be.mapper.BlogMapper;
 import com.manfashion.springboot_be.repository.Blog.BlogRepository;
 import com.manfashion.springboot_be.util.SlugGenerator;
@@ -69,7 +71,7 @@ public class BlogServiceImpl implements BlogService {
         Integer id = Integer.valueOf(idStr); // Ép kiểu cho MySQL
 
         Blog blog = blogRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Blog not found"));
+                .orElseThrow(() -> new AppException(ErrorCode.BLOG_NOT_FOUND));
 
         String oldTitle = blog.getTitle();
         blog.setTitle(req.getTitle());
@@ -99,7 +101,7 @@ public class BlogServiceImpl implements BlogService {
     public void deleteBlog(String idStr) {
         Integer id = Integer.valueOf(idStr);
         if (!blogRepository.existsById(id)) {
-            throw new RuntimeException("Blog not found");
+            throw new RuntimeException("");
         }
         blogRepository.deleteById(id);
     }
@@ -124,7 +126,7 @@ public class BlogServiceImpl implements BlogService {
     public BlogResponse getBlogById(String idStr) {
         Integer id = Integer.valueOf(idStr);
         Blog blog = blogRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Blog not found"));
+                .orElseThrow(() -> new AppException(ErrorCode.BLOG_NOT_FOUND));
         return blogMapper.toResponseDTO(blog);
     }
 
@@ -134,7 +136,7 @@ public class BlogServiceImpl implements BlogService {
     @Override
     public BlogResponse getBySlug(String slug) {
         Blog blog = blogRepository.findBySlug(slug)
-                .orElseThrow(() -> new RuntimeException("Blog not found"));
+                .orElseThrow(() -> new AppException(ErrorCode.BLOG_NOT_FOUND));
         return blogMapper.toResponseDTO(blog);
     }
 }
