@@ -9,7 +9,7 @@ const EmployeeService = {
   // admin actions
   getAll: (params) => ApiClient.get(ApiUrl.EMPLOYEES, { params }).then(res=>{ return { data: res.data.data };}),
   getById: (id, { month, year } = {}) =>
-    ApiClient.get(ApiUrl.EMPLOYEE_DETAIL(id, month, year)),
+    ApiClient.get(ApiUrl.EMPLOYEE_DETAIL(id, month, year)).then(res=>{ return { data: res.data.data };}),
   create: (data) => ApiClient.post(ApiUrl.EMPLOYEES, data),
   update: (id, data) => ApiClient.put(ApiUrl.UPDATE_EMPLOYEE(id), data),
   delete: (id) => ApiClient.delete(ApiUrl.DELETE_EMPLOYEE(id)),
