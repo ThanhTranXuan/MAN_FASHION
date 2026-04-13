@@ -64,6 +64,7 @@ public class EmployeeServiceImpl implements EmployeeService{
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
 
         user.setHourlyRate(req.getHourlyRate());
+        user.setFullName(req.getFullName());
         // Có thể cập nhật thêm fullName, phone tùy nghiệp vụ
         return employeeMapper.toResponse(userRepo.save(user));
     }
