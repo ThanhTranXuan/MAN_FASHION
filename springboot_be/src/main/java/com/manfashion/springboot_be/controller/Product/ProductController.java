@@ -67,7 +67,7 @@ public class ProductController {
 
     // 🔎 GET product by internal ID (ADMIN/EMPLOYEE only)
     @GetMapping("/{id}")
-    @PreAuthorize("hasAnyAuthority('ADMIN','EMPLOYEE')")
+    @PreAuthorize("hasAnyAuthority('ADMIN','EMPLOYEE','USER')")
     public ApiResponse<ProductResponse> getProductById(@PathVariable String id) {
         return ApiResponse.<ProductResponse>builder()
                 .message("product.get_by_id.success")
