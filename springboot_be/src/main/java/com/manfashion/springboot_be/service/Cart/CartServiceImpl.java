@@ -12,6 +12,7 @@ import com.manfashion.springboot_be.repository.Product.ProductImageRepository;
 import com.manfashion.springboot_be.repository.Product.ProductRepository;
 import com.manfashion.springboot_be.repository.Product.ProductVariantRepository;
 import com.manfashion.springboot_be.repository.User.UserRepository;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -175,6 +176,7 @@ public class CartServiceImpl implements CartService {
     }
 
     @Override
+    @Transactional
     public void clear(String userIdHex) {
         Cart cart = getOrCreateCart(userIdHex);
         cartItemRepo.deleteByCartId(cart.getId());
