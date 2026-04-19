@@ -5,7 +5,7 @@ import ApiUrl from 'constants/ApiUrl';
 const OrderService = {
   create: async (data) => {
     const response = await ApiClient.post(ApiUrl.CREATE_ORDER, data);
-    return response.data; 
+    return response.data.data; 
   },
 
   getMyOrders: (params) => ApiClient.get(ApiUrl.MY_ORDERS, { params }),
