@@ -4,6 +4,7 @@ import com.manfashion.springboot_be.DTO.ApiResponse.ApiResponse;
 import com.manfashion.springboot_be.DTO.Order.OrderRequest;
 import com.manfashion.springboot_be.DTO.Order.OrderResponse;
 import com.manfashion.springboot_be.service.Order.OrderService;
+import jakarta.persistence.criteria.CriteriaBuilder;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -60,7 +61,7 @@ public class OrderController {
     @PreAuthorize("hasAnyAuthority('GUEST','USER')")
     public ApiResponse<OrderResponse> createOrder(@RequestBody OrderRequest req) {
 
-        String userId = getCurrentUserId();
+        Integer userId = Integer.valueOf(getCurrentUserId());
         OrderResponse response = orderService.createFromCart(userId, req);
 
         return ApiResponse.<OrderResponse>builder()
@@ -74,7 +75,7 @@ public class OrderController {
     @PreAuthorize("hasAuthority('USER')")
     public ApiResponse<Page<OrderResponse>> getMyOrders(Pageable pageable) {
 
-        String userId = getCurrentUserId();
+        Integer userId = Integer.valueOf(getCurrentUserId());
         Page<OrderResponse> orders = orderService.getOrdersByUserId(userId, pageable);
 
         return ApiResponse.<Page<OrderResponse>>builder()
@@ -99,7 +100,7 @@ public class OrderController {
         OrderResponse updated;
 
         if (isUser) {
-            updated = orderService.updateStatusByUser(userId, orderCode, status);
+            updated = orderService.updateStatusByUser(Integer.valueOf(userId), orderCode, status);
         } else {
             updated = orderService.updateStatus(orderCode, status);
         }

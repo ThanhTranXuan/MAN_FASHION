@@ -4,12 +4,13 @@ import com.manfashion.springboot_be.entity.Order;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
-public interface OrderRepository extends JpaRepository<Order,Integer>, OrderRepositoryCustom {
+public interface OrderRepository extends JpaRepository<Order,Integer>, OrderRepositoryCustom ,JpaSpecificationExecutor<Order> {
     // =========================================================================
     // NHÓM 1: TRUY VẤN TĨNH (Sử dụng Spring Data JPA mặc định)
     // Nghiệp vụ yêu cầu tham số phải đầy đủ, không được null.
@@ -41,4 +42,5 @@ public interface OrderRepository extends JpaRepository<Order,Integer>, OrderRepo
             LocalDateTime createdAt
     );
     boolean existsByCreatedAtAfter(LocalDateTime createdAt);
+
 }
