@@ -2,7 +2,8 @@ import './assets/css/App.css';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import { ChakraProvider } from '@chakra-ui/react';
 import { useState } from 'react';
-
+// Thêm dòng này vào đầu file src/App.js
+import ResultPage from 'views/user/order/ResultPage';
 import initialTheme from './theme/theme';
 
 // 🧩 Layouts
@@ -28,6 +29,11 @@ export default function Main() {
             <NotificationProvider>
               <ChatProvider>
                 <Routes>
+                  {/* Đón khách khi thanh toán thành công */}
+                  <Route path="/payment/success" element={<ResultPage />} />
+                  
+                  {/* Đón khách khi họ nhấn Huỷ thanh toán */}
+                  <Route path="/payment/cancel" element={<ResultPage />} />
                   <Route path="auth/*" element={<AuthLayout />} />
                   <Route path="user/*" element={<UserLayout />} />
                   <Route

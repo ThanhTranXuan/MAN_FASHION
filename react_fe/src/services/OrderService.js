@@ -8,14 +8,14 @@ const OrderService = {
     return response.data.data; 
   },
 
-  getMyOrders: (params) => ApiClient.get(ApiUrl.MY_ORDERS, { params }),
+  getMyOrders: (params) => ApiClient.get(ApiUrl.MY_ORDERS, { params }).then(res=>{ return { data: res.data.data };}),
   updateUserStatus: (orderCode, status) =>
     ApiClient.patch(ApiUrl.UPDATE_ORDER_STATUS(orderCode), null, {
       params: { status },
     }),
 
   // ADMIN
-  getAllAdmin: (params) => ApiClient.get(ApiUrl.ORDERS, { params }),
+  getAllAdmin: (params) => ApiClient.get(ApiUrl.ORDERS, { params }).then(res=>{ return { data: res.data.data };}),
   updateAdminStatus: (orderCode, status) =>
     ApiClient.patch(ApiUrl.UPDATE_ORDER_STATUS(orderCode), null, {
       params: { status },
