@@ -3,11 +3,11 @@ import ApiUrl from 'constants/ApiUrl';
 
 const ReturnOrderService = {
   // USER
-  requestReturn: (data) => ApiClient.post(ApiUrl.RETURNS, data),
-  getMyReturns: (params) => ApiClient.get(ApiUrl.MY_RETURNS, { params }),
+  requestReturn: (data) => ApiClient.post(ApiUrl.RETURNS, data).then(res=>{ return { data: res.data.data };}),
+  getMyReturns: (params) => ApiClient.get(ApiUrl.MY_RETURNS, { params }).then(res=>{ return { data: res.data.data };}),
 
   // ADMIN/EMPLOYEE
-  getAllAdmin: (params) => ApiClient.get(ApiUrl.RETURNS, { params }),
+  getAllAdmin: (params) => ApiClient.get(ApiUrl.RETURNS, { params }).then(res=>{ return { data: res.data.data };}),
   updateStatusAdmin: (orderCode, status) =>
     ApiClient.patch(ApiUrl.UPDATE_RETURN_STATUS(orderCode), null, {
       params: { status },
