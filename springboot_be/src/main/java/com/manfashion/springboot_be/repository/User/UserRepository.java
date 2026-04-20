@@ -13,4 +13,8 @@ public interface UserRepository extends JpaRepository<User, Integer> , UserRepos
 
     boolean existsByEmail(String email);
     Page<User> findByRoleId(Integer roleId, Pageable pageable);
+
+
+    long countByRole_Id(Integer roleId);
+    Page<User> findByRole_IdOrderByCreatedAtDesc(Integer roleId, Pageable pageable);
 }

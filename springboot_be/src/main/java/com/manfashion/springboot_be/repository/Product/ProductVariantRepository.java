@@ -9,4 +9,6 @@ import java.util.List;
 
 public interface ProductVariantRepository extends JpaRepository<ProductVariant, Integer> {
     List<ProductVariant> findByProductIdAndDeletedAtIsNull(Integer productId);
+    List<ProductVariant> findByStockLessThanAndDeletedAtIsNull(Integer stockThreshold);
+
 }
