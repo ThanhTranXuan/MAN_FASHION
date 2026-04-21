@@ -5,6 +5,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.Instant;
+import java.time.LocalDateTime;
 
 @Data
 @NoArgsConstructor
@@ -14,5 +15,5 @@ public class ChatMessageResponse {
     private String senderType; // USER | EMPLOYEE
     private String senderName;
     private String content;
-    private Instant createdAt;
+    private LocalDateTime createdAt;
 }
