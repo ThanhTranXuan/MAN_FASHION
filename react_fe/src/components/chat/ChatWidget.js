@@ -127,7 +127,8 @@ export default function ChatWidget() {
 
   // MARKDOWN MESSAGE RENDERER
   const MessageContent = ({ content }) => {
-    const processedContent = content
+    const safeContent = content || "";
+    const processedContent = safeContent
       .replace(
         /https?:\/\/res\.cloudinary\.com\/[^\s]+/g,
         (url) => `![](${url})`,

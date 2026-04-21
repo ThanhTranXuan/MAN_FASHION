@@ -21,7 +21,8 @@ const ADMIN_LAST_VISIT_KEY = 'chat:adminLastVisit';
 const MESSAGES_PAGE_SIZE = 30;
 const AdminMessageContent = ({ content }) => {
   // Tự động chuyển các URL cloudinary thành markdown image
-  const processedContent = content
+  const safeContent = content || "";
+  const processedContent = safeContent
     .replace(
       /(https?:\/\/res\.cloudinary\.com\/[^\s]+)/g,
       (url) => `![](${url})`
