@@ -73,12 +73,27 @@ function subscribe(topic, callback) {
   }
 }
 
-function sendMessage(conversationId, content) {
-  if (!stompClient || !stompClient.connected || !content.trim()) return;
-  stompClient.publish({
-    destination: ApiUrl.CHAT_SEND_WS,
-    body: JSON.stringify({ conversationId, content }),
-  });
+function sendMessage(conversationId, content, chatMode = 'BOT') {
+  console.log('📤 sendMessage:', { conversationId, content, chatMode });
+  
+  if (!stompClient || !stompClient.connected || !content.trim()) {
+    console.warn('❌ Cannot send - check connection:', {
+      hasClient: !!stompClient,
+      isConnected: stompClient?.connected,
+      hasContent: !!content?.trim(),
+    });
+    return;
+  }
+  
+  try {
+    stompClient.publish({
+      destination: ApiUrl.CHAT_SEND_WS,
+      body: JSON.stringify({ conversationId, content, chatMode }),
+    });
+    console.log('✅ Message published via STOMP');
+  } catch (err) {
+    console.error('❌ STOMP publish failed:', err);
+  }
 }
 
 // 👉 Gán object vào biến trước rồi mới export default để hết warning ESLint

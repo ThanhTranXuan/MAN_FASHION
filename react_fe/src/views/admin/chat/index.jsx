@@ -141,7 +141,11 @@ export default function ChatPage() {
           MESSAGES_PAGE_SIZE,
         );
         const page = res.data;
-        setMessages(page.content || []);
+        // ĐẢO NGƯỢC mảng API trước khi đưa vào State
+    const reversedMessages = page.content ? [...page.content].reverse() : [];
+    
+    setMessages(reversedMessages); // Thay vì setMessages(page.content || [])
+        // setMessages(page.content || []);
         setMsgPage(0);
         setHasMoreMessages(!page.last);
         localStorage.setItem(

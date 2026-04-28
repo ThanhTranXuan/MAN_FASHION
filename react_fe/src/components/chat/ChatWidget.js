@@ -57,12 +57,23 @@ export default function ChatWidget() {
 
   const messagesContainerRef = useRef(null);
 
+  // ✅ Auto-scroll to bottom when messages arrive (FIXED: Messages must show at bottom)
+  useEffect(() => {
+    if (messagesContainerRef.current) {
+      setTimeout(() => {
+        messagesContainerRef.current.scrollTop =
+          messagesContainerRef.current.scrollHeight;
+      }, 0);
+    }
+  }, [userMessages]);
+
+  // Original open popup scroll
   useEffect(() => {
     if (isOpen && messagesContainerRef.current) {
       messagesContainerRef.current.scrollTop =
         messagesContainerRef.current.scrollHeight;
     }
-  }, [userMessages, isOpen]);
+  }, [isOpen]);
 
   const handleOpenPopup = () => {
     if (!isAuthenticated) {
@@ -118,10 +129,9 @@ export default function ChatWidget() {
 
     const trimmed = input.trim();
 
-    // ⬇ Nếu đang chat trực tiếp với shop, gắn prefix [SHOP]
-    const content = chatMode === 'SHOP' ? `[SHOP] ${trimmed}` : trimmed;
-
-    sendMessage(userConversation.id, content);
+    // ✅ Send message WITHOUT gắn [SHOP] vào content
+    // Backend sẽ handle chatChannel/chatMode logic
+    sendMessage(userConversation.id, trimmed, chatMode);
     setInput('');
   };
 
@@ -320,9 +330,27 @@ export default function ChatWidget() {
             gap={4}
           >
             <VStack spacing={4} align="stretch">
-              {userMessages.map((m) => {
+              {[...userMessages].reverse().map((m) => {
+                // ✅ FIXED: Properly distinguish message types
                 const isMine = m.senderType === 'USER';
                 const isBot = m.senderType === 'BOT';
+                const isAdmin = m.senderType === 'ADMIN';
+                const isEmployee = m.senderType === 'EMPLOYEE';
+
+                // Determine colors based on sender type
+                let bgColor = 'gray.200';
+                let textColor = 'gray.900';
+
+                if (isMine) {
+                  bgColor = 'blue.500';
+                  textColor = 'white';
+                } else if (isBot) {
+                  bgColor = 'green.500';
+                  textColor = 'white';
+                } else if (isAdmin || isEmployee) {
+                  bgColor = 'orange.400';
+                  textColor = 'white';
+                }
 
                 return (
                   <Flex key={m.id} justify={isMine ? 'flex-end' : 'flex-start'}>
@@ -331,10 +359,8 @@ export default function ChatWidget() {
                       px={4}
                       py={3}
                       borderRadius="xl"
-                      bg={
-                        isMine ? 'blue.500' : isBot ? 'green.500' : 'gray.200'
-                      }
-                      color={isMine || isBot ? 'white' : 'gray.900'}
+                      bg={bgColor}
+                      color={textColor}
                       boxShadow="lg"
                     >
                       {!isMine && (
@@ -345,6 +371,8 @@ export default function ChatWidget() {
                           fontWeight="bold"
                         >
                           {m.senderName}
+                          {m.chatChannel === 'SHOP' && ' (Shop)'}
+                          {isBot && ' (Bot)'}
                         </Text>
                       )}
                       <MessageContent content={m.content} />

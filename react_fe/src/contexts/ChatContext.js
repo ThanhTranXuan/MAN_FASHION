@@ -13,7 +13,7 @@ import { useUser } from './UserContext';
 
 const ChatContext = createContext();
 
-const ADMIN_LAST_VISIT_KEY = 'chat:adminLastVisit';
+// const ADMIN_LAST_VISIT_KEY = 'chat:adminLastVisit';
 
 export function ChatProvider({ children }) {
   const { isAuthenticated, user } = useUser();
@@ -58,98 +58,64 @@ export function ChatProvider({ children }) {
     };
   }, [isAuthenticated]);
 
-  // ====== ADMIN: LOAD CONVERSATIONS + OFFLINE BADGE ======
-  useEffect(() => {
-    if (!isStaff) return;
+    // File: ChatContext.js
 
-    const lastVisit = Number(localStorage.getItem(ADMIN_LAST_VISIT_KEY) || 0);
+// ====== ADMIN: SUBSCRIBE MỖI CONVERSATION ======
+useEffect(() => {
+  if (!isStaff || conversations.length === 0) return;
 
-    const fetchConversations = async () => {
-      try {
-        const res = await ChatService.allAdmin(0, 50);
-        const page = res.data;
-        const list = (page.content || []).map((c) => ({
-          ...c,
-          unread: 0,
-        }));
-        setConversations(list);
+  conversations.forEach((conv) => {
+    if (subscribedConvIdsRef.current.has(conv.id)) return;
 
-        const anyNew = list.some(
-          (c) =>
-            c.lastMessageAt &&
-            new Date(c.lastMessageAt).getTime() > lastVisit,
-        );
-        if (anyNew) setHasNewChat(true);
-      } catch (e) {
-        console.error('❌ Failed to load admin conversations:', e);
-      }
-    };
-
-    fetchConversations();
-  }, [isStaff]);
-
-  // ====== ADMIN: SUBSCRIBE MỖI CONVERSATION ======
-  useEffect(() => {
-    if (!isStaff) return;
-
-    conversations.forEach((conv) => {
-      if (subscribedConvIdsRef.current.has(conv.id)) return;
-
-      ChatSocketHelper.subscribe(ApiUrl.CHAT_TOPIC(conv.id), async (msg) => {
-        const data = JSON.parse(msg.body);
+    ChatSocketHelper.subscribe(ApiUrl.CHAT_TOPIC(conv.id), (msg) => {
+      // 1. Nhận gói tin từ Backend
+      const eventData = JSON.parse(msg.body);
+      
+      // 2. Kiểm tra đúng loại sự kiện và BÓC PAYLOAD (Bức thư nằm trong phong bì)
+      if (eventData.type === 'NEW_MESSAGE') {
+        const newMessage = eventData.payload; // Đây mới là dữ liệu ChatMessageResponse thực sự
         const convId = conv.id;
         const isActive = activeConvIdRef.current === convId;
         const isOnChatPage = window.location.pathname.includes('/admin/chat-support');
 
-        // Nếu đang đứng trong phòng đó + ở trang chat → update messages ngay
+        // ✅ Cập nhật KHUNG CHAT đang mở
         if (isActive && isOnChatPage) {
-          setMessages((prev) => [...prev, data]);
-        }
-
-        // Refresh danh sách phòng từ API (silent, page 0)
-        try {
-          const res = await ChatService.allAdmin(0, 50);
-          const page = res.data;
-          const freshListRaw = page.content || [];
-
-          setConversations((prevOld) => {
-            const unreadById = new Map(
-              prevOld.map((c) => [c.id, c.unread || 0]),
-            );
-
-            const fresh = freshListRaw.map((c) => ({
-              ...c,
-              unread: unreadById.get(c.id) || 0,
-            }));
-
-            const idx = fresh.findIndex((c) => c.id === convId);
-            if (idx !== -1) {
-              if (!isActive || !isOnChatPage) {
-                fresh[idx].unread = (fresh[idx].unread || 0) + 1;
-              } else {
-                fresh[idx].unread = 0;
-              }
-            }
-
-            return fresh.sort(
-              (a, b) =>
-                new Date(b.lastMessageAt || 0) -
-                new Date(a.lastMessageAt || 0),
-            );
+          setMessages((prev) => {
+            // Chống trùng (đề phòng Admin nhắn tin, API và WS cùng về)
+            if (prev.some(m => m.id === newMessage.id)) return prev;
+            // Admin dùng mảng ASC (cũ trên, mới dưới) -> Append vào cuối
+            return [...prev, newMessage];
           });
-        } catch (err) {
-          console.error('❌ Failed to refresh conversations:', err);
         }
 
-        // Nếu không đứng trong phòng hoặc không ở trang chat → bật badge sidebar
+        // ✅ Cập nhật SIDEBAR (Tin nhắn cuối) - KHÔNG GỌI API REFRESH
+        setConversations((prevOld) => {
+          let newList = [...prevOld];
+          const idx = newList.findIndex((c) => c.id === convId);
+          if (idx !== -1) {
+            newList[idx] = {
+              ...newList[idx],
+              lastMessageText: newMessage.content,
+              lastMessageAt: newMessage.createdAt,
+              // Tăng số chưa đọc nếu Admin đang ở phòng khác
+              unread: (!isActive || !isOnChatPage) ? (newList[idx].unread || 0) + 1 : 0
+            };
+            // Sắp xếp lại danh sách phòng: Mới nhất lên đầu
+            return newList.sort((a, b) => new Date(b.lastMessageAt) - new Date(a.lastMessageAt));
+          }
+          return newList;
+        });
+
+        // 3. Thông báo chung cho Admin
         if (!isOnChatPage || !isActive) {
           setHasNewChat(true);
         }
-      });
-
-      subscribedConvIdsRef.current.add(conv.id);
+      }
     });
-  }, [isStaff, conversations]);
+
+    subscribedConvIdsRef.current.add(conv.id);
+  });
+}, [isStaff, conversations]);
 
   // ====== USER: SUBSCRIBE CONVERSATION CỦA USER ======
   useEffect(() => {
@@ -160,6 +126,16 @@ export function ChatProvider({ children }) {
 
     ChatSocketHelper.subscribe(ApiUrl.CHAT_TOPIC(convId), async (msg) => {
       const data = JSON.parse(msg.body);
+      
+      // ✅ DEBUG: Log incoming message structure
+      console.log('📨 Received message from WebSocket:', {
+        senderType: data.senderType,
+        senderName: data.senderName,
+        senderId: data.senderId,
+        content: data.content,
+        createdAt: data.createdAt,
+        chatChannel: data.chatChannel,
+      });
 
       // 1. Optimistic update → tin mới hiện ngay ở dưới cùng
       setUserMessages((prev) => [...prev, data]);
@@ -191,8 +167,8 @@ export function ChatProvider({ children }) {
   }, [isAuthenticated, userConversation]);
 
   // ====== SEND MESSAGE (COMMON) ======
-  const sendMessage = (conversationId, content) => {
-    ChatSocketHelper.sendMessage(conversationId, content);
+  const sendMessage = (conversationId, content, chatMode = 'BOT') => {
+    ChatSocketHelper.sendMessage(conversationId, content, chatMode);
   };
 
   return (
