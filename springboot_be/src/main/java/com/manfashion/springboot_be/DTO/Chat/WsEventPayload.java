@@ -11,5 +11,5 @@ public class WsEventPayload {
 
     private String type; // Ví dụ: "NEW_MESSAGE"
 
-    private MessageDetailResponse data; // Chứa nội dung chính của tin nhắn
+    private ChatMessageResponse payload; // Chứa nội dung chính của tin nhắn
 }

@@ -11,7 +11,7 @@ public interface ChatService {
     ChatConversation getOrCreateConversation(Integer userId);
 
     // Đã sửa lại kiểu trả về để phục vụ API POST /send
-    MessageDetailResponse processAndBroadcastMessage(Integer conversationId, Integer senderId, String senderType, String content);
+    ChatMessageResponse processAndBroadcastMessage(Integer conversationId, Integer senderId, String senderType, String content);
 
     // Các hàm phân trang mới
     Page<ChatMessageResponse> getMessagesPaged(Integer conversationId, int page, int size);

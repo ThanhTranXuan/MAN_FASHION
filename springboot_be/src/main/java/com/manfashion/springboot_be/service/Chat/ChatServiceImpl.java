@@ -47,7 +47,7 @@ public class ChatServiceImpl implements ChatService {
 
     @Override
     @Transactional
-    public MessageDetailResponse processAndBroadcastMessage(Integer conversationId, Integer senderId, String senderType, String content) {
+    public ChatMessageResponse processAndBroadcastMessage(Integer conversationId, Integer senderId, String senderType, String content) {
         ChatConversation conversation = conversationRepo.getReferenceById(conversationId);
         User sender = userRepository.findById(senderId)
                 .orElseThrow(() -> new RuntimeException("User không tồn tại"));
@@ -66,24 +66,17 @@ public class ChatServiceImpl implements ChatService {
         conversation.setLastMessageAt(savedMessage.getCreatedAt());
         conversationRepo.save(conversation);
 
-        // 3. Build cục DTO gửi đi (Có thể dùng Mapper, nhưng build tay ở đây dễ kiểm soát Payload hơn)
-        SenderInfo senderInfo = new SenderInfo(sender.getId(), sender.getFullName(), sender.getAvatarUrl());
+        // 3. Dùng chung Mapper để WebSocket trả về DTO y hệt như gọi API GET /messages
+        ChatMessageResponse responseDto = chatMapper.toMessageResponse(savedMessage);
 
-        MessageDetailResponse detailDto = new MessageDetailResponse();
-        detailDto.setMessageId(savedMessage.getId());
-        detailDto.setConversationId(conversationId);
-        detailDto.setSender(senderInfo);
-        detailDto.setContent(savedMessage.getContent());
-        detailDto.setTimestamp(savedMessage.getCreatedAt());
-
-        // 4. Bắn qua WebSocket (Trạng thái DELIVERED cho người nhận)
-        detailDto.setStatus("DELIVERED");
-        WsEventPayload wsPayload = new WsEventPayload("NEW_MESSAGE", detailDto);
+        // 4. Bắn qua WebSocket
+        WsEventPayload wsPayload = new WsEventPayload("NEW_MESSAGE", responseDto);
         messagingTemplate.convertAndSend("/topic/chat/" + conversationId, wsPayload);
 
-        // 5. Trả về cho API POST (Trạng thái SENT cho người gửi)
-        detailDto.setStatus("SENT");
-        return detailDto;
+        // 5. Trả về cho API POST
+        // (Lưu ý: API POST của bạn đang khai báo trả về MessageDetailResponse,
+        // bạn nên đổi return type của Controller/Service thành ChatMessageResponse luôn cho đồng nhất toàn hệ thống).
+        return responseDto;
     }
 
     @Override

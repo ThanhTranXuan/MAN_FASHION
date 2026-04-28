@@ -91,7 +91,7 @@ public class ChatController {
 
     // 5. Gửi tin nhắn qua REST API (Chuẩn thiết kế mới của FE)
     @PostMapping("/send")
-    public ApiResponse<MessageDetailResponse> sendMessageREST(
+    public ApiResponse<ChatMessageResponse> sendMessageREST(
             @RequestBody ChatMessageRequest req,
             Authentication auth
     ) {
@@ -102,14 +102,14 @@ public class ChatController {
                 .anyMatch(r -> r.getAuthority().equals("ADMIN") || r.getAuthority().equals("EMPLOYEE"));
         String senderType = isStaff ? "EMPLOYEE" : "USER";
 
-        MessageDetailResponse savedMessage = chatService.processAndBroadcastMessage(
+        ChatMessageResponse savedMessage = chatService.processAndBroadcastMessage(
                 Integer.valueOf(req.getConversationId()),
                 senderId,
                 senderType,
                 req.getContent()
         );
 
-        return ApiResponse.<MessageDetailResponse>builder()
+        return ApiResponse.<ChatMessageResponse>builder()
                 .message("Tin nhắn đã gửi")
                 .data(savedMessage)
                 .build();
