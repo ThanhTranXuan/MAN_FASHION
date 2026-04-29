@@ -3,6 +3,8 @@ package com.manfashion.springboot_be.controller.Category;
 import com.manfashion.springboot_be.DTO.ApiResponse.ApiResponse;
 import com.manfashion.springboot_be.DTO.Category.CategoryRequest;
 import com.manfashion.springboot_be.DTO.Category.CategoryResponse;
+import com.manfashion.springboot_be.exception.AppException;
+import com.manfashion.springboot_be.exception.ErrorCode;
 import com.manfashion.springboot_be.service.Category.CategoryService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -53,7 +55,7 @@ public class CategoryController {
     public ApiResponse<CategoryResponse> updateCategory(@PathVariable String id, @RequestBody CategoryRequest request) {
         CategoryResponse updatedCategory = categoryService.updateCategory(id, request)
                 // Nếu dự án có AppException thì dùng như UserController, nếu không bạn có thể đổi thành RuntimeException
-                .orElseThrow(() -> new RuntimeException("Category not found"));
+                .orElseThrow(() -> new AppException(ErrorCode.CATEGORY_NOT_FOUND));
 
         return ApiResponse.<CategoryResponse>builder()
                 .message("category.update.success")
