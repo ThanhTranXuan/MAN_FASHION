@@ -111,7 +111,7 @@ public class ReportServiceImpl implements ReportService {
         LocalDateTime start = LocalDate.now().withDayOfMonth(1).atStartOfDay();
         return orderItemRepo.findTopProducts("COMPLETED", start, start.plusMonths(1), PageRequest.of(0, 4)).stream()
                 .map(r -> TopProductResponse.builder()
-                        .productId(String.valueOf(r[0])).productName((String)r[1])
+                        .productId(Integer.valueOf(String.valueOf(r[0]))).productName((String)r[1])
                         .thumbnailUrl((String)r[2]).sold(((Number)r[3]).longValue())
                         .revenue(((Number)r[4]).doubleValue()).build())
                 .collect(Collectors.toList());
@@ -128,7 +128,7 @@ public class ReportServiceImpl implements ReportService {
                     var att = attendanceService.getAttendance(String.valueOf(u.getId()), m, y);
                     double hrs = att.stream().mapToDouble(a -> a.getWorkingHours() != null ? a.getWorkingHours() : 0.0).sum();
                     double sal = att.stream().mapToDouble(a -> a.getSalary() != null ? a.getSalary() : 0.0).sum();
-                    return new TopEmployeeResponse(String.valueOf(u.getId()), u.getFullName(), u.getEmail(), u.getHourlyRate(), hrs, sal, m, y);
+                    return new TopEmployeeResponse(Integer.valueOf(String.valueOf(u.getId())), u.getFullName(), u.getEmail(), u.getHourlyRate(), hrs, sal, m, y);
                 })
                 .sorted((a, b) -> Double.compare(b.getTotalHours(), a.getTotalHours()))
                 .collect(Collectors.toList());
@@ -146,7 +146,7 @@ public class ReportServiceImpl implements ReportService {
         Double refund = returnOrderRepo.sumRefundAmountInRange("COMPLETED", start, end);
 
         var products = orderItemRepo.getMonthlyProductSales("COMPLETED", start, end).stream()
-                .map(r -> new MonthlyProductSalesRow(String.valueOf(r[0]), (String)r[1], (String)r[2], ((Number)r[3]).longValue(), ((Number)r[4]).doubleValue()))
+                .map(r -> new MonthlyProductSalesRow(Integer.valueOf(String.valueOf(r[0])), (String)r[1], (String)r[2], ((Number)r[3]).longValue(), ((Number)r[4]).doubleValue()))
                 .collect(Collectors.toList());
 
         return MonthlyRevenueReportResponse.builder()

@@ -10,7 +10,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class MonthlyProductSalesRow {
-    private String productId;
+    private Integer productId;
     private String productName;
     private String slug;
     private Long totalQuantity;
