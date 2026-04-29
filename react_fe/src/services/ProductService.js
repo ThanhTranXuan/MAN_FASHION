@@ -20,7 +20,7 @@ const ProductService = {
         return { data: res.data.data };
       }),
   // Admin/Employee
-  getDetailById: (id) => ApiClient.get(ApiUrl.PRODUCT_BY_ID(id)),
+  getDetailById: (id) => ApiClient.get(ApiUrl.PRODUCT_BY_ID(id)).then(res=>{ return { data: res.data.data };}),
   // getStatsByCategory: () => ApiClient.get(ApiUrl.PRODUCT_STATS),
   getStatsByCategory: () => ApiClient.get(ApiUrl.PRODUCT_STATS).then(response => {
       // Axios mặc định để dữ liệu trả về ở response.data
