@@ -37,7 +37,7 @@ export default function Detail({ isOpen, onClose, order }) {
           order.items.map(async (item) => {
             try {
               const res = await ProductService.getDetailById(item.productId);
-              const product = res.data;
+              const product = res.data.data;
               const variant = product.variants?.find(
                 (v) => v.id === item.variantId || v._id === item.variantId,
               );

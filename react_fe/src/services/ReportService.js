@@ -17,21 +17,21 @@ const ReportService = {
     ApiClient.get(ApiUrl.REPORT_MONTHLY_REVENUE_PDF, {
       params: { month, year },
       responseType: 'blob',
-    }).then(res=>{ return { data: res.data.data };}),
+    }).then(res=>{ return { data: res.data};}),
 
   // 🧾 Export báo cáo sản phẩm (inventory + low stock)
   exportProductMonthlyPdf: ({ month, year } = {}) =>
     ApiClient.get(ApiUrl.REPORT_PRODUCT_MONTHLY_PDF, {
       params: { month, year },
       responseType: 'blob',
-    }).then(res=>{ return { data: res.data.data };}),
+    }).then(res=>{ return { data: res.data};}),
 
   // 🧾 Export báo cáo chấm công & payroll nhân viên
   exportEmployeePayrollPdf: ({ month, year } = {}) =>
     ApiClient.get(ApiUrl.REPORT_EMPLOYEE_PAYROLL_MONTHLY_PDF, {
       params: { month, year },
       responseType: 'blob',
-    }).then(res=>{ return { data: res.data.data };}),
+    }).then(res=>{ return { data: res.data};}),
 };
 
 export default ReportService;
