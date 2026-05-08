@@ -28,7 +28,7 @@ export function ChatProvider({ children }) {
   const [userMessages, setUserMessages] = useState([]);
   const [userHasUnread, setUserHasUnread] = useState(false);
   const [isChatOpen, setIsChatOpen] = useState(false); // user popup open/close
-
+  const [botMessages, setBotMessages] = useState([]);
   // ====== ADMIN BADGE ======
   const [hasNewChat, setHasNewChat] = useState(false);
 
@@ -166,9 +166,52 @@ useEffect(() => {
     lastUserConvIdRef.current = convId;
   }, [isAuthenticated, userConversation]);
 
-  // ====== SEND MESSAGE (COMMON) ======
-  const sendMessage = (conversationId, content, chatMode = 'BOT') => {
-    ChatSocketHelper.sendMessage(conversationId, content, chatMode);
+ const sendMessage = async (conversationId, content, chatMode) => {
+    if (!content.trim()) return;
+
+    const finalMode = isStaff ? 'SHOP' : (chatMode || 'BOT');
+
+    const tempMsg = {
+      id: `temp-${Date.now()}`,
+      content: content,
+      senderType: isStaff ? (user?.roleName || 'EMPLOYEE') : 'USER',
+      senderName: user?.username || 'You',
+      createdAt: new Date().toISOString(),
+      chatChannel: finalMode,
+    };
+
+    if (finalMode === 'SHOP') {
+      ChatSocketHelper.sendMessage(conversationId, content, 'SHOP');
+      if (isStaff) {
+        setMessages((prev) => [...prev, tempMsg]);
+      } else {
+        // LUỒNG SHOP: Lưu vào ngăn kéo userMessages
+        setUserMessages((prev) => [...prev, tempMsg]); 
+      }
+    } else {
+      // LUỒNG BOT: Lưu vào ngăn kéo botMessages
+      setBotMessages((prev) => [tempMsg, ...prev]); 
+
+      try {
+        const currentUserIdHex = user?.id ? user.id.toString(16) : "UNKNOWN";
+        const res = await ChatService.botChat(conversationId, content, currentUserIdHex);
+        
+        const botReply = res.data?.data || res.data;
+        
+        // LUỒNG BOT: Trả lời cũng lưu vào ngăn kéo botMessages
+        setBotMessages((prev) => [botReply, ...prev]);
+      } catch (err) {
+        console.error('Bot API Error:', err);
+        setBotMessages((prev) => [...prev, { // Lỗi cũng hiển thị ở tab Bot
+          id: `err-${Date.now()}`,
+          content: 'Bot đang bận, bạn vui lòng thử lại sau nhé!',
+          senderType: 'BOT',
+          senderName: 'Trendify Bot',
+          createdAt: new Date().toISOString(),
+          chatChannel: 'BOT'
+        }]);
+      }
+    }
   };
 
   return (
@@ -194,6 +237,8 @@ useEffect(() => {
         setUserHasUnread,
         isChatOpen,
         setIsChatOpen,
+        botMessages,         // THÊM DÒNG NÀY
+        setBotMessages,
       }}
     >
       {children}

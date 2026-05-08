@@ -36,6 +36,7 @@ export default function ChatWidget() {
     setUserHasUnread,
     sendMessage,
     setIsChatOpen,
+    botMessages,
   } = useChat();
 
   const { isOpen, onOpen, onClose } = useDisclosure();
@@ -330,7 +331,7 @@ export default function ChatWidget() {
             gap={4}
           >
             <VStack spacing={4} align="stretch">
-              {[...userMessages].reverse().map((m) => {
+              {[...(chatMode === 'BOT' ? botMessages : userMessages)].reverse().map((m) => {
                 // ✅ FIXED: Properly distinguish message types
                 const isMine = m.senderType === 'USER';
                 const isBot = m.senderType === 'BOT';

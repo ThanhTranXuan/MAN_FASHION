@@ -222,7 +222,7 @@ export default function ChatPage() {
   // Send message
   const handleSend = () => {
     if (!input.trim() || !activeConversation) return;
-    sendMessage(activeConversation.id, input.trim());
+    sendMessage(activeConversation.id, input.trim(), 'SHOP');
     setInput('');
   };
 

@@ -19,6 +19,12 @@ const ChatService = {
     ApiClient.get(ApiUrl.CHAT_ALL_ADMIN, {
       params: { page, size },
     }).then(res=>{ return { data: res.data.data };}),
+  
+    botChat: (conversationId, message, userIdHex = "UNKNOWN") =>
+    ApiClient.post(`/api/v1/bot/chat/${conversationId}`, 
+      { message },
+      { headers: { 'X-User-Id-Hex': userIdHex } }
+    ).then(res => { return { data: res.data }; }),
 };
 
 export default ChatService;
