@@ -26,7 +26,8 @@ public class SecurityConfig {
     private final String[] PUBLIC_ENDPOINTS = {
             "/api/auth/**",
             "/api/users/create",
-            "/ws/**"
+            "/ws/**",
+            "/api/v1/bot/**"
     };
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
