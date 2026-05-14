@@ -41,9 +41,9 @@ export default function Row({
     setActive(newStatus);
     try {
       await ProductService.updateActive(product.id, newStatus);
-      toast.success(`Product ${newStatus ? 'activated' : 'deactivated'}`);
-    } catch {
-      toast.error('Failed to update active status');
+      toast.success(`Sản phẩm đã được ${newStatus ? 'bật' : 'tắt'}`);
+    } catch (err) {
+      toast.error('Lỗi khi cập nhật trạng thái');
       setActive(product.isActive);
     }
   };
@@ -114,7 +114,7 @@ export default function Row({
         {/* ACTION BUTTONS */}
         <Td textAlign="right">
           <Flex justify="flex-end" gap={2}>
-            {/* Add Variant — EMPLOYEE + ADMIN */}
+            {/* Thêm Biến Thể — EMPLOYEE + ADMIN */}
             <IconButton
               borderRadius="xl"
               aria-label="Add Variant"
@@ -177,7 +177,7 @@ export default function Row({
                     />
                   ) : (
                     <Text fontSize="xs" color="gray.400">
-                      No image
+                      Không có ảnh
                     </Text>
                   );
                 })()}
@@ -186,13 +186,13 @@ export default function Row({
               {/* Color */}
               <Td>
                 <Text fontWeight="500" textTransform="capitalize">
-                  Color: {v.color}
+                  Màu: {v.color}
                 </Text>
               </Td>
 
               {/* Size */}
               <Td>
-                <Text fontSize="sm">Size: {v.size || '—'}</Text>
+                <Text fontSize="sm">Kích cỡ: {v.size || '—'}</Text>
               </Td>
 
               {/* Category empty column */}
@@ -201,7 +201,7 @@ export default function Row({
               {/* Stock */}
               <Td>
                 <Text fontSize="sm" color="gray.600">
-                  {v.stock ?? 0} in stock
+                  Tồn: {v.stock ?? 0} | Giá: {formatUSD(v.price)}
                 </Text>
               </Td>
 
@@ -235,7 +235,7 @@ export default function Row({
           <Tr>
             <Td pl={(depth + 1) * 6} colSpan={6}>
               <Text color="gray.500" fontSize="sm">
-                No variants
+                Không có biến thể.
               </Text>
             </Td>
           </Tr>

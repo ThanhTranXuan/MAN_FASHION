@@ -26,16 +26,16 @@ export default function DeleteAccountTab() {
 
   const handleDelete = async () => {
     if (input !== code) {
-      toast.error('Incorrect code');
+      toast.error('Mã xác nhận không đúng');
       return;
     }
     try {
       await ProfileService.deleteAccount();
-      toast.success('Account deleted');
+      toast.success('Đã xóa tài khoản');
       window.location.href = '/auth/sign-in';
     } catch (err) {
       console.error(err);
-      toast.error('Delete failed');
+      toast.error('Xóa tài khoản thất bại');
     }
   };
 
@@ -48,13 +48,13 @@ export default function DeleteAccountTab() {
       mx="auto"
     >
       <VStack spacing={4} align="stretch">
-        <Text>To delete your account, type the code below to confirm:</Text>
+        <Text>Để xóa tài khoản, hãy nhập mã bên dưới để xác nhận:</Text>
         <Text fontWeight="bold" fontSize="xl">
           {code}
         </Text>
 
         <FormControl>
-          <FormLabel>Enter Code</FormLabel>
+          <FormLabel>Nhập Mã</FormLabel>
           <Input
             color={textColor}
             value={input}
@@ -63,7 +63,7 @@ export default function DeleteAccountTab() {
         </FormControl>
       </VStack>
       <Button colorScheme="red" onClick={handleDelete} mt={5} w="full">
-        Delete Account
+        Xóa Tài Khoản
       </Button>
     </Box>
   );

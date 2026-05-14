@@ -83,7 +83,7 @@ export default function BlogDetailPage() {
             _hover={{ color: brandColor }}
             whiteSpace="normal"
           >
-            Home
+            Trang Chủ
           </BreadcrumbLink>
         </BreadcrumbItem>
 
@@ -94,7 +94,7 @@ export default function BlogDetailPage() {
             _hover={{ color: brandColor }}
             whiteSpace="normal"
           >
-            Trendify&apos;s Blogs
+            Blog của Trendify
           </BreadcrumbLink>
         </BreadcrumbItem>
 
@@ -113,7 +113,7 @@ export default function BlogDetailPage() {
 
       <Heading mb={4}>{blog.title}</Heading>
       <Text fontSize="sm" color="gray.400" mb={6}>
-        {new Date(blog.createdAt).toLocaleDateString('en-US')}
+        {new Date(blog.createdAt).toLocaleDateString('vi-VN')}
       </Text>
 
       <Image

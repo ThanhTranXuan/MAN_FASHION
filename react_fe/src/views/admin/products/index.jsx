@@ -91,7 +91,7 @@ export default function ProductPage() {
       const { data } = await ProductService.getStatsByCategory();
       setStats(data || []);
     } catch {
-      toast.error('Failed to load stats');
+      toast.error('Tải thống kê thất bại');
     } finally {
       setIsLoadingStats(false);
     }
@@ -115,7 +115,7 @@ export default function ProductPage() {
         setProducts(data.content || []);
         setTotalPages(data.totalPages || 1);
       } catch {
-        toast.error('Failed to load products');
+        toast.error('Tải danh sách sản phẩm thất bại');
       } finally {
         setIsLoadingProducts(false);
       }
@@ -147,11 +147,11 @@ export default function ProductPage() {
         await ProductService.delete(deleteItem.id);
       }
 
-      toast.success('Deleted successfully');
+      toast.success('Xóa thành công');
       setIsConfirmOpen(false);
       await Promise.all([loadData(page), loadStats(), refreshCategories()]);
     } catch {
-      toast.error('Delete failed');
+      toast.error('Xóa thất bại');
     }
   };
 
@@ -172,7 +172,7 @@ export default function ProductPage() {
           prev.map((p) => (p.id === productId ? { ...p, variants } : p)),
         );
       } catch {
-        toast.error('Failed to load variants');
+        toast.error('Tải biến thể thất bại');
       }
     }
   };
@@ -202,10 +202,10 @@ export default function ProductPage() {
       link.remove();
       window.URL.revokeObjectURL(url);
 
-      toast.success('Product inventory report has been downloaded.');
+      toast.success('Báo cáo tồn kho sản phẩm đã được tải xuống.');
     } catch (err) {
       console.error('❌ Failed to export product PDF:', err);
-      toast.error('Failed to export product report. Please try again.');
+      toast.error('Xuất báo cáo thất bại. Vui lòng thử lại.');
     } finally {
       setExportingProduct(false);
     }
@@ -253,10 +253,10 @@ export default function ProductPage() {
           size="sm"
           onClick={handleExportProductPdf}
           isLoading={exportingProduct}
-          loadingText="Exporting..."
+          loadingText="Đang xuất..."
           color="white"
         >
-          Export Product PDF
+          Xuất PDF Sản Phẩm
         </Button>
       </Flex>
 
@@ -326,8 +326,8 @@ export default function ProductPage() {
         isOpen={isConfirmOpen}
         onClose={() => setIsConfirmOpen(false)}
         onConfirm={handleDelete}
-        title="Delete Product"
-        message={`Are you sure you want to delete ${deleteItem?.name}?`}
+        title="Xóa Sản Phẩm"
+        message={`Bạn có chắc muốn xóa ${deleteItem?.name}?`}
       />
 
       {/* Table */}
@@ -377,7 +377,7 @@ export default function ProductPage() {
         {!isLoadingProducts && products.length === 0 && (
           <Flex justify="center" py={10}>
             <Text color="gray.500" fontSize="sm">
-              No products found.
+              Không tìm thấy sản phẩm.
             </Text>
           </Flex>
         )}

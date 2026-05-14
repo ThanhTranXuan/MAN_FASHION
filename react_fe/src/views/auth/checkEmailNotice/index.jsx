@@ -33,7 +33,7 @@ function CheckEmailNotice() {
       >
         <Box textAlign="center">
           <Heading color={textColor} fontSize="32px" mb="10px">
-            Check your email
+            Kiểm Tra Email Của Bạn
           </Heading>
           <Text
             color={textColorSecondary}
@@ -41,11 +41,10 @@ function CheckEmailNotice() {
             mb="24px"
             w={{ base: '100%', md: '400px' }}
           >
-            We have sent a password reset link to your email. Please check your
-            inbox and follow the instructions.
+            Chúng tôi đã gửi cho bạn liên kết đặt lại mật khẩu. Vui lòng kiểm tra hộp thư của bạn và làm theo hướng dẫn.
           </Text>
           <Button variant="brand" onClick={() => navigate('/auth/sign-in')}>
-            Back to Sign In
+            Quay lại Đăng Nhập
           </Button>
         </Box>
       </Flex>

@@ -18,10 +18,10 @@ export default function Home() {
   const bgColor = useColorModeValue('white', 'gray.900');
 
   const mainCategories = [
-    { title: 'New Arrivals', sort: 'newest', limit: 15 },
-    { title: 'Men', categorySlug: 'mens', limit: 12 },
-    { title: 'Women', categorySlug: 'womens', limit: 12 },
-    { title: 'Kids', categorySlug: 'kids', limit: 12 },
+    { title: 'Hàng Mới Về', sort: 'newest', limit: 15 },
+    { title: 'Nam', categorySlug: 'mens', limit: 12 },
+    { title: 'Nữ', categorySlug: 'womens', limit: 12 },
+    { title: 'Trẻ Em', categorySlug: 'kids', limit: 12 },
   ];
 
   const location = useLocation();
@@ -41,11 +41,11 @@ export default function Home() {
 
     if (status === 'PAID' && code === '00' && cancel === 'false') {
       clearCart(); // chỉ clear FE cart, BE đã clear cart DB ở webhook
-      toast.success('Payment successful! Your order has been placed.');
+      toast.success('Thanh toán thành công! Đơn hàng đã được đặt.');
     } else if (cancel === 'true') {
-      toast.info('Payment was cancelled. Your order has not been completed.');
+      toast.info('Thanh toán đã bị hủy. Đơn hàng chưa được hoàn tất.');
     } else {
-      toast.warning('Payment status could not be verified.');
+      toast.warning('Không thể xác nhận trạng thái thanh toán.');
     }
 
     // Dọn sạch query cho URL đẹp

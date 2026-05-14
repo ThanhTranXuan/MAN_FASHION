@@ -27,13 +27,13 @@ export default function Columns({
   setLoadingRow,
 }) {
   const STATUS_OPTIONS = [
-    { label: 'PENDING', color: 'yellow.500', emoji: '⏳' },
-    { label: 'PAID', color: 'teal.500', emoji: '💰' },
-    { label: 'SHIPPED', color: 'purple.500', emoji: '🚚' },
-    { label: 'DELIVERED', color: 'blue.500', emoji: '📦' },
-    { label: 'COMPLETED', color: 'green.500', emoji: '✅' },
-    { label: 'RETURN', color: 'orange.400', emoji: '↩️' },
-    { label: 'CANCELLED', color: 'red.500', emoji: '❌' },
+    { label: 'PENDING', text: 'Chờ Xử Lý', color: 'yellow.500', emoji: '⏳' },
+    { label: 'PAID', text: 'Đã Thanh Toán', color: 'teal.500', emoji: '💰' },
+    { label: 'SHIPPED', text: 'Đang Giao', color: 'purple.500', emoji: '🚚' },
+    { label: 'DELIVERED', text: 'Đã Giao', color: 'blue.500', emoji: '📦' },
+    { label: 'COMPLETED', text: 'Hoàn Thành', color: 'green.500', emoji: '✅' },
+    { label: 'RETURN', text: 'Hoàn Trả', color: 'orange.400', emoji: '↩️' },
+    { label: 'CANCELLED', text: 'Đã Hủy', color: 'red.500', emoji: '❌' },
   ];
 
   // Quy tắc chuyển trạng thái
@@ -54,17 +54,17 @@ export default function Columns({
 
   return [
     columnHelper.accessor('orderCode', {
-      header: 'ORDER CODE',
+      header: 'MÃ ĐƠN',
       cell: (info) => <Text fontWeight="600">{info.getValue()}</Text>,
     }),
 
     columnHelper.accessor('fullName', {
-      header: 'CUSTOMER',
+      header: 'KHÁCH HÀNG',
       cell: (info) => <Text>{info.getValue()}</Text>,
     }),
 
     columnHelper.accessor('finalTotal', {
-      header: 'TOTAL',
+      header: 'TỔNG TIỀN',
       cell: (info) => (
         <Text color="brand.500" fontWeight="bold">
           {formatUSD(info.getValue())}
@@ -73,7 +73,7 @@ export default function Columns({
     }),
 
     columnHelper.accessor('paymentMethod', {
-      header: 'Payment method',
+      header: 'PHƯƠNG THỨC TT',
       cell: (info) => {
         const method = info.getValue();
         if (method === 'VIETQR') {
@@ -167,7 +167,7 @@ export default function Columns({
             >
               <Flex align="center" gap={2}>
                 <Text fontSize="lg">{current?.emoji}</Text>
-                <Text>{current?.label || 'UNKNOWN'}</Text>
+                <Text>{current?.text || 'UNKNOWN'}</Text>
               </Flex>
             </MenuButton>
 
@@ -183,7 +183,7 @@ export default function Columns({
                       <Flex align="center" gap={2}>
                         <Text fontSize="lg">{st.emoji}</Text>
                         <Text fontWeight="600" color={st.color}>
-                          {st.label}
+                          {st.text}
                         </Text>
                       </Flex>
                     </MenuItem>
@@ -199,7 +199,7 @@ export default function Columns({
     // === CỘT CHI TIẾT ===
     columnHelper.display({
       id: 'detail',
-      header: <Text align="right">Actions</Text>,
+      header: <Text align="right">Hành Động</Text>,
       cell: (info) => {
         const order = info.row.original;
         return (

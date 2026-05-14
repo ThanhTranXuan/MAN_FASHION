@@ -62,11 +62,11 @@ export default function CouponPage() {
   const handleDelete = async () => {
     try {
       await CouponService.delete(couponToDelete.id);
-      toast.success('Coupon deleted');
+      toast.success('Xóa mã giảm giá thành công');
       setIsConfirmOpen(false);
       loadCoupons(page);
     } catch (err) {
-      toast.error('Failed to delete coupon');
+      toast.error('Xóa mã giảm giá thất bại');
     }
   };
 
@@ -101,8 +101,8 @@ export default function CouponPage() {
         isOpen={isConfirmOpen}
         onClose={() => setIsConfirmOpen(false)}
         onConfirm={handleDelete}
-        title="Delete Coupon"
-        message={`Are you sure you want to delete ${couponToDelete?.code}?`}
+        title="Xóa Mã Giảm Giá"
+        message={`Bạn có chắc muốn xóa mã "${couponToDelete?.code}"?`}
       />
 
       {/* 📋 Bảng chính */}

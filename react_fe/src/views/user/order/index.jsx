@@ -66,11 +66,11 @@ export default function OrderPage() {
               onClick={() => navigate('/')}
               _hover={{ color: brandColor }}
             >
-              Home
+              Trang Chủ
             </BreadcrumbLink>
           </BreadcrumbItem>
           <BreadcrumbItem isCurrentPage>
-            <BreadcrumbLink color={textColor}>Order</BreadcrumbLink>
+            <BreadcrumbLink color={textColor}>Thanh Toán</BreadcrumbLink>
           </BreadcrumbItem>
         </Breadcrumb>
 

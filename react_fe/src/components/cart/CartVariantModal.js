@@ -121,8 +121,8 @@ export default function CartVariantModal({
       (v) => v.color === selectedColor && v.size === selectedSize,
     );
 
-    if (!match) return alert('This variant does not exist.');
-    if (match.stock <= 0) return alert('This variant is out of stock.');
+    if (!match) return alert('Biến thể này không tồn tại.');
+    if (match.stock <= 0) return alert('Biến thể này đã hết hàng.');
 
     onSave({ ...item, color: selectedColor, size: selectedSize });
   };
@@ -132,7 +132,7 @@ export default function CartVariantModal({
       <ModalOverlay />
       <ModalContent borderRadius="2xl" overflow="hidden" bg={bgColor}>
         <ModalHeader borderBottomWidth="1px" fontWeight="bold">
-          Edit Variant
+          Chỉnh Sửa Biến Thể
         </ModalHeader>
 
         <ModalBody py={5}>
@@ -165,7 +165,7 @@ export default function CartVariantModal({
           {availableColors.length > 0 && (
             <Box mb={5}>
               <Text fontWeight="semibold" mb={2} color={textColor}>
-                Color:
+                Màu Sắc:
               </Text>
               <HStack spacing={3} wrap="wrap">
                 {availableColors.map((c) => {
@@ -179,7 +179,7 @@ export default function CartVariantModal({
                   return (
                     <Tooltip
                       key={c}
-                      label={!hasStock ? 'Out of stock' : undefined}
+                      label={!hasStock ? 'Hết hàng' : undefined}
                       hasArrow
                     >
                       <Box
@@ -215,7 +215,7 @@ export default function CartVariantModal({
           {availableSizes.length > 0 && (
             <Box>
               <Text fontWeight="semibold" mb={2} color={textColor}>
-                Size:
+                Kích Cỡ:
               </Text>
               <HStack spacing={2} wrap="wrap">
                 {availableSizes.map((s) => {
@@ -225,7 +225,7 @@ export default function CartVariantModal({
                     <Tooltip
                       key={s}
                       label={
-                        outOfStock ? 'Out of stock' : `${info?.stock} left`
+                        outOfStock ? 'Hết hàng' : `Còn ${info?.stock} sản phẩm`
                       }
                       hasArrow
                     >
@@ -260,14 +260,14 @@ export default function CartVariantModal({
 
         <ModalFooter borderTopWidth="1px">
           <Button variant="ghost" mr={3} onClick={onClose}>
-            Cancel
+            Hủy
           </Button>
           <Button
             colorScheme="brand"
             onClick={handleSave}
             isDisabled={!selectedColor || !selectedSize}
           >
-            Save
+            Lưu
           </Button>
         </ModalFooter>
       </ModalContent>

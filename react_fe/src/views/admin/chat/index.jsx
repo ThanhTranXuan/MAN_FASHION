@@ -274,7 +274,7 @@ export default function ChatPage() {
       <Flex flex="1" direction="column" bg={sidebarBg} borderRightRadius="2xl">
         {!activeConversation ? (
           <Flex flex="1" align="center" justify="center">
-            <Text color={emptyTextColor}>Select a conversation</Text>
+            <Text color={emptyTextColor}>Chọn một cuộc hội thoại</Text>
           </Flex>
         ) : (
           <>
@@ -360,7 +360,7 @@ export default function ChatPage() {
               {loadingOlder && (
                 <Flex justify="center">
                   <Text fontSize="sm" color={emptyTextColor}>
-                    Loading older messages...
+                    Đang tải tin nhắn cũ...
                   </Text>
                 </Flex>
               )}
@@ -375,7 +375,7 @@ export default function ChatPage() {
               borderColor={inputBorderColor}
             >
               <Input
-                placeholder="Type your message..."
+                placeholder="Nhập tin nhắn của bạn..."
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
                 onKeyDown={(e) => e.key === 'Enter' && handleSend()}

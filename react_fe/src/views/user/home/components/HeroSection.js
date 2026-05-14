@@ -26,7 +26,7 @@ export default function HeroSection({ textColor }) {
           bgGradient="linear(to-r, #4facfe, #7366ff, #d633ff, #ff6a00)"
           bgClip="text"
         >
-          Welcome to <span>Trendify</span>
+          Chào mừng đến với <span>Trendify</span>
         </MotionText>
 
         <MotionText
@@ -34,8 +34,7 @@ export default function HeroSection({ textColor }) {
           color={textColor}
           mb={6}
         >
-          Discover the latest fashion trends, exclusive deals, and unique
-          accessories that define your style.
+          Khám phá xu hướng thời trang mới nhất, những ưu đãi độc quyền và phụ kiện độc đáo định hình phong cách của bạn.
         </MotionText>
 
         {/* ✅ Nút điều hướng */}
@@ -46,7 +45,7 @@ export default function HeroSection({ textColor }) {
           rounded="full"
           onClick={() => navigate('/user/product')}
         >
-          Shop Now
+          Mua Sắm Ngay
         </Button>
       </Box>
 

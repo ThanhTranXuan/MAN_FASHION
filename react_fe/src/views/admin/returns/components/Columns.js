@@ -17,11 +17,11 @@ import { formatUSD } from 'utils/FormatHelper';
 const columnHelper = createColumnHelper();
 
 const STATUS_META = {
-  REQUESTED: { label: 'REQUESTED', color: 'yellow', emoji: '📨' },
-  APPROVED: { label: 'APPROVED', color: 'blue', emoji: '✅' },
-  REJECTED: { label: 'REJECTED', color: 'red', emoji: '❌' },
-  RECEIVED: { label: 'RECEIVED', color: 'purple', emoji: '📦' },
-  COMPLETED: { label: 'COMPLETED', color: 'green', emoji: '💰' },
+  REQUESTED: { label: 'REQUESTED', text: 'Đã Yêu Cầu', color: 'yellow', emoji: '📨' },
+  APPROVED: { label: 'APPROVED', text: 'Đã Duyệt', color: 'blue', emoji: '✅' },
+  REJECTED: { label: 'REJECTED', text: 'Đã Từ Chối', color: 'red', emoji: '❌' },
+  RECEIVED: { label: 'RECEIVED', text: 'Đã Nhận Hàng', color: 'purple', emoji: '📦' },
+  COMPLETED: { label: 'COMPLETED', text: 'Hoàn Thành', color: 'green', emoji: '💰' },
 };
 
 // ✅ flow hợp lệ
@@ -47,7 +47,7 @@ export default function Columns({
 }) {
   return [
     columnHelper.accessor('returnCode', {
-      header: 'RETURN CODE',
+      header: 'MÃ HOÀN TRẢ',
       cell: (info) => (
         <Text fontWeight="600" color="brand.500">
           {info.getValue()}
@@ -55,11 +55,11 @@ export default function Columns({
       ),
     }),
     columnHelper.accessor('orderCode', {
-      header: 'ORDER CODE',
+      header: 'MÃ ĐƠN',
       cell: (info) => <Text fontWeight="600">{info.getValue()}</Text>,
     }),
     columnHelper.accessor('refundAmount', {
-      header: 'REFUND AMOUNT',
+      header: 'SỐ TIỀN HOÀN',
       cell: (info) => (
         <Text color="green.500" fontWeight="bold">
           {formatUSD(info.getValue())}
@@ -67,11 +67,11 @@ export default function Columns({
       ),
     }),
     columnHelper.accessor('reason', {
-      header: 'REASON',
+      header: 'LÝ DO',
       cell: (info) => <Text noOfLines={2}>{info.getValue()}</Text>,
     }),
     columnHelper.accessor('note', {
-      header: 'NOTE',
+      header: 'GHI CHÚ',
       cell: (info) => (
         <Text noOfLines={2} color="gray.500">
           {info.getValue() || '-'}
@@ -94,6 +94,7 @@ export default function Columns({
         const currentStatus = (info.getValue() || '').toUpperCase();
         const meta = STATUS_META[currentStatus] || {
           label: currentStatus || 'UNKNOWN',
+          text: currentStatus || 'UNKNOWN',
           color: 'gray',
           emoji: '❔',
         };
@@ -139,7 +140,7 @@ export default function Columns({
                 >
                   <Flex align="center" gap={2}>
                     <Text fontSize="lg">{meta.emoji}</Text>
-                    <Text>{meta.label}</Text>
+                    <Text>{meta.text}</Text>
                   </Flex>
                 </MenuButton>
 
@@ -156,7 +157,7 @@ export default function Columns({
                           <Flex align="center" gap={2}>
                             <Text fontSize="lg">{m?.emoji}</Text>
                             <Text fontWeight="600" color={m?.color + '.500'}>
-                              {m?.label}
+                              {m?.text}
                             </Text>
                           </Flex>
                         </MenuItem>

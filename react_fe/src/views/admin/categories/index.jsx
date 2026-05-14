@@ -63,10 +63,10 @@ export default function CategoryPage() {
   const confirmDelete = async () => {
     try {
       await CategoryService.softDelete(selectedToDelete.id);
-      toast.success('Deleted successfully');
+      toast.success('Xóa danh mục thành công');
       await refreshCategories();
     } catch {
-      toast.error('Error deleting category');
+      toast.error('Lỗi khi xóa danh mục');
     } finally {
       setSelectedToDelete(null);
       onConfirmClose();
@@ -154,11 +154,11 @@ export default function CategoryPage() {
         isOpen={isConfirmOpen}
         onClose={onConfirmClose}
         onConfirm={confirmDelete}
-        title="Delete Category"
+        title="Xóa Danh Mục"
         message={
           selectedToDelete
-            ? `Are you sure you want to delete "${selectedToDelete.name}"?`
-            : 'Are you sure you want to delete this?'
+            ? `Bạn có chắc muốn xóa "${selectedToDelete.name}"?`
+            : 'Bạn có chắc muốn xóa không?'
         }
       />
     </Box>

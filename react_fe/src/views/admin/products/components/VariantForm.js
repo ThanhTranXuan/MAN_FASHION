@@ -150,12 +150,11 @@ export default function VariantForm({
       }
       // 👉 Nếu không đổi ảnh thì KHÔNG gọi uploadImages → giữ nguyên ảnh DB
 
-      toast.success(editingVariant ? 'Variant updated' : 'Variant created');
+      toast.success(editingVariant ? 'Cập nhật biến thể thành công!' : 'Thêm biến thể thành công!');
       reload();
       onClose();
     } catch (err) {
-      console.error(err);
-      toast.error('Failed to save variant');
+      toast.error(err.response?.data?.message || 'Lưu biến thể thất bại');
     } finally {
       setLoading(false);
     }
@@ -171,7 +170,7 @@ export default function VariantForm({
       <ModalOverlay />
       <ModalContent borderRadius="20px" bg={bgColor} color={textColor}>
         <ModalHeader bg={headerBg}>
-          {editingVariant ? 'Edit Variant' : 'Add Color & Sizes'}
+          {editingVariant ? 'Chỉnh Sửa Biến Thể' : 'Thêm Biến Thể'}
         </ModalHeader>
         <ModalCloseButton />
         <ModalBody
@@ -186,7 +185,7 @@ export default function VariantForm({
           }}
         >
           <FormControl mb={5}>
-            <FormLabel>Variant Image</FormLabel>
+            <FormLabel>Ảnh Biến Thể</FormLabel>
             <ImageUploader
               multiple={false}
               value={variantPreview ? [variantPreview] : []}
@@ -200,7 +199,7 @@ export default function VariantForm({
 
           {/* Color picker */}
           <FormControl mb={5} isRequired>
-            <FormLabel>Color</FormLabel>
+            <FormLabel>Màu Sắc</FormLabel>
             <Menu placement="bottom-end">
               <MenuButton
                 w="100%"
@@ -225,7 +224,7 @@ export default function VariantForm({
                     </Text>
                   </Flex>
                 ) : (
-                  'Select color'
+                  'Chọn màu'
                 )}
               </MenuButton>
 
@@ -283,7 +282,7 @@ export default function VariantForm({
                 p={3}
               >
                 <FormControl isRequired>
-                  <FormLabel>Size</FormLabel>
+                  <FormLabel>Kích Thước</FormLabel>
                   <Input
                     color={textColor}
                     value={r.size}
@@ -291,7 +290,7 @@ export default function VariantForm({
                   />
                 </FormControl>
                 <FormControl isRequired>
-                  <FormLabel>Stock</FormLabel>
+                  <FormLabel>Tồn Kho</FormLabel>
                   <Input
                     color={textColor}
                     type="number"
@@ -318,7 +317,7 @@ export default function VariantForm({
             variant="outline"
             onClick={addRow}
           >
-            Add Size
+            Thêm Kích Thước
           </Button>
         </ModalBody>
 
@@ -328,7 +327,7 @@ export default function VariantForm({
             isLoading={loading}
             onClick={handleSubmit}
           >
-            {editingVariant ? 'Update' : 'Create'}
+            {editingVariant ? 'Cập Nhật' : 'Thêm'}
           </Button>
         </ModalFooter>
       </ModalContent>

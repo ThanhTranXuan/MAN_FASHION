@@ -28,7 +28,7 @@ export default function Columns({
   const columns = [
     // === Thumbnail ===
     columnHelper.accessor('thumbnail', {
-      header: 'THUMBNAIL',
+      header: 'ẢNH',
       cell: (info) => (
         <Text fontWeight="600" fontSize="sm">
           {info.getValue()}
@@ -38,7 +38,7 @@ export default function Columns({
 
     // === Name ===
     columnHelper.accessor('name', {
-      header: 'NAME',
+      header: 'TÊN',
       cell: (info) => (
         <Text fontWeight="600" fontSize="sm">
           {info.getValue()}
@@ -48,9 +48,9 @@ export default function Columns({
 
     // === Price ===
     columnHelper.accessor('price', {
-      header: 'PRICE',
+      header: 'GIÁ',
       cell: (info) => (
-        <Text>${(formatUSD(info.getValue()) ?? 0).toFixed(2)}</Text>
+        <Text>{formatUSD(info.getValue())}</Text>
       ),
     }),
 
@@ -87,7 +87,7 @@ export default function Columns({
           <Text></Text> // cell trống
         ) : (
           <Text color={info.getValue() ? 'green.400' : 'red.400'}>
-            {info.getValue() ? 'Active' : 'Inactive'}
+            {info.getValue() ? 'Hoạt Động' : 'Ngưng Hoạt Động'}
           </Text>
         ),
     }),
@@ -95,7 +95,7 @@ export default function Columns({
     // === Actions ===
     columnHelper.display({
       id: 'actions',
-      header: <Text align="right">ACTIONS</Text>,
+      header: <Text align="right">THAO TÁC</Text>,
     }),
   ];
 

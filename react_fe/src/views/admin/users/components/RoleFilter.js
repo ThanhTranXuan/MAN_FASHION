@@ -28,7 +28,7 @@ export default function RoleFilter({
         _hover={{ bg: 'transparent' }}
         _active={{ bg: 'transparent' }}
       >
-        ROLE
+        VAI TRÒ
       </MenuButton>
       <MenuList bg={bgColor} borderColor={borderColor}>
         <MenuItem

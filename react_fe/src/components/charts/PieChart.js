@@ -33,13 +33,13 @@ export default function PieChart({ chartData }) {
     dataLabels: {
       formatter: (val, opts) => {
         const label = opts.w.globals.labels[opts.seriesIndex];
-        const value = series[opts.seriesIndex]?.toFixed(2) || 0;
-        return `${label}: $${value}`;
+        const value = series[opts.seriesIndex] || 0;
+        return `${label}: ${new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(value)}`;
       },
       style: { fontSize: "12px" },
     },
     tooltip: {
-      y: { formatter: (val) => `$${val.toFixed(2)}` },
+      y: { formatter: (val) => new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(val) },
     },
     colors: ["#3182CE", "#E53E3E", "#ECC94B"],
     stroke: { width: 1 },

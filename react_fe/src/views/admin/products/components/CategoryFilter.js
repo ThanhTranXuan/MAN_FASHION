@@ -85,7 +85,7 @@ export default function CategoryFilter({
         _hover={{ bg: 'transparent' }}
         _active={{ bg: 'transparent' }}
       >
-        CATEGORY
+        DANH MỤC
       </MenuButton>
       <MenuList
         bg={bgColor}

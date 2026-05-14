@@ -26,7 +26,7 @@ export default function ActiveFilter({ activeFilter, setActiveFilter }) {
         _hover={{ bg: 'transparent' }}
         _active={{ bg: 'transparent' }}
       >
-        ACTIVE
+        TRẠNG THÁI
       </MenuButton>
       <MenuList bg={bgColor} borderColor={borderColor}>
         {[

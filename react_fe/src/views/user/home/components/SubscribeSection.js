@@ -24,16 +24,15 @@ export default function SubscribeSection({ bgColor, textColor }) {
         bgGradient="linear(to-r, #7366ff, #d633ff, #ff6a00)"
         bgClip="text"
       >
-        Join the Trendify Community
+        Tham Gia Cộng Đồng Trendify
       </MotionText>
       <Text fontSize="lg" color={textColor} mb={6}>
-        Subscribe to get the latest deals, trends, and fashion news delivered to
-        your inbox.
+        Đăng ký để nhận những ưu đãi mới nhất, xu hướng và tin tức thời trang đến hộp thư của bạn.
       </Text>
       <Box maxW="500px" mx="auto">
         <InputGroup size="lg" borderColor={textColor}>
           <Input
-            placeholder="Enter your email"
+            placeholder="Nhập email của bạn"
             bg="whiteAlpha.200"
             borderRadius="full"
             pr="120px"
@@ -47,7 +46,7 @@ export default function SubscribeSection({ bgColor, textColor }) {
               colorScheme="brand"
               rounded="full"
             >
-              Subscribe
+              Đăng Ký
             </Button>
           </InputRightElement>
         </InputGroup>

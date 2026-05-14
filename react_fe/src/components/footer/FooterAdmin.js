@@ -53,7 +53,7 @@ export default function Footer() {
             color={textColor}
             href="mailto:trendify.store.vn@gmail.com"
           >
-            Support
+            Hỗ Trợ
           </Link>
         </ListItem>
         {/* <ListItem

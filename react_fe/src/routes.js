@@ -45,7 +45,7 @@ import ForgotPassword from 'views/auth/forgotPassword';
 const routes = [
   // ================== ADMIN ROUTES ==================
   {
-    name: 'Main Dashboard',
+    name: 'Bảng Điều Khiển',
     layout: '/admin',
     path: '/default',
     icon: <Icon as={MdDashboard} w="20px" h="20px" color="inherit" />,
@@ -53,7 +53,7 @@ const routes = [
     adminOnly: true, // 👈 chỉ ADMIN thấy
   },
   {
-    name: 'User Management',
+    name: 'Quản Lý Người Dùng',
     layout: '/admin',
     path: '/user-management',
     icon: <Icon as={FaUsersCog} w="20px" h="20px" color="inherit" />,
@@ -61,7 +61,7 @@ const routes = [
     adminOnly: true,
   },
   {
-    name: 'Employee Management',
+    name: 'Quản Lý Nhân Viên',
     layout: '/admin',
     path: '/employee-management',
     icon: <Icon as={FaUserTie} w="20px" h="20px" color="inherit" />,
@@ -69,35 +69,35 @@ const routes = [
     adminOnly: true,
   },
   {
-    name: 'Category Management',
+    name: 'Quản Lý Danh Mục',
     layout: '/admin',
     path: '/category-management',
     icon: <Icon as={MdCategory} w="20px" h="20px" color="inherit" />,
     component: <CategoryPage />,
   },
   {
-    name: 'Product Management',
+    name: 'Quản Lý Sản Phẩm',
     layout: '/admin',
     path: '/product-management',
     icon: <Icon as={BsBoxSeam} w="20px" h="20px" color="inherit" />,
     component: <ProductPage />,
   },
   {
-    name: 'Order Management',
+    name: 'Quản Lý Đơn Hàng',
     layout: '/admin',
     path: '/order-management',
     icon: <Icon as={MdShoppingCart} w="20px" h="20px" color="inherit" />,
     component: <OrderPage />,
   },
   {
-    name: 'Return Management',
+    name: 'Quản Lý Hoàn Trả',
     layout: '/admin',
     path: '/return-management',
     icon: <Icon as={MdAssignmentReturn} w="20px" h="20px" color="inherit" />,
     component: <ReturnPage />,
   },
   {
-    name: 'Coupon Management',
+    name: 'Quản Lý Mã Giảm Giá',
     layout: '/admin',
     path: '/coupon-management',
     icon: <Icon as={MdLocalOffer} w="20px" h="20px" color="inherit" />,
@@ -105,7 +105,7 @@ const routes = [
     adminOnly: true,
   },
   {
-    name: 'Blog Management',
+    name: 'Quản Lý Bài Viết',
     layout: '/admin',
     path: '/blog-management',
     icon: <Icon as={MdArticle} w="20px" h="20px" color="inherit" />,
@@ -113,7 +113,7 @@ const routes = [
     adminOnly: true,
   },
   {
-    name: 'Chat Support',
+    name: 'Hỗ Trợ Chat',
     layout: '/admin',
     path: '/chat-support',
     icon: <Icon as={MdChat} w="20px" h="20px" color="inherit" />,
@@ -128,7 +128,7 @@ const routes = [
     component: <Home />,
   },
   {
-    name: 'Profile',
+    name: 'Hồ Sơ',
     layout: '/user',
     path: '/profile',
     icon: <Icon as={MdPerson} width="20px" height="20px" color="inherit" />,

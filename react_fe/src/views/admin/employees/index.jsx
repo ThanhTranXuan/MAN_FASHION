@@ -63,7 +63,7 @@ export default function EmployeePage() {
         setTotalPages(data.totalPages || 1);
       } catch (err) {
         console.error(err);
-        toast.error('Failed to load employees');
+        toast.error('Tải danh sách nhân viên thất bại');
       } finally {
         setIsLoading(false);
       }
@@ -95,12 +95,12 @@ export default function EmployeePage() {
   const handleDelete = async () => {
     try {
       await EmployeeService.delete(employeeToDelete.id);
-      toast.success('Employee deleted successfully');
+      toast.success('Xóa nhân viên thành công');
       setEmployeeToDelete(null);
       setIsConfirmOpen(false);
       loadEmployees(page);
     } catch (err) {
-      toast.error('Failed to delete employee');
+      toast.error('Xóa nhân viên thất bại');
     }
   };
 
@@ -126,10 +126,10 @@ export default function EmployeePage() {
       link.remove();
       window.URL.revokeObjectURL(url);
 
-      toast.success('Employee payroll report has been downloaded.');
+      toast.success('Bảng lương nhân viên đã được tải xuống.');
     } catch (err) {
       console.error('❌ Failed to export employee payroll PDF:', err);
-      toast.error('Failed to export payroll report. Please try again.');
+      toast.error('Xuất bảng lương thất bại. Vui lòng thử lại.');
     } finally {
       setExportingPayroll(false);
     }
@@ -175,10 +175,10 @@ export default function EmployeePage() {
           size="sm"
           onClick={handleExportPayrollPdf}
           isLoading={exportingPayroll}
-          loadingText="Exporting..."
+          loadingText="Đang xuất..."
           color="white"
         >
-          Export Payroll PDF
+          Xuất Bảng Lương PDF
         </Button>
       </Flex>
 
@@ -208,8 +208,8 @@ export default function EmployeePage() {
         isOpen={isConfirmOpen}
         onClose={() => setIsConfirmOpen(false)}
         onConfirm={handleDelete}
-        title="Delete Employee"
-        message={`Are you sure you want to delete ${employeeToDelete?.fullName}?`}
+        title="Xóa Nhân Viên"
+        message={`Bạn có chắc chắn muốn xóa ${employeeToDelete?.fullName}?`}
       />
 
       {/* 📦 Main Table */}

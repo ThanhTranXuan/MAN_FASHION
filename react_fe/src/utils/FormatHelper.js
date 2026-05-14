@@ -1,12 +1,15 @@
-export const formatUSD = (value) => {
-  if (value === undefined || value === null || isNaN(value)) return '$0.00';
-  return `$${Number(value).toLocaleString('en-US', {
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2,
-  })}`;
+export const formatCurrency = (value) => {
+  const numberValue = Number(value || 0);
+  return new Intl.NumberFormat('vi-VN', {
+    style: 'currency',
+    currency: 'VND',
+    maximumFractionDigits: 0
+  }).format(numberValue);
 };
 
+export const formatUSD = formatCurrency; // Alias to prevent breaking existing imports
+
 export const formatCompact = (value) => {
-  if (value === undefined || value === null || isNaN(value)) return '0';
-  return new Intl.NumberFormat('en', { notation: 'compact' }).format(value);
+  const numberValue = Number(value || 0);
+  return new Intl.NumberFormat('vi-VN', { notation: 'compact' }).format(numberValue);
 };

@@ -9,11 +9,11 @@ export default function Header({ searchInput, setSearchInput, onAdd }) {
   return (
     <Flex px="25px" my="8px" justifyContent="space-between" align="center">
       <Text color={textColor} fontSize="22px" fontWeight="700">
-        Category List
+        Danh Mục
       </Text>
       <Flex gap={2}>
         <SearchBar
-          placeholder="Search categories..."
+          placeholder="Tìm kiếm danh mục..."
           value={searchInput}
           onChange={(e) => setSearchInput(e.target.value)}
         />

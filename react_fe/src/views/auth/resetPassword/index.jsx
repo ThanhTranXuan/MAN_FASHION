@@ -64,24 +64,24 @@ function ResetPassword() {
 
     // 🔒 Rule 4: Ít nhất 1 ký tự đặc biệt
     if (!/[^A-Za-z0-9]/.test(password)) {
-      toast.error('Password must contain at least 1 special character');
+      toast.error('Mật khẩu phải chứa ít nhất 1 ký tự đặc biệt');
       return;
     }
 
     // 🔒 Rule 5: Mật khẩu khớp nhau
     if (password !== confirmPassword) {
-      toast.error('Passwords do not match');
+      toast.error('Mật khẩu không khớp. Vui lòng kiểm tra lại.');
       return;
     }
 
     try {
       setLoading(true);
       await AuthService.resetPassword(token, password);
-      toast.success('Password reset successfully!');
+      toast.success('Đặt lại mật khẩu thành công! Vui lòng đăng nhập.');
       navigate('/auth/sign-in');
     } catch (error) {
       console.error(error);
-      toast.error('Failed to reset password');
+      toast.error('Token không hợp lệ hoặc đã hết hạn. Vui lòng yêu cầu lại.');
     } finally {
       setLoading(false);
     }
@@ -104,7 +104,7 @@ function ResetPassword() {
       >
         <Box me="auto">
           <Heading color={textColor} fontSize="36px" mb="10px">
-            Reset Password
+            Đặt Lại Mật Khẩu
           </Heading>
           <Text
             mb="36px"
@@ -113,7 +113,7 @@ function ResetPassword() {
             fontWeight="400"
             fontSize="md"
           >
-            Enter your new password below.
+            Nhập mật khẩu mới của bạn bên dưới.
           </Text>
         </Box>
 
@@ -138,13 +138,13 @@ function ResetPassword() {
               color={textColor}
               mb="8px"
             >
-              New Password<Text color={brandStars}>*</Text>
+              Mật Khẩu Mới<Text color={brandStars}>*</Text>
             </FormLabel>
             <InputGroup size="md">
               <Input
                 isRequired
                 fontSize="sm"
-                placeholder="Min. 8 characters, 1 uppercase, 1 number, 1 symbol"
+                placeholder="Tối thiểu 8 ký tự, 1 chữ in hoa, 1 số, 1 ký tự đặc biệt"
                 mb="24px"
                 size="lg"
                 type={showPassword ? 'text' : 'password'}
@@ -172,13 +172,13 @@ function ResetPassword() {
               color={textColor}
               mb="8px"
             >
-              Confirm Password<Text color={brandStars}>*</Text>
+              Xác Nhận Mật Khẩu<Text color={brandStars}>*</Text>
             </FormLabel>
             <InputGroup size="md">
               <Input
                 isRequired
                 fontSize="sm"
-                placeholder="Re-enter your password"
+                placeholder="Nhập lại mật khẩu"
                 mb="24px"
                 size="lg"
                 type={showConfirm ? 'text' : 'password'}
@@ -209,7 +209,7 @@ function ResetPassword() {
               loadingText="Resetting..."
               spinner={<Spinner size="sm" />}
             >
-              Reset Password
+              Đặt Lại Mật Khẩu
             </Button>
           </FormControl>
         </Flex>

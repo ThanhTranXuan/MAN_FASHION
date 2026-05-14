@@ -26,7 +26,7 @@ export default function TopProductsTable({ products = [] }) {
       {/* TITLE */}
       <Flex px="25px" mb="8px" justifyContent="space-between" align="center">
         <Text color={textColor} fontSize="22px" fontWeight="700">
-          Top Products Sold
+          Sản Phẩm Bán Chạy
         </Text>
       </Flex>
 
@@ -34,9 +34,9 @@ export default function TopProductsTable({ products = [] }) {
         <Table variant="simple" color="gray.500" mb="24px">
           <Thead>
             <Tr>
-              <Th borderColor={borderColor}>Product</Th>
-              <Th borderColor={borderColor}>Sold</Th>
-              <Th borderColor={borderColor}>Revenue</Th>
+              <Th borderColor={borderColor}>Tên Sản Phẩm</Th>
+              <Th borderColor={borderColor}>Số lượng bán</Th>
+              <Th borderColor={borderColor}>Doanh Thu</Th>
             </Tr>
           </Thead>
 
@@ -46,7 +46,7 @@ export default function TopProductsTable({ products = [] }) {
               <Tr>
                 <Td colSpan={3} py="40px">
                   <Center>
-                    <Text color="gray.500">No product data available</Text>
+                    <Text color="gray.500">Không có dữ liệu sản phẩm</Text>
                   </Center>
                 </Td>
               </Tr>

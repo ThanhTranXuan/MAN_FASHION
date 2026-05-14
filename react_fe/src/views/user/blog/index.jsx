@@ -79,11 +79,11 @@ export default function BlogListPage() {
             onClick={() => navigate('/')}
             _hover={{ color: brandColor }}
           >
-            Home
+            Trang Chủ
           </BreadcrumbLink>
         </BreadcrumbItem>
         <BreadcrumbItem isCurrentPage>
-          <BreadcrumbLink color={textColor}>Trendify's Blogs</BreadcrumbLink>
+          <BreadcrumbLink color={textColor}>Blog của Trendify</BreadcrumbLink>
         </BreadcrumbItem>
       </Breadcrumb>
 

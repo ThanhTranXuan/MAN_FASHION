@@ -65,7 +65,7 @@ export default function Summary({ cart, formData }) {
 
   const handleApplyCoupon = async () => {
     const code = couponCode.trim().toUpperCase();
-    if (!code) return toast.info('Please enter coupon code.');
+    if (!code) return toast.info('Vui lòng nhập mã giảm giá.');
 
     try {
       const { data } = await CouponService.getAll({ code });
@@ -75,7 +75,7 @@ export default function Summary({ cart, formData }) {
         setDiscountPercent(0);
         setApplied(false);
         setSelectedCouponId(null);
-        return toast.warning('Invalid or expired coupon code.');
+        return toast.warning('Mã giảm giá không hợp lệ hoặc đã hết hạn.');
       }
 
       const now = new Date();
@@ -86,22 +86,22 @@ export default function Summary({ cart, formData }) {
         setDiscountPercent(0);
         setApplied(false);
         setSelectedCouponId(null);
-        return toast.warning('Coupon code is not yet valid or has expired.');
+        return toast.warning('Mã giảm giá chưa hiệu lực hoặc đã hết hạn.');
       }
 
       setSelectedCouponId(coupon.id);
       setDiscountPercent((coupon.discountValue || 0) / 100);
       setApplied(true);
       toast.success(
-        `Coupon applied successfully! ${coupon.discountValue}% off`,
+        `Áp dụng mã giảm giá thành công! Giảm ${coupon.discountValue}%`,
       );
     } catch (err) {
-      toast.error('Unable to verify coupon code.');
+      toast.error('Không thể kiểm tra mã giảm giá.');
     }
   };
 
   const handlePlaceOrder = async () => {
-    if (!cart?.items?.length) return toast.warning('Your cart is empty!');
+    if (!cart?.items?.length) return toast.warning('Giỏ hàng của bạn đang trống!');
     if (
       !formData.fullName ||
       !formData.email ||
@@ -109,7 +109,7 @@ export default function Summary({ cart, formData }) {
       !formData.addressStreet ||
       !formData.addressCity
     )
-      return toast.warning('Please fill in all the shipping information.');
+      return toast.warning('Vui lòng điền đủ thông tin giao hàng.');
 
     setIsLoading(true);
 
@@ -145,23 +145,23 @@ export default function Summary({ cart, formData }) {
         clearCart();
         localStorage.removeItem('checkoutSessionId');
         toast.success(
-          'Order placed successfully! We will deliver and collect payment on delivery.',
+          'Đặt hàng thành công! Chúng tôi sẽ giao hàng và thu tiền khi nhận hàng.',
         );
         navigate('/user/home');
         return;
       }
 
       if (order?.paymentLink) {
-        toast.success('Redirecting to payment page...');
+        toast.success('Đang chuyển hướng đến trang thanh toán...');
         window.location.href = order.paymentLink;
       } else {
         console.error('Order created but missing paymentLink', order);
-        toast.error('Unable to initiate payment. Please try again!');
+        toast.error('Không thể khởi tạo thanh toán. Vui lòng thử lại!');
       }
     } catch (err) {
       console.error(err);
       toast.error(
-        err.response?.data?.message || 'Order failed, please try again!',
+        err.response?.data?.message || 'Đặt hàng thất bại, vui lòng thử lại!',
       );
     } finally {
       setIsLoading(false);
@@ -171,7 +171,7 @@ export default function Summary({ cart, formData }) {
   return (
     <Box flex="1" bg={sectionBg} p={6} borderRadius="16px" boxShadow="lg">
       <Heading size="md" mb={6} color={textColor}>
-        Order Summary
+        Tóm Tắt Đơn Hàng
       </Heading>
 
       {/* Order details luôn hiển thị */}
@@ -236,11 +236,11 @@ export default function Summary({ cart, formData }) {
       {/* Coupon Code */}
       <Box mb={4}>
         <Text fontWeight="semibold" mb={2}>
-          Coupon Code
+          Mã Giảm Giá
         </Text>
         <HStack>
           <Input
-            placeholder="Enter coupon code..."
+            placeholder="Nhập mã giảm giá..."
             value={couponCode}
             onChange={(e) => setCouponCode(e.target.value)}
             isDisabled={applied}
@@ -253,7 +253,7 @@ export default function Summary({ cart, formData }) {
             minW="100px"
             color="white" // chữ luôn trắng
           >
-            {applied ? 'Applied' : 'Apply'}
+            {applied ? 'Đã Áp Dụng' : 'Áp Dụng'}
           </Button>
         </HStack>
       </Box>
@@ -269,18 +269,18 @@ export default function Summary({ cart, formData }) {
         borderColor={borderColor}
       >
         <Flex justify="space-between">
-          <Text>Subtotal</Text>
+          <Text>Tạm Tính</Text>
           <Text>{formatUSD(subtotal)}</Text>
         </Flex>
         {applied && (
           <Flex justify="space-between" color="green.400" fontWeight="medium">
-            <Text>Discount</Text>
+            <Text>Giảm Giá</Text>
             <Text>-{formatUSD(discountValue)}</Text>
           </Flex>
         )}
         <Divider />
         <Flex justify="space-between" fontSize="xl" fontWeight="bold">
-          <Text>Total</Text>
+          <Text>Tổng Cộng</Text>
           <Text color="brand.500">{formatUSD(finalTotal)}</Text>
         </Flex>
       </VStack>
@@ -288,7 +288,7 @@ export default function Summary({ cart, formData }) {
       {/* Payment Method - cùng 1 dòng */}
       <Box mb={4}>
         <Text fontWeight="semibold" mb={2}>
-          Payment Method
+          Phương Thức Thanh Toán
         </Text>
         <RadioGroup value={paymentMethod} onChange={setPaymentMethod}>
           <Stack direction="row" spacing={4} align="stretch">
@@ -323,13 +323,13 @@ export default function Summary({ cart, formData }) {
         fontWeight="bold"
         onClick={handlePlaceOrder}
         isLoading={isLoading}
-        loadingText="Processing..."
+        loadingText="Đang xử lý..."
         boxShadow="lg"
         color="white"
       >
         {paymentMethod === 'COD'
-          ? 'Place Order (Pay on Delivery)'
-          : 'Pay Now via VietQR'}
+          ? 'Đặt Hàng (Thanh Toán Khi Nhận Hàng)'
+          : 'Thanh Toán Qua VietQR'}
       </Button>
     </Box>
   );

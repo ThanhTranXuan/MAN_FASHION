@@ -52,7 +52,7 @@ export default function Form({
         const payload = { name };
 
         await CategoryService.update(category.id, payload);
-        toast.success('Category updated successfully');
+        toast.success('Đã cập nhật danh mục thành công');
       } else {
         // 🔹 Nếu là tạo mới
         const payload = {
@@ -64,8 +64,8 @@ export default function Form({
         await CategoryService.create(payload);
         toast.success(
           parentCategory
-            ? 'Subcategory created successfully'
-            : 'Category created successfully',
+            ? 'Đã tạo danh mục con thành công'
+            : 'Đã tạo danh mục thành công',
         );
       }
 
@@ -73,7 +73,7 @@ export default function Form({
       onClose();
     } catch (err) {
       console.error(err);
-      toast.error('Error saving category');
+      toast.error('Lỗi khi lưu danh mục');
     } finally {
       setLoading(false);
     }
@@ -85,21 +85,21 @@ export default function Form({
       <ModalContent borderRadius="20px" bg={bgColor} color={textColor}>
         <ModalHeader bg={headerBg} borderTopRadius="20px">
           {category
-            ? 'Edit Category'
+            ? 'Chỉnh Sửa Danh Mục'
             : parentCategory
-            ? `Add Subcategory to "${parentCategory.name}"`
-            : 'Create New Category'}
+            ? `Thêm Danh Mục Con vào "${parentCategory.name}"`
+            : 'Tạo Danh Mục Mới'}
         </ModalHeader>
         <ModalCloseButton />
         <ModalBody>
           <VStack spacing={4} align="flex-start">
             <FormControl isRequired>
-              <FormLabel>Name</FormLabel>
+              <FormLabel>Tên Danh Mục</FormLabel>
               <Input
                 color={textColor}
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                placeholder="Enter category name"
+                placeholder="Nhập tên danh mục"
               />
             </FormControl>
           </VStack>
@@ -107,7 +107,7 @@ export default function Form({
 
         <ModalFooter bg={headerBg} borderBottomRadius="20px">
           <Button variant="ghost" mr={3} onClick={onClose}>
-            Cancel
+            Hủy
           </Button>
           <Button
             colorScheme={category ? 'blue' : 'green'}
@@ -115,7 +115,7 @@ export default function Form({
             isLoading={loading}
             onClick={handleSubmit}
           >
-            {category ? 'Update' : 'Create'}
+            {category ? 'Cập Nhật' : 'Tạo Mới'}
           </Button>
         </ModalFooter>
       </ModalContent>

@@ -8,7 +8,7 @@ export default function Header({ title, searchInput, setSearchInput }) {
       <Text fontSize="22px" fontWeight="700">{title}</Text>
       <Flex gap={2}>
         <SearchBar
-          placeholder="Search order code..."
+          placeholder="Tìm kiếm đơn hàng..."
           value={searchInput}
           onChange={(e) => setSearchInput(e.target.value)}
         />

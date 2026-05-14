@@ -40,7 +40,7 @@ export default function ResultPage() {
       <Box minH="100vh" bg={bgColor} display="flex" alignItems="center" justifyContent="center">
         <VStack>
           <Spinner size="xl" color="brand.500" thickness="4px" />
-          <Text mt={4} fontSize="lg">Processing...</Text>
+          <Text mt={4} fontSize="lg">Đang xử lý...</Text>
         </VStack>
       </Box>
     );
@@ -54,32 +54,32 @@ export default function ResultPage() {
             <>
               <Icon as={FaCheckCircle} boxSize={20} color="green.500" mb={6} />
               <Heading size="2xl" color="green.600" mb={4}>
-                Payment Successful!
+                Thanh Toán Thành Công!
               </Heading>
               <Text fontSize="lg" color="gray.600" mb={6}>
-                Thank you for shopping at <strong>Trendify</strong>!
+                Cảm ơn bạn đã mua sắm tại <strong>Trendify</strong>!
                 <br />
-                Your order has been confirmed and is being processed.
+                Đơn hàng của bạn đã được xác nhận và đang được xử lý.
               </Text>
               <Alert status="success" borderRadius="lg" mb={6}>
                 <AlertIcon />
-                We have sent a confirmation email to your inbox.
+                Chúng tôi đã gửi email xác nhận đến hộp thư của bạn.
               </Alert>
             </>
           ) : (
             <>
               <Icon as={FaTimesCircle} boxSize={20} color="red.500" mb={6} />
               <Heading size="2xl" color="red.600" mb={4}>
-                Payment Cancelled
+                Thanh Toán Bị Hủy
               </Heading>
               <Text fontSize="lg" color="gray.600" mb={6}>
-                You have cancelled the payment or the transaction was unsuccessful.
+                Bạn đã hủy thanh toán hoặc giao dịch không thành công.
                 <br />
-                The order has not been confirmed. You can try again at any time.
+                Đơn hàng chưa được xác nhận. Bạn có thể thử lại bất cứ lúc nào.
               </Text>
               <Alert status="warning" borderRadius="lg" mb={6}>
                 <AlertIcon />
-                The order will be automatically cancelled within <strong>15 minutes</strong> if not paid.
+                Đơn hàng sẽ tự động hủy sau <strong>15 phút</strong> nếu không được thanh toán.
               </Alert>
             </>
           )}
@@ -92,7 +92,7 @@ export default function ResultPage() {
               leftIcon={<FaHome />}
               onClick={() => navigate('/user/home')}
             >
-              Go to Home
+              Về Trang Chủ
             </Button>
             <Button
               variant="outline"
@@ -101,7 +101,7 @@ export default function ResultPage() {
               w="full"
               onClick={() => navigate('/user/profile?tab=orders')}
             >
-              View My Orders
+              Xem Đơn Hàng Của Tôi
             </Button>
           </VStack>
         </Box>

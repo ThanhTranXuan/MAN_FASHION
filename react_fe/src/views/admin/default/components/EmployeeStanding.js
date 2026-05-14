@@ -83,7 +83,7 @@ export default function EmployeeStanding({ employees = [] }) {
       h="100%"
     >
       <Text fontSize="xl" fontWeight="bold" mb={6} textAlign="center">
-        🏆 Top Employees – {month}
+          Nhân Viên Xuất Sắc – {month}
       </Text>
 
       <Flex justify="center" align="end" gap={8}>

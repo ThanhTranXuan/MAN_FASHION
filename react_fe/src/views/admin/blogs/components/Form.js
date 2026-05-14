@@ -71,10 +71,10 @@ export default function Form({ isOpen, onClose, reloadBlogs, blog }) {
 
       if (blog) {
         await BlogService.update(blog.id, data, file);
-        toast.success('Blog updated successfully');
+        toast.success('Cập nhật bài viết thành công');
       } else {
         await BlogService.create(data, file);
-        toast.success('Blog created successfully');
+        toast.success('Tạo bài viết thành công');
         setTitle('');
         setContent('');
         setThumbnail('');
@@ -85,7 +85,7 @@ export default function Form({ isOpen, onClose, reloadBlogs, blog }) {
       onClose();
     } catch (err) {
       console.error('❌ Blog save error:', err);
-      toast.error('Error saving blog');
+      toast.error('Lỗi khi lưu bài viết');
     } finally {
       setLoading(false);
     }
@@ -96,14 +96,14 @@ export default function Form({ isOpen, onClose, reloadBlogs, blog }) {
       <ModalOverlay />
       <ModalContent borderRadius="20px" bg={bgColor} color={textColor}>
         <ModalHeader bg={headerBg} borderTopRadius="20px">
-          {blog ? 'Edit blog' : 'Create New blog'}
+          {blog ? 'Chỉnh sửa bài viết' : 'Tạo bài viết mới'}
         </ModalHeader>
         <ModalCloseButton />
 
         <ModalBody>
           <VStack spacing={4} align="flex-start">
             <FormControl>
-              <FormLabel>Thumbnail Image</FormLabel>
+              <FormLabel>Ảnh bìa</FormLabel>
               <ImageUploader
                 multiple={false}
                 value={thumbnailPreview}
@@ -115,18 +115,18 @@ export default function Form({ isOpen, onClose, reloadBlogs, blog }) {
             </FormControl>
 
             <FormControl isRequired>
-              <FormLabel>Title</FormLabel>
+              <FormLabel>Tiêu đề</FormLabel>
               <Input
                 color={textColor}
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
-                placeholder="Enter blog title"
+                placeholder="Nhập tiêu đề bài viết"
                 name="blog-title"
               />
             </FormControl>
 
             <FormControl isRequired>
-              <FormLabel>Content</FormLabel>
+              <FormLabel>Nội dung</FormLabel>
               <Editor value={content} onChange={setContent} />
             </FormControl>
           </VStack>
@@ -134,10 +134,10 @@ export default function Form({ isOpen, onClose, reloadBlogs, blog }) {
 
         <ModalFooter bg={headerBg} borderBottomRadius="20px" mt={10}>
           <Button variant="ghost" mr={3} onClick={onClose}>
-            Cancel
+            Hủy
           </Button>
           <Button colorScheme={blog ? 'blue' : 'green'} isLoading={loading} onClick={handleSubmit}>
-            {blog ? 'Update' : 'Create'}
+            {blog ? 'Cập nhật' : 'Tạo'}
           </Button>
         </ModalFooter>
       </ModalContent>

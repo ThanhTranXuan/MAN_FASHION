@@ -8,23 +8,23 @@ export default function FeaturesSection({ brandColor }) {
 
   const features = [
     {
-      title: 'Easy Shopping',
-      desc: 'Add to cart & checkout in just a few steps.',
+      title: 'Mua Sắm Dễ Dàng',
+      desc: 'Thêm vào giỏ hàng và thanh toán chỉ trong vài bước.',
       icon: FaShoppingCart,
     },
     {
-      title: 'Free Shipping',
-      desc: 'Enjoy free delivery on all orders over $50.',
+      title: 'Miễn Phí Vận Chuyển',
+      desc: 'Giao hàng miễn phí cho tất cả đơn hàng trên 500.000 ₫.',
       icon: FaShippingFast,
     },
     {
-      title: 'Secure Payment',
-      desc: 'Safe checkout with multiple payment options.',
+      title: 'Thanh Toán An Toàn',
+      desc: 'Thanh toán an toàn với nhiều tùy chọn thanh toán.',
       icon: FaLock,
     },
     {
-      title: 'Fashion Blog',
-      desc: 'Discover the latest trends & styling tips.',
+      title: 'Blog Thời Trang',
+      desc: 'Khám phá xu hướng mới nhất và mẹo phối đồ.',
       icon: FaBlog,
     },
   ];

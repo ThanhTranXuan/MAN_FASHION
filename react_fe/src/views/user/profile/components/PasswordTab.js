@@ -29,14 +29,14 @@ export default function PasswordTab() {
   const handleSubmit = async () => {
     try {
       if (formData.newPassword !== formData.confirmPassword) {
-        toast.error('Passwords do not match');
+        toast.error('Mật khẩu không khớp');
         return;
       }
       await ProfileService.changePassword({
         oldPassword: formData.currentPassword,
         newPassword: formData.newPassword,
       });
-      toast.success('Password changed successfully');
+      toast.success('Đổi mật khẩu thành công');
       setFormData({
         currentPassword: '',
         newPassword: '',
@@ -44,7 +44,7 @@ export default function PasswordTab() {
       });
     } catch (err) {
       console.error(err);
-      toast.error('Password change failed');
+      toast.error('Đổi mật khẩu thất bại');
     }
   };
 
@@ -58,7 +58,7 @@ export default function PasswordTab() {
     >
       <VStack spacing={4} align="stretch">
         <FormControl>
-          <FormLabel>Current Password</FormLabel>
+          <FormLabel>Mật Khẩu Hiện Tại</FormLabel>
           <Input
             color={textColor}
             type="password"
@@ -69,7 +69,7 @@ export default function PasswordTab() {
         </FormControl>
 
         <FormControl>
-          <FormLabel>New Password</FormLabel>
+          <FormLabel>Mật Khẩu Mới</FormLabel>
           <Input
             color={textColor}
             type="password"
@@ -80,7 +80,7 @@ export default function PasswordTab() {
         </FormControl>
 
         <FormControl>
-          <FormLabel>Confirm New Password</FormLabel>
+          <FormLabel>Xác Nhận Mật Khẩu Mới</FormLabel>
           <Input
             color={textColor}
             type="password"
@@ -91,7 +91,7 @@ export default function PasswordTab() {
         </FormControl>
       </VStack>
       <Button colorScheme="brand" color="white" onClick={handleSubmit} mt={5} w="full">
-        Change Password
+        Đổi Mật Khẩu
       </Button>
     </Box>
   );

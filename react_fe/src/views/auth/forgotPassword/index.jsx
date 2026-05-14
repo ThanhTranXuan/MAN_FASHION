@@ -29,17 +29,18 @@ function ForgotPassword() {
   const handleForgotPassword = async () => {
     if (!email.trim()) {
       toast.warning('Please enter your email.');
+      toast.warning('Vui lòng nhập email của bạn.');
       return;
     }
 
     try {
       setLoading(true);
       await AuthService.forgotPassword(email);
-      toast.success('Password reset email sent!');
+      toast.success('Email đặt lại mật khẩu đã được gửi. Vui lòng kiểm tra hộp thư.');
       navigate('/auth/check-email');
     } catch (error) {
       console.error(error);
-      toast.error('Failed to send email. Please try again.');
+      toast.error('Không tìm thấy tài khoản với email này.');
     } finally {
       setLoading(false);
     }
@@ -61,18 +62,17 @@ function ForgotPassword() {
       >
         <Box>
           <Heading color={textColor} fontSize="32px" mb="10px">
-            Forgot Password
+            Quên Mật Khẩu?
           </Heading>
           <Text color={textColorSecondary} mb="24px">
-            Enter your email address and we’ll send you a link to reset your
-            password.
+            Nhập email của bạn bên dưới và chúng tôi sẽ gửi cho bạn mã xác nhận lại mật khẩu.
           </Text>
 
           <FormControl>
             <FormLabel color={textColor}>Email</FormLabel>
             <Input
               type="email"
-              placeholder="mail@example.com"
+              placeholder="Nhập email của bạn"
               mb="24px"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
@@ -84,10 +84,10 @@ function ForgotPassword() {
               variant="brand"
               onClick={handleForgotPassword}
               isLoading={loading}
-              loadingText="Sending..."
+              loadingText="Đang gửi..."
               spinner={<Spinner size="sm" />}
             >
-              Send Reset Link
+              Gửi Yêu Cầu Link
             </Button>
           </FormControl>
         </Box>

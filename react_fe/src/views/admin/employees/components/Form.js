@@ -62,40 +62,40 @@ export default function Form({
 
     const nameTrimmed = fullName.trim();
     if (!nameTrimmed) {
-      newErrors.fullName = 'Full name is required';
+      newErrors.fullName = 'Họ tên là bắt buộc';
     }
 
     const emailTrimmed = email.trim();
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
     if (!emailTrimmed) {
-      newErrors.email = 'Email is required';
+      newErrors.email = 'Email là bắt buộc';
     } else if (!emailRegex.test(emailTrimmed)) {
-      newErrors.email = 'Invalid email format';
+      newErrors.email = 'Email không hợp lệ';
     }
 
     // Password chỉ required khi tạo mới
     if (!editingEmployee) {
       if (!password) {
-        newErrors.password = 'Password is required';
+        newErrors.password = 'Mật khẩu là bắt buộc';
       } else if (password.length < 6) {
-        newErrors.password = 'Password must be at least 6 characters';
+        newErrors.password = 'Mật khẩu phải có ít nhất 6 ký tự';
       }
     }
 
     const rateNum = Number(hourlyRate);
     if (!hourlyRate && hourlyRate !== 0) {
-      newErrors.hourlyRate = 'Hourly rate is required';
+      newErrors.hourlyRate = 'Lương giờ là bắt buộc';
     } else if (Number.isNaN(rateNum)) {
-      newErrors.hourlyRate = 'Hourly rate must be a number';
+      newErrors.hourlyRate = 'Lương giờ phải là số';
     } else if (rateNum <= 0) {
-      newErrors.hourlyRate = 'Hourly rate must be greater than 0';
+      newErrors.hourlyRate = 'Lương giờ phải lớn hơn 0';
     }
 
     setErrors(newErrors);
 
     if (Object.keys(newErrors).length > 0) {
-      toast.error('Please fix the validation errors');
+      toast.error('Vui lòng sửa các lỗi xác thực');
       return false;
     }
     return true;
@@ -119,20 +119,20 @@ export default function Form({
           hourlyRate: rateNum,
           fullName: payloadBase.fullName,
         });
-        toast.success('Employee updated successfully');
+        toast.success('Đã cập nhật nhân viên thành công!');
       } else {
         await EmployeeService.create({
           ...payloadBase,
           password,
         });
-        toast.success('Employee created successfully');
+        toast.success('Đã tạo nhân viên thành công!');
       }
 
       reloadEmployees?.();
       onClose();
     } catch (error) {
       console.error('❌ Employee save error:', error.response?.data || error);
-      toast.error(error.response?.data?.message || 'Error saving employee');
+      toast.error(error.response?.data?.message || 'Lưu thông tin nhân viên thất bại');
     } finally {
       setLoading(false);
     }
@@ -143,14 +143,15 @@ export default function Form({
       <ModalOverlay />
       <ModalContent borderRadius="20px" bg={bgColor} color={textColor}>
         <ModalHeader bg={headerBg} borderTopRadius="20px">
-          {editingEmployee ? 'Edit Employee' : 'Create Employee'}
+          {editingEmployee ? 'Chỉnh Sửa Nhân Viên' : 'Thêm Nhân Viên'}
         </ModalHeader>
         <ModalCloseButton />
         <ModalBody pb={6}>
           <FormControl mb={3} isRequired isInvalid={!!errors.fullName}>
-            <FormLabel>Full Name</FormLabel>
+            <FormLabel>Họ Tên</FormLabel>
             <Input
               color={textColor}
+              placeholder="Nhập họ tên"
               value={fullName}
               onChange={(e) => setFullName(e.target.value)}
             />
@@ -161,6 +162,7 @@ export default function Form({
             <FormLabel>Email</FormLabel>
             <Input
               color={textColor}
+              placeholder="Nhập email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               disabled={!!editingEmployee}
@@ -170,10 +172,11 @@ export default function Form({
 
           {!editingEmployee && (
             <FormControl mb={3} isRequired isInvalid={!!errors.password}>
-              <FormLabel>Password</FormLabel>
+              <FormLabel>Mật Khẩu</FormLabel>
               <Input
                 color={textColor}
                 type="password"
+                placeholder="Nhập mật khẩu"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
               />
@@ -182,10 +185,11 @@ export default function Form({
           )}
 
           <FormControl isRequired isInvalid={!!errors.hourlyRate}>
-            <FormLabel>Hourly Rate</FormLabel>
+            <FormLabel>Lương Giờ (₫/giờ)</FormLabel>
             <Input
               color={textColor}
               type="number"
+              placeholder="Nhập lương giờ"
               value={hourlyRate}
               onChange={(e) => setHourlyRate(e.target.value)}
             />
@@ -200,7 +204,7 @@ export default function Form({
             mr={3}
             isLoading={loading}
           >
-            {editingEmployee ? 'Update' : 'Create'}
+            {editingEmployee ? 'Cập Nhật' : 'Tạo Mới'}
           </Button>
         </ModalFooter>
       </ModalContent>

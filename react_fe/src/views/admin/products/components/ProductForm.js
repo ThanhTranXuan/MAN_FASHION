@@ -119,7 +119,7 @@ export default function ProductForm({ isOpen, onClose, reload, editingItem }) {
   // ---------------------------
   const handleSubmit = async () => {
     if (!name || !price || !categoryId) {
-      toast.error('Please fill all required fields');
+      toast.error('Vui lòng điền đủ các trường bắt buộc');
       return;
     }
 
@@ -175,13 +175,13 @@ export default function ProductForm({ isOpen, onClose, reload, editingItem }) {
           }
         }
 
-        toast.success(editingItem ? 'Product updated!' : 'Product created!');
+        toast.success(editingItem ? 'Cập nhật sản phẩm thành công!' : 'Tạo sản phẩm thành công!');
         reload();
         onClose();
       }
     } catch (err) {
       console.error(err);
-      toast.error(err.response?.data?.message || 'Error saving product');
+      toast.error(err.response?.data?.message || 'Lỗi khi lưu sản phẩm');
     } finally {
       setLoading(false); // ✅ chỉ 1 lần
     }
@@ -220,13 +220,13 @@ export default function ProductForm({ isOpen, onClose, reload, editingItem }) {
       <ModalOverlay />
       <ModalContent borderRadius="20px" bg={bgColor} color={textColor}>
         <ModalHeader bg={headerBg}>
-          {editingItem ? 'Edit Product' : 'Create Product'}
+          {editingItem ? 'Chỉnh Sửa Sản Phẩm' : 'Tạo Sản Phẩm'}
         </ModalHeader>
         <ModalCloseButton />
         <ModalBody>
           {/* Upload ảnh */}
           <FormControl mb={3} isRequired>
-            <FormLabel>Images</FormLabel>
+            <FormLabel>Ảnh Sản Phẩm</FormLabel>
             <Box
               border="2px dashed"
               borderColor={
@@ -281,7 +281,7 @@ export default function ProductForm({ isOpen, onClose, reload, editingItem }) {
 
               {imagePreviews.length === 0 && (
                 <Text fontWeight="semibold" color="gray.400">
-                  Click to upload images
+                  Nhấp để tải ảnh lên
                 </Text>
               )}
             </Box>
@@ -289,7 +289,7 @@ export default function ProductForm({ isOpen, onClose, reload, editingItem }) {
 
           {/* Tên */}
           <FormControl mb={3} isRequired>
-            <FormLabel>Name</FormLabel>
+            <FormLabel>Tên Sản Phẩm</FormLabel>
             <Input
               value={name}
               onChange={(e) => setName(e.target.value)}
@@ -299,7 +299,7 @@ export default function ProductForm({ isOpen, onClose, reload, editingItem }) {
 
           {/* Mô tả */}
           <FormControl mb={3}>
-            <FormLabel>Description</FormLabel>
+            <FormLabel>Mô Tả</FormLabel>
             <Textarea
               value={description}
               onChange={(e) => setDescription(e.target.value)}
@@ -312,7 +312,7 @@ export default function ProductForm({ isOpen, onClose, reload, editingItem }) {
           <Flex gap={4} mb={3}>
             {/* Giá */}
             <FormControl isRequired>
-              <FormLabel>Price</FormLabel>
+              <FormLabel>Giá</FormLabel>
               <Input
                 type="number"
                 value={price}
@@ -323,7 +323,7 @@ export default function ProductForm({ isOpen, onClose, reload, editingItem }) {
 
             {/* Danh mục */}
             <FormControl isRequired>
-              <FormLabel>Category</FormLabel>
+              <FormLabel>Danh Mục</FormLabel>
               <Menu isLazy matchWidth>
                 <MenuButton
                   as={Button}
@@ -331,13 +331,13 @@ export default function ProductForm({ isOpen, onClose, reload, editingItem }) {
                   w="full"
                   variant="outline"
                 >
-                  {categoryName || 'Select category'}
+                  {categoryName || 'Chọn danh mục'}
                 </MenuButton>
                 <MenuList maxH="250px" overflowY="auto" bg={bgColor}>
                   {categoryTree.length > 0 ? (
                     renderTreeUI(categoryTree)
                   ) : (
-                    <Text p={3}>No categories</Text>
+                    <Text p={3}>Không có danh mục</Text>
                   )}
                 </MenuList>
               </Menu>
@@ -352,7 +352,7 @@ export default function ProductForm({ isOpen, onClose, reload, editingItem }) {
             bg={brandColor}
             color="white"
           >
-            {editingItem ? 'Update' : 'Create'}
+            {editingItem ? 'Cập Nhật' : 'Tạo Mới'}
           </Button>
         </ModalFooter>
       </ModalContent>

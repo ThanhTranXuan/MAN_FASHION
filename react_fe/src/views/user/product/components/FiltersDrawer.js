@@ -87,7 +87,7 @@ export default function FiltersDrawer({
       >
         <DrawerCloseButton />
         <DrawerHeader borderBottom="1px solid" borderColor={borderColor}>
-          Filters
+          Bộ Lọc
         </DrawerHeader>
 
         {/* === BODY === */}
@@ -104,7 +104,7 @@ export default function FiltersDrawer({
                   borderColor={borderColor}
                 >
                   <Box flex="1" textAlign="left">
-                    Category
+                    Danh Mục
                   </Box>
                   <AccordionIcon />
                 </AccordionButton>
@@ -246,7 +246,7 @@ export default function FiltersDrawer({
                             )
                           }
                         >
-                          All
+                          Tất Cả
                         </Text>
 
                         {getChildren(currentSubParent).map((c3) => (
@@ -279,7 +279,7 @@ export default function FiltersDrawer({
                   borderColor={borderColor}
                 >
                   <Box flex="1" textAlign="left">
-                    Color
+                    Màu Sắc
                   </Box>
                   <AccordionIcon />
                 </AccordionButton>
@@ -330,7 +330,7 @@ export default function FiltersDrawer({
                   // ❌ No border bottom here
                 >
                   <Box flex="1" textAlign="left">
-                    Size
+                    Kích Cỡ
                   </Box>
                   <AccordionIcon />
                 </AccordionButton>
@@ -342,7 +342,7 @@ export default function FiltersDrawer({
                       fontSize="sm"
                       color={subTextColor}
                     >
-                      Numeric
+                      Số
                     </Text>
                     <CheckboxGroup
                       colorScheme="brand"
@@ -363,7 +363,7 @@ export default function FiltersDrawer({
                       fontSize="sm"
                       color={subTextColor}
                     >
-                      Alpha
+                      Chữ
                     </Text>
                     <CheckboxGroup
                       colorScheme="brand"
@@ -399,7 +399,7 @@ export default function FiltersDrawer({
             color={labelColor}
             onClick={() => setLocal(values)}
           >
-            Reset
+            Đặt Lại
           </Button>
           <Button
             colorScheme="brand"
@@ -409,7 +409,7 @@ export default function FiltersDrawer({
               onClose();
             }}
           >
-            Apply
+            Áp Dụng
           </Button>
         </DrawerFooter>
       </DrawerContent>

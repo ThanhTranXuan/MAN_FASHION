@@ -77,7 +77,7 @@ export default function UserReports() {
         setTopEmployees(topEmployeesRes.data);
       } catch (err) {
         console.error('❌ Failed to load dashboard data:', err);
-        toast.error('Failed to load dashboard. Please try again later.');
+        toast.error('Tải bảng điều khiển thất bại. Vui lòng thử lại sau.');
       }
     };
 
@@ -108,10 +108,10 @@ export default function UserReports() {
       link.remove();
       window.URL.revokeObjectURL(url);
 
-      toast.success('Monthly revenue report has been downloaded.');
+      toast.success('Báo cáo doanh thu đã được tải xuống.');
     } catch (err) {
       console.error('❌ Failed to export PDF:', err);
-      toast.error('Failed to export report. Please try again.');
+      toast.error('Xuất báo cáo thất bại. Vui lòng thử lại.');
     } finally {
       setExporting(false);
     }
@@ -128,10 +128,10 @@ export default function UserReports() {
           size="sm"
           onClick={handleExportPdf}
           isLoading={exporting}
-          loadingText="Exporting..."
+          loadingText="Đang xuất..."
           color="white"
         >
-          Export Monthly PDF
+          Xuất PDF Doanh Thu
         </Button>
       </Flex>
 
@@ -152,8 +152,8 @@ export default function UserReports() {
               }
             />
           }
-          name="Total Revenue"
-          value={`$${formatCompact(overview?.totalRevenue || 0)}`}
+          name="Tổng Doanh Thu"
+          value={`${formatCompact(overview?.totalRevenue || 0)} ₫`}
         />
 
         <MiniStatistics
@@ -172,7 +172,7 @@ export default function UserReports() {
               }
             />
           }
-          name="Total Orders"
+          name="Tổng Đơn Hàng"
           value={overview?.totalOrders || 0}
         />
 
@@ -185,7 +185,7 @@ export default function UserReports() {
               icon={<Icon w="32px" h="32px" as={MdPeople} color={brandColor} />}
             />
           }
-          name="Total Customers"
+          name="Khách Hàng Mới"
           value={overview?.totalCustomers || 0}
         />
 
@@ -198,7 +198,7 @@ export default function UserReports() {
               icon={<Icon w="32px" h="32px" as={MdWork} color={brandColor} />}
             />
           }
-          name="Employees"
+          name="Nhân Viên"
           value={overview?.totalEmployees || 0}
         />
 
@@ -213,7 +213,7 @@ export default function UserReports() {
               }
             />
           }
-          name="Products"
+          name="Sản Phẩm"
           value={overview?.totalProducts || 0}
         />
 
@@ -228,7 +228,7 @@ export default function UserReports() {
               }
             />
           }
-          name="Categories"
+          name="Danh Mục"
           value={overview?.totalCategories || 0}
         />
       </SimpleGrid>

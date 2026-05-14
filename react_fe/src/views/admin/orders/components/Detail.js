@@ -37,7 +37,7 @@ export default function Detail({ isOpen, onClose, order }) {
           order.items.map(async (item) => {
             try {
               const res = await ProductService.getDetailById(item.productId);
-              const product = res.data.data;
+              const product = res.data;
               const variant = product.variants?.find(
                 (v) => v.id === item.variantId || v._id === item.variantId,
               );
@@ -54,7 +54,7 @@ export default function Detail({ isOpen, onClose, order }) {
               );
               return {
                 ...item,
-                productName: '(Unknown product)',
+                productName: '(Sản phẩm không xác định)',
                 color: '-',
                 size: '-',
               };
@@ -73,24 +73,53 @@ export default function Detail({ isOpen, onClose, order }) {
 
   if (!order) return null;
 
+  const getStatusText = (status) => {
+    switch (status) {
+      case 'PENDING': return 'Chờ xử lý';
+      case 'CONFIRMED': return 'Đã xác nhận';
+      case 'SHIPPING': return 'Đang giao';
+      case 'DELIVERED': return 'Đã giao';
+      case 'COMPLETED': return 'Hoàn thành';
+      case 'CANCELLED': return 'Đã hủy';
+      case 'PAID': return 'Đã thanh toán';
+      case 'UNPAID': return 'Chưa thanh toán';
+      case 'FAILED': return 'Thất bại';
+      case 'REFUNDED': return 'Đã hoàn tiền';
+      case 'RETURN': return 'Hoàn trả';
+      default: return status || '-';
+    }
+  };
+
   return (
     <Modal isOpen={isOpen} onClose={onClose} size="xl" isCentered>
       <ModalOverlay />
       <ModalContent>
         <ModalHeader fontWeight="bold">
-          Order Detail - {order.orderCode}
+          Chi Tiết Đơn Hàng - {order.orderCode}
         </ModalHeader>
         <ModalCloseButton />
         <ModalBody>
-          {/* 🧾 Customer info */}
-          <Box mb={3}>
-            <Text fontWeight="600" color={textColor}>
-              Customer: {order.fullName}
-            </Text>
-            <Text>Email: {order.email}</Text>
-            <Text>Phone: {order.phone}</Text>
-            <Text>Address: {order.address}</Text>
-          </Box>
+          <Flex gap={4} direction={{ base: 'column', md: 'row' }} mb={4}>
+            <Box flex={1}>
+              <Text fontWeight="600" color={textColor} fontSize="md" mb={2}>
+                Thông tin khách hàng
+              </Text>
+              <Text>Họ tên: {order.fullName || order.customer?.name || order.user?.fullName || '-'}</Text>
+              <Text>Email: {order.email || '-'}</Text>
+              <Text>SĐT: {order.phone || '-'}</Text>
+              <Text>Địa chỉ: {order.address || order.shippingAddress || '-'}</Text>
+            </Box>
+            <Box flex={1}>
+              <Text fontWeight="600" color={textColor} fontSize="md" mb={2}>
+                Thông tin đơn hàng
+              </Text>
+              <Text>Trạng thái đơn: {getStatusText(order.status)}</Text>
+              <Text>Thanh toán: {getStatusText(order.paymentStatus)} ({order.paymentMethod || '-'})</Text>
+              <Text>Ngày đặt: {order.createdAt ? new Date(order.createdAt).toLocaleString('vi-VN') : '-'}</Text>
+              <Text>Tạm tính: {formatUSD(order.subtotal || 0)}</Text>
+              <Text fontWeight="bold" color="brand.500">Tổng tiền: {formatUSD(order.finalTotal || order.totalAmount || 0)}</Text>
+            </Box>
+          </Flex>
 
           {/* 🧠 Loading state */}
           {loading ? (
@@ -102,11 +131,12 @@ export default function Detail({ isOpen, onClose, order }) {
               <Thead>
                 <Tr>
                   <Th borderColor={borderColor}>#</Th>
-                  <Th borderColor={borderColor}>Product</Th>
-                  <Th borderColor={borderColor}>Color</Th>
+                  <Th borderColor={borderColor}>Sản phẩm</Th>
+                  <Th borderColor={borderColor}>Màu</Th>
                   <Th borderColor={borderColor}>Size</Th>
-                  <Th borderColor={borderColor}>Qty</Th>
-                  <Th borderColor={borderColor}>Price</Th>
+                  <Th borderColor={borderColor}>SL</Th>
+                  <Th borderColor={borderColor}>Đơn giá</Th>
+                  <Th borderColor={borderColor}>Thành tiền</Th>
                 </Tr>
               </Thead>
               <Tbody>
@@ -125,6 +155,9 @@ export default function Detail({ isOpen, onClose, order }) {
                     <Td borderColor={borderColor}>{item.quantity}</Td>
                     <Td borderColor={borderColor} color="brand.500">
                       {formatUSD(item.price)}
+                    </Td>
+                    <Td borderColor={borderColor} color="brand.500" fontWeight="bold">
+                      {formatUSD((item.price || 0) * (item.quantity || 1))}
                     </Td>
                   </Tr>
                 ))}

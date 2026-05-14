@@ -13,7 +13,7 @@ export default function Header({ title, searchInput, setSearchInput, onAdd }) {
       </Text>
       <Flex gap={2}>
         <SearchBar
-          placeholder="Search blogs..."
+          placeholder="Tìm kiếm bài viết..."
           value={searchInput}
           onChange={(e) => setSearchInput(e.target.value)}
         />

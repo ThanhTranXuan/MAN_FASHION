@@ -48,7 +48,7 @@ export default function BlogPage() {
         setTotalPages(res.data?.totalPages || res.totalPages || 1);
       } catch (err) {
         console.error(err);
-        toast.error('Failed to load blogs');
+        toast.error('Lỗi khi tải danh sách bài viết');
       }
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -64,10 +64,10 @@ export default function BlogPage() {
     if (!selectedToDelete) return;
     try {
       await BlogService.delete(selectedToDelete.id);
-      toast.success('Blog deleted successfully');
+      toast.success('Xóa bài viết thành công');
       loadBlogs(page);
     } catch (err) {
-      toast.error('Error deleting blog');
+      toast.error('Lỗi khi xóa bài viết');
     } finally {
       confirmDialog.onClose();
     }
@@ -143,7 +143,7 @@ export default function BlogPage() {
         bg={bgColor}
       >
         <Header
-          title="Blog Management"
+          title="Quản lý bài viết"
           searchInput={searchInput}
           setSearchInput={setSearchInput}
           onAdd={() => {
@@ -168,8 +168,8 @@ export default function BlogPage() {
         isOpen={confirmDialog.isOpen}
         onClose={confirmDialog.onClose}
         onConfirm={confirmDelete}
-        title="Delete Blog"
-        message={`Are you sure you want to delete "${selectedToDelete?.title}"?`}
+        title="Xóa bài viết"
+        message={`Bạn có chắc muốn xóa "${selectedToDelete?.title}"?`}
       />
     </Box>
   );

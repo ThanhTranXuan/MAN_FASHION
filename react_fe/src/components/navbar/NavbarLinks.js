@@ -71,13 +71,13 @@ export default function NavbarLinks() {
     try {
       if (user?.roleName === 'EMPLOYEE') {
         await EmployeeService.checkOut();
-        toast.success('Logout success! Check-out recorded.');
+        toast.success('Đăng xuất thành công! Đã ghi nhận check-out.');
       } else {
-        toast.success('Logout success!');
+        toast.success('Đăng xuất thành công!');
       }
     } catch (e) {
       console.error(e);
-      toast.error('Failed to record check-out.');
+      toast.error('Không thể ghi nhận check-out.');
     } finally {
       logout();
       setTimeout(() => {
@@ -183,7 +183,7 @@ export default function NavbarLinks() {
           >
             <PopoverHeader borderBottom="1px solid" borderColor={borderColor}>
               <Text fontSize="sm" fontWeight="700" color={textColor}>
-                👋 Hey, {user?.fullName || user?.email?.split('@')[0]}
+                👋 Xin chào, {user?.fullName || user?.email?.split('@')[0]}
               </Text>
             </PopoverHeader>
             <PopoverBody>
@@ -196,7 +196,7 @@ export default function NavbarLinks() {
                     size="sm"
                     onClick={handleToggleDashboard}
                   >
-                    {isAdminRoute ? 'Back to Website' : 'Go to Dashboard'}
+                    {isAdminRoute ? 'Về Trang Web' : 'Vào Trang Quản Trị'}
                   </Button>
                 )}
 
@@ -206,7 +206,7 @@ export default function NavbarLinks() {
                   size="sm"
                   onClick={() => navigate('/user/profile')}
                 >
-                  Your Profile
+                  Hồ Sơ Của Bạn
                 </Button>
                 <Button
                   variant="ghost"
@@ -215,7 +215,7 @@ export default function NavbarLinks() {
                   color="red.400"
                   onClick={() => setIsConfirmOpen(true)}
                 >
-                  Log out
+                  Đăng xuất
                 </Button>
               </Flex>
             </PopoverBody>
@@ -228,8 +228,8 @@ export default function NavbarLinks() {
         isOpen={isConfirmOpen}
         onClose={() => setIsConfirmOpen(false)}
         onConfirm={handleLogout}
-        title="Confirm Logout"
-        message="Are you sure you want to log out?"
+        title="Xác Nhận Đăng Xuất"
+        message="Bạn có chắc chắn muốn đăng xuất không?"
       />
     </Flex>
   );

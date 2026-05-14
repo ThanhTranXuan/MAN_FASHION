@@ -83,18 +83,18 @@ function SignUp() {
 
     // 🔒 Rule 5: Mật khẩu khớp nhau
     if (password !== confirmPassword) {
-      toast.error('Passwords do not match');
+      toast.error('Mật khẩu không khớp.');
       return;
     }
 
     try {
       setLoading(true);
       await AuthService.register({ fullName, email, password });
-      toast.success('Account created successfully!');
+      toast.success('Đăng ký thành công! Hãy kiểm tra email của bạn.');
       navigate('/auth/sign-in');
     } catch (error) {
       console.error(error);
-      toast.error('Sign up failed. Please try again.');
+      toast.error('Đăng ký thất bại. Vui lòng thử lại.');
     } finally {
       setLoading(false);
     }
@@ -117,7 +117,7 @@ function SignUp() {
       >
         <Box me="auto">
           <Heading color={textColor} fontSize="36px" mb="10px">
-            Sign Up
+            Đăng Ký
           </Heading>
           <Text
             mb="36px"
@@ -126,7 +126,7 @@ function SignUp() {
             fontWeight="400"
             fontSize="md"
           >
-            Create an account to get started!
+            Tạo Tài Khoản Mới để bắt đầu!
           </Text>
         </Box>
 
@@ -150,13 +150,13 @@ function SignUp() {
               color={textColor}
               mb="8px"
             >
-              Full Name<Text color={brandStars}>*</Text>
+              Họ Tên Đầy Đủ<Text color={brandStars}>*</Text>
             </FormLabel>
             <Input
               isRequired
               variant="auth"
               type="text"
-              placeholder="Your full name"
+              placeholder="Nhập họ tên"
               mb="24px"
               size="lg"
               fontSize="sm"
@@ -179,7 +179,7 @@ function SignUp() {
               isRequired
               variant="auth"
               type="email"
-              placeholder="mail@example.com"
+              placeholder="Nhập email"
               mb="24px"
               size="lg"
               fontSize="sm"
@@ -196,13 +196,13 @@ function SignUp() {
               color={textColor}
               mb="8px"
             >
-              Password<Text color={brandStars}>*</Text>
+              Mật Khẩu<Text color={brandStars}>*</Text>
             </FormLabel>
             <InputGroup size="md" mb="24px">
               <Input
                 isRequired
                 fontSize="sm"
-                placeholder="Min. 8 characters"
+                placeholder="Mật khẩu tối thiểu 8 ký tự"
                 size="lg"
                 type={showPassword ? 'text' : 'password'}
                 variant="auth"
@@ -228,12 +228,12 @@ function SignUp() {
               color={textColor}
               mb="8px"
             >
-              Confirm Password<Text color={brandStars}>*</Text>
+              Xác Nhận Mật Khẩu<Text color={brandStars}>*</Text>
             </FormLabel>
             <Input
               isRequired
               fontSize="sm"
-              placeholder="Confirm password"
+              placeholder="Nhập lại mật khẩu"
               size="lg"
               type={showPassword ? 'text' : 'password'}
               variant="auth"
@@ -251,10 +251,10 @@ function SignUp() {
               my="24px"
               onClick={handleEmailPasswordSignUp}
               isLoading={loading}
-              loadingText="Creating account..."
+              loadingText="Đang xử lý..."
               spinner={<Spinner size="sm" />}
             >
-              Sign Up
+              Đăng Ký
             </Button>
           </FormControl>
 
@@ -266,7 +266,7 @@ function SignUp() {
             mt="0px"
           >
             <Text color={textColorSecondary} fontWeight="400" fontSize="14px">
-              Already have an account?
+              Đã có tài khoản?
               <NavLink to="/auth/sign-in">
                 <Text
                   color={textColorBrand}
@@ -274,7 +274,7 @@ function SignUp() {
                   ms="5px"
                   fontWeight="500"
                 >
-                  Sign In
+                  Đăng nhập
                 </Text>
               </NavLink>
             </Text>

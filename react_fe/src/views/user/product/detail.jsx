@@ -53,7 +53,7 @@ export default function ProductDetail() {
             null,
         );
       } catch {
-        toast.error('Product not found');
+        toast.error('Không tìm thấy sản phẩm');
         navigate('/user/product');
       } finally {
         setLoading(false);
@@ -116,15 +116,15 @@ export default function ProductDetail() {
 
   const handleAddToCart = async () => {
     if (colors.length > 0 && !selectedColor)
-      return toast.warning('Please select a color.');
+      return toast.warning('Vui lòng chọn màu sắc.');
     if (allSizes.length > 0 && !selectedSize)
-      return toast.warning('Please select a size.');
+      return toast.warning('Vui lòng chọn kích thước.');
 
     const variant = variants.find(
       (v) => v.color === selectedColor && v.size === selectedSize,
     );
-    if (!variant) return toast.error('Invalid variant selection.');
-    if (variant.stock <= 0) return toast.warning('Out of stock.');
+    if (!variant) return toast.error('Lựa chọn biến thể không hợp lệ.');
+    if (variant.stock <= 0) return toast.warning('Hết hàng.');
 
     const thumb =
       images.find((i) => i.color === selectedColor)?.url ||
@@ -143,7 +143,7 @@ export default function ProductDetail() {
       quantity,
     });
 
-    toast.success('Added to cart successfully!');
+    toast.success('Thêm vào giỏ hàng thành công!');
   };
 
   // 👉 Hàm mở ChatWidget
@@ -196,7 +196,7 @@ export default function ProductDetail() {
             onClick={() => navigate('/')}
             whiteSpace="normal"
           >
-            Home
+            Trang Chủ
           </BreadcrumbLink>
         </BreadcrumbItem>
 
@@ -206,7 +206,7 @@ export default function ProductDetail() {
             onClick={() => navigate('/user/product')}
             whiteSpace="normal"
           >
-            All Products
+            Tất Cả Sản Phẩm
           </BreadcrumbLink>
         </BreadcrumbItem>
 
@@ -248,7 +248,7 @@ export default function ProductDetail() {
           {colors.length > 0 && (
             <Box>
               <Text fontWeight="semibold" mb={2}>
-                Colors:
+                Màu Sắc:
               </Text>
               <HStack spacing={2} flexWrap="wrap">
                 {colors.map((c) => (
@@ -276,7 +276,7 @@ export default function ProductDetail() {
           {allSizes.length > 0 && (
             <Box>
               <Text fontWeight="semibold" mb={2}>
-                Sizes:
+                Kích Cỡ:
               </Text>
               <HStack spacing={2} flexWrap="wrap">
                 {allSizes.map((s) => {
@@ -285,7 +285,7 @@ export default function ProductDetail() {
                   const isInvalid =
                     !selectedColor || stock === undefined || stock <= 0;
                   return (
-                    <Tooltip key={s} label={isInvalid ? 'Out of stock' : s}>
+                    <Tooltip key={s} label={isInvalid ? 'Hết hàng' : s}>
                       <Box
                         borderWidth="1px"
                         borderColor={
@@ -345,14 +345,14 @@ export default function ProductDetail() {
             </HStack>
 
             <Button colorScheme="brand" color="white" onClick={handleAddToCart}>
-              Add to Cart
+              Thêm Vào Giỏ Hàng
             </Button>
           </HStack>
 
           {/* 🛡️ Commitments */}
           <Box mt={8} w="100%">
             <Text fontSize="lg" fontWeight="bold" color={textColor} mb={4}>
-              Trendify Commitments
+              Cam Kết Từ Trendify
             </Text>
             <SimpleGrid columns={{ base: 1, md: 2 }} spacing={4}>
               <Flex
@@ -365,8 +365,8 @@ export default function ProductDetail() {
               >
                 <Icon as={MdLocalShipping} boxSize={6} color={brandColor} />
                 <Text fontSize="sm" color={descColor}>
-                  Delivery in <b>3–5 days</b> <br /> Free shipping over{' '}
-                  <b>$49</b>
+                  Giao hàng trong <b>3–5 ngày</b> <br /> Miễn phí vận chuyển trên{' '}
+                  <b>499.000 ₫</b>
                 </Text>
               </Flex>
 
@@ -380,7 +380,7 @@ export default function ProductDetail() {
               >
                 <Icon as={MdReplay} boxSize={6} color={brandColor} />
                 <Text fontSize="sm" color={descColor}>
-                  <b>15-day</b> hassle-free return
+                  Hoàn trả <b>15 ngày</b> dễ dàng
                 </Text>
               </Flex>
 
@@ -394,7 +394,7 @@ export default function ProductDetail() {
               >
                 <Icon as={MdLock} boxSize={6} color={brandColor} />
                 <Text fontSize="sm" color={descColor}>
-                  Secure payments & data protection
+                  Thanh toán an toàn & bảo mật dữ liệu
                 </Text>
               </Flex>
 
@@ -411,7 +411,7 @@ export default function ProductDetail() {
               >
                 <Icon as={MdChat} boxSize={6} color={brandColor} />
                 <Text fontSize="sm" fontWeight="semibold" color={descColor}>
-                  Need help? <b>Chat now</b>
+                  Cần hỗ trợ? <b>Chat ngay</b>
                 </Text>
               </Flex>
             </SimpleGrid>

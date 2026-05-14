@@ -14,11 +14,11 @@ export default function Columns() {
       ),
     }),
     columnHelper.accessor('fullName', {
-      header: 'FULL NAME',
+      header: 'Họ Tên',
       cell: (info) => <Text>{info.getValue() || '-'}</Text>,
     }),
     columnHelper.accessor('roleName', {
-      header: 'Role',
+      header: 'Vai Trò',
       cell: (info) => <Text>{info.getValue() || '-'}</Text>,
     }),
   ];

@@ -14,15 +14,15 @@ export default function Columns(
 ) {
   return [
     columnHelper.accessor('code', {
-      header: 'CODE',
+      header: 'MÃ',
       cell: (info) => <Text>{info.getValue() || '-'}</Text>,
     }),
     columnHelper.accessor('discountValue', {
-      header: 'DISCOUNT VALUE',
+      header: 'GIÁ TRỊ GIẢM',
       cell: (info) => <Text>{info.getValue() || 0}%</Text>,
     }),
     columnHelper.accessor('startDate', {
-      header: 'START DATE',
+      header: 'BẮT ĐẦU',
       cell: (info) => {
         const value = info.getValue();
         return (
@@ -31,7 +31,7 @@ export default function Columns(
       },
     }),
     columnHelper.accessor('endDate', {
-      header: 'END DATE',
+      header: 'KẾT THÚC',
       cell: (info) => {
         const value = info.getValue();
         return (
@@ -40,16 +40,16 @@ export default function Columns(
       },
     }),
     columnHelper.accessor('usedCount', {
-      header: 'USED COUNT',
+      header: 'ĐÃ DÙNG',
       cell: (info) => <Text>{info.getValue() || 0}</Text>,
     }),
     columnHelper.accessor('usageLimit', {
-      header: 'USAGE LIMIT',
+      header: 'GIỚI HẠN',
       cell: (info) => <Text>{info.getValue() || 0}</Text>,
     }),
     columnHelper.display({
       id: 'actions',
-      header: () => <Text textAlign="right">ACTIONS</Text>,
+      header: () => <Text textAlign="right">THAO TÁC</Text>,
       cell: (info) => (
         <Flex justify="flex-end" gap={2}>
           <IconButton

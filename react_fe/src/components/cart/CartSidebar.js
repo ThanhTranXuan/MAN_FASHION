@@ -61,7 +61,7 @@ export default function CartSidebar({ isOpen, onClose }) {
   const handleOpenVariant = async (item) => {
     try {
       const { data } = await ProductService.getDetailById(item.productId);
-      if (!data) return toast.error('Product not found');
+      if (!data) return toast.error('Không tìm thấy sản phẩm');
 
       setSelectedItem({
         ...item,
@@ -71,7 +71,7 @@ export default function CartSidebar({ isOpen, onClose }) {
       setProductVariants(data.variants || []);
       onOpen();
     } catch {
-      toast.error('Failed to load product data');
+      toast.error('Tải dữ liệu sản phẩm thất bại');
     }
   };
 
@@ -86,7 +86,7 @@ export default function CartSidebar({ isOpen, onClose }) {
         (!updated.color || v.color === updated.color) &&
         (!updated.size || v.size === updated.size),
     );
-    if (!newVariant) return toast.error('No matching variant found');
+    if (!newVariant) return toast.error('Không tìm thấy biến thể phù hợp');
 
     await updateVariant(updated, newVariant, toast);
     onVariantClose();
@@ -102,7 +102,7 @@ export default function CartSidebar({ isOpen, onClose }) {
         <DrawerOverlay />
         <DrawerContent bg={bgColor} color={textColor}>
           <DrawerCloseButton />
-          <DrawerHeader borderBottomWidth="1px">🛒 Shopping Cart</DrawerHeader>
+          <DrawerHeader borderBottomWidth="1px">🛒 Giỏ Hàng</DrawerHeader>
 
           <DrawerBody overflowY="auto" flex="1" py={4}>
             {loading ? (
@@ -119,7 +119,7 @@ export default function CartSidebar({ isOpen, onClose }) {
                 color="gray.500"
               >
                 <Icon as={IoMdCart} w={12} h={12} />
-                <Text>Your cart is empty</Text>
+                <Text>Giỏ hàng của bạn đang trống</Text>
               </Flex>
             ) : (
               <Flex direction="column" gap={4}>
@@ -231,7 +231,7 @@ export default function CartSidebar({ isOpen, onClose }) {
               gap={3}
             >
               <Flex justify="space-between" w="100%">
-                <Text fontWeight="bold">Total:</Text>
+                <Text fontWeight="bold">Tổng:</Text>
                 <Text fontWeight="bold" color="brand.500">
                   {formatUSD(cart.totalPrice)}
                 </Text>
@@ -243,7 +243,7 @@ export default function CartSidebar({ isOpen, onClose }) {
                 w="full"
                 onClick={handleGoToPayment}
               >
-                Go to Payment
+                Đi Đến Thanh Toán
               </Button>
             </DrawerFooter>
           )}

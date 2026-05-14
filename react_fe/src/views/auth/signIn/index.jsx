@@ -63,30 +63,30 @@ function SignIn() {
 
   const validateCredentials = () => {
     if (!email.trim() || !password.trim()) {
-      toast.error('Please fill in all required fields');
+      toast.error('Xác nhận email thất bại. Vui lòng thử lại.');
       return false;
     }
 
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email)) {
-      toast.error('Invalid email address');
+      toast.error('Gmail chưa được liên kết với tài khoản nào.');
       return false;
     }
 
     if (password.length < 8) {
-      toast.error('Password must be at least 8 characters long');
+      toast.error('Mật khẩu phải có ít nhất 8 ký tự');
       return false;
     }
     if (!/[A-Z]/.test(password)) {
-      toast.error('Password must contain at least 1 uppercase letter');
+      toast.error('Mật khẩu phải chứa ít nhất 1 ký tự in hoa');
       return false;
     }
     if (!/[a-z]/.test(password)) {
-      toast.error('Password must contain at least 1 lowercase letter');
+      toast.error('Mật khẩu phải chứa ít nhất 1 ký tự thường');
       return false;
     }
     if (!/[^A-Za-z0-9]/.test(password)) {
-      toast.error('Password must contain at least 1 special character');
+      toast.error('Mật khẩu phải chứa ít nhất 1 ký tự đặc biệt');
       return false;
     }
     return true;
@@ -111,17 +111,17 @@ function SignIn() {
       // check-in cho nhân viên
       try {
         await EmployeeService.checkIn();
-        toast.success('Login success! Check-in recorded.');
+        toast.success('Đăng nhập thành công! Check-in đã được ghi nhận.');
       } catch (e) {
         console.error('❌ Check-in failed:', e);
-        toast.error('Login success but check-in failed');
+        toast.error('Chưa có dữ liệu người dùng. Vui lòng thử lại.');
       }
       navigate('/admin');
     } else if (role === 'ADMIN') {
-      toast.success('Welcome back, Admin!');
+      toast.success('Chào mừng quay trở lại, Quản trị viên!');
       navigate('/admin');
     } else {
-      toast.success('Login success!');
+      toast.success('Đăng nhập thành công!');
       navigate('/');
     }
   };
@@ -137,7 +137,7 @@ function SignIn() {
       await afterLoginCommon();
     } catch (error) {
       console.error(error);
-      toast.error('Wrong email or password');
+      toast.error('Sai email hoặc mật khẩu');
     } finally {
       setLoading(false);
     }
@@ -158,7 +158,7 @@ function SignIn() {
       await afterLoginCommon();
     } catch (error) {
       console.error(error);
-      toast.error('Login failed');
+      toast.error('Đăng nhập thất bại');
     } finally {
       setLoading(false);
     }
@@ -181,7 +181,7 @@ function SignIn() {
       >
         <Box me="auto">
           <Heading color={textColor} fontSize="36px" mb="10px">
-            Sign In
+            MAN FASHION | Đăng Nhập
           </Heading>
           <Text
             mb="36px"
@@ -190,7 +190,7 @@ function SignIn() {
             fontWeight="400"
             fontSize="md"
           >
-            Enter your email and password to sign in!
+            Vui lòng nhập địa chỉ email của bạn
           </Text>
         </Box>
 
@@ -220,17 +220,17 @@ function SignIn() {
             _focus={googleActive}
             onClick={handleGoogleLogin}
             isLoading={loading}
-            loadingText="Signing in..."
+            loadingText="Đang xử lý..."
             spinner={<Spinner size="sm" />}
           >
             <Icon as={FcGoogle} w="20px" h="20px" me="10px" />
-            Sign in with Google
+            Đăng nhập với Google
           </Button>
 
           <Flex align="center" mb="25px">
             <HSeparator />
             <Text color="gray.400" mx="14px">
-              or
+              hoặc
             </Text>
             <HSeparator />
           </Flex>
@@ -251,7 +251,7 @@ function SignIn() {
               variant="auth"
               fontSize="sm"
               type="email"
-              placeholder="mail@example.com"
+              placeholder="Nhập email của bạn"
               mb="24px"
               size="lg"
               value={email}
@@ -266,13 +266,13 @@ function SignIn() {
               color={textColor}
               display="flex"
             >
-              Password<Text color={brandStars}>*</Text>
+              Mật khẩu<Text color={brandStars}>*</Text>
             </FormLabel>
             <InputGroup size="md">
               <Input
                 isRequired
                 fontSize="sm"
-                placeholder="Min. 8 characters"
+                placeholder="Mật khẩu của bạn"
                 mb="24px"
                 size="lg"
                 type={show ? 'text' : 'password'}
@@ -308,7 +308,7 @@ function SignIn() {
                   color={textColor}
                   fontSize="sm"
                 >
-                  Keep me logged in
+                  Ghi nhớ đăng nhập
                 </FormLabel>
               </FormControl>
               <NavLink to="/auth/forgot-password">
@@ -318,7 +318,7 @@ function SignIn() {
                   w="124px"
                   fontWeight="500"
                 >
-                  Forgot password?
+                  Quên mật khẩu?
                 </Text>
               </NavLink>
             </Flex>
@@ -332,10 +332,10 @@ function SignIn() {
               mb="24px"
               onClick={handleEmailPasswordLogin}
               isLoading={loading}
-              loadingText="Signing in..."
+              loadingText="Đang xử lý..."
               spinner={<Spinner size="sm" />}
             >
-              Sign In
+              Đăng Nhập
             </Button>
           </FormControl>
 
@@ -347,7 +347,7 @@ function SignIn() {
             mt="0px"
           >
             <Text color={textColorDetails} fontWeight="400" fontSize="14px">
-              Not registered yet?
+              Chưa có tài khoản?
               <NavLink to="/auth/sign-up">
                 <Text
                   color={textColorBrand}
@@ -355,7 +355,7 @@ function SignIn() {
                   ms="5px"
                   fontWeight="500"
                 >
-                  Create an Account
+                  Tạo Tài Khoản
                 </Text>
               </NavLink>
             </Text>

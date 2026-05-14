@@ -46,7 +46,7 @@ export default function OrderPage() {
         setTotalPages(res.data.totalPages || 1);
       } catch (err) {
         console.error(err);
-        if (!silent) toast.error('Failed to load orders');
+        if (!silent) toast.error('Tải danh sách đơn hàng thất bại');
       } finally {
         if (!silent) setIsLoading(false);
       }
@@ -114,11 +114,11 @@ export default function OrderPage() {
     async (orderCode, newStatus) => {
       try {
         await OrderService.updateAdminStatus(orderCode, newStatus);
-        toast.success(`Order ${orderCode} updated to ${newStatus}`);
+        toast.success('Cập nhật trạng thái đơn hàng thành công');
         loadOrders(page);
       } catch (err) {
         console.error(err);
-        toast.error('Failed to update status');
+        toast.error('Cập nhật trạng thái thất bại');
       }
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -151,7 +151,7 @@ export default function OrderPage() {
     <Box>
       <Card flexDirection="column" w="100%" borderRadius="16px" boxShadow="md" bg={bgColor}>
         <Header
-          title="Order Management"
+          title="Quản Lý Đơn Hàng"
           searchInput={searchInput}
           setSearchInput={setSearchInput}
           statusFilter={statusFilter}

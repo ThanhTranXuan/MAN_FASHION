@@ -17,12 +17,12 @@ export default function StatusFilter({ statusFilter, setStatusFilter }) {
   const brandColor = useColorModeValue('brand.500', 'brand.400');
 
   const options = [
-    { label: 'All', value: null },
-    { label: 'Requested', value: 'REQUESTED' },
-    { label: 'Approved', value: 'APPROVED' },
-    { label: 'Rejected', value: 'REJECTED' },
-    { label: 'Received', value: 'RECEIVED' },
-    { label: 'Completed', value: 'COMPLETED' },
+    { label: 'Tất Cả', value: null },
+    { label: 'Yêu Cầu', value: 'REQUESTED' },
+    { label: 'Đã Duyệt', value: 'APPROVED' },
+    { label: 'Từ Chối', value: 'REJECTED' },
+    { label: 'Đã Nhận', value: 'RECEIVED' },
+    { label: 'Hoàn Thành', value: 'COMPLETED' },
   ];
 
   return (
@@ -35,7 +35,7 @@ export default function StatusFilter({ statusFilter, setStatusFilter }) {
         _hover={{ bg: 'transparent' }}
         _active={{ bg: 'transparent' }}
       >
-        STATUS
+        TRẠNG THÁI
       </MenuButton>
       <MenuList bg={bgColor} borderColor={borderColor}>
         {options.map((option) => (

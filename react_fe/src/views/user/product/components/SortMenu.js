@@ -18,13 +18,13 @@ export default function SortMenu({ sort, setSort, setPage }) {
   };
 
   const options = [
-    { value: 'newest', label: 'Newest' },
-    { value: 'price_asc', label: 'Price: Low → High' },
-    { value: 'price_desc', label: 'Price: High → Low' },
+    { value: 'newest', label: 'Mới Nhất' },
+    { value: 'price_asc', label: 'Giá: Thấp → Cao' },
+    { value: 'price_desc', label: 'Giá: Cao → Thấp' },
   ];
 
   const currentLabel =
-    options.find((opt) => opt.value === sort)?.label || 'Newest';
+    options.find((opt) => opt.value === sort)?.label || 'Mới Nhất';
 
   const brandColor = useColorModeValue('brand.500', 'brand.400');
 

@@ -25,7 +25,7 @@ export default function TotalRevenue({ summary, trend }) {
   const { series, options } = useMemo(() => {
     if (!trend || trend.length === 0)
       return {
-        series: [{ name: 'Revenue', data: [] }],
+        series: [{ name: 'Doanh thu', data: [] }],
         options: { xaxis: { categories: [] } },
       };
 
@@ -33,7 +33,7 @@ export default function TotalRevenue({ summary, trend }) {
     const revenues = trend.map((d) => d.value);
 
     return {
-      series: [{ name: 'Revenue', data: revenues }],
+      series: [{ name: 'Doanh thu', data: revenues }],
       options: {
         chart: {
           type: 'line',
@@ -82,7 +82,7 @@ export default function TotalRevenue({ summary, trend }) {
   if (!summary || !trend || trend.length === 0) {
     return (
       <Card justify="center" align="center" h="260px">
-        <Text color="gray.500">No data available</Text>
+        <Text color="gray.500">Không có dữ liệu</Text>
       </Card>
     );
   }
@@ -98,7 +98,7 @@ export default function TotalRevenue({ summary, trend }) {
           borderRadius="7px"
           leftIcon={<MdOutlineCalendarToday />}
         >
-          Last 6 months
+          6 tháng gần đây
         </Button>
         <Badge
           colorScheme={summary.growthRate >= 0 ? 'green' : 'red'}
@@ -115,7 +115,7 @@ export default function TotalRevenue({ summary, trend }) {
         {formatUSD(summary.currentMonthRevenue || 0)}
       </Text>
       <Text color={textColorSecondary} fontSize="sm" mb="20px">
-        Revenue this month
+        Doanh thu tháng này
       </Text>
 
       <Box minH="220px" w="full">

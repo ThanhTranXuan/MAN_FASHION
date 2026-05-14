@@ -9,7 +9,7 @@ export default function Columns({
 }) {
   return [
     columnHelper.accessor('name', {
-      header: 'NAME',
+      header: 'TÊN',
       cell: (info) => {
         const row = info.row.original;
         const isExpanded = expandedRows[row.id];
@@ -33,7 +33,7 @@ export default function Columns({
     }),
     columnHelper.display({
       id: 'actions',
-      header: <Text align="right">ACTIONS</Text>,
+      header: <Text align="right">THAO TÁC</Text>,
     }),
   ];
 }

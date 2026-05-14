@@ -121,7 +121,7 @@ export default function ProfilePage() {
         return append ? [] : enriched;
       } catch (err) {
         console.error(err);
-        toast.error('Failed to load orders');
+        toast.error('Tải đơn hàng thất bại');
         throw err;
       } finally {
         if (append) {
@@ -197,7 +197,7 @@ export default function ProfilePage() {
         }
       } catch (err) {
         console.error(err);
-        toast.error('Failed to load return orders');
+        toast.error('Tải đơn hoàn trả thất bại');
         throw err;
       } finally {
         if (append) {
@@ -274,7 +274,7 @@ export default function ProfilePage() {
   // -------------------------------
   const tabs = [
     !isAdminOrEmployee && {
-      label: 'Purchase History',
+      label: 'Lịch Sử Mua Hàng',
       component: (
         <PurchaseHistoryTab
           orders={orders}
@@ -287,7 +287,7 @@ export default function ProfilePage() {
       ),
     },
     !isAdminOrEmployee && {
-      label: 'Return Orders',
+      label: 'Đơn Hoàn Trả',
       component: (
         <ReturnOrderTab
           returns={returns}
@@ -298,10 +298,10 @@ export default function ProfilePage() {
         />
       ),
     },
-    { label: 'Profile', component: user && <ProfileTab user={user} /> },
-    { label: 'Change Password', component: <PasswordTab /> },
+    { label: 'Hồ Sơ', component: user && <ProfileTab user={user} /> },
+    { label: 'Đổi Mật Khẩu', component: <PasswordTab /> },
     !isAdminOrEmployee && {
-      label: 'Delete Account',
+      label: 'Xóa Tài Khoản',
       component: <DeleteAccountTab />,
     },
   ].filter(Boolean);

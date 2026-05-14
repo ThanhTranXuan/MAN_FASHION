@@ -21,7 +21,7 @@ export default function TotalCustomers({ summary, trend }) {
   const { series, options } = useMemo(() => {
     if (!trend || trend.length === 0)
       return {
-        series: [{ name: 'Customers', data: [] }],
+        series: [{ name: 'Khách Hàng', data: [] }],
         options: { xaxis: { categories: [] } },
       };
 
@@ -29,7 +29,7 @@ export default function TotalCustomers({ summary, trend }) {
     const customers = trend.map((d) => d.value);
 
     return {
-      series: [{ name: 'Customers', data: customers }],
+      series: [{ name: 'Khách Hàng', data: customers }],
       options: {
         chart: {
           type: 'line',
@@ -50,7 +50,7 @@ export default function TotalCustomers({ summary, trend }) {
         grid: { borderColor: gridColor, strokeDashArray: 4 },
         tooltip: {
           theme: isDark ? 'dark' : 'light',
-          y: { formatter: (val) => `${val} customers` },
+          y: { formatter: (val) => `${val} khách hàng` },
         },
         markers: {
           size: 4,
@@ -63,7 +63,7 @@ export default function TotalCustomers({ summary, trend }) {
   if (!summary || !trend || trend.length === 0) {
     return (
       <Card justify="center" align="center" h="260px">
-        <Text color="gray.500">No data available</Text>
+        <Text color="gray.500">Không có dữ liệu</Text>
       </Card>
     );
   }
@@ -79,7 +79,7 @@ export default function TotalCustomers({ summary, trend }) {
           borderRadius="7px"
           leftIcon={<MdOutlineCalendarToday />}
         >
-          Last 6 months
+          6 tháng gần đây
         </Button>
         <Badge
           colorScheme={summary.growthCount >= 0 ? 'green' : 'red'}
@@ -88,7 +88,7 @@ export default function TotalCustomers({ summary, trend }) {
           py="1"
         >
           {summary.growthCount >= 0 ? '+' : ''}
-          {summary.growthCount} new
+          {summary.growthCount} mới
         </Badge>
       </Flex>
 
@@ -96,7 +96,7 @@ export default function TotalCustomers({ summary, trend }) {
         {summary.currentNewCustomers?.toLocaleString() || 0}
       </Text>
       <Text color={textColorSecondary} fontSize="sm" mb="20px">
-        Customers
+        Khách hàng mới trong tháng
       </Text>
 
       <Box minH="220px" w="full">

@@ -132,7 +132,7 @@ export default function MegaMenu({ categories, onClose }) {
                       >
                         <HStack spacing={3}>
                           <MdStorefront size={22} />
-                          <Text fontWeight="semibold">Shop</Text>
+                          <Text fontWeight="semibold">Sản Phẩm</Text>
                         </HStack>
                         <MdChevronRight size={22} />
                       </Flex>
@@ -268,7 +268,7 @@ export default function MegaMenu({ categories, onClose }) {
                                 _hover={{ color: 'brand.400' }}
                                 onClick={() => handleNavigate(c2.id)}
                               >
-                                All
+                                Tất Cả
                               </Text>
                               {getChildren(c2.id).map((c3) => (
                                 <Text
@@ -349,7 +349,7 @@ export default function MegaMenu({ categories, onClose }) {
                               fontWeight="semibold"
                               color="brand.500"
                             >
-                              All
+                              Tất Cả
                             </Text>
                             {getChildren(c2.id).map((c3) => (
                               <Text
@@ -388,10 +388,10 @@ export default function MegaMenu({ categories, onClose }) {
                     <Image src={Clothe} alt="Products" w="100%" h="120px" />
                     <Box p={4}>
                       <Text fontSize="lg" fontWeight="bold" mb={2}>
-                        Explore Products
+                        Khám Phá Sản Phẩm
                       </Text>
                       <Text fontSize="sm" color="gray.500">
-                        Browse all categories, new arrivals, and bestsellers.
+                        Xem tất cả danh mục, hàng mới về và bán chạy nhất.
                       </Text>
                     </Box>
                   </Box>
@@ -413,10 +413,10 @@ export default function MegaMenu({ categories, onClose }) {
                     <Image src={Blog} alt="Blog" w="100%" h="120px" />
                     <Box p={4}>
                       <Text fontSize="lg" fontWeight="bold" mb={2}>
-                        Visit Our Blog
+                        Xem Blog
                       </Text>
                       <Text fontSize="sm" color="gray.500">
-                        Get style tips, trends, and fashion news.
+                        Mẹo phối đồ, xu hướng và tin tức thời trang.
                       </Text>
                     </Box>
                   </Box>
@@ -435,7 +435,7 @@ export default function MegaMenu({ categories, onClose }) {
             position="absolute"
             onClick={onClose}
           >
-            Close
+            Đóng
           </Button>
         </Flex>
       </MotionBox>

@@ -18,14 +18,14 @@ function ConfirmDialog({ isOpen, onClose, onConfirm, title, message }) {
     <Modal isOpen={isOpen} onClose={onClose} isCentered>
       <ModalOverlay />
       <ModalContent>
-        <ModalHeader>{title || 'Confirm'}</ModalHeader>
+        <ModalHeader>{title || 'Xác Nhận'}</ModalHeader>
         <ModalCloseButton />
         <ModalBody>
-          <Text>{message || 'Are you sure?'}</Text>
+          <Text>{message || 'Bạn có chắc không?'}</Text>
         </ModalBody>
         <ModalFooter>
           <Button variant="ghost" opacity={0.6} mr={3} onClick={onClose}>
-            Cancel
+            Hủy
           </Button>
           <Button
             colorScheme="brand"
@@ -35,7 +35,7 @@ function ConfirmDialog({ isOpen, onClose, onConfirm, title, message }) {
               onClose();
             }}
           >
-            Confirm
+            Xác Nhận
           </Button>
         </ModalFooter>
       </ModalContent>

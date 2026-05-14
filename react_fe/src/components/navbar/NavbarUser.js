@@ -56,7 +56,7 @@ export default function NavbarUser() {
         >
           <Icon as={MdMenu} color={textColor} boxSize={6} />
           <Text fontWeight="semibold" fontSize="md" color={textColor}>
-            Category
+            Danh Mục
           </Text>
         </Flex>
       )}

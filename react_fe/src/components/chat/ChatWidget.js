@@ -76,6 +76,16 @@ export default function ChatWidget() {
     }
   }, [isOpen]);
 
+  // ✅ Auto-scroll when switching between BOT and SHOP tabs
+  useEffect(() => {
+    if (messagesContainerRef.current) {
+      setTimeout(() => {
+        messagesContainerRef.current.scrollTop =
+          messagesContainerRef.current.scrollHeight;
+      }, 0);
+    }
+  }, [chatMode]);
+
   const handleOpenPopup = () => {
     if (!isAuthenticated) {
       toast.info('Please log in to chat for support!');

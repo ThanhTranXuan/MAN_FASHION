@@ -18,16 +18,16 @@ export default function Columns({ onShow, onEdit, onDelete, textColor }) {
       ),
     }),
     columnHelper.accessor('fullName', {
-      header: 'FULL NAME',
+      header: 'Họ Tên',
       cell: (info) => <Text>{info.getValue() || '-'}</Text>,
     }),
     columnHelper.accessor('hourlyRate', {
-      header: 'HOURLY RATE',
+      header: 'Lương Giờ',
       cell: (info) => <Text>{formatUSD(info.getValue()) || '-'}</Text>,
     }),
     columnHelper.display({
       id: 'actions',
-      header: <Text align="right">ACTIONS</Text>,
+      header: <Text align="right">THAO TÁC</Text>,
       cell: (info) => {
         const row = info.row.original;
         return (

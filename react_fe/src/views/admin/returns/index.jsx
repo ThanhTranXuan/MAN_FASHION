@@ -48,7 +48,7 @@ export default function ReturnPage() {
         setTotalPages(res.data.totalPages || 1);
       } catch (err) {
         console.error(err);
-        if (!silent) toast.error('Failed to load return orders');
+        if (!silent) toast.error('Tải danh sách hoàn trả thất bại');
       } finally {
         if (!silent) setIsLoading(false);
       }
@@ -119,11 +119,11 @@ export default function ReturnPage() {
         onUpdateStatus: async (rCode, status) => {
           try {
             await ReturnOrderService.updateStatusAdmin(rCode, status);
-            toast.success(`Return ${rCode} updated to ${status}`);
+            toast.success('Cập nhật trạng thái hoàn trả thành công');
             loadReturns(page);
           } catch (err) {
             console.error(err);
-            toast.error('Failed to update return status');
+            toast.error('Cập nhật trạng thái thất bại');
           }
         },
         statusFilter,
@@ -151,7 +151,7 @@ export default function ReturnPage() {
         bg={bgColor}
       >
         <Header
-          title="Return Management"
+          title="Quản lý hoàn trả"
           searchInput={searchInput}
           setSearchInput={setSearchInput}
           statusFilter={statusFilter}

@@ -17,13 +17,13 @@ export default function Header({
       flexWrap="wrap"
     >
       <Text fontSize="22px" fontWeight="700">
-        {title || 'Return Management'}
+        {title || 'Danh Sách Hoàn Trả'}
       </Text>
 
       <Flex gap={3} align="center">
         {/* Search theo return/order code */}
         <SearchBar
-          placeholder="Search return code..."
+          placeholder="Tìm kiếm đơn hoàn trả..."
           value={searchInput}
           onChange={(e) => setSearchInput(e.target.value)}
           width="280px"

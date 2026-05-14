@@ -36,7 +36,7 @@ export default function UserPage() {
         setTotalPages(data.totalPages || 1);
       } catch (err) {
         console.error('❌ Failed to load users:', err);
-        toast.error('Failed to load users');
+        toast.error('Tải danh sách người dùng thất bại');
       } finally {
         setIsLoading(false);
       }

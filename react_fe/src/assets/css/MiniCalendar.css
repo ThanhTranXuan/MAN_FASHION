@@ -4,7 +4,7 @@
 .react-calendar {
   border: unset;
   background-color: transparent;
-  font-family: "DM Sans", sans-serif;
+  font-family: 'Inter', 'Roboto', 'Be Vietnam Pro', 'Noto Sans', Arial, sans-serif;
 }
 .react-calendar__navigation__prev2-button {
   display: none;

@@ -27,6 +27,7 @@ import { useAppToast } from 'utils/ToastHelper';
 
 import EmployeeService from 'services/EmployeeService';
 import { MdArrowDropDown } from 'react-icons/md';
+import { formatUSD } from 'utils/FormatHelper';
 
 export default function Detail({ isOpen, onClose, employee }) {
   const [month, setMonth] = useState(new Date().getMonth() + 1);
@@ -64,17 +65,14 @@ export default function Detail({ isOpen, onClose, employee }) {
     }
   }, [employee, month, year, fetchData]);
 
-  const usdFormatter = new Intl.NumberFormat('en-US', {
-    style: 'currency',
-    currency: 'USD',
-  });
+  // Removed local usdFormatter
 
   return (
     <Modal isOpen={isOpen} onClose={onClose} size="3xl" isCentered>
       <ModalOverlay />
       <ModalContent borderRadius="20px" bg={bgColor} color={textColor}>
         <ModalHeader bg={headerBg} borderTopRadius="20px">
-          Work Details - {employee?.fullName}
+          Chi Tiết Nhân Viên - {employee?.fullName}
         </ModalHeader>
         <ModalCloseButton />
         <ModalBody>
@@ -86,12 +84,12 @@ export default function Detail({ isOpen, onClose, employee }) {
                   rightIcon={<MdArrowDropDown />}
                   variant="outline"
                 >
-                  Month {month}
+                  Tháng {month}
                 </MenuButton>
                 <MenuList>
                   {Array.from({ length: 12 }, (_, i) => (
                     <MenuItem key={i + 1} onClick={() => setMonth(i + 1)}>
-                      Month {i + 1}
+                      Tháng {i + 1}
                     </MenuItem>
                   ))}
                 </MenuList>
@@ -103,14 +101,14 @@ export default function Detail({ isOpen, onClose, employee }) {
                   rightIcon={<MdArrowDropDown />}
                   variant="outline"
                 >
-                  Year {year}
+                  Năm {year}
                 </MenuButton>
                 <MenuList>
                   {Array.from({ length: 5 }, (_, i) => {
                     const y = new Date().getFullYear() - i;
                     return (
                       <MenuItem key={y} onClick={() => setYear(y)}>
-                        Year {y}
+                        Năm {y}
                       </MenuItem>
                     );
                   })}
@@ -120,10 +118,10 @@ export default function Detail({ isOpen, onClose, employee }) {
 
             <HStack spacing={6}>
               <Text fontWeight="bold">
-                Total Hours: {totalHours.toFixed(2)} hrs
+                Tổng Giờ Làm: {totalHours.toFixed(2)} giờ
               </Text>
               <Text fontWeight="bold">
-                Total Salary: {usdFormatter.format(salary || 0)}
+                Tổng Lương: {formatUSD(salary || 0)}
               </Text>
             </HStack>
           </Flex>
@@ -131,10 +129,10 @@ export default function Detail({ isOpen, onClose, employee }) {
           <Table size="sm" variant="simple">
             <Thead bg={headerBg}>
               <Tr>
-                <Th>Check In</Th>
-                <Th>Check Out</Th>
-                <Th>Hours</Th>
-                <Th>Salary</Th>
+                <Th>Giờ Vào</Th>
+                <Th>Giờ Ra</Th>
+                <Th>Số Giờ</Th>
+                <Th>Lương</Th>
               </Tr>
             </Thead>
             <Tbody>
@@ -147,7 +145,7 @@ export default function Detail({ isOpen, onClose, employee }) {
                       : '-'}
                   </Td>
                   <Td>{r.workingHours?.toFixed(2) || 0}</Td>
-                  <Td>{usdFormatter.format(r.salary || 0)}</Td>
+                  <Td>{formatUSD(r.salary || 0)}</Td>
                 </Tr>
               ))}
             </Tbody>

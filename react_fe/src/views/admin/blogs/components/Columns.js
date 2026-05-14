@@ -13,7 +13,7 @@ export default function Columns({
 }) {
   return [
     columnHelper.accessor('thumbnail', {
-      header: 'THUMBNAIL',
+      header: 'ẢNH BÌA',
       cell: (info) => {
         const thumb = info.getValue();
         return thumb ? (
@@ -26,12 +26,12 @@ export default function Columns({
            onClick={() => onPreviewImage([thumb])}
           />
         ) : (
-          <Text>No Image</Text>
+          <Text>Không có ảnh</Text>
         );
       },
     }),
     columnHelper.accessor('title', {
-      header: 'TITLE',
+      header: 'TIÊU ĐỀ',
       cell: (info) => (
         <Text fontSize="sm" fontWeight="600">
           {info.getValue()}
@@ -39,7 +39,7 @@ export default function Columns({
       ),
     }),
     columnHelper.accessor('content', {
-      header: 'CONTENT',
+      header: 'NỘI DUNG',
       cell: (info) => (
         <Text
           noOfLines={2}
@@ -54,7 +54,7 @@ export default function Columns({
     }),
     columnHelper.display({
       id: 'actions',
-      header: () => <Text textAlign="right">ACTIONS</Text>,
+      header: () => <Text textAlign="right">THAO TÁC</Text>,
       cell: (info) => {
         const blog = info.row.original;
         return (

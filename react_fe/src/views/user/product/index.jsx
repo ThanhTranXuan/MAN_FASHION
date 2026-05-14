@@ -158,8 +158,8 @@ export default function ProductListPage() {
   // ==========================================
   const breadcrumbTrail = useMemo(() => {
     const trail = [
-      { name: 'Home', path: '/' },
-      { name: 'All Products', path: '/user/product' },
+      { name: 'Trang Chủ', path: '/' },
+      { name: 'Tất Cả Sản Phẩm', path: '/user/product' },
     ];
 
     if (!categorySlug || categories.length === 0) return trail;
@@ -250,7 +250,7 @@ export default function ProductListPage() {
           w={{ base: '100%', md: '300px' }}
         >
           <SearchBar
-            placeholder="Search products..."
+            placeholder="Tìm kiếm sản phẩm..."
             borderRadius="30px"
             value={keyword}
             onChange={(e) => setKeyword(e.target.value)}
@@ -260,7 +260,7 @@ export default function ProductListPage() {
 
       {/* 🧩 Category chips */}
       {loadingCats ? (
-        <Text>Loading categories...</Text>
+        <Text>Đang tải danh mục...</Text>
       ) : (
         <Box
           overflowX="auto"
@@ -304,7 +304,7 @@ export default function ProductListPage() {
             )}
             {size.map((s) => (
               <Tag size="md" borderRadius="full" key={s}>
-                <TagLabel>Size: {s}</TagLabel>
+                <TagLabel>Kích cỡ: {s}</TagLabel>
                 <TagCloseButton
                   onClick={() => setSize(size.filter((x) => x !== s))}
                 />
@@ -313,7 +313,7 @@ export default function ProductListPage() {
           </HStack>
         </Flex>
         <Button leftIcon={<MdTune />} onClick={onOpen} variant="outline">
-          Filters
+          Bộ Lọc
         </Button>
       </Flex>
 
@@ -334,20 +334,18 @@ export default function ProductListPage() {
             px={4}
           >
             <Text fontSize="lg" fontWeight="semibold" mb={2}>
-              No products found
+              Không tìm thấy sản phẩm
             </Text>
             <Text fontSize="sm" color="gray.500" maxW="360px">
-              We couldn't find any products matching your search or
-              filters. Try adjusting filters or searching with a different
-              keyword.
+              Chúng tôi không tìm thấy sản phẩm nào phù hợp với tìm kiếm hoặc bộ lọc của bạn. Vui lòng điều chỉnh bộ lọc hoặc tìm kiếm với từ khóa khác.
             </Text>
             <HStack spacing={3} mt={6}>
               {(keyword || color || size.length > 0) && (
                 <Button variant="outline" onClick={handleClearFilters}>
-                  Clear filters
+                  Xóa Bộ Lọc
                 </Button>
               )}
-              <Button onClick={() => setPage(0)}>Reload</Button>
+              <Button onClick={() => setPage(0)}>Tải Lại</Button>
             </HStack>
           </Flex>
         ) : (

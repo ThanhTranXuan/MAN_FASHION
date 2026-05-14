@@ -64,7 +64,7 @@ export default function ReturnOrderTab({
     return (
       <Box textAlign="center" py={10}>
         <Text fontSize="lg" color="gray.500">
-          You haven’t made any return requests yet.
+          Bạn chưa tạo yêu cầu hoàn trả nào.
         </Text>
       </Box>
     );
@@ -73,7 +73,7 @@ export default function ReturnOrderTab({
   return (
     <Box>
       <Heading size="md" mb={6} color={textColor}>
-        Return Orders
+        Đơn Hoàn Trả
       </Heading>
 
       <Box
@@ -97,10 +97,10 @@ export default function ReturnOrderTab({
               <Flex justify="space-between" align="center" mb={4}>
                 <Box>
                   <Text fontWeight="bold" fontSize="lg">
-                    Return #{ro.returnCode || 'Return Request'}
+                    Hoàn Trả #{ro.returnCode || 'Yêu Cầu Hoàn Trả'}
                   </Text>
                   <Text fontSize="sm" color="gray.500">
-                    For Order #{ro.orderCode}
+                    Đơn Hàng #{ro.orderCode}
                   </Text>
                 </Box>
                 <Badge colorScheme={getStatusColor(ro.status)} px={3} py={1}>
@@ -155,7 +155,7 @@ export default function ReturnOrderTab({
                         {formatUSD(item.unitPrice * item.quantity)}
                       </Text>
                       <Text fontSize="sm" color="gray.500">
-                        Qty: {item.quantity}
+                        Số lượng: {item.quantity}
                       </Text>
                     </Box>
                   </Flex>
@@ -165,11 +165,11 @@ export default function ReturnOrderTab({
               <Divider my={3} />
 
               <Text fontSize="sm" color="gray.600">
-                Reason: {ro.reason}
+                Lý do: {ro.reason}
               </Text>
               {ro.note && (
                 <Text fontSize="sm" color="gray.500">
-                  Note: {ro.note}
+                  Ghi chú: {ro.note}
                 </Text>
               )}
             </Box>
@@ -185,7 +185,7 @@ export default function ReturnOrderTab({
         {!loadingMore && !hasMore && (
           <Flex justify="center" py={4}>
             <Text fontSize="sm" color="gray.400">
-              You’ve reached the end of your return orders.
+              Đã xem hết lịch sử đơn hoàn trả.
             </Text>
           </Flex>
         )}

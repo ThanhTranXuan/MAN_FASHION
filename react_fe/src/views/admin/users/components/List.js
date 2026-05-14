@@ -77,7 +77,7 @@ export default function List({ table, textColor, isLoading }) {
                 py={8}
               >
                 <Text color="gray.500" fontSize="sm">
-                  No users found.
+                  Không tìm thấy người dùng.
                 </Text>
               </Td>
             </Tr>

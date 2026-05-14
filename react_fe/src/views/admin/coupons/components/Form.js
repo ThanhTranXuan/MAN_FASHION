@@ -82,55 +82,55 @@ export default function Form({ isOpen, onClose, reloadCoupons, coupon }) {
 
     const trimmedCode = code.trim();
     if (!trimmedCode) {
-      newErrors.code = 'Code is required';
+      newErrors.code = 'Mã giảm giá là bắt buộc';
     }
 
     const discountNum = Number(discountValue);
     if (!discountValue) {
-      newErrors.discountValue = 'Discount value is required';
+      newErrors.discountValue = 'Giá trị giảm giá là bắt buộc';
     } else if (Number.isNaN(discountNum)) {
-      newErrors.discountValue = 'Discount value must be a number';
+      newErrors.discountValue = 'Giá trị giảm giá phải là số';
     } else if (discountNum < 1 || discountNum > 100) {
-      newErrors.discountValue = 'Discount must be between 1 and 100';
+      newErrors.discountValue = 'Giá trị giảm giá phải từ 1 đến 100';
     }
 
     const usageLimitNum = Number(usageLimit);
     if (!usageLimit) {
-      newErrors.usageLimit = 'Usage limit is required';
+      newErrors.usageLimit = 'Giới hạn sử dụng là bắt buộc';
     } else if (Number.isNaN(usageLimitNum)) {
-      newErrors.usageLimit = 'Usage limit must be a number';
+      newErrors.usageLimit = 'Giới hạn sử dụng phải là số';
     } else if (!Number.isInteger(usageLimitNum) || usageLimitNum < 1) {
-      newErrors.usageLimit = 'Usage limit must be an integer greater than 0';
+      newErrors.usageLimit = 'Giới hạn sử dụng phải là số nguyên lớn hơn 0';
     }
 
     const usedCountNum = coupon ? Number(usedCount || 0) : 0;
     if (coupon) {
       if (Number.isNaN(usedCountNum) || usedCountNum < 0) {
-        newErrors.usedCount = 'Used count is invalid';
+        newErrors.usedCount = 'Số lần đã dùng không hợp lệ';
       } else if (!Number.isInteger(usedCountNum)) {
-        newErrors.usedCount = 'Used count must be an integer';
+        newErrors.usedCount = 'Số lần đã dùng phải là số nguyên';
       } else if (!Number.isNaN(usageLimitNum) && usedCountNum > usageLimitNum) {
-        newErrors.usedCount = 'Used count cannot be greater than usage limit';
+        newErrors.usedCount =
+          'Số lần đã dùng không được lớn hơn giới hạn sử dụng';
       }
     }
 
     // Validate ngày
     if (!startDate && endDate) {
-      newErrors.startDate = 'Start date is required when end date is set';
+      newErrors.startDate = 'Ngày bắt đầu là bắt buộc khi có ngày kết thúc';
     }
 
     if (startDate && endDate) {
       const start = new Date(startDate);
       const end = new Date(endDate);
       if (end < start) {
-        newErrors.endDate =
-          'End date must be greater than or equal to start date';
+        newErrors.endDate = 'Ngày kết thúc phải sau ngày bắt đầu';
       }
     }
 
     setErrors(newErrors);
     if (Object.keys(newErrors).length > 0) {
-      toast.error('Please fix the validation errors');
+      toast.error('Vui lòng điền đủ các trường bắt buộc');
       return false;
     }
     return true;
@@ -140,7 +140,6 @@ export default function Form({ isOpen, onClose, reloadCoupons, coupon }) {
     e.preventDefault();
 
     if (!validate()) return;
-
     setLoading(true);
 
     const trimmedCode = code.trim();
@@ -161,16 +160,16 @@ export default function Form({ isOpen, onClose, reloadCoupons, coupon }) {
     try {
       if (coupon) {
         await CouponService.update(coupon.id, payload);
-        toast.success('Coupon updated successfully');
+        toast.success('Đã cập nhật mã giảm giá thành công!');
       } else {
         await CouponService.create(payload);
-        toast.success('Coupon created successfully');
+        toast.success('Đã tạo mã giảm giá thành công!');
       }
       reloadCoupons?.();
       onClose();
     } catch (err) {
       console.error('❌ Error saving coupon:', err.response?.data || err);
-      toast.error(err.response?.data?.message || 'Error saving coupon');
+      toast.error(err.response?.data?.message || 'Lưu mã giảm giá thất bại');
     } finally {
       setLoading(false);
     }
@@ -181,25 +180,25 @@ export default function Form({ isOpen, onClose, reloadCoupons, coupon }) {
       <ModalOverlay />
       <ModalContent borderRadius="20px" bg={bgColor} color={textColor}>
         <ModalHeader bg={headerBg} borderTopRadius="20px">
-          {coupon ? 'Edit Coupon' : 'Create New Coupon'}
+          {coupon ? 'Chỉnh Sửa Mã Giảm Giá' : 'Tạo Mã Giảm Giá Mới'}
         </ModalHeader>
         <ModalCloseButton />
         <ModalBody>
           <form id="create-coupon-form" onSubmit={handleSubmit}>
             <VStack spacing={4} align="flex-start">
               <FormControl isRequired isInvalid={!!errors.code}>
-                <FormLabel>Code</FormLabel>
+                <FormLabel>Mã Giảm Giá</FormLabel>
                 <Input
                   color={textColor}
                   value={code}
                   onChange={(e) => setCode(e.target.value)}
-                  placeholder="Enter coupon code"
+                  placeholder="Nhập mã giảm giá"
                 />
                 <FormErrorMessage>{errors.code}</FormErrorMessage>
               </FormControl>
 
               <FormControl isRequired isInvalid={!!errors.discountValue}>
-                <FormLabel>Discount Value (%)</FormLabel>
+                <FormLabel>Giá Trị Giảm Giá (%)</FormLabel>
                 <Input
                   type="number"
                   min={1}
@@ -207,14 +206,14 @@ export default function Form({ isOpen, onClose, reloadCoupons, coupon }) {
                   color={textColor}
                   value={discountValue}
                   onChange={(e) => setDiscountValue(e.target.value)}
-                  placeholder="Enter percentage (1-100)%"
+                  placeholder="Nhập phần trăm (1-100)%"
                 />
                 <FormErrorMessage>{errors.discountValue}</FormErrorMessage>
               </FormControl>
 
               <FormControl isInvalid={!!errors.startDate}>
                 <DatePicker
-                  label="Start Date"
+                  label="Ngày Bắt Đầu"
                   value={startDate}
                   onChange={setStartDate}
                   isRequired
@@ -224,7 +223,7 @@ export default function Form({ isOpen, onClose, reloadCoupons, coupon }) {
 
               <FormControl isInvalid={!!errors.endDate}>
                 <DatePicker
-                  label="End Date"
+                  label="Ngày Kết Thúc"
                   value={endDate}
                   onChange={setEndDate}
                   isRequired
@@ -233,14 +232,14 @@ export default function Form({ isOpen, onClose, reloadCoupons, coupon }) {
               </FormControl>
 
               <FormControl isRequired isInvalid={!!errors.usageLimit}>
-                <FormLabel>Usage Limit</FormLabel>
+                <FormLabel>Giới Hạn Sử Dụng</FormLabel>
                 <Input
                   type="number"
                   min={1}
                   color={textColor}
                   value={usageLimit}
                   onChange={(e) => setUsageLimit(e.target.value)}
-                  placeholder="Enter usage limit"
+                  placeholder="Nhập giới hạn sử dụng"
                 />
                 <FormErrorMessage>{errors.usageLimit}</FormErrorMessage>
               </FormControl>
@@ -250,7 +249,7 @@ export default function Form({ isOpen, onClose, reloadCoupons, coupon }) {
 
         <ModalFooter bg={headerBg} borderBottomRadius="20px">
           <Button variant="ghost" mr={3} onClick={onClose}>
-            Cancel
+            Hủy
           </Button>
           <Button
             colorScheme={coupon ? 'blue' : 'green'}
@@ -258,7 +257,7 @@ export default function Form({ isOpen, onClose, reloadCoupons, coupon }) {
             form="create-coupon-form"
             isLoading={loading}
           >
-            {coupon ? 'Update' : 'Create'}
+            {coupon ? 'Cập Nhật' : 'Tạo Mới'}
           </Button>
         </ModalFooter>
       </ModalContent>

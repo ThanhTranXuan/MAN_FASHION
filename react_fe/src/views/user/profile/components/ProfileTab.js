@@ -91,7 +91,7 @@ export default function ProfileTab({ user }) {
       };
       
       await ProfileService.updateProfile(updateData);
-      toast.success('Profile updated successfully');
+      toast.success('Cập nhật hồ sơ thành công');
       
       // ✅ Refresh user context to reload updated data
       if (refreshUser) {
@@ -99,7 +99,7 @@ export default function ProfileTab({ user }) {
       }
     } catch (err) {
       console.error(err);
-      toast.error('Update failed');
+      toast.error('Cập nhật thất bại');
     }
   };
 
@@ -111,9 +111,9 @@ export default function ProfileTab({ user }) {
       const { avatarUrl } = await ProfileService.updateAvatar(file);
       setFormData((prev) => ({ ...prev, avatarUrl }));
 
-      toast.success('Avatar updated successfully');
+      toast.success('Cập nhật ảnh đại diện thành công');
     } catch (err) {
-      toast.error('Avatar update failed');
+      toast.error('Cập nhật ảnh đại diện thất bại');
     }
   };
 
@@ -174,7 +174,7 @@ export default function ProfileTab({ user }) {
           />
         )}
         <Text mt={4} fontSize="xl" fontWeight="bold" color={textColor}>
-          {formData.fullName || 'Unnamed User'}
+          {formData.fullName || 'Người Dùng'}
         </Text>
         <Text fontSize="sm" color="gray.500">
           {formData.email}
@@ -186,11 +186,11 @@ export default function ProfileTab({ user }) {
       {/* Personal Information */}
       <Box p={4} bg={sectionBg} borderRadius="12px" mb={6}>
         <Text fontSize="lg" fontWeight="bold" mb={4}>
-          Personal Information
+          Thông Tin Cá Nhân
         </Text>
         <SimpleGrid columns={{ base: 1, md: 2 }} spacing={6}>
           <FormControl>
-            <FormLabel>Full Name</FormLabel>
+            <FormLabel>Họ Tên</FormLabel>
             <Input
               color={textColor}
               name="fullName"
@@ -211,7 +211,7 @@ export default function ProfileTab({ user }) {
           </FormControl>
 
           <FormControl>
-            <FormLabel>Phone</FormLabel>
+            <FormLabel>Số Điện Thoại</FormLabel>
             <Input
               color={textColor}
               name="phone"
@@ -222,7 +222,7 @@ export default function ProfileTab({ user }) {
 
           {user?.roleName === 'EMPLOYEE' && (
             <FormControl>
-              <FormLabel>Hourly Rate</FormLabel>
+              <FormLabel>Mức Lương Giờ</FormLabel>
               <Input
                 color={textColor}
                 value={user.hourlyRate || ''}
@@ -236,11 +236,11 @@ export default function ProfileTab({ user }) {
       {/* Address Information */}
       <Box p={4} bg={sectionBg} borderRadius="12px">
         <Text fontSize="lg" fontWeight="bold" mb={4}>
-          Address
+          Địa Chỉ
         </Text>
         <SimpleGrid columns={{ base: 1, md: 2 }} spacing={6}>
           <FormControl>
-            <FormLabel>Street</FormLabel>
+            <FormLabel>Số Nhà / Tên Đường</FormLabel>
             <Input
               color={textColor}
               name="addressStreet"
@@ -250,7 +250,7 @@ export default function ProfileTab({ user }) {
           </FormControl>
 
           <FormControl>
-            <FormLabel>Ward</FormLabel>
+            <FormLabel>Phường / Xã</FormLabel>
             <Input
               color={textColor}
               name="addressWard"
@@ -260,7 +260,7 @@ export default function ProfileTab({ user }) {
           </FormControl>
 
           <FormControl>
-            <FormLabel>District</FormLabel>
+            <FormLabel>Quận / Huyện</FormLabel>
             <Input
               color={textColor}
               name="addressDistrict"
@@ -270,7 +270,7 @@ export default function ProfileTab({ user }) {
           </FormControl>
 
           <FormControl>
-            <FormLabel>City</FormLabel>
+            <FormLabel>Tỉnh / Thành Phố</FormLabel>
             <Input
               color={textColor}
               name="addressCity"
@@ -282,7 +282,7 @@ export default function ProfileTab({ user }) {
       </Box>
 
       <Button mt={8} colorScheme="brand" color="white" onClick={handleSubmit}>
-        Save Changes
+        Lưu Thay Đổi
       </Button>
     </Box>
   );

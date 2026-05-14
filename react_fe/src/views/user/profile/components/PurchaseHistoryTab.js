@@ -89,7 +89,7 @@ export default function PurchaseHistoryTab({
       toast.success(`Order ${orderCode} updated to ${newStatus}`);
     } catch (err) {
       console.error(err);
-      toast.error('Failed to update status');
+      toast.error('Cập nhật trạng thái thất bại');
     }
   };
 
@@ -102,7 +102,7 @@ export default function PurchaseHistoryTab({
 
   const handleSubmitReturn = async () => {
     if (!selectedOrder) return;
-    if (!reason.trim()) return toast.warning('Please enter a reason.');
+    if (!reason.trim()) return toast.warning('Vui lòng nhập lý do hoàn trả.');
 
     const selectedItems =
       selectedOrder.items
@@ -114,7 +114,7 @@ export default function PurchaseHistoryTab({
         })) || [];
 
     if (selectedItems.length === 0)
-      return toast.warning('Please select at least one item to return.');
+      return toast.warning('Vui lòng chọn ít nhất một sản phẩm để hoàn trả.');
 
     setSubmittingReturn(true);
     try {
@@ -124,12 +124,12 @@ export default function PurchaseHistoryTab({
         note,
         items: selectedItems,
       });
-      toast.success('Return request submitted!');
+      toast.success('Yêu cầu hoàn trả đã được gửi!');
       onClose();
       onReturnSubmitted?.();
     } catch (err) {
       console.error(err);
-      toast.error('Failed to submit return');
+      toast.error('Gửi yêu cầu hoàn trả thất bại');
     } finally {
       setSubmittingReturn(false);
     }
@@ -158,7 +158,7 @@ export default function PurchaseHistoryTab({
     return (
       <Box textAlign="center" py={10}>
         <Text fontSize="lg" color="gray.500">
-          You haven’t placed any orders yet.
+          Bạn chưa đặt đơn hàng nào.
         </Text>
       </Box>
     );
@@ -168,7 +168,7 @@ export default function PurchaseHistoryTab({
   return (
     <Box>
       <Heading size="md" mb={6} color={textColor}>
-        Purchase History
+        Lịch Sử Mua Hàng
       </Heading>
 
       {/* Container có scroll */}
@@ -193,7 +193,7 @@ export default function PurchaseHistoryTab({
               <Flex justify="space-between" align="center" mb={4}>
                 <Box>
                   <Text fontWeight="bold" fontSize="lg">
-                    Order #{order.orderCode}
+                    Đơn Hàng #{order.orderCode}
                   </Text>
                   <Text fontSize="sm" color="gray.500">
                     {new Date(order.createdAt).toLocaleDateString()}
@@ -265,7 +265,7 @@ export default function PurchaseHistoryTab({
               {/* Footer actions */}
               <Flex justify="space-between" align="center">
                 <Text fontWeight="bold" color={textColor}>
-                  Total: {formatUSD(order.finalTotal)}
+                  Tổng: {formatUSD(order.finalTotal)}
                 </Text>
 
                 {order.status === 'DELIVERED' && (
@@ -277,7 +277,7 @@ export default function PurchaseHistoryTab({
                         handleUpdateStatus(order.orderCode, 'COMPLETED')
                       }
                     >
-                      Confirm Received
+                      Xác Nhận Đã Nhận
                     </Button>
                     <Button
                       size="sm"
@@ -285,7 +285,7 @@ export default function PurchaseHistoryTab({
                       variant="outline"
                       onClick={() => handleOpenReturn(order)}
                     >
-                      Request Return
+                      Yêu Cầu Hoàn Trả
                     </Button>
                   </Flex>
                 )}
@@ -304,7 +304,7 @@ export default function PurchaseHistoryTab({
         {!loadingMore && !hasMore && (
           <Flex justify="center" py={4}>
             <Text fontSize="sm" color="gray.400">
-              You’ve reached the end of your order history.
+              Đã xem hết lịch sử đơn hàng.
             </Text>
           </Flex>
         )}
@@ -320,7 +320,7 @@ export default function PurchaseHistoryTab({
       >
         <ModalOverlay />
         <ModalContent borderRadius="16px">
-          <ModalHeader>Select Items to Return</ModalHeader>
+          <ModalHeader>            Chọn Sản Phẩm Hoàn Trả</ModalHeader>
           <ModalCloseButton />
           <ModalBody>
             {selectedOrder && (
@@ -422,18 +422,18 @@ export default function PurchaseHistoryTab({
             <Divider my={4} />
 
             <FormControl mb={4}>
-              <FormLabel>Reason for return</FormLabel>
+              <FormLabel>Lý do hoàn trả</FormLabel>
               <Textarea
-                placeholder="Enter your reason"
+                placeholder="Nhập lý do của bạn"
                 value={reason}
                 onChange={(e) => setReason(e.target.value)}
               />
             </FormControl>
 
             <FormControl>
-              <FormLabel>Additional note</FormLabel>
+              <FormLabel>Ghi chú thêm</FormLabel>
               <Textarea
-                placeholder="Optional note..."
+                placeholder="Ghi chú (tùy chọn)..."
                 value={note}
                 onChange={(e) => setNote(e.target.value)}
               />
@@ -442,14 +442,14 @@ export default function PurchaseHistoryTab({
 
           <ModalFooter>
             <Button variant="ghost" mr={3} onClick={onClose}>
-              Cancel
+              Hủy
             </Button>
             <Button
               colorScheme="brand"
               onClick={handleSubmitReturn}
               isLoading={submittingReturn}
             >
-              Submit Return
+              Gửi Yêu Cầu
             </Button>
           </ModalFooter>
         </ModalContent>

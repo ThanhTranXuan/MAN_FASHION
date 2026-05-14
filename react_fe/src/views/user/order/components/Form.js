@@ -22,14 +22,14 @@ export default function Form({ formData, setFormData }) {
   return (
     <Box flex="1" bg={sectionBg} p={6} borderRadius="16px" boxShadow="lg">
       <Heading size="md" mb={6} color={textColor}>
-        Shipping Information
+        Thông Tin Giao Hàng
       </Heading>
 
       <SimpleGrid columns={{ base: 1, md: 2 }} spacing={10}>
         {/* Cột trái - Personal Info */}
         <VStack spacing={6} align="stretch">
           <FormControl isRequired>
-            <FormLabel>Full Name</FormLabel>
+            <FormLabel>Họ Tên</FormLabel>
             <Input
               color={textColor}
               name="fullName"
@@ -50,7 +50,7 @@ export default function Form({ formData, setFormData }) {
           </FormControl>
 
           <FormControl isRequired>
-            <FormLabel>Phone</FormLabel>
+            <FormLabel>Số Điện Thoại</FormLabel>
             <Input
               color={textColor}
               name="phone"
@@ -63,7 +63,7 @@ export default function Form({ formData, setFormData }) {
         {/* Cột phải - Address Info */}
         <VStack spacing={6} align="stretch">
           <FormControl isRequired>
-            <FormLabel>Street</FormLabel>
+            <FormLabel>Số Nhà / Tên Đường</FormLabel>
             <Input
               color={textColor}
               name="addressStreet"
@@ -73,7 +73,7 @@ export default function Form({ formData, setFormData }) {
           </FormControl>
 
           <FormControl isRequired>
-            <FormLabel>Ward</FormLabel>
+            <FormLabel>Phường / Xã</FormLabel>
             <Input
               color={textColor}
               name="addressWard"
@@ -83,7 +83,7 @@ export default function Form({ formData, setFormData }) {
           </FormControl>
 
           <FormControl isRequired>
-            <FormLabel>District</FormLabel>
+            <FormLabel>Quận / Huyện</FormLabel>
             <Input
               color={textColor}
               name="addressDistrict"
@@ -93,7 +93,7 @@ export default function Form({ formData, setFormData }) {
           </FormControl>
 
           <FormControl isRequired>
-            <FormLabel>City</FormLabel>
+            <FormLabel>Tỉnh / Thành Phố</FormLabel>
             <Input
               color={textColor}
               name="addressCity"

@@ -11,12 +11,12 @@ export default function AboutSection({ textColor }) {
         bgGradient="linear(to-r, #7366ff, #d633ff, #ff6a00)"
         bgClip="text"
       >
-        Why Trendify?
+        Tại sao chọn Trendify?
       </MotionText>
       <Text fontSize="lg" color={textColor} maxW="700px" mx="auto">
-        Trendify brings you the ultimate online shopping experience – from
-        clothing and accessories to a lifestyle blog. We help you define your
-        own unique style.
+        Trendify mang đến cho bạn trải nghiệm mua sắm trực tuyến tuyệt vời nhất – từ
+        quần áo, phụ kiện đến các bài viết phong cách sống. Chúng tôi giúp bạn định hình phong cách
+        độc đáo của riêng mình.
       </Text>
     </Box>
   );

@@ -2,7 +2,7 @@
 
 export const barChartDataDailyTraffic = [
   {
-    name: "Daily Traffic",
+    name: "Lưu Lượng",
     data: [20, 30, 40, 20, 45, 50, 30],
   },
 ];
@@ -209,7 +209,7 @@ export const barChartOptionsConsumption = {
 };
 
 export const pieChartOptions = {
-  labels: ["Your files", "System", "Empty"],
+  labels: ["File của bạn", "Hệ thống", "Trống"],
   colors: ["#4318FF", "#6AD2FF", "#EFF4FB"],
   chart: {
     width: "50px",
@@ -253,11 +253,11 @@ export const pieChartData = [63, 25, 12];
 
 export const lineChartDataTotalSpent = [
   {
-    name: "Revenue",
+    name: "Doanh Thu",
     data: [50, 64, 48, 66, 49, 68],
   },
   {
-    name: "Profit",
+    name: "Lợi Nhuận",
     data: [30, 40, 24, 46, 20, 46],
   },
 ];
