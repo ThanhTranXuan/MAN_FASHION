@@ -86,7 +86,7 @@ public class OrderServiceImpl implements OrderService {
             }
         }
 
-        double subtotalUSD = 0.0;
+        double subtotal = 0.0;
         List<OrderItem> orderItems = new ArrayList<>();
         List<PaymentLinkItem> itemsForPayOS = new ArrayList<>();
 
@@ -115,26 +115,26 @@ public class OrderServiceImpl implements OrderService {
             variant.setStock(currentStock - quantity);
             variantRepo.save(variant);
 
-            double priceUSD = getProductPrice(productId);
-            subtotalUSD += quantity * priceUSD;
+            double priceVND = getProductPrice(productId);
+            subtotal += quantity * priceVND;
 
             // SỬA Ở ĐÂY: Dùng Object Product và Variant
             orderItems.add(OrderItem.builder()
                     .product(Product.builder().id(productId).build())
                     .variant(variant)
                     .quantity(quantity)
-                    .price(priceUSD)
+                    .price(priceVND)
                     .build());
 
             itemsForPayOS.add(PaymentLinkItem.builder()
                     .name("Sản phẩm Trendify")
                     .quantity(quantity)
-                    .price(Math.round(priceUSD * 25400))
+                    .price((long) Math.round(priceVND))
                     .build());
         }
 
         double discountPercent = 0.0;
-        double discountValueUSD = 0.0;
+        double discountValue = 0.0;
         Coupon appliedCoupon = null; // Tạo biến lưu object Coupon
 
         if (req.getCouponId() != null && !req.getCouponId().isBlank()) {
@@ -149,15 +149,15 @@ public class OrderServiceImpl implements OrderService {
             }
 
             discountPercent = Optional.ofNullable(appliedCoupon.getDiscountValue()).orElse(0.0);
-            discountValueUSD = subtotalUSD * discountPercent / 100.0;
+            discountValue = subtotal * discountPercent / 100.0;
 
             Integer usedCount = appliedCoupon.getUsedCount() == null ? 0 : appliedCoupon.getUsedCount();
             appliedCoupon.setUsedCount(usedCount + 1);
             couponRepo.save(appliedCoupon);
         }
 
-        double finalTotalUSD = subtotalUSD - discountValueUSD;
-        long amountVND = Math.round(finalTotalUSD * 25400);
+        double finalTotal = subtotal - discountValue;
+        long amountVND = Math.round(finalTotal);
 
         String paymentMethod = req.getPaymentMethod();
         if (!"VIETQR".equals(paymentMethod) && !"COD".equals(paymentMethod)) {
@@ -176,9 +176,9 @@ public class OrderServiceImpl implements OrderService {
                 .address(req.getAddress())
                 .coupon(appliedCoupon)
                 .discountPercent(discountPercent)
-                .discountValue(discountValueUSD)
-                .subtotal(subtotalUSD)
-                .finalTotal(finalTotalUSD)
+                .discountValue(discountValue)
+                .subtotal(subtotal)
+                .finalTotal(finalTotal)
                 .status("PENDING")
                 .paymentMethod(paymentMethod)
                 .checkoutSessionId(checkoutSessionId)
@@ -403,7 +403,7 @@ public class OrderServiceImpl implements OrderService {
 
     private void sendPendingPaymentEmail(Order order, String checkoutUrl, String qrCodeUrl) {
         String name = customerName(order);
-        long amountVND = Math.round(order.getFinalTotal() * 25400);
+        long amountVND = Math.round(order.getFinalTotal());
 
         String htmlContent = EmailTemplateBuilder.build(name, "Vui lòng thanh toán đơn hàng " + order.getOrderCode(),
                 """

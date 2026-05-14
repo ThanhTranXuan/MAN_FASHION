@@ -115,7 +115,7 @@ public class PayOSWebhookController {
                 .filter(name -> !name.isBlank())
                 .orElse(order.getEmail().split("@")[0]);
 
-        long amountVND = Math.round(order.getFinalTotal() * 25400);
+        long amountVND = Math.round(order.getFinalTotal());
 
         String htmlContent = EmailTemplateBuilder.build(
                 customerName,
