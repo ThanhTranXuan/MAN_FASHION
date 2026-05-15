@@ -89,8 +89,20 @@ export default function NavbarLinks() {
 
   const filteredRoutes = routes.filter((route) => !route.hideInSidebar);
 
+  const adminShadow = useColorModeValue(
+    '14px 17px 40px 4px rgba(112, 144, 176, 0.18)',
+    '14px 17px 40px 4px rgba(112, 144, 176, 0.06)'
+  );
+
   return (
-    <Flex align="center" gap="10px">
+    <Flex 
+      align="center" 
+      gap="10px"
+      bg={isAdminRoute ? menuBg : 'transparent'}
+      p={isAdminRoute ? "10px" : "0"}
+      borderRadius={isAdminRoute ? "30px" : "0"}
+      boxShadow={isAdminRoute ? adminShadow : 'none'}
+    >
       {isAdminRoute && <SidebarResponsive routes={filteredRoutes} />}
 
       {/* 🛒 Cart button 

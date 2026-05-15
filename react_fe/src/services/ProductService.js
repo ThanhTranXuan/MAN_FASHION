@@ -19,6 +19,10 @@ const ProductService = {
           // .data thứ hai là trường 'data' trong ApiResponse của Spring Boot
         return { data: res.data.data };
       }),
+  getSimilarProducts: (id, limit = 8) => 
+      ApiClient.get(ApiUrl.PRODUCT_SIMILAR(id), { params: { limit } }).then(res => {
+          return { data: res.data.data };
+      }),
   // Admin/Employee
   getDetailById: (id) => ApiClient.get(ApiUrl.PRODUCT_BY_ID(id)).then(res=>{ return { data: res.data.data };}),
   // getStatsByCategory: () => ApiClient.get(ApiUrl.PRODUCT_STATS),

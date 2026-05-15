@@ -8,7 +8,7 @@ import {
   Flex,
 } from '@chakra-ui/react';
 import {
-  MdAttachMoney,
+  MdAccountBalanceWallet,
   MdShoppingCart,
   MdPeople,
   MdWork,
@@ -23,7 +23,7 @@ import TotalCustomers from 'views/admin/default/components/TotalCustomers';
 import TopProductsTable from 'views/admin/default/components/TopProductsTable';
 import EmployeeStanding from 'views/admin/default/components/EmployeeStanding';
 import ReportService from 'services/ReportService';
-import { formatCompact } from 'utils/FormatHelper';
+import { formatCurrencyVND } from 'utils/FormatHelper';
 import { useAppToast } from 'utils/ToastHelper'; // 🔥 dùng ToastHelper
 
 export default function UserReports() {
@@ -148,12 +148,12 @@ export default function UserReports() {
               h="56px"
               bg={boxBg}
               icon={
-                <Icon w="32px" h="32px" as={MdAttachMoney} color={brandColor} />
+                <Icon w="32px" h="32px" as={MdAccountBalanceWallet} color={brandColor} />
               }
             />
           }
           name="Tổng Doanh Thu"
-          value={`${formatCompact(overview?.totalRevenue || 0)} ₫`}
+          value={formatCurrencyVND(overview?.totalRevenue || 0)}
         />
 
         <MiniStatistics

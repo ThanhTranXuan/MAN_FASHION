@@ -56,6 +56,10 @@ export default function ChatWidget() {
     'whiteAlpha.900',
   );
 
+  const botBgColor = useColorModeValue('gray.50', 'navy.700');
+  const botTextColor = useColorModeValue('gray.900', 'white');
+  const botBorderColor = useColorModeValue('gray.200', 'navy.600');
+
   const messagesContainerRef = useRef(null);
 
   // ✅ Auto-scroll to bottom when messages arrive (FIXED: Messages must show at bottom)
@@ -183,10 +187,10 @@ export default function ChatWidget() {
           a: ({ href, children }) => (
             <Link
               href={href}
-              color="blue.300"
-              fontWeight="bold"
+              color="#4F46E5"
+              fontWeight="600"
               isExternal
-              textDecoration="underline"
+              _hover={{ textDecoration: 'underline' }}
             >
               {children}
             </Link>
@@ -349,18 +353,19 @@ export default function ChatWidget() {
                 const isEmployee = m.senderType === 'EMPLOYEE';
 
                 // Determine colors based on sender type
-                let bgColor = 'gray.200';
-                let textColor = 'gray.900';
+                let bgColor = botBgColor;
+                let textColor = botTextColor;
+                let borderColor = botBorderColor;
+                let borderWidth = '1px';
 
                 if (isMine) {
-                  bgColor = 'blue.500';
+                  bgColor = '#4F46E5';
                   textColor = 'white';
-                } else if (isBot) {
-                  bgColor = 'green.500';
-                  textColor = 'white';
+                  borderWidth = '0px';
                 } else if (isAdmin || isEmployee) {
-                  bgColor = 'orange.400';
+                  bgColor = 'brand.500';
                   textColor = 'white';
+                  borderWidth = '0px';
                 }
 
                 return (
@@ -372,7 +377,9 @@ export default function ChatWidget() {
                       borderRadius="xl"
                       bg={bgColor}
                       color={textColor}
-                      boxShadow="lg"
+                      boxShadow="sm"
+                      borderWidth={borderWidth}
+                      borderColor={borderColor}
                     >
                       {!isMine && (
                         <Text

@@ -72,10 +72,10 @@ export default function MegaMenu({ categories, onClose }) {
       <MotionBox
         key="megamenu"
         position="fixed"
-        top="75px"
+        top="68px"
         left={0}
         w="100%"
-        h="calc(100vh - 75px)"
+        h="calc(100vh - 68px)"
         zIndex={99}
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}

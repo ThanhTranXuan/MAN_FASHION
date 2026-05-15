@@ -15,13 +15,17 @@ export default function BlogSidebar({ blogs }) {
           cursor="pointer"
           onClick={() => navigate(`/user/blog/detail/${b.slug}`)}
         >
-          <Image
-            src={b.thumbnail}
-            alt={b.title}
-            boxSize="80px"
-            objectFit="cover"
-            borderRadius="md"
-          />
+          {b.thumbnail ? (
+            <Image
+              src={b.thumbnail}
+              alt={b.title}
+              boxSize="80px"
+              objectFit="cover"
+              borderRadius="md"
+            />
+          ) : (
+            <Box boxSize="80px" bg="gray.200" borderRadius="md" display="flex" alignItems="center" justifyContent="center" color="gray.500" fontSize="xs" fontWeight="bold" textAlign="center">Trendify</Box>
+          )}
           <Box>
             <Text fontWeight="bold" noOfLines={2}>{b.title}</Text>
             <Text fontSize="sm" color="gray.500" noOfLines={2}>

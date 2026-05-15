@@ -2,7 +2,7 @@ import React from 'react';
 import { Box, useDisclosure, useColorModeValue } from '@chakra-ui/react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import NavbarUser from 'components/navbar/NavbarUser';
-import Footer from 'components/footer/FooterAdmin.js';
+import FooterUser from 'components/footer/FooterUser';
 import routes from 'routes.js';
 import PrivateRoute from 'components/auth/PrivateRoute';
 import ChatWidget from "components/chat/ChatWidget";
@@ -48,7 +48,7 @@ export default function UserLayout() {
       </Box>
 
       {/* 📍 Footer */}
-      <Footer />
+      <FooterUser />
 
       {/* Floating Chat */}
       <ChatWidget />

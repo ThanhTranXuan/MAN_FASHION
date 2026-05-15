@@ -21,7 +21,11 @@ export default function List({ blogs, lastBlogRef }) {
           cursor="pointer"
           onClick={() => navigate(`/user/blog/detail/${b.slug}`)}
         >
-          <Image src={b.thumbnail} alt={b.title} objectFit="cover" h="200px" w="100%" />
+          {b.thumbnail ? (
+            <Image src={b.thumbnail} alt={b.title} objectFit="cover" h="200px" w="100%" />
+          ) : (
+            <Box h="200px" w="100%" bg="gray.200" display="flex" alignItems="center" justifyContent="center" color="gray.500" fontSize="xl" fontWeight="bold">Trendify Blog</Box>
+          )}
           <Box p={3}>
             <Text fontWeight="bold" mb={1} noOfLines={2}>{b.title}</Text>
             <Text fontSize="sm" color="gray.500" noOfLines={3}>

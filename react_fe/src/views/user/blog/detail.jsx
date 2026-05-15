@@ -25,6 +25,7 @@ export default function BlogDetailPage() {
   const breadcrumbColor = useColorModeValue('gray.500', 'gray.400');
 
   useEffect(() => {
+    window.scrollTo(0, 0);
     const fetchBlog = async () => {
       try {
         const res = await BlogService.getBySlug(slug);
@@ -116,13 +117,31 @@ export default function BlogDetailPage() {
         {new Date(blog.createdAt).toLocaleDateString('vi-VN')}
       </Text>
 
-      <Image
-        src={blog.thumbnail}
-        alt={blog.title}
-        borderRadius="lg"
-        mb={6}
-        w="100%"
-      />
+      {blog.thumbnail ? (
+        <Image
+          src={blog.thumbnail}
+          alt={blog.title}
+          borderRadius="lg"
+          mb={6}
+          w="100%"
+        />
+      ) : (
+        <Box
+          w="100%"
+          h="400px"
+          bg="gray.200"
+          borderRadius="lg"
+          display="flex"
+          alignItems="center"
+          justifyContent="center"
+          color="gray.500"
+          fontSize="3xl"
+          fontWeight="bold"
+          mb={6}
+        >
+          Trendify Blog
+        </Box>
+      )}
 
       <Text
         fontSize="md"

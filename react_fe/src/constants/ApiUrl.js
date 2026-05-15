@@ -29,6 +29,7 @@ const ApiUrl = {
   PRODUCTS: withBase('/api/products'),
   PRODUCT_DETAIL: (slug) => withBase(`/api/products/detail/${slug}`),
   PRODUCT_BY_ID: (id) => withBase(`/api/products/${id}`),
+  PRODUCT_SIMILAR: (id) => withBase(`/api/products/${id}/similar`),
   PRODUCT_STATS: withBase('/api/products/stats'),
   CREATE_PRODUCT: withBase('/api/products'),
   UPDATE_PRODUCT: (id) => withBase(`/api/products/${id}`),

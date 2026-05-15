@@ -182,12 +182,9 @@ useEffect(() => {
 
     if (finalMode === 'SHOP') {
       ChatSocketHelper.sendMessage(conversationId, content, 'SHOP');
-      if (isStaff) {
-        setMessages((prev) => [...prev, tempMsg]);
-      } else {
-        // LUỒNG SHOP: Lưu vào ngăn kéo userMessages
-        setUserMessages((prev) => [...prev, tempMsg]); 
-      }
+      // KHÔNG CẦN OPTIMISTIC UI NỮA:
+      // WebSocket server sẽ echo lại message (cùng ID thật).
+      // Khi nhận được message từ WS, state messages/userMessages sẽ tự động được append.
     } else {
       // LUỒNG BOT: Lưu vào ngăn kéo botMessages
       setBotMessages((prev) => [tempMsg, ...prev]); 

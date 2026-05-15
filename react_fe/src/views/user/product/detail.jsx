@@ -14,6 +14,8 @@ import {
   Icon,
   SimpleGrid,
   Spinner,
+  Divider,
+  Image,
 } from '@chakra-ui/react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { formatUSD } from 'utils/FormatHelper';
@@ -23,6 +25,115 @@ import ImageGallery from './components/ImageGallery';
 import ProductService from 'services/ProductService';
 import { useCart } from 'contexts/CartContext';
 
+// ─── RelatedProducts ────────────────────────────────────────
+function RelatedProducts({ categorySlug, currentProductId }) {
+  const navigate = useNavigate();
+  const [products, setProducts] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  const cardBg = useColorModeValue('white', 'navy.800');
+  const cardBorder = useColorModeValue('gray.200', 'gray.600');
+  const textColor = useColorModeValue('gray.800', 'white');
+  const subColor = useColorModeValue('gray.500', 'gray.400');
+  const noImageBg = useColorModeValue('gray.100', 'navy.700');
+
+  useEffect(() => {
+    if (!currentProductId) return;
+    let cancelled = false;
+    const load = async () => {
+      setLoading(true);
+      try {
+        const { data } = await ProductService.getSimilarProducts(currentProductId, 8);
+        if (!cancelled) {
+          setProducts(data || []);
+        }
+      } catch {
+        // silent fail – section không hiển thị
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    };
+    load();
+    return () => { cancelled = true; };
+  }, [currentProductId]);
+
+  if (loading) return null;
+  if (products.length === 0) return null;
+
+  return (
+    <Box mt={16} mb={4}>
+      <Text fontSize="xl" fontWeight="bold" mb={6} color={textColor}>
+        Sản phẩm tương tự
+      </Text>
+      <SimpleGrid columns={{ base: 2, sm: 2, md: 4 }} spacing={{ base: 3, md: 5 }}>
+        {products.map((p) => {
+          const thumb =
+            p.images?.find((i) => i.isThumbnail)?.url ||
+            p.images?.[0]?.url ||
+            null;
+          return (
+            <Box
+              key={p.id}
+              bg={cardBg}
+              borderWidth="1px"
+              borderColor={cardBorder}
+              borderRadius="xl"
+              overflow="hidden"
+              cursor="pointer"
+              onClick={() => navigate(`/user/product/detail/${p.slug}`)}
+              _hover={{ boxShadow: 'lg', transform: 'translateY(-3px)' }}
+              transition="all 0.22s ease"
+            >
+              {/* Image */}
+              <Box position="relative" w="100%" pb="120%" overflow="hidden">
+                {thumb ? (
+                  <Image
+                    src={thumb}
+                    alt={p.name}
+                    position="absolute"
+                    top={0} left={0}
+                    w="100%" h="100%"
+                    objectFit="cover"
+                    transition="transform 0.35s ease"
+                    _groupHover={{ transform: 'scale(1.04)' }}
+                  />
+                ) : (
+                  <Flex
+                    position="absolute"
+                    top={0} left={0}
+                    w="100%" h="100%"
+                    align="center" justify="center"
+                    color={subColor} fontSize="sm"
+                    bg={noImageBg}
+                  >
+                    No image
+                  </Flex>
+                )}
+              </Box>
+              {/* Info */}
+              <Box p={3}>
+                <Text
+                  fontWeight="semibold"
+                  fontSize="sm"
+                  noOfLines={2}
+                  color={textColor}
+                  mb={1}
+                >
+                  {p.name}
+                </Text>
+                <Text fontWeight="bold" fontSize="md" color="brand.500">
+                  {formatUSD(p.price)}
+                </Text>
+              </Box>
+            </Box>
+          );
+        })}
+      </SimpleGrid>
+    </Box>
+  );
+}
+
+// ─── ProductDetail ───────────────────────────────────────────
 export default function ProductDetail() {
   const { slug } = useParams();
   const navigate = useNavigate();
@@ -32,8 +143,11 @@ export default function ProductDetail() {
   const textColor = useColorModeValue('gray.800', 'white');
   const descColor = useColorModeValue('gray.600', 'gray.300');
   const brandColor = useColorModeValue('brand.500', 'brand.300');
-  const borderColor = useColorModeValue('gray.300', 'gray.600');
+  const borderColor = useColorModeValue('gray.200', 'gray.600');
   const breadcrumbColor = useColorModeValue('gray.500', 'gray.400');
+  const pageBg = useColorModeValue('gray.50', 'navy.900');
+  const cardBg = useColorModeValue('white', 'navy.800');
+  const dividerColor = useColorModeValue('gray.100', 'navy.700');
 
   const [product, setProduct] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -43,6 +157,7 @@ export default function ProductDetail() {
   const [activeImage, setActiveImage] = useState(null);
 
   useEffect(() => {
+    window.scrollTo(0, 0);
     const load = async () => {
       try {
         const { data } = await ProductService.getDetailBySlug(slug);
@@ -146,9 +261,7 @@ export default function ProductDetail() {
     toast.success('Thêm vào giỏ hàng thành công!');
   };
 
-  // 👉 Hàm mở ChatWidget
   const handleChatNow = () => {
-    // bắn event cho ChatWidget
     window.dispatchEvent(new Event('trendify:open-chat'));
   };
 
@@ -161,263 +274,265 @@ export default function ProductDetail() {
 
   if (!product) return null;
 
+  // Category slug từ product để dùng cho RelatedProducts
+  const relatedCategorySlug = product.categorySlug || null;
+
   return (
-    <Box px={{ base: 4, md: 20 }} py={{ base: 5, md: 10 }} color={textColor}>
-      <Breadcrumb
-        fontWeight="medium"
-        fontSize="sm"
-        mb={6}
-        spacing="6px"
-        maxW="100%"
-        separator="/"
-        sx={{
-          display: 'flex',
-          flexWrap: 'wrap !important', // ✅ ép wrap
-          whiteSpace: 'normal',
-          '& > ol': {
-            display: 'flex',
-            flexWrap: 'wrap !important', // ✅ ép danh sách breadcrumb xuống dòng
-            alignItems: 'center',
-            gap: '4px',
-            lineHeight: '1.6',
-          },
-          '& li': {
-            display: 'inline-flex',
-            alignItems: 'center',
-            flexWrap: 'wrap',
-            whiteSpace: 'normal',
-            maxWidth: '100%',
-          },
-        }}
-      >
-        <BreadcrumbItem>
-          <BreadcrumbLink
-            color={breadcrumbColor}
-            onClick={() => navigate('/')}
-            whiteSpace="normal"
-          >
-            Trang Chủ
-          </BreadcrumbLink>
-        </BreadcrumbItem>
+    <Box bg={pageBg} minH="100vh">
+      {/* ── Container ── */}
+      <Box maxW="1280px" mx="auto" px={{ base: 4, md: 8 }} py={{ base: 6, md: 10 }}>
 
-        <BreadcrumbItem>
-          <BreadcrumbLink
-            color={breadcrumbColor}
-            onClick={() => navigate('/user/product')}
-            whiteSpace="normal"
-          >
-            Tất Cả Sản Phẩm
-          </BreadcrumbLink>
-        </BreadcrumbItem>
+        {/* ── Breadcrumb ── */}
+        <Breadcrumb
+          fontWeight="medium"
+          fontSize="sm"
+          mb={6}
+          spacing="6px"
+          separator="/"
+          sx={{
+            '& > ol': { display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: '4px' },
+            '& li': { display: 'inline-flex', alignItems: 'center', flexWrap: 'wrap', whiteSpace: 'normal' },
+          }}
+        >
+          <BreadcrumbItem>
+            <BreadcrumbLink color={breadcrumbColor} onClick={() => navigate('/')}>
+              Trang Chủ
+            </BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbItem>
+            <BreadcrumbLink color={breadcrumbColor} onClick={() => navigate('/user/product')}>
+              Tất Cả Sản Phẩm
+            </BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbItem isCurrentPage>
+            <BreadcrumbLink color={textColor} maxW={{ base: '90vw', md: '100%' }}>
+              {product.name}
+            </BreadcrumbLink>
+          </BreadcrumbItem>
+        </Breadcrumb>
 
-        <BreadcrumbItem isCurrentPage>
-          <BreadcrumbLink
-            color={textColor}
-            display="inline-block"
-            whiteSpace="normal"
-            wordBreak="keep-all"
-            maxW={{ base: '90vw', md: '100%' }} // ✅ giới hạn chiều ngang mobile
-          >
-            {product.name}
-          </BreadcrumbLink>
-        </BreadcrumbItem>
-      </Breadcrumb>
+        {/* ── Main: Gallery + Info ── */}
+        <Box
+          bg={cardBg}
+          borderRadius="2xl"
+          boxShadow="sm"
+          overflow="hidden"
+        >
+          <Flex direction={{ base: 'column', md: 'row' }}>
+            {/* 🖼 Gallery */}
+            <Box flex={{ base: '1', md: '1.1' }} p={{ base: 4, md: 8 }}>
+              <ImageGallery
+                images={images}
+                fallback={activeImage}
+                activeImage={activeImage}
+                onImageChange={(url) => setActiveImage(url)}
+              />
+            </Box>
 
-      <Flex mt={4} direction={{ base: 'column', md: 'row' }} gap={10}>
-        {/* 🖼 Gallery */}
-        <Box flex="1">
-          <ImageGallery
-            images={images}
-            fallback={activeImage}
-            activeImage={activeImage}
-            onImageChange={(url) => setActiveImage(url)}
-          />
+            {/* Divider dọc (desktop) */}
+            <Divider
+              orientation="vertical"
+              display={{ base: 'none', md: 'block' }}
+              borderColor={dividerColor}
+              h="auto"
+              alignSelf="stretch"
+            />
+
+            {/* 🧾 Info Panel */}
+            <VStack
+              align="start"
+              flex="1"
+              spacing={5}
+              p={{ base: 4, md: 8 }}
+            >
+              {/* Tên + Giá */}
+              <Box>
+                <Text fontSize={{ base: '2xl', md: '3xl' }} fontWeight="bold" color={textColor} lineHeight="1.2" mb={3}>
+                  {product.name}
+                </Text>
+                <Text fontSize={{ base: 'xl', md: '2xl' }} color={brandColor} fontWeight="bold">
+                  {formatUSD(product.price)}
+                </Text>
+              </Box>
+
+              <Divider borderColor={dividerColor} />
+
+              {/* Mô tả */}
+              {product.description && (
+                <Text color={descColor} fontSize="sm" lineHeight="1.75">
+                  {product.description}
+                </Text>
+              )}
+
+              {/* 🎨 Colors */}
+              {colors.length > 0 && (
+                <Box w="100%">
+                  <Text fontWeight="semibold" fontSize="sm" mb={2} color={textColor}>
+                    Màu Sắc:{' '}
+                    <Text as="span" fontWeight="normal" textTransform="capitalize" color={descColor}>
+                      {selectedColor || '—'}
+                    </Text>
+                  </Text>
+                  <HStack spacing={2} flexWrap="wrap">
+                    {colors.map((c) => (
+                      <Tooltip key={c} label={c} textTransform="capitalize" hasArrow>
+                        <Box
+                          w="28px"
+                          h="28px"
+                          borderRadius="full"
+                          borderWidth="2px"
+                          borderColor={selectedColor === c ? brandColor : 'transparent'}
+                          boxShadow={selectedColor === c ? `0 0 0 1px` : '0 0 0 1px rgba(0,0,0,0.15)'}
+                          bg={c.toLowerCase()}
+                          cursor="pointer"
+                          onClick={() => setSelectedColor(c)}
+                          transition="all 0.2s"
+                          _hover={{ transform: 'scale(1.15)' }}
+                        />
+                      </Tooltip>
+                    ))}
+                  </HStack>
+                </Box>
+              )}
+
+              {/* 📏 Sizes */}
+              {allSizes.length > 0 && (
+                <Box w="100%">
+                  <Text fontWeight="semibold" fontSize="sm" mb={2} color={textColor}>
+                    Kích Cỡ:{' '}
+                    <Text as="span" fontWeight="normal" color={descColor}>{selectedSize || '—'}</Text>
+                  </Text>
+                  <HStack spacing={2} flexWrap="wrap">
+                    {allSizes.map((s) => {
+                      const key = `${selectedColor}_${s}`;
+                      const stock = stockMap[key];
+                      const isInvalid =
+                        !selectedColor || stock === undefined || stock <= 0;
+                      return (
+                        <Tooltip key={s} label={isInvalid ? 'Hết hàng' : ''} hasArrow isDisabled={!isInvalid}>
+                          <Box
+                            minW="44px"
+                            textAlign="center"
+                            borderWidth="1px"
+                            borderColor={selectedSize === s ? brandColor : borderColor}
+                            px={3}
+                            py="6px"
+                            borderRadius="md"
+                            fontSize="sm"
+                            fontWeight="500"
+                            cursor={isInvalid ? 'not-allowed' : 'pointer'}
+                            bg={selectedSize === s ? brandColor : 'transparent'}
+                            color={
+                              isInvalid ? 'gray.400' : selectedSize === s ? 'white' : textColor
+                            }
+                            opacity={isInvalid ? 0.5 : 1}
+                            onClick={() => { if (!isInvalid) setSelectedSize(s); }}
+                            transition="all 0.2s"
+                          >
+                            {s}
+                          </Box>
+                        </Tooltip>
+                      );
+                    })}
+                  </HStack>
+                </Box>
+              )}
+
+              {/* 🛒 Quantity + Add to cart */}
+              <Box w="100%">
+                <HStack spacing={3} mt={2}>
+                  <HStack
+                    spacing={0}
+                    borderWidth="1px"
+                    borderColor={borderColor}
+                    borderRadius="full"
+                    overflow="hidden"
+                  >
+                    <Button
+                      variant="ghost"
+                      h="44px" w="44px"
+                      fontSize="xl"
+                      onClick={() => setQuantity((q) => Math.max(1, q - 1))}
+                    >
+                      −
+                    </Button>
+                    <Box w="46px" textAlign="center" fontWeight="semibold">
+                      {quantity}
+                    </Box>
+                    <Button
+                      variant="ghost"
+                      h="44px" w="44px"
+                      fontSize="xl"
+                      onClick={() => setQuantity((q) => Math.min(99, q + 1))}
+                    >
+                      +
+                    </Button>
+                  </HStack>
+
+                  <Button
+                    colorScheme="brand"
+                    color="white"
+                    flex="1"
+                    h="44px"
+                    borderRadius="full"
+                    fontWeight="700"
+                    fontSize="sm"
+                    letterSpacing="wide"
+                    onClick={handleAddToCart}
+                    _hover={{ opacity: 0.9, transform: 'translateY(-1px)' }}
+                    transition="all 0.2s"
+                  >
+                    THÊM VÀO GIỎ HÀNG
+                  </Button>
+                </HStack>
+              </Box>
+
+              <Divider borderColor={dividerColor} />
+
+              {/* 🛡️ Commitments */}
+              <SimpleGrid columns={2} spacing={3} w="100%">
+                <Flex align="center" gap={2}>
+                  <Icon as={MdLocalShipping} boxSize={5} color={brandColor} flexShrink={0} />
+                  <Text fontSize="xs" color={descColor}>
+                    Giao hàng <b>3–5 ngày</b><br />
+                    Miễn phí trên <b>499.000 ₫</b>
+                  </Text>
+                </Flex>
+                <Flex align="center" gap={2}>
+                  <Icon as={MdReplay} boxSize={5} color={brandColor} flexShrink={0} />
+                  <Text fontSize="xs" color={descColor}>
+                    Hoàn trả <b>15 ngày</b> dễ dàng
+                  </Text>
+                </Flex>
+                <Flex align="center" gap={2}>
+                  <Icon as={MdLock} boxSize={5} color={brandColor} flexShrink={0} />
+                  <Text fontSize="xs" color={descColor}>
+                    Thanh toán an toàn & bảo mật
+                  </Text>
+                </Flex>
+                <Flex
+                  align="center"
+                  gap={2}
+                  cursor="pointer"
+                  onClick={handleChatNow}
+                  _hover={{ opacity: 0.75 }}
+                >
+                  <Icon as={MdChat} boxSize={5} color={brandColor} flexShrink={0} />
+                  <Text fontSize="xs" fontWeight="semibold" color={descColor}>
+                    Cần hỗ trợ? <b>Chat ngay</b>
+                  </Text>
+                </Flex>
+              </SimpleGrid>
+            </VStack>
+          </Flex>
         </Box>
 
-        {/* 🧾 Info */}
-        <VStack align="start" flex="1" spacing={5}>
-          <Text fontSize="3xl" fontWeight="bold">
-            {product.name}
-          </Text>
-          <Text color={descColor}>{product.description}</Text>
-          <Text fontSize="2xl" color={brandColor} fontWeight="bold">
-            {formatUSD(product.price)}
-          </Text>
-
-          {/* 🎨 Colors */}
-          {colors.length > 0 && (
-            <Box>
-              <Text fontWeight="semibold" mb={2}>
-                Màu Sắc:
-              </Text>
-              <HStack spacing={2} flexWrap="wrap">
-                {colors.map((c) => (
-                  <Tooltip key={c} label={c} textTransform="capitalize">
-                    <Box
-                      w="28px"
-                      h="28px"
-                      borderRadius="full"
-                      borderWidth="2px"
-                      borderColor={
-                        selectedColor === c ? brandColor : borderColor
-                      }
-                      bg={c.toLowerCase()}
-                      cursor="pointer"
-                      onClick={() => setSelectedColor(c)}
-                      transition="all 0.2s"
-                    />
-                  </Tooltip>
-                ))}
-              </HStack>
-            </Box>
-          )}
-
-          {/* 📏 Sizes */}
-          {allSizes.length > 0 && (
-            <Box>
-              <Text fontWeight="semibold" mb={2}>
-                Kích Cỡ:
-              </Text>
-              <HStack spacing={2} flexWrap="wrap">
-                {allSizes.map((s) => {
-                  const key = `${selectedColor}_${s}`;
-                  const stock = stockMap[key];
-                  const isInvalid =
-                    !selectedColor || stock === undefined || stock <= 0;
-                  return (
-                    <Tooltip key={s} label={isInvalid ? 'Hết hàng' : s}>
-                      <Box
-                        borderWidth="1px"
-                        borderColor={
-                          selectedSize === s ? brandColor : borderColor
-                        }
-                        px={3}
-                        py={1}
-                        borderRadius="md"
-                        fontSize="sm"
-                        cursor={isInvalid ? 'not-allowed' : 'pointer'}
-                        bg={selectedSize === s ? brandColor : 'transparent'}
-                        color={
-                          isInvalid
-                            ? 'gray.400'
-                            : selectedSize === s
-                            ? 'white'
-                            : textColor
-                        }
-                        opacity={isInvalid ? 0.5 : 1}
-                        onClick={() => {
-                          if (!isInvalid) setSelectedSize(s);
-                        }}
-                        transition="all 0.2s"
-                      >
-                        {s}
-                      </Box>
-                    </Tooltip>
-                  );
-                })}
-              </HStack>
-            </Box>
-          )}
-
-          {/* 🛒 Quantity + Add to cart */}
-          <HStack spacing={4} mt={4}>
-            <HStack
-              spacing={0}
-              borderWidth="1px"
-              borderRadius="full"
-              overflow="hidden"
-            >
-              <Button
-                variant="ghost"
-                onClick={() => setQuantity((q) => Math.max(1, q - 1))}
-              >
-                -
-              </Button>
-              <Box w="50px" textAlign="center">
-                {quantity}
-              </Box>
-              <Button
-                variant="ghost"
-                onClick={() => setQuantity((q) => Math.min(99, q + 1))}
-              >
-                +
-              </Button>
-            </HStack>
-
-            <Button colorScheme="brand" color="white" onClick={handleAddToCart}>
-              Thêm Vào Giỏ Hàng
-            </Button>
-          </HStack>
-
-          {/* 🛡️ Commitments */}
-          <Box mt={8} w="100%">
-            <Text fontSize="lg" fontWeight="bold" color={textColor} mb={4}>
-              Cam Kết Từ Trendify
-            </Text>
-            <SimpleGrid columns={{ base: 1, md: 2 }} spacing={4}>
-              <Flex
-                align="center"
-                borderWidth="1px"
-                borderColor={borderColor}
-                borderRadius="lg"
-                p={4}
-                gap={3}
-              >
-                <Icon as={MdLocalShipping} boxSize={6} color={brandColor} />
-                <Text fontSize="sm" color={descColor}>
-                  Giao hàng trong <b>3–5 ngày</b> <br /> Miễn phí vận chuyển trên{' '}
-                  <b>499.000 ₫</b>
-                </Text>
-              </Flex>
-
-              <Flex
-                align="center"
-                borderWidth="1px"
-                borderColor={borderColor}
-                borderRadius="lg"
-                p={4}
-                gap={3}
-              >
-                <Icon as={MdReplay} boxSize={6} color={brandColor} />
-                <Text fontSize="sm" color={descColor}>
-                  Hoàn trả <b>15 ngày</b> dễ dàng
-                </Text>
-              </Flex>
-
-              <Flex
-                align="center"
-                borderWidth="1px"
-                borderColor={borderColor}
-                borderRadius="lg"
-                p={4}
-                gap={3}
-              >
-                <Icon as={MdLock} boxSize={6} color={brandColor} />
-                <Text fontSize="sm" color={descColor}>
-                  Thanh toán an toàn & bảo mật dữ liệu
-                </Text>
-              </Flex>
-
-              {/* 🔔 Chat now → mở ChatWidget */}
-              <Flex
-                align="center"
-                borderWidth="1px"
-                borderColor={borderColor}
-                borderRadius="lg"
-                p={4}
-                gap={3}
-                cursor="pointer"
-                onClick={handleChatNow}
-              >
-                <Icon as={MdChat} boxSize={6} color={brandColor} />
-                <Text fontSize="sm" fontWeight="semibold" color={descColor}>
-                  Cần hỗ trợ? <b>Chat ngay</b>
-                </Text>
-              </Flex>
-            </SimpleGrid>
-          </Box>
-        </VStack>
-      </Flex>
+        {/* ── Related products ── */}
+        <RelatedProducts
+          categorySlug={relatedCategorySlug}
+          currentProductId={product.id}
+        />
+      </Box>
     </Box>
   );
 }

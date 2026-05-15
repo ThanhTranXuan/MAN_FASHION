@@ -181,7 +181,7 @@ function SignIn() {
       >
         <Box me="auto">
           <Heading color={textColor} fontSize="36px" mb="10px">
-            MAN FASHION | Đăng Nhập
+            Trendify | Đăng Nhập
           </Heading>
           <Text
             mb="36px"

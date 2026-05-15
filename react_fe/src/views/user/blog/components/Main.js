@@ -13,7 +13,11 @@ export default function BlogMain({ blog }) {
       cursor="pointer"
       onClick={() => navigate(`/user/blog/detail/${blog.slug}`)}
     >
-      <Image src={blog.thumbnail} alt={blog.title} objectFit="cover" w="100%" h="300px" />
+      {blog.thumbnail ? (
+        <Image src={blog.thumbnail} alt={blog.title} objectFit="cover" w="100%" h="300px" />
+      ) : (
+        <Box w="100%" h="300px" bg="gray.200" display="flex" alignItems="center" justifyContent="center" color="gray.500" fontSize="2xl" fontWeight="bold">Trendify Blog</Box>
+      )}
       <Box p={4}>
         <Heading size="md" mb={2}>{blog.title}</Heading>
         <Text noOfLines={3} color="gray.600">

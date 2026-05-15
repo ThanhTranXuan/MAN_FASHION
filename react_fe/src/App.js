@@ -18,6 +18,8 @@ import { CategoryProvider } from 'contexts/CategoryContext';
 import { NotificationProvider } from 'contexts/NotificationContext';
 import { ChatProvider } from 'contexts/ChatContext';
 
+import ScrollToTop from 'components/scroll/ScrollToTop';
+
 export default function Main() {
   const [currentTheme, setCurrentTheme] = useState(initialTheme);
 
@@ -28,6 +30,7 @@ export default function Main() {
           <CategoryProvider>
             <NotificationProvider>
               <ChatProvider>
+                <ScrollToTop />
                 <Routes>
                   {/* Đón khách khi thanh toán thành công */}
                   <Route path="/payment/success" element={<ResultPage />} />

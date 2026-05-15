@@ -80,7 +80,7 @@ export default function BlogSliderSection() {
           bgGradient="linear(to-r, teal.500, purple.600)"
           bgClip="text"
         >
-          Fashion Trends & Blog
+          Xu hướng thời trang & Blog
         </Text>
         <Button
           variant="outline"
@@ -89,7 +89,7 @@ export default function BlogSliderSection() {
           onClick={() => navigate('/user/blog')}
           borderRadius="full"
         >
-          View All
+          Xem tất cả
         </Button>
       </Flex>
 
@@ -120,13 +120,28 @@ export default function BlogSliderSection() {
               }}
               onClick={() => navigate(`/user/blog/detail/${blog.slug}`)}
             >
-              <Image
-                src={blog.thumbnail}
-                alt={blog.title}
-                h="200px"
-                w="100%"
-                objectFit="cover"
-              />
+              {blog.thumbnail ? (
+                <Image
+                  src={blog.thumbnail}
+                  alt={blog.title}
+                  h="200px"
+                  w="100%"
+                  objectFit="cover"
+                />
+              ) : (
+                <Flex
+                  h="200px"
+                  w="100%"
+                  bg="gray.200"
+                  align="center"
+                  justify="center"
+                  color="gray.500"
+                  fontSize="xl"
+                  fontWeight="bold"
+                >
+                  Trendify Blog
+                </Flex>
+              )}
               <Box p={5}>
                 <Text
                   fontWeight="bold"

@@ -10,7 +10,7 @@ import {
 import Card from 'components/card/Card';
 import LineChart from 'components/charts/LineChart';
 import { MdOutlineCalendarToday } from 'react-icons/md';
-import { formatUSD, formatCompact } from 'utils/FormatHelper';
+import { formatCurrencyVND, formatCompact } from 'utils/FormatHelper';
 
 export default function TotalRevenue({ summary, trend }) {
   const textColor = useColorModeValue('secondaryGray.900', 'white');
@@ -68,7 +68,7 @@ export default function TotalRevenue({ summary, trend }) {
             color: isDark ? '#F7FAFC' : '#1A202C', // màu chữ trong tooltip
           },
           y: {
-            formatter: (val) => formatUSD(val),
+            formatter: (val) => formatCurrencyVND(val),
           },
         },
         markers: {
@@ -112,7 +112,7 @@ export default function TotalRevenue({ summary, trend }) {
       </Flex>
 
       <Text color={textColor} fontSize="34px" fontWeight="700">
-        {formatUSD(summary.currentMonthRevenue || 0)}
+        {formatCurrencyVND(summary.currentMonthRevenue || 0)}
       </Text>
       <Text color={textColorSecondary} fontSize="sm" mb="20px">
         Doanh thu tháng này

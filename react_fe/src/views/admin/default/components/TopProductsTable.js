@@ -15,7 +15,7 @@ import {
   Center,
 } from '@chakra-ui/react';
 import Card from 'components/card/Card';
-import { formatUSD } from 'utils/FormatHelper';
+import { formatCurrencyVND } from 'utils/FormatHelper';
 
 export default function TopProductsTable({ products = [] }) {
   const textColor = useColorModeValue('secondaryGray.900', 'white');
@@ -52,7 +52,7 @@ export default function TopProductsTable({ products = [] }) {
               </Tr>
             ) : (
               products.map((p, idx) => (
-                <Tr key={idx}>
+               <Tr key={idx}>
                   <Td>
                     <HStack spacing={3}>
                       <Image
@@ -69,7 +69,7 @@ export default function TopProductsTable({ products = [] }) {
                     </HStack>
                   </Td>
                   <Td>{p.sold ?? 0}</Td>
-                  <Td>{formatUSD(p.revenue ?? 0)}</Td>
+                  <Td>{formatCurrencyVND(p.revenue ?? 0)}</Td>
                 </Tr>
               ))
             )}

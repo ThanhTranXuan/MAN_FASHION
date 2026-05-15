@@ -34,7 +34,7 @@ export default function BlogListPage() {
       const newData = res.data.content || [];
       if (pageNum === 0) setBlogs(newData);
       else setBlogs((prev) => [...prev, ...newData]);
-      setHasMore(!res.last);
+      setHasMore(!res.data.last);
     } catch (err) {
       console.error(err);
     } finally {
@@ -43,6 +43,7 @@ export default function BlogListPage() {
   };
 
   useEffect(() => {
+    window.scrollTo(0, 0);
     fetchBlogs(0);
   }, []);
 
