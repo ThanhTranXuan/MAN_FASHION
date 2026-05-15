@@ -256,4 +256,23 @@ public class ProductServiceImpl implements ProductService{
         List<Product> products = productRepository.searchForChatBot(keyword, categoryIds, color, sizes, limit);
         return products.stream().map(productMapper::toResponseDTO).toList();
     }
+
+    // =====================================================
+    // 🔗 4. Lấy danh sách sản phẩm tương tự
+    // =====================================================
+    @Override
+    public List<ProductResponse> getSimilarProducts(String id, int limit) {
+        Product current = productRepository.findById(Integer.parseInt(id))
+                .orElseThrow(() -> new AppException(ErrorCode.PRODUCT_NOT_FOUND));
+
+        if (current.getCategory() == null) {
+            return Collections.emptyList();
+        }
+
+        org.springframework.data.domain.Pageable pageable = org.springframework.data.domain.PageRequest.of(0, limit);
+        List<Product> similar = productRepository.findSimilarProducts(
+                current.getCategory().getId(), current.getId(), pageable);
+
+        return similar.stream().map(productMapper::toResponseDTO).toList();
+    }
 }

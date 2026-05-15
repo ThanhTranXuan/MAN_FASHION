@@ -18,6 +18,7 @@ public interface ProductService {
     ProductResponse patchActiveStatus(String idHex, Boolean active);
     void softDelete(String idHex);
     List<ProductResponse> searchForChatBot(String keyword, String gender, String categorySlug, String color, List<String> sizes, int limit);
+    List<ProductResponse> getSimilarProducts(String id, int limit);
 
 
 }

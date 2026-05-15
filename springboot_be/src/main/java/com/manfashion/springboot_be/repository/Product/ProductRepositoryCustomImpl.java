@@ -65,7 +65,17 @@ public class ProductRepositoryCustomImpl implements ProductRepositoryCustom {
         builder.and(product.deletedAt.isNull());
 
         if (active != null) builder.and(product.isActive.eq(active));
-        if (keyword != null && !keyword.isBlank()) builder.and(product.name.containsIgnoreCase(keyword));
+        if (keyword != null && !keyword.isBlank()) {
+            String kw = keyword.trim().toLowerCase();
+            BooleanBuilder keywordBuilder = new BooleanBuilder();
+            
+            keywordBuilder.or(product.name.lower().contains(kw))
+                          .or(product.category.name.lower().contains(kw))
+                          .or(product.description.lower().contains(kw));
+            
+            builder.and(keywordBuilder);
+        }
+
         if (categoryIds != null && !categoryIds.isEmpty()) builder.and(product.category.id.in(categoryIds));
 
         boolean hasColor = color != null && !color.isBlank();

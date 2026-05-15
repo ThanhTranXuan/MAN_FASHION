@@ -93,6 +93,19 @@ public class ProductController {
                 .build();
     }
 
+    // 🔗 GET similar products
+    @GetMapping("/{id}/similar")
+    public ApiResponse<List<ProductResponse>> getSimilarProducts(
+            @PathVariable String id,
+            @RequestParam(defaultValue = "8") int limit) {
+        
+        List<ProductResponse> results = productService.getSimilarProducts(id, limit);
+        return ApiResponse.<List<ProductResponse>>builder()
+                .message("product.similar.success")
+                .data(results)
+                .build();
+    }
+
     // ➕ CREATE new product (ADMIN/EMPLOYEE only)
     @PostMapping
     @PreAuthorize("hasAnyAuthority('ADMIN','EMPLOYEE')")

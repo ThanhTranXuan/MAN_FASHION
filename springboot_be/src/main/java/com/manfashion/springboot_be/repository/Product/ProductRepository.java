@@ -18,4 +18,9 @@ public interface ProductRepository extends JpaRepository<Product,Integer> ,Produ
             "LOWER(p.description) LIKE LOWER(concat('%', :keyword, '%'))) " +
             "AND p.isActive = true AND p.deletedAt IS NULL")
     List<Product> searchActiveProducts(@Param("keyword") String keyword);
+
+    // API 3: Sản phẩm tương tự
+    @Query("SELECT p FROM Product p WHERE p.category.id = :categoryId AND p.id != :productId " +
+           "AND p.isActive = true AND p.deletedAt IS NULL ORDER BY p.createdAt DESC")
+    List<Product> findSimilarProducts(@Param("categoryId") Integer categoryId, @Param("productId") Integer productId, org.springframework.data.domain.Pageable pageable);
 }
