@@ -1,9 +1,10 @@
 // src/views/user/home/Home.jsx
 import React, { useEffect } from 'react';
 import { Box, useColorModeValue } from '@chakra-ui/react';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate, useNavigationType } from 'react-router-dom';
 
 import HeroSection from './components/HeroSection';
+import CollectionGridSection from './components/CollectionGridSection';
 import AboutSection from './components/AboutSection';
 import FeaturesSection from './components/FeaturesSection';
 import ProductSliderSection from './components/ProductSliderSection';
@@ -18,6 +19,8 @@ export default function Home() {
   const bgColor = useColorModeValue('white', 'gray.900');
 
   const mainCategories = [
+    { title: 'Bộ Sưu Tập Mùa Hè', categorySlug: '', sort: 'price-asc', limit: 12 },
+    { title: 'Sản Phẩm Nổi Bật', categorySlug: '', sort: 'best-seller', limit: 15 },
     { title: 'Hàng Mới Về', sort: 'newest', limit: 15 },
     { title: 'Nam', categorySlug: 'mens', limit: 12 },
     { title: 'Nữ', categorySlug: 'womens', limit: 12 },
@@ -52,15 +55,40 @@ export default function Home() {
     navigate('/user/home', { replace: true });
   }, [location.search, clearCart, navigate, toast]);
 
+  const navigationType = useNavigationType();
+
+  // SCROLL RESTORATION CHO TRANG CHỦ
+  useEffect(() => {
+    // Nếu là PUSH (chuyển trang mới) -> scroll lên top
+    // Nếu là POP (Back/Forward) -> restore vị trí cũ
+    if (navigationType === 'POP') {
+      const savedY = sessionStorage.getItem('home_scroll');
+      if (savedY) {
+        setTimeout(() => window.scrollTo(0, parseInt(savedY, 10)), 50);
+      }
+    } else {
+      window.scrollTo(0, 0);
+    }
+
+    const handleScroll = () => {
+      sessionStorage.setItem('home_scroll', window.scrollY);
+    };
+
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+    };
+  }, [navigationType]);
+
   return (
     <Box
       pt={{ base: '80px', md: '100px' }}
       pb="20"
       bg={bgColor}
       minH="100vh"
-      overflow="hidden"
     >
       <HeroSection textColor={textColor} />
+      <CollectionGridSection />
       <AboutSection textColor={textColor} />
       <FeaturesSection />
 

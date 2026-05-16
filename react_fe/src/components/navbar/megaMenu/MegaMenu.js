@@ -14,7 +14,7 @@ import {
   HStack,
   useBreakpointValue,
 } from '@chakra-ui/react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import {
   MdExpandMore,
   MdClose,
@@ -68,8 +68,7 @@ export default function MegaMenu({ categories, onClose }) {
   };
 
   return (
-    <AnimatePresence>
-      <MotionBox
+    <MotionBox
         key="megamenu"
         position="fixed"
         top="68px"
@@ -77,10 +76,10 @@ export default function MegaMenu({ categories, onClose }) {
         w="100%"
         h="calc(100vh - 68px)"
         zIndex={99}
-        initial={{ opacity: 0, y: -20 }}
+        initial={{ opacity: 0, y: -14 }}
         animate={{ opacity: 1, y: 0 }}
-        exit={{ opacity: 0, y: -20 }}
-        transition={{ duration: 0.2, ease: 'easeOut' }}
+        exit={{ opacity: 0, y: -12 }}
+        transition={{ duration: 0.24, ease: [0.22, 1, 0.36, 1] }}
       >
         {/* Overlay */}
         <Box
@@ -439,6 +438,5 @@ export default function MegaMenu({ categories, onClose }) {
           </Button>
         </Flex>
       </MotionBox>
-    </AnimatePresence>
   );
 }

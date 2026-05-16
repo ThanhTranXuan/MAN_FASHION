@@ -1,15 +1,19 @@
 import React from 'react';
 import { Box, useDisclosure, useColorModeValue } from '@chakra-ui/react';
-import { Routes, Route, Navigate } from 'react-router-dom';
+import { Routes, Route, Navigate, useLocation } from 'react-router-dom';
+import { AnimatePresence, motion } from 'framer-motion';
 import NavbarUser from 'components/navbar/NavbarUser';
 import FooterUser from 'components/footer/FooterUser';
 import routes from 'routes.js';
 import PrivateRoute from 'components/auth/PrivateRoute';
 import ChatWidget from "components/chat/ChatWidget";
 
+const MotionBox = motion(Box);
+
 export default function UserLayout() {
   const bgColor = useColorModeValue('white', 'navy.800');
   const { isOpen, onToggle } = useDisclosure();
+  const location = useLocation();
 
   const getRoutesComponents = (routes) =>
     routes.map((route, key) => {
@@ -41,10 +45,20 @@ export default function UserLayout() {
 
       {/* 🧩 Nội dung chính */}
       <Box mx="auto" minH="100vh" pt="0">
-        <Routes>
-          {getRoutesComponents(routes)}
-          <Route path="/" element={<Navigate to="/user/home" replace />} />
-        </Routes>
+        <AnimatePresence mode="wait" initial={false}>
+          <MotionBox
+            key={location.pathname}
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -8 }}
+            transition={{ duration: 0.22, ease: [0.22, 1, 0.36, 1] }}
+          >
+            <Routes location={location}>
+              {getRoutesComponents(routes)}
+              <Route path="/" element={<Navigate to="/user/home" replace />} />
+            </Routes>
+          </MotionBox>
+        </AnimatePresence>
       </Box>
 
       {/* 📍 Footer */}

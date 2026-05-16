@@ -68,12 +68,13 @@ export default function ProductCard({ product, onClick, activeColor }) {
       cursor="pointer"
       onClick={onClick}
       position="relative"
+      transition="all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275)"
       _hover={{
-        boxShadow: 'lg',
-        transform: 'translateY(-3px)',
+        boxShadow: '2xl',
+        transform: 'translateY(-8px)',
         bg: bgHover,
+        '& .product-image': { transform: 'scale(1.1)' }
       }}
-      transition="all 0.25s ease"
       color={textColor}
     >
       {/* 🖼 Image */}
@@ -86,6 +87,7 @@ export default function ProductCard({ product, onClick, activeColor }) {
       >
         {displayImage ? (
           <Image
+            className="product-image"
             src={displayImage}
             alt={product.name}
             position="absolute"
@@ -94,6 +96,7 @@ export default function ProductCard({ product, onClick, activeColor }) {
             w="100%"
             h="100%"
             objectFit="cover"
+            transition="transform 0.6s cubic-bezier(0.4, 0, 0.2, 1)"
           />
         ) : (
           <Flex

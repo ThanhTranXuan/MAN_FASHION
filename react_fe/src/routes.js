@@ -30,6 +30,8 @@ import Home from 'views/user/home';
 import Profile from 'views/user/profile';
 import ProductList from 'views/user/product';
 import ProductDetail from 'views/user/product/detail';
+import AllReviews from 'views/user/product/AllReviews';
+import WriteReview from 'views/user/product/WriteReview';
 import Order from 'views/user/order';
 import BlogListPage from 'views/user/blog';
 import BlogDetailPage from 'views/user/blog/detail';
@@ -163,6 +165,18 @@ const routes = [
     layout: '/user',
     path: '/product/detail/:slug',
     component: <ProductDetail />,
+  },
+  {
+    name: 'Tất cả đánh giá',
+    layout: '/user',
+    path: '/product/:productId/reviews',
+    component: <AllReviews />,
+  },
+  {
+    name: 'Viết đánh giá',
+    layout: '/user',
+    path: '/product/:productId/reviews/new',
+    component: <WriteReview />,
   },
   {
     name: 'Payment',

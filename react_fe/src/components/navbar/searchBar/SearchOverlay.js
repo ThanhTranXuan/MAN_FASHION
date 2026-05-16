@@ -6,30 +6,25 @@ import {
   Input,
   Text,
   useColorModeValue,
-  Slide,
   CloseButton,
   VStack,
   HStack,
-  Spinner,
 } from '@chakra-ui/react';
-import { MdSearch, MdMic, MdMicOff, MdHistory, MdArrowForward } from 'react-icons/md';
+import { MdSearch, MdMic, MdMicOff, MdHistory } from 'react-icons/md';
 import { useNavigate } from 'react-router-dom';
 import { useAppToast } from 'utils/ToastHelper';
-import axios from 'axios';
-import ApiUrl from 'constants/ApiUrl';
+import { AnimatePresence, motion } from 'framer-motion';
+
+const MotionBox = motion(Box);
 
 export default function SearchOverlay({ isOpen, onClose }) {
   const [query, setQuery] = useState('');
   const [isRecording, setIsRecording] = useState(false);
-  const [isProcessing, setIsProcessing] = useState(false);
   const navigate = useNavigate();
   const toast = useAppToast();
-  
-  const mediaRecorderRef = useRef(null);
-  const chunksRef = useRef([]);
+  const recognitionRef = useRef(null);
 
   const bg = useColorModeValue('white', 'navy.900');
-  const textColor = useColorModeValue('navy.700', 'white');
   const overlayBg = useColorModeValue('rgba(255,255,255,0.95)', 'rgba(11,20,55,0.95)');
 
   // Lịch sử tìm kiếm mẫu
@@ -43,135 +38,101 @@ export default function SearchOverlay({ isOpen, onClose }) {
     onClose();
   };
 
-  const startRecording = async () => {
-    try {
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-      const options = { mimeType: 'audio/webm;codecs=opus' };
-      const mediaRecorder = new MediaRecorder(stream, options);
-      
-      mediaRecorderRef.current = mediaRecorder;
-      chunksRef.current = [];
-
-      mediaRecorder.ondataavailable = (e) => {
-        if (e.data.size > 0) chunksRef.current.push(e.data);
-      };
-
-      mediaRecorder.onstop = async () => {
-        const audioBlob = new Blob(chunksRef.current, { type: 'audio/webm' });
-        await sendAudioToBackend(audioBlob);
-        stream.getTracks().forEach(track => track.stop());
-      };
-
-      mediaRecorder.start();
-      setIsRecording(true);
-    } catch (err) {
-      toast.error('Không thể truy cập microphone. Vui lòng cấp quyền.');
-      console.error(err);
-    }
-  };
-
-  const stopRecording = () => {
-    if (mediaRecorderRef.current && isRecording) {
-      mediaRecorderRef.current.stop();
-      setIsRecording(false);
-    }
-  };
-
-  const fallbackToWebSpeechAPI = () => {
+  const startRecording = () => {
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
     if (!SpeechRecognition) {
-      toast.error('Trình duyệt không hỗ trợ Web Speech API.');
+      toast.error('Trình duyệt không hỗ trợ tìm kiếm bằng giọng nói.');
       return;
     }
+
+    if (recognitionRef.current) {
+      recognitionRef.current.stop();
+    }
+
     const recognition = new SpeechRecognition();
+    recognitionRef.current = recognition;
+
     recognition.lang = 'vi-VN';
     recognition.interimResults = false;
     recognition.maxAlternatives = 1;
 
+    // Reset query trước khi nghe mới
+    setQuery('');
+
     recognition.onstart = () => {
       setIsRecording(true);
-      toast.info('Đang nghe qua Web Speech API (Browser Fallback)...');
     };
 
     recognition.onresult = (event) => {
-      const transcript = event.results[0][0].transcript;
-      setQuery(transcript);
-      handleSearch(transcript);
+      let finalTranscript = '';
+      for (let i = event.resultIndex; i < event.results.length; ++i) {
+        if (event.results[i].isFinal) {
+          finalTranscript += event.results[i][0].transcript;
+        }
+      }
+
+      const text = finalTranscript.trim();
+      if (text) {
+        setQuery(text);
+        // TRUYỀN TRỰC TIẾP text vào handleSearch, không đợi state
+        handleSearch(text);
+      }
     };
 
     recognition.onerror = (event) => {
-      console.error(event.error);
-      toast.error('Lỗi nhận diện giọng nói (Web Speech API).');
+      console.error('Speech recognition error:', event.error);
       setIsRecording(false);
     };
 
     recognition.onend = () => {
       setIsRecording(false);
+      recognitionRef.current = null;
     };
 
-    recognition.start();
-  };
-
-  const sendAudioToBackend = async (blob) => {
-    setIsProcessing(true);
     try {
-      const reader = new FileReader();
-      reader.readAsDataURL(blob);
-      reader.onloadend = async () => {
-        const base64Audio = reader.result;
-        try {
-          const res = await axios.post(`${process.env.REACT_APP_API_BASE_URL || 'http://localhost:8080'}/api/v1/speech/recognize`, {
-            audio: base64Audio
-          });
-          
-          const data = res.data;
-          if (data && data.results && data.results.length > 0) {
-            const transcript = data.results[0].alternatives[0].transcript;
-            setQuery(transcript);
-            handleSearch(transcript);
-          } else {
-            toast.info('Không nhận diện được giọng nói. Vui lòng thử lại.');
-          }
-        } catch (err) {
-          if (err.response?.status === 400 && err.response?.data?.error === 'Chưa cấu hình nhận diện giọng nói') {
-             toast.info('Hệ thống chưa cấu hình API Key. Thử dùng Web Speech API...');
-             fallbackToWebSpeechAPI();
-          } else if (err.response?.status === 404) {
-             toast.warning('Backend proxy chưa sẵn sàng. Đang chuyển sang Web Speech API...');
-             fallbackToWebSpeechAPI();
-          } else {
-             toast.error('Lỗi khi gọi dịch vụ nhận diện giọng nói.');
-             fallbackToWebSpeechAPI();
-          }
-        } finally {
-          setIsProcessing(false);
-        }
-      };
-    } catch (err) {
-      setIsProcessing(false);
-      toast.error('Lỗi xử lý âm thanh.');
-      fallbackToWebSpeechAPI();
+      recognition.start();
+    } catch (e) {
+      console.error('Lỗi khi bắt đầu mic:', e);
+      setIsRecording(false);
     }
   };
 
-  if (!isOpen) return null;
+  const stopRecording = () => {
+    if (recognitionRef.current && isRecording) {
+      recognitionRef.current.stop();
+      setIsRecording(false);
+    }
+  };
 
   return (
-    <Box
-      position="fixed"
-      top={0}
-      left={0}
-      w="100vw"
-      h="100vh"
-      bg={overlayBg}
-      zIndex={2000}
-      backdropFilter="blur(10px)"
-      display="flex"
-      justifyContent="center"
-      alignItems="flex-start"
-      pt={{ base: '10vh', md: '15vh' }}
-    >
-      <Box w={{ base: '90%', md: '600px' }} position="relative">
+    <AnimatePresence>
+      {isOpen && (
+        <MotionBox
+          position="fixed"
+          top={0}
+          left={0}
+          w="100vw"
+          h="100vh"
+          bg={overlayBg}
+          zIndex={2000}
+          backdropFilter="blur(10px)"
+          display="flex"
+          justifyContent="center"
+          alignItems="flex-start"
+          pt={{ base: '10vh', md: '15vh' }}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.2, ease: [0.22, 1, 0.36, 1] }}
+        >
+      <MotionBox
+        w={{ base: '90%', md: '600px' }}
+        position="relative"
+        initial={{ opacity: 0, y: -18, scale: 0.98 }}
+        animate={{ opacity: 1, y: 0, scale: 1 }}
+        exit={{ opacity: 0, y: -12, scale: 0.98 }}
+        transition={{ duration: 0.26, ease: [0.22, 1, 0.36, 1] }}
+      >
         {/* Nút đóng */}
         <CloseButton 
           position="absolute" 
@@ -204,18 +165,14 @@ export default function SearchOverlay({ isOpen, onClose }) {
             autoFocus
           />
           
-          {isProcessing ? (
-            <Spinner size="md" color="brand.500" mx={2} />
-          ) : (
-            <IconButton
-              aria-label="Voice search"
-              icon={isRecording ? <MdMicOff size={24} /> : <MdMic size={24} />}
-              variant="ghost"
-              color={isRecording ? "red.500" : "gray.500"}
-              onClick={isRecording ? stopRecording : startRecording}
-              className={isRecording ? "pulse-anim" : ""}
-            />
-          )}
+          <IconButton
+            aria-label="Voice search"
+            icon={isRecording ? <MdMicOff size={24} /> : <MdMic size={24} />}
+            variant="ghost"
+            color={isRecording ? "red.500" : "gray.500"}
+            onClick={isRecording ? stopRecording : startRecording}
+            className={isRecording ? "pulse-anim" : ""}
+          />
         </Flex>
 
         {isRecording && (
@@ -264,7 +221,7 @@ export default function SearchOverlay({ isOpen, onClose }) {
             </Flex>
           </Box>
         </Flex>
-      </Box>
+      </MotionBox>
 
       {/* Animation cho mic */}
       <style>{`
@@ -277,6 +234,8 @@ export default function SearchOverlay({ isOpen, onClose }) {
           100% { box-shadow: 0 0 0 0 rgba(229, 62, 62, 0); }
         }
       `}</style>
-    </Box>
+        </MotionBox>
+      )}
+    </AnimatePresence>
   );
 }

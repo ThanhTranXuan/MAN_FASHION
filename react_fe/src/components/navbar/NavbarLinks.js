@@ -192,6 +192,22 @@ export default function NavbarLinks() {
             border="none"
             w={{ base: '100%', md: '180px' }}
             shadow="lg"
+            motionProps={{
+              variants: {
+                enter: {
+                  opacity: 1,
+                  y: 0,
+                  scale: 1,
+                  transition: { duration: 0.22, ease: [0.22, 1, 0.36, 1] },
+                },
+                exit: {
+                  opacity: 0,
+                  y: -8,
+                  scale: 0.98,
+                  transition: { duration: 0.16, ease: [0.4, 0, 1, 1] },
+                },
+              },
+            }}
           >
             <PopoverHeader borderBottom="1px solid" borderColor={borderColor}>
               <Text fontSize="sm" fontWeight="700" color={textColor}>

@@ -8,6 +8,7 @@ import {
   useBreakpointValue,
   Icon,
   Box,
+  Grid
 } from '@chakra-ui/react';
 import React, { useState, useRef } from 'react';
 import NavbarLinks from 'components/navbar/NavbarLinks';
@@ -17,112 +18,7 @@ import logo from 'assets/img/auth/auth.png';
 import MegaMenu from 'components/navbar/megaMenu/MegaMenu';
 import { useNavigate } from 'react-router-dom';
 import { useCategories } from 'contexts/CategoryContext';
-
-// ─── SubCategoryItem: menu cháu ───
-function SubCategoryItem({ child, grandchildren, onNavigate, colors }) {
-  const [open, setOpen] = useState(false);
-  const timerRef = useRef(null);
-
-  const handleMouseEnter = () => {
-    clearTimeout(timerRef.current);
-    setOpen(true);
-  };
-
-  const handleMouseLeave = () => {
-    timerRef.current = setTimeout(() => setOpen(false), 120);
-  };
-
-  return (
-    <Box
-      position="relative"
-      onMouseEnter={handleMouseEnter}
-      onMouseLeave={handleMouseLeave}
-    >
-      <Flex
-        px={4}
-        py="9px"
-        cursor="pointer"
-        fontSize="sm"
-        fontWeight="500"
-        color={colors.textColor}
-        borderRadius="8px"
-        mx={2}
-        transition="all 0.15s"
-        justify="space-between"
-        align="center"
-        _hover={{
-          bg: colors.hoverBg,
-          color: colors.activeColor,
-          pl: 5,
-        }}
-        onClick={(e) => {
-          e.stopPropagation();
-          onNavigate(child);
-          setOpen(false);
-        }}
-      >
-        <Text>{child.name}</Text>
-        {grandchildren.length > 0 && (
-          <Text fontSize="10px" opacity={0.6}>▶</Text>
-        )}
-      </Flex>
-
-      {/* ─── Dropdown menu cháu ─── */}
-      {open && grandchildren.length > 0 && (
-        <Box
-          position="absolute"
-          top="0"
-          left="100%"
-          bg={colors.dropdownBg}
-          border="1px solid"
-          borderColor={colors.borderColor}
-          borderRadius="12px"
-          boxShadow="0 8px 32px rgba(0,0,0,0.12)"
-          minW="200px"
-          py={2}
-          zIndex={2001}
-          style={{ animation: 'dropdownFadeIn 0.15s ease' }}
-          _before={{
-            content: '""',
-            position: 'absolute',
-            top: 0,
-            bottom: 0,
-            left: '-15px',
-            width: '15px',
-            bg: 'transparent'
-          }}
-        >
-          {grandchildren.map((gc) => (
-            <Box
-              key={gc.id}
-              px={4}
-              py="9px"
-              cursor="pointer"
-              fontSize="sm"
-              fontWeight="500"
-              color={colors.textColor}
-              borderRadius="8px"
-              mx={2}
-              transition="all 0.15s"
-              _hover={{
-                bg: colors.hoverBg,
-                color: colors.activeColor,
-                pl: 5,
-              }}
-              onClick={(e) => {
-                e.stopPropagation();
-                onNavigate(gc);
-                setOpen(false);
-              }}
-            >
-              {gc.name}
-            </Box>
-          ))}
-        </Box>
-      )}
-    </Box>
-  );
-}
+import { AnimatePresence } from 'framer-motion';
 
 // ─── CategoryItem: mỗi danh mục cấp 1 có hover dropdown ───
 function CategoryItem({ cat, children, allCategories, onNavigate, colors }) {
@@ -135,16 +31,29 @@ function CategoryItem({ cat, children, allCategories, onNavigate, colors }) {
   };
 
   const handleMouseLeave = () => {
-    timerRef.current = setTimeout(() => setOpen(false), 120);
+    timerRef.current = setTimeout(() => setOpen(false), 200);
+  };
+
+  const getThumbnail = (index) => {
+    const defaultThumbnails = [
+      'https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?auto=format&fit=crop&w=300&q=80',
+      'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?auto=format&fit=crop&w=300&q=80',
+      'https://images.unsplash.com/photo-1551028719-00167b16eac5?auto=format&fit=crop&w=300&q=80',
+      'https://images.unsplash.com/photo-1434389678278-be43e4fc8bdf?auto=format&fit=crop&w=300&q=80',
+      'https://images.unsplash.com/photo-1489987707023-afc232dce9f2?auto=format&fit=crop&w=300&q=80',
+      'https://images.unsplash.com/photo-1549298916-b41d501d3772?auto=format&fit=crop&w=300&q=80',
+    ];
+    return defaultThumbnails[index % defaultThumbnails.length];
   };
 
   return (
     <Box
-      position="relative"
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
+      h="100%"
+      display="flex"
+      alignItems="center"
     >
-      {/* ─── Tên danh mục cấp 1 ─── */}
       <Text
         fontSize="sm"
         fontWeight="700"
@@ -157,6 +66,7 @@ function CategoryItem({ cat, children, allCategories, onNavigate, colors }) {
         py={2}
         onClick={() => onNavigate(cat)}
         transition="color 0.15s"
+        position="relative"
         _after={{
           content: '""',
           display: 'block',
@@ -166,81 +76,102 @@ function CategoryItem({ cat, children, allCategories, onNavigate, colors }) {
           transform: open ? 'scaleX(1)' : 'scaleX(0)',
           transition: 'transform 0.2s ease',
           transformOrigin: 'left',
-          mt: '2px',
+          position: 'absolute',
+          bottom: '0px',
+          left: 0,
+          right: 0
         }}
       >
         {cat.name}
       </Text>
 
-      {/* ─── Dropdown danh mục con ─── */}
-      {open && children.length > 0 && (
-        <Box
-          position="absolute"
-          top="100%"
-          left="50%"
-          transform="translateX(-50%)"
-          mt="4px"
+      <Box
+          position="fixed"
+          top={{ base: '64px', md: '68px' }}
+          left={0}
+          w="100vw"
           bg={colors.dropdownBg}
-          border="1px solid"
+          boxShadow="0 10px 30px rgba(0,0,0,0.08)"
+          borderTop="1px solid"
           borderColor={colors.borderColor}
-          borderRadius="12px"
-          boxShadow="0 8px 32px rgba(0,0,0,0.12)"
-          minW="200px"
-          py={2}
           zIndex={2000}
           onMouseEnter={handleMouseEnter}
           onMouseLeave={handleMouseLeave}
-          style={{ animation: 'dropdownFadeIn 0.15s ease' }}
-          _after={{
-            content: '""',
-            position: 'absolute',
-            top: '-15px',
-            left: 0,
-            right: 0,
-            height: '15px',
-            bg: 'transparent'
-          }}
+          opacity={open && children.length > 0 ? 1 : 0}
+          visibility={open && children.length > 0 ? 'visible' : 'hidden'}
+          transform={open && children.length > 0 ? 'translateY(0)' : 'translateY(-10px)'}
+          pointerEvents={open && children.length > 0 ? 'auto' : 'none'}
+          transition="opacity 240ms cubic-bezier(0.22, 1, 0.36, 1), transform 240ms cubic-bezier(0.22, 1, 0.36, 1), visibility 240ms"
+          willChange="opacity, transform"
         >
-          {/* Mũi tên nhỏ */}
-          <Box
-            position="absolute"
-            top="-6px"
-            left="50%"
-            transform="translateX(-50%)"
-            w="12px"
-            h="6px"
-            overflow="hidden"
-            _before={{
-              content: '""',
-              position: 'absolute',
-              top: '4px',
-              left: '50%',
-              transform: 'translateX(-50%) rotate(45deg)',
-              w: '8px',
-              h: '8px',
-              bg: colors.dropdownBg,
-              border: '1px solid',
-              borderColor: colors.borderColor,
-            }}
-          />
+          <Box maxW="1200px" mx="auto" px={8} py={8}>
+            <Grid templateColumns="repeat(auto-fill, minmax(200px, 1fr))" gap={8}>
+              {children.map((child, idx) => {
+                const grandchildren = allCategories.filter((c) => c.parentId === child.id);
+                return (
+                  <Box key={child.id}>
+                    <Box
+                      w="100%"
+                      h="140px"
+                      borderRadius="md"
+                      overflow="hidden"
+                      mb={4}
+                      cursor="pointer"
+                      onClick={() => {
+                        onNavigate(child);
+                        setOpen(false);
+                      }}
+                      _hover={{ '& > img': { transform: 'scale(1.05)' } }}
+                    >
+                      <Image
+                        src={child.thumbnail || getThumbnail(idx)}
+                        alt={child.name}
+                        w="100%"
+                        h="100%"
+                        objectFit="cover"
+                        transition="transform 0.3s ease"
+                      />
+                    </Box>
+                    
+                    <Text
+                      fontWeight="bold"
+                      fontSize="md"
+                      mb={3}
+                      cursor="pointer"
+                      onClick={() => {
+                        onNavigate(child);
+                        setOpen(false);
+                      }}
+                      _hover={{ color: colors.activeColor }}
+                    >
+                      {child.name}
+                    </Text>
 
-          {children.map((child) => {
-            const grandchildren = allCategories.filter((c) => c.parentId === child.id);
-            return (
-              <SubCategoryItem
-                key={child.id}
-                child={child}
-                grandchildren={grandchildren}
-                onNavigate={(item) => {
-                  onNavigate(item);
-                  setOpen(false);
-                }}
-                colors={colors}
-              />
-            );
-          })}
+                    {grandchildren.length > 0 && (
+                      <Flex direction="column" gap={2}>
+                        {grandchildren.map((gc) => (
+                          <Text
+                            key={gc.id}
+                            fontSize="sm"
+                            color="gray.500"
+                            cursor="pointer"
+                            _hover={{ color: colors.activeColor }}
+                            onClick={() => {
+                              onNavigate(gc);
+                              setOpen(false);
+                            }}
+                          >
+                            {gc.name}
+                          </Text>
+                        ))}
+                      </Flex>
+                    )}
+                  </Box>
+                );
+              })}
+            </Grid>
+          </Box>
         </Box>
-      )}
     </Box>
   );
 }
@@ -317,7 +248,7 @@ export default function NavbarUser() {
               src={logo}
               alt="Trendify Logo"
               h={{ base: '44px', md: '50px' }}
-              onClick={() => navigate('/')}
+              onClick={() => navigate('/user/home', { replace: false })}
               cursor="pointer"
               _hover={{ opacity: 0.82 }}
               transition="opacity 0.2s"
@@ -382,12 +313,15 @@ export default function NavbarUser() {
         </Flex>
 
         {/* ━━━ MegaMenu ━━━ */}
-        {isMegaMenuOpen && !loading && (
-          <MegaMenu
-            categories={categories}
-            onClose={() => setMegaMenuOpen(false)}
-          />
-        )}
+        <AnimatePresence>
+          {isMegaMenuOpen && !loading && (
+            <MegaMenu
+              key="mega-menu"
+              categories={categories}
+              onClose={() => setMegaMenuOpen(false)}
+            />
+          )}
+        </AnimatePresence>
       </Box>
       <SearchOverlay isOpen={isSearchOpen} onClose={() => setIsSearchOpen(false)} />
     </>

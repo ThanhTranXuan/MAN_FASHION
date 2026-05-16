@@ -23,7 +23,10 @@ import { useAppToast } from 'utils/ToastHelper';
 import { MdLocalShipping, MdReplay, MdLock, MdChat } from 'react-icons/md';
 import ImageGallery from './components/ImageGallery';
 import ProductService from 'services/ProductService';
+import ReviewService from 'services/ReviewService';
 import { useCart } from 'contexts/CartContext';
+import ReviewSection from './components/review/ReviewSection';
+import { StarRating } from './components/review/ReviewItem';
 
 // ─── RelatedProducts ────────────────────────────────────────
 function RelatedProducts({ categorySlug, currentProductId }) {
@@ -155,6 +158,7 @@ export default function ProductDetail() {
   const [selectedSize, setSelectedSize] = useState('');
   const [quantity, setQuantity] = useState(1);
   const [activeImage, setActiveImage] = useState(null);
+  const [reviewSummary, setReviewSummary] = useState(null);
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -167,6 +171,14 @@ export default function ProductDetail() {
             data.images?.[0]?.url ||
             null,
         );
+
+        // Load review summary
+        try {
+          const summaryRes = await ReviewService.getReviewSummary(data.id);
+          setReviewSummary(summaryRes.data.data);
+        } catch (err) {
+          console.error('Error loading review summary:', err);
+        }
       } catch {
         toast.error('Không tìm thấy sản phẩm');
         navigate('/user/product');
@@ -353,6 +365,16 @@ export default function ProductDetail() {
                 <Text fontSize={{ base: 'xl', md: '2xl' }} color={brandColor} fontWeight="bold">
                   {formatUSD(product.price)}
                 </Text>
+                {reviewSummary && reviewSummary.totalReviews > 0 && (
+                  <HStack spacing={2} mt={2}>
+                    <StarRating rating={reviewSummary.averageRating} size={4} />
+                    <Text fontSize="sm" fontWeight="bold">{reviewSummary.averageRating.toFixed(1)}</Text>
+                    <Text fontSize="sm" color="gray.500">({reviewSummary.totalReviews})</Text>
+                  </HStack>
+                )}
+                {reviewSummary && reviewSummary.totalReviews === 0 && (
+                  <Text fontSize="xs" color="gray.400" mt={2}>Chưa có đánh giá</Text>
+                )}
               </Box>
 
               <Divider borderColor={dividerColor} />
@@ -532,6 +554,8 @@ export default function ProductDetail() {
           categorySlug={relatedCategorySlug}
           currentProductId={product.id}
         />
+
+        <ReviewSection productId={product.id} slug={slug} />
       </Box>
     </Box>
   );

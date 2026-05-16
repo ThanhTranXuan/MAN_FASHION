@@ -37,11 +37,14 @@ export default function ProductListPage() {
   const navigate = useNavigate();
   const { categorySlug } = useParams();
   const [searchParams, setSearchParams] = useSearchParams();
+  const lastSyncedSearchRef = useRef(searchParams.toString());
+  const syncingFromUrlRef = useRef(false);
 
   // 🧩 Category context
   const { categories, loading: loadingCats } = useCategories();
 
   const [keyword, setKeyword] = useState(searchParams.get('q') || '');
+
   const [debouncedKeyword, setDebouncedKeyword] = useState(keyword);
   const [sort, setSort] = useState(searchParams.get('sort') || 'newest');
   const [color, setColor] = useState(searchParams.get('color') || '');
@@ -64,6 +67,24 @@ export default function ProductListPage() {
 
   // 🆕 Dùng để chống “chèn data” từ request cũ
   const latestRequestId = useRef(0);
+
+  // Sync state when URL changes from voice search, Back, or Forward.
+  useEffect(() => {
+    const nextSearch = searchParams.toString();
+    if (nextSearch === lastSyncedSearchRef.current) return;
+
+    const nextKeyword = searchParams.get('q') || '';
+
+    syncingFromUrlRef.current = true;
+    lastSyncedSearchRef.current = nextSearch;
+
+    setKeyword(nextKeyword);
+    setDebouncedKeyword(nextKeyword);
+    setSort(searchParams.get('sort') || 'newest');
+    setColor(searchParams.get('color') || '');
+    setSize(searchParams.getAll('size'));
+    setPage(Number(searchParams.get('page') || 0));
+  }, [searchParams]);
 
   // ==========================================
   // 🔍 Debounce search
@@ -122,7 +143,17 @@ export default function ProductListPage() {
     if (size.length > 0) size.forEach((s) => params.append('size', s));
     if (sort) params.set('sort', sort);
     params.set('page', String(page));
-    setSearchParams(params);
+
+    if (syncingFromUrlRef.current) {
+      syncingFromUrlRef.current = false;
+      return;
+    }
+
+    const nextSearch = params.toString();
+    if (nextSearch !== lastSyncedSearchRef.current) {
+      lastSyncedSearchRef.current = nextSearch;
+      setSearchParams(params, { replace: true });
+    }
   }, [keyword, color, size, sort, page, setSearchParams]);
 
   // ==========================================

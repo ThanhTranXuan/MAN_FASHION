@@ -1,4 +1,3 @@
-// src/views/user/home/components/BlogSliderSection.jsx
 import React, { useEffect, useState } from 'react';
 import {
   Box,
@@ -9,7 +8,7 @@ import {
   useColorModeValue,
   Button,
 } from '@chakra-ui/react';
-import { useNavigate } from 'react-router-dom';
+import { Link as RouterLink } from 'react-router-dom';
 import BlogService from 'services/BlogService';
 import { Swiper, SwiperSlide } from 'swiper/react';
 
@@ -17,7 +16,6 @@ import { Swiper, SwiperSlide } from 'swiper/react';
 let blogCache = null;
 
 export default function BlogSliderSection() {
-  const navigate = useNavigate();
   const [blogs, setBlogs] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -83,11 +81,14 @@ export default function BlogSliderSection() {
           Xu hướng thời trang & Blog
         </Text>
         <Button
+          as={RouterLink}
+          to="/user/blog"
           variant="outline"
           colorScheme="purple"
           size="sm"
-          onClick={() => navigate('/user/blog')}
           borderRadius="full"
+          px={6}
+          _hover={{ bg: 'purple.500', color: 'white' }}
         >
           Xem tất cả
         </Button>
@@ -107,51 +108,57 @@ export default function BlogSliderSection() {
         {blogs.map((blog) => (
           <SwiperSlide key={blog.id}>
             <Box
+              as={RouterLink}
+              to={`/user/blog/detail/${blog.slug}`}
+              display="block"
               bg={bg}
               borderRadius="2xl"
               overflow="hidden"
               boxShadow="md"
-              cursor="pointer"
               h="100%"
-              transition="all 0.3s"
+              transition="all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275)"
               _hover={{
-                transform: 'translateY(-12px)',
-                shadow: 'lg',
+                transform: 'translateY(-10px)',
+                shadow: '2xl',
+                '& img': { transform: 'scale(1.1)' }
               }}
-              onClick={() => navigate(`/user/blog/detail/${blog.slug}`)}
             >
-              {blog.thumbnail ? (
-                <Image
-                  src={blog.thumbnail}
-                  alt={blog.title}
-                  h="200px"
-                  w="100%"
-                  objectFit="cover"
-                />
-              ) : (
-                <Flex
-                  h="200px"
-                  w="100%"
-                  bg="gray.200"
-                  align="center"
-                  justify="center"
-                  color="gray.500"
-                  fontSize="xl"
-                  fontWeight="bold"
-                >
-                  Trendify Blog
-                </Flex>
-              )}
+              <Box overflow="hidden" h="200px">
+                {blog.thumbnail ? (
+                  <Image
+                    src={blog.thumbnail}
+                    alt={blog.title}
+                    h="100%"
+                    w="100%"
+                    objectFit="cover"
+                    transition="transform 0.6s cubic-bezier(0.4, 0, 0.2, 1)"
+                  />
+                ) : (
+                  <Flex
+                    h="100%"
+                    w="100%"
+                    bg="gray.200"
+                    align="center"
+                    justify="center"
+                    color="gray.500"
+                    fontSize="xl"
+                    fontWeight="bold"
+                  >
+                    Trendify Blog
+                  </Flex>
+                )}
+              </Box>
               <Box p={5}>
                 <Text
                   fontWeight="bold"
                   fontSize="lg"
                   noOfLines={2}
                   color={textColor}
+                  mb={2}
                 >
                   {blog.title}
                 </Text>
-                <Text fontSize="sm" color={subTextColor} mt={2} noOfLines={3}>
+                <Text fontSize="sm" color={subTextColor} noOfLines={3}>
                   <span
                     dangerouslySetInnerHTML={{
                       __html:
@@ -161,7 +168,7 @@ export default function BlogSliderSection() {
                     }}
                   />
                 </Text>
-                <Text fontSize="xs" color="gray.500" mt={3}>
+                <Text fontSize="xs" color="gray.500" mt={4}>
                   {new Date(blog.createdAt).toLocaleDateString('vi-VN')}
                 </Text>
               </Box>

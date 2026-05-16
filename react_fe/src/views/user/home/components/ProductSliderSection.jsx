@@ -8,6 +8,8 @@ import ProductService from 'services/ProductService';
 import ProductCard from 'views/user/product/components/ProductCard';
 import { useNavigate } from 'react-router-dom';
 
+import { Link } from 'react-router-dom';
+
 // 🧠 Cache cho các slider sản phẩm (key theo categorySlug + sort + limit)
 const productCache = new Map();
 
@@ -17,9 +19,9 @@ export default function ProductSliderSection({
   sort = 'newest',
   limit = 12,
 }) {
-  const navigate = useNavigate();
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
 
   // Tạo cache key ổn định cho mỗi combination
   const cacheKey = useMemo(
@@ -93,16 +95,13 @@ export default function ProductSliderSection({
           {title}
         </Text>
         <Button
+          as={Link}
+          to={categorySlug ? `/user/product/${categorySlug}` : '/user/product'}
           variant="outline"
           colorScheme="brand"
           size="sm"
-          onClick={() =>
-            navigate(
-              categorySlug ? `/user/product/${categorySlug}` : '/user/product',
-            )
-          }
         >
-          View All
+          Xem tất cả
         </Button>
       </Flex>
 
