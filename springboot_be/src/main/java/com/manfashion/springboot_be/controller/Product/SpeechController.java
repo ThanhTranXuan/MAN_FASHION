@@ -1,4 +1,4 @@
-package com.manfashion.springboot_be.controller;
+package com.manfashion.springboot_be.controller.Product;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
