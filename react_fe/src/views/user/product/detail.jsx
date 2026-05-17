@@ -175,7 +175,7 @@ export default function ProductDetail() {
         // Load review summary
         try {
           const summaryRes = await ReviewService.getReviewSummary(data.id);
-          setReviewSummary(summaryRes.data.data);
+          setReviewSummary(summaryRes.data);
         } catch (err) {
           console.error('Error loading review summary:', err);
         }

@@ -26,6 +26,7 @@ import CartSidebar from 'components/cart/CartSidebar';
 import { MdLogin } from 'react-icons/md';
 import { SidebarResponsive } from 'components/sidebar/Sidebar';
 import routes from 'routes.js';
+import { goToSignIn, hideChatWidget, showChatWidget } from 'utils/NavigationHelper';
 
 export default function NavbarLinks() {
   const { colorMode, toggleColorMode } = useColorMode();
@@ -60,6 +61,7 @@ export default function NavbarLinks() {
   const canShowCart = !isAdminRoute && !isPaymentRoute && canUseCart;
 
   const handleToggleDashboard = () => {
+    hideChatWidget();
     if (isAdminRoute) {
       navigate('/user');
     } else {
@@ -116,7 +118,10 @@ export default function NavbarLinks() {
             p="0"
             me={2}
             minW="unset"
-            onClick={() => setIsCartOpen(true)}
+            onClick={() => {
+              hideChatWidget();
+              setIsCartOpen(true);
+            }}
             _hover={{ backgroundColor: 'transparent' }}
           >
             <Box position="relative">
@@ -140,7 +145,10 @@ export default function NavbarLinks() {
 
           <CartSidebar
             isOpen={isCartOpen}
-            onClose={() => setIsCartOpen(false)}
+            onClose={() => {
+              setIsCartOpen(false);
+              showChatWidget();
+            }}
           />
         </>
       )}
@@ -168,7 +176,7 @@ export default function NavbarLinks() {
           p="0"
           me={2}
           minW="unset"
-          onClick={() => navigate('/auth/sign-in')}
+          onClick={() => goToSignIn(navigate, location)}
           _hover={{ backgroundColor: 'none' }}
         >
           <Icon h="24px" w="24px" color={navbarIcon} as={MdLogin} />
@@ -232,7 +240,10 @@ export default function NavbarLinks() {
                   variant="ghost"
                   justifyContent="flex-start"
                   size="sm"
-                  onClick={() => navigate('/user/profile')}
+                  onClick={() => {
+                    hideChatWidget();
+                    navigate('/user/profile');
+                  }}
                 >
                   Hồ Sơ Của Bạn
                 </Button>

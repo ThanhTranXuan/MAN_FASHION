@@ -1,11 +1,17 @@
 import React, { useEffect, useState } from 'react';
 import { Box, Text, Flex, Button, Divider, Spinner, VStack } from '@chakra-ui/react';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import ReviewService from 'services/ReviewService';
 import ReviewItem from './ReviewItem';
+import { useUser } from 'contexts/UserContext';
+import { useAppToast } from 'utils/ToastHelper';
+import { goToSignIn } from 'utils/NavigationHelper';
 
 export default function ReviewSection({ productId, slug }) {
   const navigate = useNavigate();
+  const location = useLocation();
+  const toast = useAppToast();
+  const { isAuthenticated } = useUser();
   const [reviews, setReviews] = useState([]);
   const [totalReviews, setTotalReviews] = useState(0);
   const [loading, setLoading] = useState(true);
@@ -17,10 +23,10 @@ export default function ReviewSection({ productId, slug }) {
       setLoading(true);
       try {
         const latestRes = await ReviewService.getLatestReviews(productId, 3);
-        setReviews(latestRes.data.data || []);
+        setReviews(latestRes.data || []);
         
         const summaryRes = await ReviewService.getReviewSummary(productId);
-        setTotalReviews(summaryRes.data.data.totalReviews || 0);
+        setTotalReviews(summaryRes.data.totalReviews || 0);
       } catch (err) {
         console.error('Error loading reviews:', err);
       } finally {
@@ -30,6 +36,20 @@ export default function ReviewSection({ productId, slug }) {
 
     load();
   }, [productId]);
+
+  const handleWriteReview = () => {
+    if (!isAuthenticated) {
+      goToSignIn(
+        navigate,
+        location,
+        toast,
+        'Bạn phải đăng nhập để viết đánh giá.',
+      );
+      return;
+    }
+
+    navigate(`/user/product/${productId}/reviews/new`);
+  };
 
   if (loading) return (
     <Box mt={10} textAlign="center">
@@ -61,7 +81,7 @@ export default function ReviewSection({ productId, slug }) {
             colorScheme="brand" 
             variant="outline" 
             size="sm"
-            onClick={() => navigate(`/user/product/${productId}/reviews/new`)}
+            onClick={handleWriteReview}
           >
             Viết bài đánh giá đầu tiên
           </Button>

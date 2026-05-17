@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import {
   Box,
   Flex,
@@ -21,18 +21,20 @@ import {
   Divider,
   SimpleGrid,
 } from '@chakra-ui/react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { MdArrowBack, MdStar, MdStarOutline } from 'react-icons/md';
 import ReviewService from 'services/ReviewService';
 import ProductService from 'services/ProductService';
 import { useAppToast } from 'utils/ToastHelper';
 import { useUser } from 'contexts/UserContext';
+import { goToSignIn } from 'utils/NavigationHelper';
 
 export default function WriteReview() {
   const { productId } = useParams();
   const navigate = useNavigate();
+  const location = useLocation();
   const toast = useAppToast();
-  const { user } = useUser();
+  const { user, isAuthenticated, loadingUser } = useUser();
 
   const [product, setProduct] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -51,9 +53,50 @@ export default function WriteReview() {
 
   const bgColor = useColorModeValue('gray.50', 'navy.900');
   const cardBg = useColorModeValue('white', 'navy.800');
-  const textColor = useColorModeValue('gray.800', 'white');
+  const variants = useMemo(() => product?.variants || [], [product]);
+  const colors = useMemo(() => {
+    return Array.from(
+      new Set(variants.map((variant) => variant.color).filter(Boolean)),
+    ).sort((a, b) => a.localeCompare(b));
+  }, [variants]);
+  const sizes = useMemo(() => {
+    const source = formData.purchasedColor
+      ? variants.filter((variant) => variant.color === formData.purchasedColor)
+      : variants;
+    const unique = Array.from(
+      new Set(source.map((variant) => variant.size).filter(Boolean)),
+    );
+    const numeric = unique.every((size) => !Number.isNaN(parseFloat(size)));
+
+    if (numeric) {
+      return unique.sort((a, b) => parseFloat(a) - parseFloat(b));
+    }
+
+    const order = ['XS', 'S', 'M', 'L', 'XL', '2XL', '3XL'];
+    return unique.sort((a, b) => {
+      const ia = order.indexOf(a.toUpperCase());
+      const ib = order.indexOf(b.toUpperCase());
+      if (ia !== -1 && ib !== -1) return ia - ib;
+      if (ia !== -1) return -1;
+      if (ib !== -1) return 1;
+      return a.localeCompare(b);
+    });
+  }, [formData.purchasedColor, variants]);
 
   useEffect(() => {
+    if (loadingUser || isAuthenticated) return;
+
+    goToSignIn(
+      navigate,
+      location,
+      toast,
+      'Bạn phải đăng nhập để viết đánh giá.',
+    );
+  }, [isAuthenticated, loadingUser, location, navigate, toast]);
+
+  useEffect(() => {
+    if (loadingUser || !isAuthenticated) return;
+
     window.scrollTo(0, 0);
     const loadProduct = async () => {
       try {
@@ -68,11 +111,29 @@ export default function WriteReview() {
       }
     };
     loadProduct();
-  }, [productId, navigate]);
+  }, [productId, navigate, loadingUser, isAuthenticated, toast]);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handleColorChange = (e) => {
+    const color = e.target.value;
+    const nextSizes = color
+      ? variants
+          .filter((variant) => variant.color === color)
+          .map((variant) => variant.size)
+          .filter(Boolean)
+      : variants.map((variant) => variant.size).filter(Boolean);
+
+    setFormData((prev) => ({
+      ...prev,
+      purchasedColor: color,
+      purchasedSize: nextSizes.includes(prev.purchasedSize)
+        ? prev.purchasedSize
+        : '',
+    }));
   };
 
   const setRating = (r) => {
@@ -91,8 +152,8 @@ export default function WriteReview() {
 
     setSubmitting(true);
     try {
-      await ReviewService.createReview(productId, formData, user?.id);
-      toast.success('Cảm ơn bạn đã đánh giá sản phẩm!');
+      await ReviewService.createReview(productId, formData);
+      toast.success('Đánh giá của bạn đã được gửi và đang chờ duyệt.');
       navigate(`/user/product/${productId}/reviews`);
     } catch (err) {
       console.error('Error submitting review:', err);
@@ -182,25 +243,47 @@ export default function WriteReview() {
                 {/* Size */}
                 <FormControl>
                   <FormLabel fontWeight="bold">Kích cỡ đã mua</FormLabel>
-                  <Input
+                  <Select
                     name="purchasedSize"
                     value={formData.purchasedSize}
                     onChange={handleInputChange}
-                    placeholder="Ví dụ: M, L, XL"
+                    placeholder={
+                      sizes.length > 0
+                        ? 'Chọn kích cỡ'
+                        : 'Sản phẩm chưa có kích cỡ'
+                    }
                     borderRadius="lg"
-                  />
+                    isDisabled={sizes.length === 0}
+                  >
+                    {sizes.map((size) => (
+                      <option key={size} value={size}>
+                        {size}
+                      </option>
+                    ))}
+                  </Select>
                 </FormControl>
 
                 {/* Color */}
                 <FormControl>
                   <FormLabel fontWeight="bold">Màu sắc đã mua</FormLabel>
-                  <Input
+                  <Select
                     name="purchasedColor"
                     value={formData.purchasedColor}
-                    onChange={handleInputChange}
-                    placeholder="Ví dụ: Navy, Trắng"
+                    onChange={handleColorChange}
+                    placeholder={
+                      colors.length > 0
+                        ? 'Chọn màu sắc'
+                        : 'Sản phẩm chưa có màu sắc'
+                    }
                     borderRadius="lg"
-                  />
+                    isDisabled={colors.length === 0}
+                  >
+                    {colors.map((color) => (
+                      <option key={color} value={color}>
+                        {color}
+                      </option>
+                    ))}
+                  </Select>
                 </FormControl>
               </SimpleGrid>
 
@@ -273,5 +356,3 @@ export default function WriteReview() {
     </Box>
   );
 }
-
-

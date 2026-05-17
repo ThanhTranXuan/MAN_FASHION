@@ -1,7 +1,8 @@
 import './assets/css/App.css';
-import { Routes, Route, Navigate } from 'react-router-dom';
-import { ChakraProvider } from '@chakra-ui/react';
+import { Routes, Route, Navigate, useLocation } from 'react-router-dom';
+import { Box, ChakraProvider } from '@chakra-ui/react';
 import { useState } from 'react';
+import { AnimatePresence, motion } from 'framer-motion';
 // Thêm dòng này vào đầu file src/App.js
 import ResultPage from 'views/user/order/ResultPage';
 import initialTheme from './theme/theme';
@@ -20,8 +21,12 @@ import { ChatProvider } from 'contexts/ChatContext';
 
 import ScrollToTop from 'components/scroll/ScrollToTop';
 
+const MotionBox = motion(Box);
+
 export default function Main() {
   const [currentTheme, setCurrentTheme] = useState(initialTheme);
+  const location = useLocation();
+  const layoutKey = location.pathname.split('/')[1] || 'user';
 
   return (
     <ChakraProvider theme={currentTheme}>
@@ -31,7 +36,15 @@ export default function Main() {
             <NotificationProvider>
               <ChatProvider>
                 <ScrollToTop />
-                <Routes>
+                <AnimatePresence mode="wait" initial={false}>
+                  <MotionBox
+                    key={layoutKey}
+                    initial={{ opacity: 0, y: 12 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -8 }}
+                    transition={{ duration: 0.22, ease: [0.22, 1, 0.36, 1] }}
+                  >
+                    <Routes location={location}>
                   {/* Đón khách khi thanh toán thành công */}
                   <Route path="/payment/success" element={<ResultPage />} />
                   
@@ -51,7 +64,9 @@ export default function Main() {
 
                   {/* Điều hướng mặc định */}
                   <Route path="/" element={<Navigate to="/user" replace />} />
-                </Routes>
+                    </Routes>
+                  </MotionBox>
+                </AnimatePresence>
               </ChatProvider>
             </NotificationProvider>
           </CategoryProvider>

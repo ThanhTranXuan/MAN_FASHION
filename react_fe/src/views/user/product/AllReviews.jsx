@@ -4,7 +4,6 @@ import {
   Flex,
   Text,
   VStack,
-  HStack,
   Button,
   useColorModeValue,
   Divider,
@@ -14,15 +13,21 @@ import {
   Progress,
   IconButton,
 } from '@chakra-ui/react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { MdArrowBack } from 'react-icons/md';
 import ReviewService from 'services/ReviewService';
 import ProductService from 'services/ProductService';
 import ReviewItem, { StarRating } from './components/review/ReviewItem';
+import { useUser } from 'contexts/UserContext';
+import { useAppToast } from 'utils/ToastHelper';
+import { goToSignIn } from 'utils/NavigationHelper';
 
 export default function AllReviews() {
   const { productId } = useParams();
   const navigate = useNavigate();
+  const location = useLocation();
+  const toast = useAppToast();
+  const { isAuthenticated } = useUser();
   
   const [reviews, setReviews] = useState([]);
   const [summary, setSummary] = useState(null);
@@ -33,7 +38,6 @@ export default function AllReviews() {
 
   const bgColor = useColorModeValue('gray.50', 'navy.900');
   const cardBg = useColorModeValue('white', 'navy.800');
-  const textColor = useColorModeValue('gray.800', 'white');
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -53,11 +57,11 @@ export default function AllReviews() {
       setLoading(true);
       try {
         const res = await ReviewService.getReviews(productId, page, 10);
-        setReviews(res.data.data.content || []);
-        setTotalPages(res.data.data.totalPages || 0);
+        setReviews(res.data.content || []);
+        setTotalPages(res.data.totalPages || 0);
         
         const summaryRes = await ReviewService.getReviewSummary(productId);
-        setSummary(summaryRes.data.data);
+        setSummary(summaryRes.data);
       } catch (err) {
         console.error('Error loading reviews:', err);
       } finally {
@@ -66,6 +70,20 @@ export default function AllReviews() {
     };
     loadReviews();
   }, [productId, page]);
+
+  const handleWriteReview = () => {
+    if (!isAuthenticated) {
+      goToSignIn(
+        navigate,
+        location,
+        toast,
+        'Bạn phải đăng nhập để viết đánh giá.',
+      );
+      return;
+    }
+
+    navigate(`/user/product/${productId}/reviews/new`);
+  };
 
   if (loading && page === 0) return (
     <Flex justify="center" align="center" minH="100vh" bg={bgColor}>
@@ -129,7 +147,7 @@ export default function AllReviews() {
                 <Button 
                   colorScheme="brand" 
                   w="100%" 
-                  onClick={() => navigate(`/user/product/${productId}/reviews/new`)}
+                  onClick={handleWriteReview}
                 >
                   Viết bài đánh giá
                 </Button>

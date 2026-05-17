@@ -19,6 +19,7 @@ import MegaMenu from 'components/navbar/megaMenu/MegaMenu';
 import { useNavigate } from 'react-router-dom';
 import { useCategories } from 'contexts/CategoryContext';
 import { AnimatePresence } from 'framer-motion';
+import { hideChatWidget, showChatWidget } from 'utils/NavigationHelper';
 
 // ─── CategoryItem: mỗi danh mục cấp 1 có hover dropdown ───
 function CategoryItem({ cat, children, allCategories, onNavigate, colors }) {
@@ -293,7 +294,11 @@ export default function NavbarUser() {
               variant="ghost"
               color={textColor}
               _hover={{ bg: menuIconHoverBg }}
-              onClick={() => setIsSearchOpen(true)}
+              onClick={() => {
+                hideChatWidget();
+                setMegaMenuOpen(false);
+                setIsSearchOpen(true);
+              }}
               size="md"
             />
             {/* Icon 3 gạch – ngay bên trái giỏ hàng */}
@@ -303,7 +308,10 @@ export default function NavbarUser() {
               variant="ghost"
               color={textColor}
               _hover={{ bg: menuIconHoverBg }}
-              onClick={() => setMegaMenuOpen((prev) => !prev)}
+              onClick={() => {
+                hideChatWidget();
+                setMegaMenuOpen((prev) => !prev);
+              }}
               size="md"
             />
 
@@ -312,18 +320,27 @@ export default function NavbarUser() {
           </Flex>
         </Flex>
 
-        {/* ━━━ MegaMenu ━━━ */}
-        <AnimatePresence>
-          {isMegaMenuOpen && !loading && (
-            <MegaMenu
-              key="mega-menu"
-              categories={categories}
-              onClose={() => setMegaMenuOpen(false)}
-            />
-          )}
-        </AnimatePresence>
       </Box>
-      <SearchOverlay isOpen={isSearchOpen} onClose={() => setIsSearchOpen(false)} />
+      {/* ━━━ MegaMenu ━━━ */}
+      <AnimatePresence>
+        {isMegaMenuOpen && !loading && (
+          <MegaMenu
+            key="mega-menu"
+            categories={categories}
+            onClose={() => {
+              setMegaMenuOpen(false);
+              showChatWidget();
+            }}
+          />
+        )}
+      </AnimatePresence>
+      <SearchOverlay
+        isOpen={isSearchOpen}
+        onClose={() => {
+          setIsSearchOpen(false);
+          showChatWidget();
+        }}
+      />
     </>
   );
 }

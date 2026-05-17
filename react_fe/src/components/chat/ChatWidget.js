@@ -6,7 +6,6 @@ import {
   Input,
   Text,
   VStack,
-  useDisclosure,
   useColorModeValue,
   Image,
   Link,
@@ -15,16 +14,21 @@ import { ChatIcon, CloseIcon } from '@chakra-ui/icons';
 import { MdSend } from 'react-icons/md';
 import { useChat } from 'contexts/ChatContext';
 import { useUser } from 'contexts/UserContext';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { useAppToast } from 'utils/ToastHelper';
 import ChatService from 'services/ChatService';
 import logo from 'assets/img/auth/auth.png';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
+import { AnimatePresence, motion } from 'framer-motion';
+import { goToSignIn } from 'utils/NavigationHelper';
+
+const MotionBox = motion(Box);
 
 export default function ChatWidget() {
   const { isAuthenticated } = useUser();
   const navigate = useNavigate();
+  const location = useLocation();
   const toast = useAppToast();
 
   const {
@@ -39,7 +43,8 @@ export default function ChatWidget() {
     botMessages,
   } = useChat();
 
-  const { isOpen, onOpen, onClose } = useDisclosure();
+  const [isOpen, setIsOpen] = useState(false);
+  const [isWidgetHidden, setIsWidgetHidden] = useState(false);
   const [input, setInput] = useState('');
   const [chatMode, setChatMode] = useState('BOT'); // 'BOT' | 'SHOP'
 
@@ -92,20 +97,43 @@ export default function ChatWidget() {
 
   const handleOpenPopup = () => {
     if (!isAuthenticated) {
-      toast.info('Please log in to chat for support!');
-      navigate('/auth/sign-in');
+      goToSignIn(
+        navigate,
+        location,
+        toast,
+        'Bạn phải đăng nhập để sử dụng chat hỗ trợ.',
+      );
       return;
     }
     setUserHasUnread(false);
     localStorage.setItem('chat:lastReadAt', Date.now());
     setIsChatOpen(true);
-    onOpen();
+    setIsOpen(true);
   };
 
   const handleClosePopup = () => {
     setIsChatOpen(false);
-    onClose();
+    setIsOpen(false);
   };
+
+  useEffect(() => {
+    const handleHideChat = () => {
+      setIsWidgetHidden(true);
+      setIsChatOpen(false);
+      setIsOpen(false);
+    };
+    const handleShowChat = () => {
+      setIsWidgetHidden(false);
+    };
+
+    window.addEventListener('trendify:hide-chat', handleHideChat);
+    window.addEventListener('trendify:show-chat', handleShowChat);
+    return () => {
+      window.removeEventListener('trendify:hide-chat', handleHideChat);
+      window.removeEventListener('trendify:show-chat', handleShowChat);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [setIsChatOpen]);
 
   useEffect(() => {
     if (!isOpen || !isAuthenticated) return;
@@ -218,45 +246,64 @@ export default function ChatWidget() {
   return (
     <>
       {/* Floating Button */}
-      <Box position="fixed" bottom="28px" right="24px" zIndex="2100">
-        <IconButton
-          aria-label="Chat"
-          icon={<ChatIcon />}
-          size="lg"
-          borderRadius="full"
-          bg="brand.500"
-          color="white"
-          _hover={{ bg: 'brand.600' }}
-          onClick={isOpen ? handleClosePopup : handleOpenPopup}
-        />
-        {userHasUnread && !isOpen && (
-          <Box
-            position="absolute"
-            top="-4px"
-            right="-4px"
-            w="16px"
-            h="16px"
-            borderRadius="full"
-            bg="red.400"
-          />
+      <AnimatePresence>
+        {!isWidgetHidden && (
+          <MotionBox
+            position="fixed"
+            bottom="28px"
+            right="24px"
+            zIndex="2100"
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 12 }}
+            transition={{ duration: 0.18, ease: [0.22, 1, 0.36, 1] }}
+          >
+            <IconButton
+              aria-label="Chat"
+              icon={<ChatIcon />}
+              size="lg"
+              borderRadius="full"
+              bg="brand.500"
+              color="white"
+              _hover={{ bg: 'brand.600' }}
+              onClick={isOpen ? handleClosePopup : handleOpenPopup}
+            />
+            {userHasUnread && !isOpen && (
+              <Box
+                position="absolute"
+                top="-4px"
+                right="-4px"
+                w="16px"
+                h="16px"
+                borderRadius="full"
+                bg="red.400"
+              />
+            )}
+          </MotionBox>
         )}
-      </Box>
+      </AnimatePresence>
 
       {/* Chat Popup */}
-      {isOpen && (
-        <Box
-          position="fixed"
-          bottom="90px"
-          right="24px"
-          w={{ base: '90%', sm: '380px' }}
-          h="560px"
-          bg={bg}
-          borderRadius="xl"
-          boxShadow="2xl"
-          zIndex="2100"
-          display="flex"
-          flexDir="column"
-        >
+      <AnimatePresence>
+        {isOpen && (
+          <MotionBox
+            position="fixed"
+            bottom="90px"
+            right="24px"
+            w={{ base: '90%', sm: '380px' }}
+            h="560px"
+            bg={bg}
+            borderRadius="xl"
+            boxShadow="2xl"
+            zIndex="2100"
+            display="flex"
+            flexDir="column"
+            overflow="hidden"
+            initial={{ opacity: 0, y: 18 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 14 }}
+            transition={{ duration: 0.24, ease: [0.22, 1, 0.36, 1] }}
+          >
           {/* Header */}
           <Flex
             align="center"
@@ -442,8 +489,9 @@ export default function ChatWidget() {
               color={inputTextColor}
             />
           </Flex>
-        </Box>
-      )}
+          </MotionBox>
+        )}
+      </AnimatePresence>
     </>
   );
 }

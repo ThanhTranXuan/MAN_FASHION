@@ -1,6 +1,6 @@
 // src/views/auth/SignIn.jsx
 import React, { useState } from 'react';
-import { NavLink, useNavigate } from 'react-router-dom';
+import { NavLink, useLocation, useNavigate } from 'react-router-dom';
 import {
   Box,
   Button,
@@ -50,6 +50,7 @@ function SignIn() {
   );
 
   const navigate = useNavigate();
+  const location = useLocation();
   const toast = useAppToast();
   const { setUser } = useUser();
 
@@ -106,6 +107,7 @@ function SignIn() {
     }
 
     const role = tokenUser?.roleName;
+    const redirectTo = location.state?.from || '/';
 
     if (role === 'EMPLOYEE') {
       // check-in cho nhân viên
@@ -122,7 +124,7 @@ function SignIn() {
       navigate('/admin');
     } else {
       toast.success('Đăng nhập thành công!');
-      navigate('/');
+      navigate(redirectTo, { replace: true });
     }
   };
 

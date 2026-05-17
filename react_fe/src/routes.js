@@ -9,6 +9,7 @@ import {
   MdArticle,
   MdDashboard,
   MdChat,
+  MdRateReview,
 } from 'react-icons/md';
 import { FaUsersCog, FaUserTie } from 'react-icons/fa';
 import { BsBoxSeam } from 'react-icons/bs';
@@ -24,6 +25,7 @@ import BlogPage from 'views/admin/blogs';
 import OrderPage from 'views/admin/orders';
 import ReturnPage from 'views/admin/returns';
 import ChatPage from 'views/admin/chat';
+import AdminReviews from 'views/admin/reviews';
 
 // User Imports
 import Home from 'views/user/home';
@@ -120,6 +122,14 @@ const routes = [
     path: '/chat-support',
     icon: <Icon as={MdChat} w="20px" h="20px" color="inherit" />,
     component: <ChatPage />,
+  },
+
+  {
+    name: 'Quản Lý Đánh Giá',
+    layout: '/admin',
+    path: '/review-management',
+    icon: <Icon as={MdRateReview} w="20px" h="20px" color="inherit" />,
+    component: <AdminReviews />,
   },
 
   // ================== USER ROUTES ==================

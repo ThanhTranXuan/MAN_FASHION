@@ -7,7 +7,6 @@ import {
   IconButton,
   Grid,
   useColorModeValue,
-  Button,
   Flex,
   Image,
   Divider,
@@ -36,6 +35,7 @@ export default function MegaMenu({ categories, onClose }) {
   const navbarBorder = useColorModeValue('rgba(11,20,55,0.1)', 'navy.600');
   const itemBg = useColorModeValue('gray.50', 'navy.700');
   const hoverBg = useColorModeValue('gray.100', 'navy.600');
+  const overlayBg = useColorModeValue('rgba(255,255,255,0.95)', 'rgba(11,20,55,0.95)');
   const isMobile = useBreakpointValue({ base: true, md: false });
   const navigate = useNavigate();
 
@@ -44,9 +44,18 @@ export default function MegaMenu({ categories, onClose }) {
   const [currentSubParentId, setCurrentSubParentId] = useState(null);
 
   useEffect(() => {
+    const scrollbarWidth = window.innerWidth - document.documentElement.clientWidth;
+    const previousOverflow = document.body.style.overflow;
+    const previousPaddingRight = document.body.style.paddingRight;
+
     document.body.style.overflow = 'hidden';
+    if (scrollbarWidth > 0) {
+      document.body.style.paddingRight = `${scrollbarWidth}px`;
+    }
+
     return () => {
-      document.body.style.overflow = 'auto';
+      document.body.style.overflow = previousOverflow;
+      document.body.style.paddingRight = previousPaddingRight;
     };
   }, []);
 
@@ -71,43 +80,54 @@ export default function MegaMenu({ categories, onClose }) {
     <MotionBox
         key="megamenu"
         position="fixed"
-        top="68px"
+        top={0}
         left={0}
-        w="100%"
-        h="calc(100vh - 68px)"
-        zIndex={99}
-        initial={{ opacity: 0, y: -14 }}
-        animate={{ opacity: 1, y: 0 }}
-        exit={{ opacity: 0, y: -12 }}
-        transition={{ duration: 0.24, ease: [0.22, 1, 0.36, 1] }}
+        w="100vw"
+        h="100vh"
+        bg={overlayBg}
+        zIndex={2000}
+        backdropFilter="blur(10px)"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+        transition={{ duration: 0.2, ease: [0.22, 1, 0.36, 1] }}
       >
-        {/* Overlay */}
-        <Box
-          position="absolute"
-          top={0}
-          left={0}
-          w="100%"
-          h="100%"
-          bg="rgba(0,0,0,0.4)"
-          backdropFilter="blur(6px)"
-          onClick={onClose}
-        />
+        <Box position="absolute" inset={0} onClick={onClose} />
 
         {/* Content */}
-        <Box
+        <MotionBox
           position="relative"
           w="100%"
-          h={{ base: 'auto', md: '80vh' }}
-          boxShadow="md"
-          py={4}
-          borderTop="1px solid"
+          h="100vh"
           bg={navbarBg}
-          borderBottom="1px solid"
-          borderColor={navbarBorder}
-          borderRadius="0 0 20px 20px"
-          overflowY={{ base: 'visible', md: 'auto' }}
+          overflowY="auto"
+          boxShadow="0 20px 60px rgba(0,0,0,0.14)"
+          initial={{ opacity: 0, y: -18 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -12 }}
+          transition={{ duration: 0.26, ease: [0.22, 1, 0.36, 1] }}
         >
-          <Box maxW="1200px" mx="auto" px={6}>
+          <Box maxW="1200px" mx="auto" px={{ base: 4, md: 6 }} py={{ base: 4, md: 6 }}>
+            <Flex
+              align="center"
+              justify="space-between"
+              pb={4}
+              mb={{ base: 4, md: 6 }}
+              borderBottom="1px solid"
+              borderColor={navbarBorder}
+            >
+              <Text fontSize={{ base: 'lg', md: 'xl' }} fontWeight="bold">
+                Menu
+              </Text>
+              <IconButton
+                aria-label="Đóng menu"
+                icon={<MdClose size={24} />}
+                variant="ghost"
+                borderRadius="full"
+                onClick={onClose}
+                _hover={{ bg: hoverBg }}
+              />
+            </Flex>
             {isMobile ? (
               <VStack align="start" spacing={0} w="100%">
                 {/* 🧭 Shop + Blogs (ẩn khi vào cấp 2 hoặc cấp 3) */}
@@ -423,20 +443,7 @@ export default function MegaMenu({ categories, onClose }) {
               </Grid>
             )}
           </Box>
-        </Box>
-
-        {/* Close button */}
-        <Flex justify="center" mt={2}>
-          <Button
-            leftIcon={<MdClose />}
-            colorScheme="gray"
-            variant="solid"
-            position="absolute"
-            onClick={onClose}
-          >
-            Đóng
-          </Button>
-        </Flex>
+        </MotionBox>
       </MotionBox>
   );
 }

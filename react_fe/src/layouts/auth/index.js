@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
-import { Navigate, Route, Routes } from 'react-router-dom';
+import { Navigate, Route, Routes, useLocation } from 'react-router-dom';
 import routes from 'routes.js';
+import { AnimatePresence, motion } from 'framer-motion';
 
 // Chakra imports
 import { Box, useColorModeValue }  from '@chakra-ui/react';
@@ -8,6 +9,8 @@ import { Box, useColorModeValue }  from '@chakra-ui/react';
 
 // Layout components
 import { SidebarContext } from 'contexts/SidebarContext';
+
+const MotionBox = motion(Box);
 
 // Custom Chakra theme
 export default function Auth() {
@@ -32,6 +35,7 @@ export default function Auth() {
     });
   };
   const authBg = useColorModeValue('white', 'navy.900');
+  const location = useLocation();
   document.documentElement.dir = 'ltr';
   return (
     <Box>
@@ -55,13 +59,23 @@ export default function Auth() {
         >
           {getRoute() ? (
             <Box mx="auto" minH="100vh">
-              <Routes>
-                {getRoutes(routes)}
-                <Route
-                  path="/"
-                  element={<Navigate to="/auth/sign-in/default" replace />}
-                />
-              </Routes>
+              <AnimatePresence mode="wait" initial={false}>
+                <MotionBox
+                  key={location.pathname}
+                  initial={{ opacity: 0, y: 12 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -8 }}
+                  transition={{ duration: 0.22, ease: [0.22, 1, 0.36, 1] }}
+                >
+                  <Routes location={location}>
+                    {getRoutes(routes)}
+                    <Route
+                      path="/"
+                      element={<Navigate to="/auth/sign-in/default" replace />}
+                    />
+                  </Routes>
+                </MotionBox>
+              </AnimatePresence>
             </Box>
           ) : null}
         </Box>

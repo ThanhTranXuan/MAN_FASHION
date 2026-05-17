@@ -1,5 +1,5 @@
 import React from 'react';
-import { Box, Flex, Text, HStack, Icon, Avatar, Divider, Button, VStack } from '@chakra-ui/react';
+import { Box, Flex, Text, HStack, Icon, Avatar, VStack, Badge } from '@chakra-ui/react';
 import { MdStar, MdStarHalf, MdStarOutline } from 'react-icons/md';
 
 export const StarRating = ({ rating, size = 4 }) => {
@@ -37,6 +37,11 @@ export default function ReviewItem({ review }) {
           <HStack mb={2} spacing={3}>
             <StarRating rating={review.rating} />
             <Text fontWeight="bold" fontSize="md">{review.title}</Text>
+            {review.verifiedPurchase && (
+              <Badge colorScheme="green" borderRadius="full" px={2}>
+                Đã mua hàng
+              </Badge>
+            )}
           </HStack>
 
           <Text fontSize="sm" color="gray.600" mb={3} lineHeight="tall">
@@ -53,10 +58,20 @@ export default function ReviewItem({ review }) {
               )}
             </HStack>
           )}
+
+          {review.adminReply && (
+            <Box mt={4} p={4} bg="gray.50" borderRadius="lg" _dark={{ bg: 'whiteAlpha.100' }}>
+              <Text fontSize="xs" fontWeight="bold" color="brand.500" mb={1}>
+                Phản hồi từ shop
+              </Text>
+              <Text fontSize="sm" color="gray.600">
+                {review.adminReply}
+              </Text>
+            </Box>
+          )}
         </Box>
       </Flex>
     </Box>
   );
 }
-
 

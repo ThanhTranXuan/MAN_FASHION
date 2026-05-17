@@ -42,6 +42,16 @@ const ApiUrl = {
   DELETE_PRODUCT_VARIANT: (variantId) =>
     withBase(`/api/products/variants/${variantId}`),
 
+  // ==== PRODUCT REVIEWS ====
+  PRODUCT_REVIEWS: (productId) => withBase(`/api/v1/products/${productId}/reviews`),
+  PRODUCT_REVIEWS_LATEST: (productId) => withBase(`/api/v1/products/${productId}/reviews/latest`),
+  PRODUCT_REVIEWS_SUMMARY: (productId) => withBase(`/api/v1/products/${productId}/reviews/summary`),
+  ADMIN_REVIEWS: withBase('/api/v1/admin/reviews'),
+  ADMIN_REVIEW_APPROVE: (reviewId) => withBase(`/api/v1/admin/reviews/${reviewId}/approve`),
+  ADMIN_REVIEW_REJECT: (reviewId) => withBase(`/api/v1/admin/reviews/${reviewId}/reject`),
+  ADMIN_REVIEW_REPLY: (reviewId) => withBase(`/api/v1/admin/reviews/${reviewId}/reply`),
+  ADMIN_REVIEW_DELETE: (reviewId) => withBase(`/api/v1/admin/reviews/${reviewId}`),
+
   // ==== CATEGORIES ====
   CATEGORIES: withBase('/api/categories'),
   CATEGORY_DETAIL: (slug) => withBase(`/api/categories/${slug}`),

@@ -19,7 +19,7 @@ export default function Home() {
   const bgColor = useColorModeValue('white', 'gray.900');
 
   const mainCategories = [
-    { title: 'Bộ Sưu Tập Mùa Hè', categorySlug: '', sort: 'price-asc', limit: 12 },
+    { title: 'Gợi Ý Phối Đồ Mùa Này', categorySlug: '', sort: 'price-asc', limit: 12 },
     { title: 'Sản Phẩm Nổi Bật', categorySlug: '', sort: 'best-seller', limit: 15 },
     { title: 'Hàng Mới Về', sort: 'newest', limit: 15 },
     { title: 'Nam', categorySlug: 'mens', limit: 12 },
