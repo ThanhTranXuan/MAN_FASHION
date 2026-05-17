@@ -5,12 +5,17 @@ import com.manfashion.springboot_be.DTO.Review.ReviewRequest;
 import com.manfashion.springboot_be.DTO.Review.ReviewResponse;
 import com.manfashion.springboot_be.DTO.Review.ReviewSummaryResponse;
 import com.manfashion.springboot_be.service.Product.ProductReviewService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
+
 import java.util.List;
 
 @RestController
@@ -19,6 +24,14 @@ import java.util.List;
 public class ProductReviewController {
 
     private final ProductReviewService reviewService;
+
+    private Integer getCurrentUserId() {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth == null) return null;
+        Object principal = auth.getPrincipal();
+        if (!(principal instanceof String userId) || "guest".equalsIgnoreCase(userId)) return null;
+        return Integer.valueOf(userId);
+    }
 
     @GetMapping("/{productId}/reviews")
     public ApiResponse<Page<ReviewResponse>> getReviews(
@@ -30,7 +43,7 @@ public class ProductReviewController {
         Pageable pageable = buildPageable(page, size, sort);
 
         return ApiResponse.<Page<ReviewResponse>>builder()
-                .message("Lấy danh sách đánh giá sản phẩm thành công")
+                .message("review.get_public.success")
                 .data(reviewService.getReviewsByProduct(productId, pageable))
                 .build();
     }
@@ -41,7 +54,7 @@ public class ProductReviewController {
             @RequestParam(defaultValue = "3") Integer limit
     ) {
         return ApiResponse.<List<ReviewResponse>>builder()
-                .message("Lấy đánh giá mới nhất thành công")
+                .message("review.get_latest.success")
                 .data(reviewService.getLatestReviews(productId, limit))
                 .build();
     }
@@ -51,26 +64,25 @@ public class ProductReviewController {
             @PathVariable Integer productId
     ) {
         return ApiResponse.<ReviewSummaryResponse>builder()
-                .message("Lấy tổng quan đánh giá sản phẩm thành công")
+                .message("review.summary.success")
                 .data(reviewService.getReviewSummary(productId))
                 .build();
     }
 
     @PostMapping("/{productId}/reviews")
+    @PreAuthorize("hasAuthority('USER')")
     public ApiResponse<ReviewResponse> createReview(
             @PathVariable Integer productId,
-            @RequestBody ReviewRequest request,
-            @RequestHeader(value = "X-User-Id", required = false) Integer userId
+            @Valid @RequestBody ReviewRequest request
     ) {
         return ApiResponse.<ReviewResponse>builder()
-                .message("Tạo đánh giá sản phẩm thành công")
-                .data(reviewService.createReview(productId, request, userId))
+                .message("review.create.success")
+                .data(reviewService.createReview(productId, request, getCurrentUserId()))
                 .build();
     }
 
     private Pageable buildPageable(int page, int size, String sort) {
         String[] sortParams = sort.split(",");
-
         String sortField = sortParams[0];
         Sort.Direction direction = Sort.Direction.ASC;
 
@@ -78,8 +90,6 @@ public class ProductReviewController {
             direction = Sort.Direction.DESC;
         }
 
-        Sort sortObj = Sort.by(direction, sortField);
-
-        return PageRequest.of(page, size, sortObj);
+        return PageRequest.of(page, size, Sort.by(direction, sortField));
     }
 }

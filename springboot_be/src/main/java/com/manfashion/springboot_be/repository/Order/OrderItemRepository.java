@@ -11,6 +11,7 @@ import java.util.List;
 
 public interface OrderItemRepository extends JpaRepository<OrderItem, Integer> {
     List<OrderItem> findByOrderId(Integer orderId);
+    boolean existsByProduct_IdAndOrder_User_IdAndOrder_StatusIn(Integer productId, Integer userId, List<String> statuses);
     // 1. Top sản phẩm bán chạy trong khoảng thời gian (Đã fix lỗi cú pháp LIMIT của JPQL)
     @Query("SELECT p.id, p.name, " +
             "(SELECT MAX(pi.url) FROM ProductImage pi WHERE pi.product.id = p.id AND pi.isThumbnail = true), " +

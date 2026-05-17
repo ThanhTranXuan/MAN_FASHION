@@ -51,9 +51,26 @@ public class ProductReview {
     @Column(length = 100)
     private String location;
 
-    @Column(name = "helpful_count")
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false, length = 20)
     @Builder.Default
-    private Integer helpfulCount = 0;
+    private ReviewStatus status = ReviewStatus.PENDING;
+
+    @Column(name = "is_verified_purchase")
+    @Builder.Default
+    private Boolean verifiedPurchase = false;
+
+    @Column(name = "admin_reply", columnDefinition = "TEXT")
+    private String adminReply;
+
+    @Column(name = "admin_reply_at")
+    private LocalDateTime adminReplyAt;
+
+    @Column(name = "admin_reply_by")
+    private Integer adminReplyBy;
+
+    @Column(name = "deleted_at")
+    private LocalDateTime deletedAt;
 
     @CreationTimestamp
     @Column(name = "created_at", updatable = false)
