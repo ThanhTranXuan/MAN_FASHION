@@ -24,6 +24,9 @@ public class Category {
     @Column(unique = true)
     private String slug;
 
+    @Column(name = "thumbnailUrl")
+    private String thumbnailUrl;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "parent_id")
     private Category parent;

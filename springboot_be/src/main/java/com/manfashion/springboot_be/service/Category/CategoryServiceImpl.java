@@ -8,12 +8,15 @@ import com.manfashion.springboot_be.exception.ErrorCode;
 import com.manfashion.springboot_be.mapper.CategoryMapper;
 import com.manfashion.springboot_be.repository.Category.CategoryRepository;
 import com.manfashion.springboot_be.util.SlugGenerator;
+import com.manfashion.springboot_be.util.UploadImage;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -26,6 +29,7 @@ public class CategoryServiceImpl implements CategoryService{
     private final CategoryRepository categoryRepo;
     private final SlugGenerator slugGenerator;
     private final CategoryMapper categoryMapper;
+    private final UploadImage uploadImage;
 
 
     // =====================================================
@@ -44,9 +48,24 @@ public class CategoryServiceImpl implements CategoryService{
     // =====================================================
     // ➕ Tạo category
     // =====================================================
+    @Override
     public CategoryResponse createCategory(CategoryRequest req) {
+        try {
+            return createCategory(req, null);
+        } catch (IOException e) {
+            throw new RuntimeException("Failed to upload category thumbnail", e);
+        }
+    }
+
+    @Override
+    public CategoryResponse createCategory(CategoryRequest req, MultipartFile file) throws IOException {
         String slug = generateUniqueSlug(req.getName());
         Category parentCategory = null;
+        String thumbnailUrl = req.getThumbnailUrl();
+
+        if (file != null && !file.isEmpty()) {
+            thumbnailUrl = uploadImage.uploadImage(file);
+        }
 
         // Luồng chuẩn bị dữ liệu: Tìm đối tượng cha từ database nếu client truyền parentId
         if (StringUtils.hasText(req.getParentId())) {
@@ -58,6 +77,7 @@ public class CategoryServiceImpl implements CategoryService{
         Category category = Category.builder()
                 .name(req.getName())
                 .slug(slug)
+                .thumbnailUrl(thumbnailUrl)
                 .parent(parentCategory)
                 .build();
 
@@ -67,7 +87,17 @@ public class CategoryServiceImpl implements CategoryService{
     // =====================================================
     // ✏️ Cập nhật category
     // =====================================================
+    @Override
     public Optional<CategoryResponse> updateCategory(String idHex, CategoryRequest req) {
+        try {
+            return updateCategory(idHex, req, null);
+        } catch (IOException e) {
+            throw new RuntimeException("Failed to upload category thumbnail", e);
+        }
+    }
+
+    @Override
+    public Optional<CategoryResponse> updateCategory(String idHex, CategoryRequest req, MultipartFile file) throws IOException {
         Integer id = Integer.parseInt(idHex);
 
         return categoryRepo.findById(id).map(category -> {
@@ -80,6 +110,16 @@ public class CategoryServiceImpl implements CategoryService{
 
             if (nameChanged) {
                 category.setSlug(generateUniqueSlug(req.getName()));
+            }
+
+            if (file != null && !file.isEmpty()) {
+                try {
+                    category.setThumbnailUrl(uploadImage.uploadImage(file));
+                } catch (IOException e) {
+                    throw new RuntimeException("Failed to upload category thumbnail", e);
+                }
+            } else if (req.getThumbnailUrl() != null) {
+                category.setThumbnailUrl(req.getThumbnailUrl());
             }
 
             if (StringUtils.hasText(req.getParentId())) {

@@ -12,6 +12,9 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.io.IOException;
 
 @RestController
 @RequestMapping("/api/categories")
@@ -38,7 +41,7 @@ public class CategoryController {
     }
 
     // ➕ CREATE new category (ADMIN/EMPLOYEE only)
-    @PostMapping
+    @PostMapping(consumes = "application/json")
     @PreAuthorize("hasAnyAuthority('ADMIN','EMPLOYEE')")
     public ApiResponse<CategoryResponse> createCategory(@RequestBody CategoryRequest request) {
         CategoryResponse response = categoryService.createCategory(request);
@@ -49,12 +52,40 @@ public class CategoryController {
                 .build();
     }
 
+    @PostMapping(consumes = "multipart/form-data")
+    @PreAuthorize("hasAnyAuthority('ADMIN','EMPLOYEE')")
+    public ApiResponse<CategoryResponse> createCategoryWithThumbnail(
+            @RequestPart("category") CategoryRequest request,
+            @RequestPart(value = "file", required = false) MultipartFile file) throws IOException {
+        CategoryResponse response = categoryService.createCategory(request, file);
+
+        return ApiResponse.<CategoryResponse>builder()
+                .message("category.create.success")
+                .data(response)
+                .build();
+    }
+
     // ♻️ UPDATE category (ADMIN/EMPLOYEE only)
-    @PutMapping("/{id}")
+    @PutMapping(value = "/{id}", consumes = "application/json")
     @PreAuthorize("hasAnyAuthority('ADMIN','EMPLOYEE')")
     public ApiResponse<CategoryResponse> updateCategory(@PathVariable String id, @RequestBody CategoryRequest request) {
         CategoryResponse updatedCategory = categoryService.updateCategory(id, request)
                 // Nếu dự án có AppException thì dùng như UserController, nếu không bạn có thể đổi thành RuntimeException
+                .orElseThrow(() -> new AppException(ErrorCode.CATEGORY_NOT_FOUND));
+
+        return ApiResponse.<CategoryResponse>builder()
+                .message("category.update.success")
+                .data(updatedCategory)
+                .build();
+    }
+
+    @PutMapping(value = "/{id}", consumes = "multipart/form-data")
+    @PreAuthorize("hasAnyAuthority('ADMIN','EMPLOYEE')")
+    public ApiResponse<CategoryResponse> updateCategoryWithThumbnail(
+            @PathVariable String id,
+            @RequestPart("category") CategoryRequest request,
+            @RequestPart(value = "file", required = false) MultipartFile file) throws IOException {
+        CategoryResponse updatedCategory = categoryService.updateCategory(id, request, file)
                 .orElseThrow(() -> new AppException(ErrorCode.CATEGORY_NOT_FOUND));
 
         return ApiResponse.<CategoryResponse>builder()

@@ -13,6 +13,7 @@ public class CategoryResponse {
     private String id;
     private String name;
     private String slug;
+    private String thumbnailUrl;
     private String parentId;
     private String parentSlug;
 }

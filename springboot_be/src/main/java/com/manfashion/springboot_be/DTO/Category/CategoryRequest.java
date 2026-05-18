@@ -9,6 +9,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class CategoryRequest {
     private String name;
+    private String thumbnailUrl;
     private String parentId;
     private String parentSlug;
 }
