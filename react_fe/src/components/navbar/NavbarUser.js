@@ -21,6 +21,78 @@ import { useCategories } from 'contexts/CategoryContext';
 import { AnimatePresence } from 'framer-motion';
 import { hideChatWidget, showChatWidget } from 'utils/NavigationHelper';
 
+const API_BASE_URL =
+  process.env.REACT_APP_API_BASE_URL ||
+  process.env.REACT_APP_API_URL ||
+  'http://localhost:8080';
+
+const resolveImageUrl = (url) => {
+  if (!url) return '';
+  if (
+    url.startsWith('http://') ||
+    url.startsWith('https://') ||
+    url.startsWith('data:') ||
+    url.startsWith('blob:')
+  ) {
+    return url;
+  }
+  return `${API_BASE_URL}${url.startsWith('/') ? '' : '/'}${url}`;
+};
+
+const getCategoryThumbnail = (category, fallbackCategory) => {
+  const thumbnail =
+    category?.thumbnailUrl ||
+    category?.thumbnail_url ||
+    category?.imageUrl ||
+    category?.thumbnail ||
+    fallbackCategory?.thumbnailUrl ||
+    fallbackCategory?.thumbnail_url ||
+    fallbackCategory?.imageUrl ||
+    fallbackCategory?.thumbnail ||
+    '';
+
+  return resolveImageUrl(thumbnail);
+};
+
+function CategoryThumbnail({ category, fallbackCategory }) {
+  const [failed, setFailed] = useState(false);
+  const thumbnail = getCategoryThumbnail(category, fallbackCategory);
+
+  if (!thumbnail || failed) {
+    return (
+      <Flex
+        w="100%"
+        h="100%"
+        align="flex-end"
+        bg="linear-gradient(135deg, #f4f1ea 0%, #d7dce5 48%, #111827 100%)"
+        p={4}
+      >
+        <Text
+          color="white"
+          fontSize="sm"
+          fontWeight="800"
+          textTransform="uppercase"
+          textShadow="0 2px 10px rgba(0,0,0,0.35)"
+        >
+          {category.name}
+        </Text>
+      </Flex>
+    );
+  }
+
+  return (
+    <Image
+      src={thumbnail}
+      alt={category.name}
+      w="100%"
+      h="100%"
+      objectFit="cover"
+      transition="transform 0.3s ease"
+      onError={() => setFailed(true)}
+    />
+  );
+}
+
 // ─── CategoryItem: mỗi danh mục cấp 1 có hover dropdown ───
 function CategoryItem({ cat, children, allCategories, onNavigate, colors }) {
   const [open, setOpen] = useState(false);
@@ -33,18 +105,6 @@ function CategoryItem({ cat, children, allCategories, onNavigate, colors }) {
 
   const handleMouseLeave = () => {
     timerRef.current = setTimeout(() => setOpen(false), 200);
-  };
-
-  const getThumbnail = (index) => {
-    const defaultThumbnails = [
-      'https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?auto=format&fit=crop&w=300&q=80',
-      'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?auto=format&fit=crop&w=300&q=80',
-      'https://images.unsplash.com/photo-1551028719-00167b16eac5?auto=format&fit=crop&w=300&q=80',
-      'https://images.unsplash.com/photo-1434389678278-be43e4fc8bdf?auto=format&fit=crop&w=300&q=80',
-      'https://images.unsplash.com/photo-1489987707023-afc232dce9f2?auto=format&fit=crop&w=300&q=80',
-      'https://images.unsplash.com/photo-1549298916-b41d501d3772?auto=format&fit=crop&w=300&q=80',
-    ];
-    return defaultThumbnails[index % defaultThumbnails.length];
   };
 
   return (
@@ -107,7 +167,7 @@ function CategoryItem({ cat, children, allCategories, onNavigate, colors }) {
         >
           <Box maxW="1200px" mx="auto" px={8} py={8}>
             <Grid templateColumns="repeat(auto-fill, minmax(200px, 1fr))" gap={8}>
-              {children.map((child, idx) => {
+              {children.map((child) => {
                 const grandchildren = allCategories.filter((c) => c.parentId === child.id);
                 return (
                   <Box key={child.id}>
@@ -122,15 +182,12 @@ function CategoryItem({ cat, children, allCategories, onNavigate, colors }) {
                         onNavigate(child);
                         setOpen(false);
                       }}
-                      _hover={{ '& > img': { transform: 'scale(1.05)' } }}
+                      bg={colors.hoverBg}
+                      _hover={{ '& img': { transform: 'scale(1.05)' } }}
                     >
-                      <Image
-                        src={child.thumbnail || getThumbnail(idx)}
-                        alt={child.name}
-                        w="100%"
-                        h="100%"
-                        objectFit="cover"
-                        transition="transform 0.3s ease"
+                      <CategoryThumbnail
+                        category={child}
+                        fallbackCategory={cat}
                       />
                     </Box>
                     

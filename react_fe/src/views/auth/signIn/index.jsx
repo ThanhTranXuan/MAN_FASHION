@@ -18,18 +18,18 @@ import {
   Spinner,
 } from '@chakra-ui/react';
 import { useAppToast } from 'utils/ToastHelper';
-import { HSeparator } from 'components/separator/Separator';
+// import { HSeparator } from 'components/separator/Separator';
 import DefaultAuth from 'layouts/auth/Default';
 import illustration from 'assets/img/auth/auth.png';
-import { FcGoogle } from 'react-icons/fc';
+// import { FcGoogle } from 'react-icons/fc';
 import { MdOutlineRemoveRedEye } from 'react-icons/md';
 import { RiEyeCloseLine } from 'react-icons/ri';
 import AuthService from 'services/AuthService';
 import EmployeeService from 'services/EmployeeService';
 import ProfileService from 'services/ProfileService';
 import { useUser } from 'contexts/UserContext';
-import { signInWithPopup } from 'firebase/auth';
-import { auth, googleProvider } from 'config/firebaseConfig';
+// import { signInWithPopup } from 'firebase/auth';
+// import { auth, googleProvider } from 'config/firebaseConfig';
 
 function SignIn() {
   const textColor = useColorModeValue('navy.700', 'white');
@@ -38,16 +38,16 @@ function SignIn() {
   const textColorBrand = useColorModeValue('brand.500', 'white');
   const brandStars = useColorModeValue('red.500', 'red.400');
 
-  const googleBg = useColorModeValue('secondaryGray.300', 'whiteAlpha.200');
-  const googleText = useColorModeValue('navy.700', 'white');
-  const googleHover = useColorModeValue(
-    { bg: 'gray.200' },
-    { bg: 'whiteAlpha.300' },
-  );
-  const googleActive = useColorModeValue(
-    { bg: 'secondaryGray.300' },
-    { bg: 'whiteAlpha.200' },
-  );
+  // const googleBg = useColorModeValue('secondaryGray.300', 'whiteAlpha.200');
+  // const googleText = useColorModeValue('navy.700', 'white');
+  // const googleHover = useColorModeValue(
+  //   { bg: 'gray.200' },
+  //   { bg: 'whiteAlpha.300' },
+  // );
+  // const googleActive = useColorModeValue(
+  //   { bg: 'secondaryGray.300' },
+  //   { bg: 'whiteAlpha.200' },
+  // );
 
   const navigate = useNavigate();
   const location = useLocation();
@@ -145,6 +145,7 @@ function SignIn() {
     }
   };
 
+  /*
   const handleGoogleLogin = async () => {
     try {
       setLoading(true);
@@ -165,6 +166,8 @@ function SignIn() {
       setLoading(false);
     }
   };
+
+  */
 
   return (
     <DefaultAuth illustrationBackground={illustration} image={illustration}>
@@ -207,7 +210,7 @@ function SignIn() {
           me="auto"
           mb={{ base: '20px', md: 'auto' }}
         >
-          <Button
+          {/* <Button
             fontSize="sm"
             me="0px"
             mb="26px"
@@ -235,7 +238,7 @@ function SignIn() {
               hoặc
             </Text>
             <HSeparator />
-          </Flex>
+          </Flex> */}
 
           <FormControl>
             <FormLabel

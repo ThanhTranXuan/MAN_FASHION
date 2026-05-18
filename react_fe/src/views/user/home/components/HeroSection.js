@@ -7,26 +7,31 @@ export default function HeroSection({ textColor }) {
 
   return (
     <Box px={{ base: 4, md: 8 }} pb={10}>
-      <Box position="relative" w="100%" h={{ base: '400px', md: '550px' }} overflow="hidden" borderRadius="2xl">
-        {/* Background Image với Overlay */}
+      <Box
+        position="relative"
+        w="100%"
+        h={{ base: '430px', md: '550px' }}
+        overflow="hidden"
+        borderRadius={{ base: '24px', md: '30px' }}
+        boxShadow="0 22px 60px rgba(15, 23, 42, 0.14)"
+      >
         <Box
           position="absolute"
-          top={0}
-          left={0}
-          w="100%"
-          h="100%"
-          backgroundImage="url('https://images.unsplash.com/photo-1490481651871-ab68de25d43d?auto=format&fit=crop&w=1600&q=80')"
+          inset={0}
+          backgroundImage="url('https://res.cloudinary.com/dltg0f2qf/image/upload/v1779074288/Category-m-hero-pc_ssfeei.jpg')"
           backgroundSize="cover"
-          backgroundPosition="center"
-          _after={{
-            content: '""',
-            position: 'absolute',
-            top: 0,
-            left: 0,
-            w: '100%',
-            h: '100%',
-            bg: 'linear-gradient(to right, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0.3) 100%)',
+          backgroundPosition={{ base: '58% center', md: 'center' }}
+          filter="saturate(1.05) contrast(1.02)"
+        />
+
+        <Box
+          position="absolute"
+          inset={0}
+          bg={{
+            base: 'linear-gradient(180deg, rgba(5,8,14,0.02) 0%, rgba(5,8,14,0.08) 48%, rgba(5,8,14,0.28) 100%)',
+            md: 'linear-gradient(90deg, rgba(5,8,14,0.26) 0%, rgba(5,8,14,0.16) 28%, rgba(5,8,14,0.04) 58%, rgba(5,8,14,0) 100%)',
           }}
+          pointerEvents="none"
         />
 
         <MotionFlex
@@ -34,39 +39,54 @@ export default function HeroSection({ textColor }) {
           zIndex={1}
           direction="column"
           align="flex-start"
-          justify="center"
+          justify={{ base: 'flex-end', md: 'center' }}
           h="100%"
-          px={{ base: 6, md: 16 }}
+          px={{ base: 5, md: 16 }}
+          py={{ base: 7, md: 0 }}
           initial={{ opacity: 0, y: 40 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8 }}
         >
-          <Box maxW="500px">
+          <Box
+            maxW={{ base: '100%', md: '430px' }}
+            p={{ base: 4, md: 5 }}
+            borderRadius="lg"
+            bg="rgba(8, 12, 20, 0.18)"
+            border="1px solid rgba(255,255,255,0.14)"
+            boxShadow="0 14px 34px rgba(0,0,0,0.12)"
+          >
             <MotionText
-              fontSize={{ base: '3xl', md: '5xl' }}
+              fontSize={{ base: '2xl', md: '3xl' }}
               fontWeight="bold"
-              mb={4}
+              mb={3}
               color="white"
-              lineHeight="1.2"
+              lineHeight="1.18"
+              textShadow="0 2px 12px rgba(0,0,0,0.42)"
             >
               Tỏa Sáng Cùng Phong Cách Mùa Hè
             </MotionText>
 
             <MotionText
-              fontSize={{ base: 'md', md: 'lg' }}
-              color="gray.200"
-              mb={8}
+              fontSize={{ base: 'sm', md: 'md' }}
+              color="whiteAlpha.900"
+              mb={5}
+              lineHeight="1.6"
+              noOfLines={{ base: 3, md: 3 }}
+              textShadow="0 2px 10px rgba(0,0,0,0.44)"
             >
-              Cập nhật ngay xu hướng thời trang mùa hè. Những thiết kế hiện đại, chất liệu thoáng mát giúp bạn luôn nổi bật.
+              Cập nhật ngay xu hướng thời trang mùa hè. Những thiết kế hiện đại,
+              chất liệu thoáng mát giúp bạn luôn nổi bật.
             </MotionText>
 
             <Button
-              size="lg"
+              size="md"
               bg="brand.500"
               color="white"
-              _hover={{ bg: 'brand.600' }}
+              _hover={{ bg: 'brand.600', transform: 'translateY(-1px)' }}
+              _active={{ transform: 'translateY(0)' }}
               rounded="full"
-              px={8}
+              px={7}
+              boxShadow="0 10px 22px rgba(115,102,255,0.24)"
               onClick={() => navigate('/user/product')}
             >
               Mua Sắm Ngay

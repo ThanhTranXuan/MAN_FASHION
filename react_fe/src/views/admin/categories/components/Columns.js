@@ -32,6 +32,10 @@ export default function Columns({
       },
     }),
     columnHelper.display({
+      id: 'thumbnail',
+      header: 'THUMBNAIL',
+    }),
+    columnHelper.display({
       id: 'actions',
       header: <Text align="right">THAO TÁC</Text>,
     }),

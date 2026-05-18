@@ -2,7 +2,9 @@ import React from 'react';
 import {
   Tr,
   Td,
+  Box,
   Flex,
+  Image,
   Text,
   IconButton,
   useColorModeValue,
@@ -49,6 +51,20 @@ export default function Row({
               />
             )}
           </Flex>
+        </Td>
+
+        <Td>
+          {cat.thumbnailUrl ? (
+            <Image
+              src={cat.thumbnailUrl}
+              alt={cat.name}
+              boxSize="48px"
+              objectFit="cover"
+              borderRadius="md"
+            />
+          ) : (
+            <Box boxSize="48px" borderRadius="md" bg="gray.100" />
+          )}
         </Td>
 
         <Td textAlign="right">
