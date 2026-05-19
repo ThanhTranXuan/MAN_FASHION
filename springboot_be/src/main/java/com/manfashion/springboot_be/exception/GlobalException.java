@@ -19,13 +19,19 @@ import lombok.extern.slf4j.Slf4j;
 @RequiredArgsConstructor
 public class GlobalException {
 //    private final I18n i18n;
+    private String resolveMessage(String messageKey) {
+        if ("error.system.general".equals(messageKey)) {
+            return "Đã xảy ra lỗi hệ thống. Vui lòng thử lại sau.";
+        }
+        return messageKey;
+    }
 
     @ExceptionHandler(value = AppException.class)
     ResponseEntity<ApiResponse<Void>> handleAppException(AppException e) {
         ErrorCode errorCode = e.getErrorCode();
         ApiResponse<Void> response = ApiResponse.<Void>builder()
                 .code(errorCode.getCode())
-                .message((errorCode.getMessageKey()))
+                .message(resolveMessage(errorCode.getMessageKey()))
                 .build();
         return ResponseEntity.status(errorCode.getHttpStatusCode()).body(response);
     }
@@ -59,7 +65,7 @@ public class GlobalException {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
                 ApiResponse.<Map<String, String>>builder()
                         .code(firstErrorCode.getCode())
-                        .message(firstErrorCode.getMessageKey())
+                        .message(resolveMessage(firstErrorCode.getMessageKey()))
                         .data(errors)
                         .build()
         );
@@ -71,7 +77,7 @@ public class GlobalException {
         ErrorCode errorCode = ErrorCode.SYSTEM_ERROR;
         ApiResponse<Void> response = ApiResponse.<Void>builder()
                 .code(errorCode.getCode())
-                .message((errorCode.getMessageKey()))
+                .message(resolveMessage(errorCode.getMessageKey()))
                 .build();
         return ResponseEntity.status(errorCode.getHttpStatusCode()).body(response);
     }

@@ -6,6 +6,8 @@ import com.manfashion.springboot_be.entity.ProductImage;
 import com.manfashion.springboot_be.entity.ProductVariant;
 import org.mapstruct.*;
 
+import java.util.List;
+
 @Mapper(componentModel = "spring")
 public interface ProductMapper {
 
@@ -13,6 +15,25 @@ public interface ProductMapper {
     @Mapping(target = "categoryName", expression = "java(product.getCategory() != null ? product.getCategory().getName() : null)")
     @Mapping(target = "categoryId", expression = "java(product.getCategory() != null ? product.getCategory().getId() : null)")
     ProductResponse toResponseDTO(Product product);
+
+    @AfterMapping
+    default void filterSoftDeletedChildren(Product product, @MappingTarget ProductResponse response) {
+        if (response.getVariants() != null) {
+            List<ProductVariantResponse> activeVariants = product.getVariants().stream()
+                    .filter(variant -> variant.getDeletedAt() == null)
+                    .map(this::toVariantResponseDTO)
+                    .toList();
+            response.setVariants(activeVariants);
+        }
+
+        if (response.getImages() != null) {
+            List<ProductImageResponse> activeImages = product.getImages().stream()
+                    .filter(image -> image.getDeletedAt() == null)
+                    .map(this::toImageResponseDTO)
+                    .toList();
+            response.setImages(activeImages);
+        }
+    }
 
     // Chuyển từ Request DTO sang Entity để lưu vào Database (Create)
     @Mapping(target = "id", ignore = true)

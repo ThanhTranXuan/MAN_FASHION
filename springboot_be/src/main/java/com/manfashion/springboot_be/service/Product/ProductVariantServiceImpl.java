@@ -7,6 +7,7 @@ import com.manfashion.springboot_be.entity.ProductVariant;
 import com.manfashion.springboot_be.exception.AppException;
 import com.manfashion.springboot_be.exception.ErrorCode;
 import com.manfashion.springboot_be.mapper.ProductMapper;
+import com.manfashion.springboot_be.repository.Product.ProductImageRepository;
 import com.manfashion.springboot_be.repository.Product.ProductRepository;
 import com.manfashion.springboot_be.repository.Product.ProductVariantRepository;
 import jakarta.transaction.Transactional;
@@ -19,6 +20,7 @@ import java.time.LocalDateTime;
 @RequiredArgsConstructor
 public class ProductVariantServiceImpl implements ProductVariantService{
     private final ProductVariantRepository variantRepository;
+    private final ProductImageRepository imageRepository;
     private final ProductRepository productRepository;
     private final ProductMapper productMapper;
 
@@ -52,5 +54,23 @@ public class ProductVariantServiceImpl implements ProductVariantService{
 
         variant.setDeletedAt(LocalDateTime.now());
         variantRepository.save(variant);
+
+        String color = variant.getColor();
+        Integer productId = variant.getProduct() != null ? variant.getProduct().getId() : null;
+        if (productId == null || color == null || color.isBlank()) {
+            return;
+        }
+
+        boolean hasActiveVariantWithSameColor =
+                variantRepository.existsByProductIdAndColorIgnoreCaseAndDeletedAtIsNull(productId, color);
+        if (hasActiveVariantWithSameColor) {
+            return;
+        }
+
+        imageRepository.findByProductIdAndColorIgnoreCaseAndDeletedAtIsNull(productId, color)
+                .forEach(image -> {
+                    image.setDeletedAt(LocalDateTime.now());
+                    imageRepository.save(image);
+                });
     }
 }
