@@ -143,11 +143,17 @@ export default function ProductPage() {
 
       if (isVariant) {
         await ProductService.deleteVariant(deleteItem.id);
+        setProducts((prev) =>
+          prev.map((product) => ({
+            ...product,
+            variants: product.variants?.filter((variant) => variant.id !== deleteItem.id),
+          })),
+        );
       } else {
         await ProductService.delete(deleteItem.id);
       }
 
-      toast.success('Xóa thành công');
+      toast.success(isVariant ? 'Xóa biến thể thành công' : 'Xóa sản phẩm thành công');
       setIsConfirmOpen(false);
       await Promise.all([loadData(page), loadStats(), refreshCategories()]);
     } catch {

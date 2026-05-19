@@ -20,7 +20,7 @@ export default function Home() {
 
   const mainCategories = [
     { title: 'Gợi Ý Phối Đồ Mùa Này', categorySlug: '', sort: 'price-asc', limit: 12 },
-    { title: 'Sản Phẩm Nổi Bật', categorySlug: '', sort: 'best-seller', limit: 15 },
+    { title: 'Sản Phẩm Nổi Bật', categorySlug: '', sort: 'price-desc', limit: 15 },
     { title: 'Hàng Mới Về', sort: 'newest', limit: 15 },
     { title: 'Nam', categorySlug: 'mens', limit: 12 },
     { title: 'Nữ', categorySlug: 'womens', limit: 12 },
@@ -61,24 +61,35 @@ export default function Home() {
   useEffect(() => {
     // Nếu là PUSH (chuyển trang mới) -> scroll lên top
     // Nếu là POP (Back/Forward) -> restore vị trí cũ
+    const storageKey = `scroll:${location.pathname}`;
+    let restoreTimer;
+    let frameId;
+
     if (navigationType === 'POP') {
-      const savedY = sessionStorage.getItem('home_scroll');
-      if (savedY) {
-        setTimeout(() => window.scrollTo(0, parseInt(savedY, 10)), 50);
+      const savedY = Number(sessionStorage.getItem(storageKey) || 0);
+      if (savedY > 0) {
+        restoreTimer = window.setTimeout(() => {
+          frameId = window.requestAnimationFrame(() => {
+            window.scrollTo({ top: savedY, left: 0, behavior: 'auto' });
+          });
+        }, 120);
       }
-    } else {
-      window.scrollTo(0, 0);
+    } else if (!location.search) {
+      window.scrollTo({ top: 0, left: 0, behavior: 'auto' });
     }
 
     const handleScroll = () => {
-      sessionStorage.setItem('home_scroll', window.scrollY);
+      sessionStorage.setItem(storageKey, String(window.scrollY));
     };
 
     window.addEventListener('scroll', handleScroll, { passive: true });
     return () => {
+      handleScroll();
+      window.clearTimeout(restoreTimer);
+      if (frameId) window.cancelAnimationFrame(frameId);
       window.removeEventListener('scroll', handleScroll);
     };
-  }, [navigationType]);
+  }, [location.pathname, location.search, navigationType]);
 
   return (
     <Box
@@ -97,7 +108,7 @@ export default function Home() {
           key={cat.title}
           title={cat.title}
           categorySlug={cat.categorySlug}
-          sort={cat.sort || 'best-seller'}
+          sort={cat.sort || 'newest'}
           limit={cat.limit}
         />
       ))}

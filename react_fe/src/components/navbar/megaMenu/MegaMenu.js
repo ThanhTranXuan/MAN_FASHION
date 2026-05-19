@@ -404,7 +404,15 @@ export default function MegaMenu({ categories, onClose }) {
                       onClose?.();
                     }}
                   >
-                    <Image src={Clothe} alt="Products" w="100%" h="120px" />
+                    <Image
+                      src={Clothe}
+                      alt="Products"
+                      w="100%"
+                      h="120px"
+                      objectFit="contain"
+                      bg="gray.50"
+                      p={2}
+                    />
                     <Box p={4}>
                       <Text fontSize="lg" fontWeight="bold" mb={2}>
                         Khám Phá Sản Phẩm
@@ -429,7 +437,15 @@ export default function MegaMenu({ categories, onClose }) {
                       onClose?.();
                     }}
                   >
-                    <Image src={Blog} alt="Blog" w="100%" h="120px" />
+                    <Image
+                      src={Blog}
+                      alt="Blog"
+                      w="100%"
+                      h="120px"
+                      objectFit="contain"
+                      bg="gray.50"
+                      p={2}
+                    />
                     <Box p={4}>
                       <Text fontSize="lg" fontWeight="bold" mb={2}>
                         Xem Blog

@@ -47,37 +47,37 @@ function SignUp() {
       !password.trim() ||
       !confirmPassword.trim()
     ) {
-      toast.error('Please fill in all required fields');
+      toast.error('Vui lòng nhập đầy đủ thông tin bắt buộc');
       return;
     }
 
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email)) {
-      toast.error('Invalid email address');
+      toast.error('Email không hợp lệ');
       return;
     }
 
     // 🔒 Rule 1: Độ dài tối thiểu
     if (password.length < 8) {
-      toast.error('Password must be at least 8 characters long');
+      toast.error('Mật khẩu phải có ít nhất 8 ký tự');
       return;
     }
 
     // 🔒 Rule 2: Ít nhất 1 chữ in hoa
     if (!/[A-Z]/.test(password)) {
-      toast.error('Password must contain at least 1 uppercase letter');
+      toast.error('Mật khẩu phải chứa ít nhất 1 ký tự in hoa');
       return;
     }
 
     // 🔒 Rule 3: Ít nhất 1 chữ in thường
     if (!/[a-z]/.test(password)) {
-      toast.error('Password must contain at least 1 lowercase letter');
+      toast.error('Mật khẩu phải chứa ít nhất 1 ký tự thường');
       return;
     }
 
     // 🔒 Rule 4: Ít nhất 1 ký tự đặc biệt
     if (!/[^A-Za-z0-9]/.test(password)) {
-      toast.error('Password must contain at least 1 special character');
+      toast.error('Mật khẩu phải chứa ít nhất 1 ký tự đặc biệt');
       return;
     }
 

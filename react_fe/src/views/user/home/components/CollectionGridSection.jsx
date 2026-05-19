@@ -1,6 +1,7 @@
 import React from 'react';
 import { Box, Grid, GridItem, Text, Button, Flex } from '@chakra-ui/react';
 import { Link as RouterLink } from 'react-router-dom';
+import { useCategories } from 'contexts/CategoryContext';
 
 const collectionCards = [
   {
@@ -11,6 +12,7 @@ const collectionCards = [
       'https://res.cloudinary.com/dltg0f2qf/image/upload/v1779074288/Category-m-t-shirt-pc_qx9nbv.jpg',
     variant: 'large',
     position: 'center',
+    to: '/user/product',
   },
   {
     title: 'Phụ Kiện Nổi Bật',
@@ -20,6 +22,8 @@ const collectionCards = [
       'https://res.cloudinary.com/dltg0f2qf/image/upload/v1779074543/Category-m-accessories-pc_rskt76.jpg',
     variant: 'small',
     position: 'center',
+    fallbackTo: '/user/product/phu-kien',
+    categoryKeywords: ['phụ kiện', 'phu kien', 'accessories'],
   },
   {
     title: 'Giày Sneakers',
@@ -29,6 +33,8 @@ const collectionCards = [
       'https://res.cloudinary.com/dltg0f2qf/image/upload/v1779074730/goods_32_484330_3x4_oqdlmp.avif',
     variant: 'small',
     position: 'center',
+    fallbackTo: '/user/product/giay',
+    categoryKeywords: ['giay', 'gi�y', 'sneaker'],
   },
 ];
 
@@ -38,7 +44,7 @@ function CollectionCard({ card, gridProps }) {
   return (
     <GridItem
       as={RouterLink}
-      to="/user/product"
+      to={card.to || card.fallbackTo || '/user/product'}
       position="relative"
       borderRadius={{ base: '22px', md: '28px' }}
       overflow="hidden"
@@ -158,6 +164,23 @@ function CollectionCard({ card, gridProps }) {
 }
 
 export default function CollectionGridSection() {
+  const { categories } = useCategories();
+  const cards = collectionCards.map((card) => {
+    if (!card.categoryKeywords) return card;
+
+    const matchedCategory = categories.find((category) => {
+      const name = `${category.name || ''} ${category.slug || ''}`.toLowerCase();
+      return card.categoryKeywords.some((keyword) => name.includes(keyword));
+    });
+
+    return {
+      ...card,
+      to: matchedCategory?.slug
+        ? `/user/product/${matchedCategory.slug}`
+        : card.fallbackTo,
+    };
+  });
+
   return (
     <Box py={10} px={{ base: 4, md: 20 }} maxW="1440px" mx="auto">
       <Text
@@ -177,14 +200,14 @@ export default function CollectionGridSection() {
         gap={6}
       >
         <CollectionCard
-          card={collectionCards[0]}
+          card={cards[0]}
           gridProps={{
             colSpan: { base: 1, md: 2 },
             rowSpan: { base: 1, md: 2 },
           }}
         />
-        <CollectionCard card={collectionCards[1]} />
-        <CollectionCard card={collectionCards[2]} />
+        <CollectionCard card={cards[1]} />
+        <CollectionCard card={cards[2]} />
       </Grid>
     </Box>
   );

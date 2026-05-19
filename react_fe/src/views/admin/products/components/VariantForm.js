@@ -1,5 +1,4 @@
-// src/components/product/VariantForm.jsx
-import React, { useEffect, useState, useMemo } from 'react';
+import React, { memo, useCallback, useEffect, useMemo, useState } from 'react';
 import {
   Modal,
   ModalOverlay,
@@ -20,12 +19,65 @@ import {
   MenuList,
   Box,
   MenuItem,
+  SimpleGrid,
   useColorModeValue,
 } from '@chakra-ui/react';
-import { useAppToast } from 'utils/ToastHelper';
-import ProductService from 'services/ProductService';
-import ImageUploader from 'components/img/ImageUploader';
 import { MdDelete, MdAdd } from 'react-icons/md';
+import ImageUploader from 'components/img/ImageUploader';
+import ProductService from 'services/ProductService';
+import { COLOR_OPTIONS, getColorLabel, getColorSwatch } from 'utils/ColorNameHelper';
+import { useAppToast } from 'utils/ToastHelper';
+
+const ColorMenu = memo(function ColorMenu({ color, onChange, borderColor }) {
+  const selectedLabel = getColorLabel(color);
+
+  return (
+    <Menu placement="bottom-end" isLazy lazyBehavior="unmount">
+      <MenuButton
+        w="100%"
+        as={Button}
+        justifyContent="flex-start"
+        borderWidth="1px"
+        borderColor={borderColor}
+        variant="outline"
+      >
+        {color ? (
+          <Flex align="center" gap={2}>
+            <Box
+              w="18px"
+              h="18px"
+              borderRadius="full"
+              bg={getColorSwatch(color)}
+              borderWidth="1px"
+              borderColor="gray.300"
+            />
+            <Text>{selectedLabel}</Text>
+          </Flex>
+        ) : (
+          'Chọn màu'
+        )}
+      </MenuButton>
+
+      <MenuList maxH="240px" overflowY="auto" py={1}>
+        {COLOR_OPTIONS.map((item) => (
+          <MenuItem key={item.value} onClick={() => onChange(item.value)}>
+            <Flex align="center" gap={3}>
+              <Box
+                w="18px"
+                h="18px"
+                borderRadius="full"
+                bg={item.swatch}
+                borderWidth="1px"
+                borderColor="gray.400"
+              />
+              <Text>{item.label}</Text>
+            </Flex>
+          </MenuItem>
+        ))}
+      </MenuList>
+    </Menu>
+  );
+});
 
 export default function VariantForm({
   isOpen,
@@ -44,6 +96,7 @@ export default function VariantForm({
   const textColor = useColorModeValue('secondaryGray.900', 'white');
   const bgColor = useColorModeValue('white', 'navy.800');
   const headerBg = useColorModeValue('gray.100', 'navy.800');
+  const borderColor = useColorModeValue('gray.300', 'gray.600');
 
   const columnCount = useMemo(() => {
     if (rows.length >= 6) return 3;
@@ -57,25 +110,18 @@ export default function VariantForm({
     return 'lg';
   }, [columnCount]);
 
-  // ✅ Load variant info + ảnh cũ từ DB
   useEffect(() => {
     if (!parentProduct) return;
 
     if (editingVariant) {
-      setColor(editingVariant.color || '');
-      setRows([
-        { size: editingVariant.size || '', stock: editingVariant.stock || 0 },
-      ]);
+      const nextColor = editingVariant.color || '';
+      setColor(nextColor);
+      setRows([{ size: editingVariant.size || '', stock: editingVariant.stock ?? '' }]);
 
-      const matchedImages =
-        parentProduct.images?.filter(
-          (img) =>
-            img.color &&
-            img.color.toLowerCase() ===
-              (editingVariant.color || '').toLowerCase(),
-        ) || [];
-
-      setVariantPreview(matchedImages.length > 0 ? matchedImages[0].url : '');
+      const matchedImage = parentProduct.images?.find(
+        (img) => img.color && img.color.toLowerCase() === nextColor.toLowerCase(),
+      );
+      setVariantPreview(matchedImage?.url || '');
     } else {
       setColor('');
       setRows([{ size: '', stock: '' }]);
@@ -85,43 +131,53 @@ export default function VariantForm({
     setVariantFile(null);
   }, [editingVariant, parentProduct]);
 
-  const updateRow = (index, field, value) => {
-    const updated = [...rows];
-    updated[index][field] = value;
-    setRows(updated);
-  };
+  const updateRow = useCallback((index, field, value) => {
+    setRows((prev) =>
+      prev.map((row, rowIndex) =>
+        rowIndex === index ? { ...row, [field]: value } : row,
+      ),
+    );
+  }, []);
 
-  const addRow = () => setRows((prev) => [...prev, { size: '', stock: '' }]);
+  const addRow = useCallback(
+    () => setRows((prev) => [...prev, { size: '', stock: '' }]),
+    [],
+  );
 
-  const removeRow = (index) => {
-    if (rows.length === 1) return toast.error('At least one size is required');
-    setRows((prev) => prev.filter((_, i) => i !== index));
-  };
+  const removeRow = useCallback(
+    (index) => {
+      if (rows.length === 1) {
+        toast.error('Vui lòng giữ ít nhất một kích cỡ');
+        return;
+      }
+      setRows((prev) => prev.filter((_, rowIndex) => rowIndex !== index));
+    },
+    [rows.length, toast],
+  );
 
   const handleSubmit = async () => {
-    if (!parentProduct) return toast.error('Missing parent product');
-    if (!color) return toast.error('Please select a color');
+    if (!parentProduct) return toast.error('Không tìm thấy sản phẩm cha');
+    if (!color) return toast.error('Vui lòng chọn màu');
 
-    for (const r of rows) {
-      if (!r.size || !r.stock) {
-        return toast.error('Please fill all size and stock fields');
+    for (const row of rows) {
+      if (!row.size) return toast.error('Vui lòng chọn kích cỡ');
+      if (row.stock === '' || row.stock === null || row.stock === undefined) {
+        return toast.error('Vui lòng nhập số lượng tồn kho');
       }
     }
 
     setLoading(true);
     try {
-      // 🔎 Kiểm tra xem ban đầu có ảnh DB cho màu này không
       const hadOldImage =
         parentProduct.images?.some(
           (img) => img.color && img.color.toLowerCase() === color.toLowerCase(),
         ) || false;
 
-      // 1️⃣ Tạo / cập nhật variant (JSON)
       for (const row of rows) {
         const variantData = {
           color,
           size: row.size,
-          stock: parseInt(row.stock, 10),
+          stock: Number.parseInt(row.stock, 10),
         };
 
         if (editingVariant) {
@@ -131,149 +187,69 @@ export default function VariantForm({
         }
       }
 
-      // 2️⃣ Ảnh: dùng duy nhất 1 ảnh / color
       const hasNewImage = !!variantFile;
       const imageRemoved = !variantPreview && hadOldImage;
 
       if (hasNewImage) {
-        // 👉 Replace ảnh cũ bằng ảnh mới
         await ProductService.uploadImages(parentProduct.id, {
           color,
           files: [variantFile],
         });
       } else if (imageRemoved) {
-        // 👉 User xoá hết ảnh → gửi uploadImages không kèm file để xoá
         await ProductService.uploadImages(parentProduct.id, {
           color,
           files: [],
         });
       }
-      // 👉 Nếu không đổi ảnh thì KHÔNG gọi uploadImages → giữ nguyên ảnh DB
 
-      toast.success(editingVariant ? 'Cập nhật biến thể thành công!' : 'Thêm biến thể thành công!');
-      reload();
+      toast.success(editingVariant ? 'Cập nhật biến thể thành công' : 'Thêm biến thể thành công');
+      await reload();
       onClose();
     } catch (err) {
-      toast.error(err.response?.data?.message || 'Lưu biến thể thất bại');
+      toast.error(err.response?.data?.message || 'Không thể lưu biến thể');
     } finally {
       setLoading(false);
     }
   };
 
-  const handleRemovePreview = () => {
+  const handleImageChange = useCallback((files, previews) => {
+    setVariantFile(files[0] || null);
+    setVariantPreview(previews[0] || '');
+  }, []);
+
+  const handleRemovePreview = useCallback(() => {
     setVariantPreview('');
     setVariantFile(null);
-  };
+  }, []);
 
   return (
     <Modal isOpen={isOpen} onClose={onClose} size={modalSize} isCentered>
       <ModalOverlay />
       <ModalContent borderRadius="20px" bg={bgColor} color={textColor}>
         <ModalHeader bg={headerBg}>
-          {editingVariant ? 'Chỉnh Sửa Biến Thể' : 'Thêm Biến Thể'}
+          {editingVariant ? 'Chỉnh sửa biến thể' : 'Thêm biến thể'}
         </ModalHeader>
         <ModalCloseButton />
-        <ModalBody
-          maxH="65vh"
-          overflowY="auto"
-          css={{
-            '&::-webkit-scrollbar': { width: '6px' },
-            '&::-webkit-scrollbar-thumb': {
-              background: 'rgba(100, 100, 100, 0.4)',
-              borderRadius: '4px',
-            },
-          }}
-        >
+        <ModalBody maxH="65vh" overflowY="auto">
           <FormControl mb={5}>
-            <FormLabel>Ảnh Biến Thể</FormLabel>
+            <FormLabel>Ảnh biến thể</FormLabel>
             <ImageUploader
               multiple={false}
               value={variantPreview ? [variantPreview] : []}
-              onChange={(files, previews) => {
-                setVariantFile(files[0] || null);
-                setVariantPreview(previews[0] || '');
-              }}
+              onChange={handleImageChange}
               onDelete={handleRemovePreview}
             />
           </FormControl>
 
-          {/* Color picker */}
           <FormControl mb={5} isRequired>
-            <FormLabel>Màu Sắc</FormLabel>
-            <Menu placement="bottom-end">
-              <MenuButton
-                w="100%"
-                as={Button}
-                justifyContent="flex-start"
-                borderWidth="1px"
-                borderColor="gray.300"
-                variant="outline"
-              >
-                {color ? (
-                  <Flex align="center" gap={2}>
-                    <Box
-                      w="18px"
-                      h="18px"
-                      borderRadius="full"
-                      bg={color.toLowerCase()}
-                      borderWidth="1px"
-                      borderColor="gray.300"
-                    />
-                    <Text>
-                      {color.charAt(0).toUpperCase() + color.slice(1)}
-                    </Text>
-                  </Flex>
-                ) : (
-                  'Chọn màu'
-                )}
-              </MenuButton>
-
-              <MenuList maxH="250px" overflowY="auto">
-                {[
-                  'White',
-                  'Beige',
-                  'Yellow',
-                  'Orange',
-                  'Red',
-                  'Pink',
-                  'Purple',
-                  'Teal',
-                  'Cyan',
-                  'Green',
-                  'Blue',
-                  'Navy',
-                  'Brown',
-                  'Gray',
-                  'Black',
-                ].map((c) => (
-                  <MenuItem
-                    key={c}
-                    onClick={() => setColor(c.toLowerCase())}
-                    _hover={{ bg: 'gray.500' }}
-                  >
-                    <Flex align="center" gap={3}>
-                      <Box
-                        w="18px"
-                        h="18px"
-                        borderRadius="full"
-                        bg={c === 'Navy' ? 'blue.900' : c.toLowerCase()}
-                        borderWidth="1px"
-                        borderColor="gray.400"
-                      />
-                      <Text>{c}</Text>
-                    </Flex>
-                  </MenuItem>
-                ))}
-              </MenuList>
-            </Menu>
+            <FormLabel>Màu sắc</FormLabel>
+            <ColorMenu color={color} onChange={setColor} borderColor={borderColor} />
           </FormControl>
 
-          {/* Size & Stock dynamic rows */}
-          <Flex wrap="wrap" gap={4}>
-            {rows.map((r, i) => (
+          <SimpleGrid columns={{ base: 1, md: columnCount }} spacing={4}>
+            {rows.map((row, index) => (
               <Flex
-                key={i}
-                flex={`1 1 calc(${100 / columnCount}% - 10px)`}
+                key={index}
                 align="flex-end"
                 gap={3}
                 border="1px solid"
@@ -282,32 +258,33 @@ export default function VariantForm({
                 p={3}
               >
                 <FormControl isRequired>
-                  <FormLabel>Kích Thước</FormLabel>
+                  <FormLabel>Kích cỡ</FormLabel>
                   <Input
                     color={textColor}
-                    value={r.size}
-                    onChange={(e) => updateRow(i, 'size', e.target.value)}
+                    value={row.size}
+                    onChange={(e) => updateRow(index, 'size', e.target.value)}
                   />
                 </FormControl>
                 <FormControl isRequired>
-                  <FormLabel>Tồn Kho</FormLabel>
+                  <FormLabel>Tồn kho</FormLabel>
                   <Input
                     color={textColor}
                     type="number"
-                    value={r.stock}
-                    onChange={(e) => updateRow(i, 'stock', e.target.value)}
+                    min={0}
+                    value={row.stock}
+                    onChange={(e) => updateRow(index, 'stock', e.target.value)}
                   />
                 </FormControl>
                 <IconButton
                   icon={<MdDelete />}
                   colorScheme="red"
                   variant="ghost"
-                  onClick={() => removeRow(i)}
-                  aria-label="Remove row"
+                  onClick={() => removeRow(index)}
+                  aria-label="Xóa dòng kích cỡ"
                 />
               </Flex>
             ))}
-          </Flex>
+          </SimpleGrid>
 
           <Button
             hidden={!!editingVariant}
@@ -317,7 +294,7 @@ export default function VariantForm({
             variant="outline"
             onClick={addRow}
           >
-            Thêm Kích Thước
+            Thêm kích cỡ
           </Button>
         </ModalBody>
 
@@ -327,7 +304,7 @@ export default function VariantForm({
             isLoading={loading}
             onClick={handleSubmit}
           >
-            {editingVariant ? 'Cập Nhật' : 'Thêm'}
+            {editingVariant ? 'Cập nhật' : 'Thêm'}
           </Button>
         </ModalFooter>
       </ModalContent>

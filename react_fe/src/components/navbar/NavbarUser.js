@@ -86,7 +86,9 @@ function CategoryThumbnail({ category, fallbackCategory }) {
       alt={category.name}
       w="100%"
       h="100%"
-      objectFit="cover"
+      objectFit="contain"
+      bg="gray.50"
+      p={{ base: 2, md: 3 }}
       transition="transform 0.3s ease"
       onError={() => setFailed(true)}
     />
@@ -173,8 +175,8 @@ function CategoryItem({ cat, children, allCategories, onNavigate, colors }) {
                   <Box key={child.id}>
                     <Box
                       w="100%"
-                      h="140px"
-                      borderRadius="md"
+                      h="120px"
+                      borderRadius="12px"
                       overflow="hidden"
                       mb={4}
                       cursor="pointer"
@@ -182,8 +184,10 @@ function CategoryItem({ cat, children, allCategories, onNavigate, colors }) {
                         onNavigate(child);
                         setOpen(false);
                       }}
-                      bg={colors.hoverBg}
-                      _hover={{ '& img': { transform: 'scale(1.05)' } }}
+                      bg="gray.50"
+                      border="1px solid"
+                      borderColor={colors.borderColor}
+                      _hover={{ '& img': { transform: 'scale(1.01)' } }}
                     >
                       <CategoryThumbnail
                         category={child}

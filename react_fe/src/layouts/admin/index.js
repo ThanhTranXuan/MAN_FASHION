@@ -15,8 +15,9 @@ import { SidebarContext } from 'contexts/SidebarContext';
 import routes from 'routes.js';
 import { useUser } from 'contexts/UserContext';   // ✅ chỉ dùng UserContext
 import { useAppToast } from 'utils/ToastHelper';
-import { useNotification } from 'contexts/NotificationContext';
-import { useChat } from 'contexts/ChatContext';
+import { motion } from 'framer-motion';
+
+const MotionBox = motion(Box);
 
 export default function Dashboard(props) {
   const { ...rest } = props;
@@ -27,9 +28,6 @@ export default function Dashboard(props) {
   const navigate = useNavigate();
   const toast = useAppToast();
   const { user, isAuthenticated, loadingUser } = useUser();   // ✅ lấy từ context
-  const { hasNewOrder, hasNewReturn } = useNotification();
-  const { hasNewChat } = useChat();
-
   const [accessibleRoutes, setAccessibleRoutes] = useState([]);
 
   // ======================================================
@@ -112,7 +110,6 @@ export default function Dashboard(props) {
     <Box>
       <SidebarContext.Provider value={{ toggleSidebar, setToggleSidebar }}>
         <Sidebar
-          key={`${hasNewOrder}-${hasNewReturn}-${hasNewChat}`}
           routes={accessibleRoutes}
           display="none"
           {...rest}
@@ -141,11 +138,15 @@ export default function Dashboard(props) {
             </Box>
           </Portal>
 
-          <Box
+          <MotionBox
+            key={location.pathname}
             mx="auto"
             p={{ base: '20px', md: '30px' }}
             pt={{ base: '130px', md: '100px', xl: '100px' }}
             minH="100vh"
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.18, ease: [0.22, 1, 0.36, 1] }}
           >
             <Routes>
               {getRoutesComponents(accessibleRoutes)}
@@ -160,7 +161,7 @@ export default function Dashboard(props) {
                 }
               />
             </Routes>
-          </Box>
+          </MotionBox>
 
           <Footer />
         </Box>

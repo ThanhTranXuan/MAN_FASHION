@@ -101,6 +101,9 @@ const ApiUrl = {
   CHAT_SEND_WS: '/app/chat/send', // WebSocket endpoint FE → BE
   CHAT_TOPIC: (id) => `/topic/chat/${id}`, // WebSocket topic BE → FE
 
+  // ==== NEWSLETTER ====
+  NEWSLETTER_SUBSCRIBE: withBase('/api/v1/newsletter/subscribe'),
+
   // ==== EMPLOYEES ====
   EMPLOYEES: withBase('/api/employees'),
   EMPLOYEE_DETAIL: (id, month, year) =>

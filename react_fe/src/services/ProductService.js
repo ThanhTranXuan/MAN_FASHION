@@ -6,12 +6,25 @@ const ProductService = {
   // Public
   // getAll: (params = {}) => ApiClient.get(ApiUrl.PRODUCTS, { params }),
   // 2. Sửa hàm lấy danh sách (getAll)
-  getAll: (params = {}) => 
-    ApiClient.get(ApiUrl.PRODUCTS, { params }).then(res => {
+  getAll: (params = {}) => {
+    const normalizedParams = {
+      ...params,
+      sort:
+        params.sort === 'price-asc'
+          ? 'price_asc'
+          : params.sort === 'price-desc'
+            ? 'price_desc'
+            : params.sort,
+      sizes: params.sizes || params.variantSize,
+    };
+    delete normalizedParams.variantSize;
+
+    return ApiClient.get(ApiUrl.PRODUCTS, { params: normalizedParams }).then(res => {
         // res.data.data hiện tại là cục Page (có content, totalPages...)
         // Ta bọc nó lại thành { data: { content: [...], totalPages: ... } }
         return { data: res.data.data };
-    }),
+    });
+  },
   // getDetailBySlug: (slug) => ApiClient.get(ApiUrl.PRODUCT_DETAIL(slug)),
   getDetailBySlug: (slug) => 
       ApiClient.get(ApiUrl.PRODUCT_DETAIL(slug)).then(res => {

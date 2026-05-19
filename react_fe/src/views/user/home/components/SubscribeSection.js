@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import {
   Box,
   Text,
@@ -6,9 +7,41 @@ import {
   InputRightElement,
   Button,
 } from '@chakra-ui/react';
+import NewsletterService from 'services/NewsletterService';
+import { useAppToast } from 'utils/ToastHelper';
 import { MotionText } from './MotionPrimitives';
 
+const isValidEmail = (email) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+
 export default function SubscribeSection({ bgColor, textColor }) {
+  const toast = useAppToast();
+  const [email, setEmail] = useState('');
+  const [loading, setLoading] = useState(false);
+
+  const handleSubscribe = async () => {
+    const trimmedEmail = email.trim();
+    if (!trimmedEmail || !isValidEmail(trimmedEmail)) {
+      toast.error('Email không hợp lệ');
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const res = await NewsletterService.subscribe(trimmedEmail);
+      toast.success(res?.message || 'Email ưu đãi đã được gửi');
+      setEmail('');
+    } catch (err) {
+      const message = err.response?.data?.message;
+      if (message === 'EMAIL_INVALID') {
+        toast.error('Email không hợp lệ');
+      } else {
+        toast.error(message || 'Không thể đăng ký nhận bản tin');
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <Box
       textAlign="center"
@@ -27,7 +60,7 @@ export default function SubscribeSection({ bgColor, textColor }) {
         Tham Gia Cộng Đồng Trendify
       </MotionText>
       <Text fontSize="lg" color={textColor} mb={6}>
-        Đăng ký để nhận những ưu đãi mới nhất, xu hướng và tin tức thời trang đến hộp thư của bạn.
+        Đăng ký nhận ưu đãi độc quyền, xu hướng thời trang và bộ sưu tập mới nhất từ Trendify.
       </Text>
       <Box maxW="500px" mx="auto">
         <InputGroup size="lg" borderColor={textColor}>
@@ -37,6 +70,11 @@ export default function SubscribeSection({ bgColor, textColor }) {
             borderRadius="full"
             pr="120px"
             color={textColor}
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') handleSubscribe();
+            }}
           />
           <InputRightElement width="100px">
             <Button
@@ -45,6 +83,8 @@ export default function SubscribeSection({ bgColor, textColor }) {
               color="white"
               colorScheme="brand"
               rounded="full"
+              isLoading={loading}
+              onClick={handleSubscribe}
             >
               Đăng Ký
             </Button>

@@ -14,6 +14,7 @@ import { useAppToast } from 'utils/ToastHelper';
 import ProductService from 'services/ProductService';
 import { formatUSD } from 'utils/FormatHelper';
 import { useUser } from 'contexts/UserContext';
+import { getColorLabel } from 'utils/ColorNameHelper';
 
 export default function Row({
   product,
@@ -186,7 +187,7 @@ export default function Row({
               {/* Color */}
               <Td>
                 <Text fontWeight="500" textTransform="capitalize">
-                  Màu: {v.color}
+                  Màu sắc: {getColorLabel(v.color)}
                 </Text>
               </Td>
 

@@ -1,5 +1,5 @@
 /*eslint-disable*/
-import React from 'react';
+import React, { useState } from 'react';
 import {
   Box,
   Flex,
@@ -15,6 +15,8 @@ import {
   useColorModeValue,
 } from '@chakra-ui/react';
 import { useNavigate } from 'react-router-dom';
+import NewsletterService from 'services/NewsletterService';
+import { useAppToast } from 'utils/ToastHelper';
 import {
   MdFacebook,
   MdOutlineLocalShipping,
@@ -59,6 +61,9 @@ function FooterGroup({ title, links }) {
 // ─── FooterUser ──────────────────────────────────────────────
 export default function FooterUser() {
   const navigate = useNavigate();
+  const toast = useAppToast();
+  const [newsletterEmail, setNewsletterEmail] = useState('');
+  const [newsletterLoading, setNewsletterLoading] = useState(false);
 
   const bg = useColorModeValue('gray.50', 'navy.900');
   const borderTop = useColorModeValue('gray.200', 'navy.700');
@@ -111,6 +116,25 @@ export default function FooterUser() {
     },
   ];
 
+  const handleNewsletterSubmit = async () => {
+    const email = newsletterEmail.trim();
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      toast.error('Email không hợp lệ');
+      return;
+    }
+
+    setNewsletterLoading(true);
+    try {
+      const res = await NewsletterService.subscribe(email);
+      toast.success(res?.message || 'Email ưu đãi đã được gửi');
+      setNewsletterEmail('');
+    } catch (err) {
+      toast.error(err.response?.data?.message || 'Không thể đăng ký nhận bản tin');
+    } finally {
+      setNewsletterLoading(false);
+    }
+  };
+
   return (
     <Box as="footer" bg={bg} borderTop="1px solid" borderColor={borderTop}>
       {/* ── Main content ── */}
@@ -158,6 +182,11 @@ export default function FooterUser() {
                 borderRightRadius={0}
                 _focus={{ borderColor: 'brand.500', boxShadow: 'none' }}
                 fontSize="sm"
+                value={newsletterEmail}
+                onChange={(e) => setNewsletterEmail(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') handleNewsletterSubmit();
+                }}
               />
               <Button
                 colorScheme="brand"
@@ -165,6 +194,8 @@ export default function FooterUser() {
                 borderLeftRadius={0}
                 px={4}
                 fontWeight="700"
+                isLoading={newsletterLoading}
+                onClick={handleNewsletterSubmit}
               >
                 Đăng Ký
               </Button>
