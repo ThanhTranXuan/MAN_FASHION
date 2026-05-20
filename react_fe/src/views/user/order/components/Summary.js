@@ -22,6 +22,7 @@ import {
 import { FaMoneyBillWave, FaQrcode } from 'react-icons/fa';
 import { useAppToast } from 'utils/ToastHelper';
 import { formatUSD } from 'utils/FormatHelper';
+import { PRODUCT_PLACEHOLDER, resolveImageUrl } from 'utils/ImageHelper';
 import CouponService from 'services/CouponService';
 import OrderService from 'services/OrderService';
 import { useCart } from 'contexts/CartContext';
@@ -194,11 +195,12 @@ export default function Summary({ cart, formData }) {
             >
               <Box position="relative">
                 <Image
-                  src={item.thumbnailUrl}
+                  src={resolveImageUrl(item.imageUrl, item.thumbnailUrl)}
                   boxSize="64px"
                   borderRadius="12px"
                   objectFit="cover"
-                  fallbackSrc="/placeholder.jpg"
+                  bg="#f8fafc"
+                  fallbackSrc={PRODUCT_PLACEHOLDER}
                 />
                 <Badge
                   position="absolute"

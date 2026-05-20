@@ -264,6 +264,7 @@ export default function ProductDetail() {
       variantId: variant.id,
       productName: product.name,
       price: product.price,
+      imageUrl: thumb,
       thumbnailUrl: thumb,
       color: selectedColor,
       size: selectedSize,

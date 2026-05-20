@@ -66,7 +66,7 @@ const ProductService = {
    *  - Nếu có color: replace ALL ảnh của product + color đó
    *  - Nếu không append file nào => BE hiểu là 'xoá hết'
    */
-  uploadImages: (productId, { color, files } = {}) => {
+  uploadImages: (productId, { color, files, remainingImageUrls } = {}) => {
     const formData = new FormData();
 
     if (Array.isArray(files)) {
@@ -78,7 +78,10 @@ const ProductService = {
       ApiUrl.UPLOAD_PRODUCT_IMAGES(productId),
       formData,
       {
-        params: color ? { color } : undefined,
+        params: {
+          ...(color ? { color } : {}),
+          ...(Array.isArray(remainingImageUrls) ? { remainingImageUrls } : {}),
+        },
       },
     );
   },

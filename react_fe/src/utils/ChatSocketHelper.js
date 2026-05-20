@@ -24,11 +24,14 @@ function connect() {
   stompClient.onConnect = () => {
     console.log('🟢 Chat WebSocket connected');
     // Subscribe any pending topics that were registered before connection
-    pendingSubscriptions.forEach(({ topic, callback }) => {
-      stompClient.subscribe(topic, callback);
-      subscribedTopics.set(topic, callback);
-    });
+    const queued = pendingSubscriptions;
     pendingSubscriptions = [];
+    queued.forEach(({ topic, callback }) => {
+      if (!subscribedTopics.has(topic)) {
+        stompClient.subscribe(topic, callback);
+        subscribedTopics.set(topic, callback);
+      }
+    });
     // Re-subscribe to existing topics on reconnect
     subscribedTopics.forEach((callback, topic) => {
       stompClient.subscribe(topic, callback);
@@ -57,6 +60,13 @@ function disconnect() {
 }
 
 function subscribe(topic, callback) {
+  if (
+    subscribedTopics.has(topic) ||
+    pendingSubscriptions.some((item) => item.topic === topic)
+  ) {
+    return;
+  }
+
   if (!stompClient || !stompClient.active) {
     // Not connected yet – ensure connection is started and queue the subscription
     if (!stompClient) {

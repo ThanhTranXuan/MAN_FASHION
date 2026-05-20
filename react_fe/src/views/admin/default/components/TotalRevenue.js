@@ -52,6 +52,9 @@ export default function TotalRevenue({ summary, trend }) {
           },
         },
         yaxis: {
+          min: 0,
+          forceNiceScale: true,
+          tickAmount: 4,
           labels: {
             style: { colors: textColorSecondary },
             formatter: (val) => {
@@ -72,7 +75,7 @@ export default function TotalRevenue({ summary, trend }) {
           },
         },
         markers: {
-          size: 4,
+          size: revenues.length <= 1 ? 6 : 4,
           hover: { size: 6 },
         },
       },

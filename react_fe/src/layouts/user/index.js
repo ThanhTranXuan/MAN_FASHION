@@ -10,10 +10,23 @@ import ChatWidget from "components/chat/ChatWidget";
 
 const MotionBox = motion(Box);
 
+const shouldHideChatbot = (pathname) =>
+  pathname.startsWith('/cart') ||
+  pathname.startsWith('/checkout') ||
+  pathname.startsWith('/profile') ||
+  pathname.startsWith('/account') ||
+  pathname.startsWith('/user/profile') ||
+  pathname.startsWith('/user/account') ||
+  pathname.startsWith('/orders') ||
+  pathname.startsWith('/order-history') ||
+  pathname.startsWith('/search') ||
+  pathname.startsWith('/menu');
+
 export default function UserLayout() {
   const bgColor = useColorModeValue('white', 'navy.800');
   const { isOpen, onToggle } = useDisclosure();
   const location = useLocation();
+  const hideChatbot = shouldHideChatbot(location.pathname) || isOpen;
 
   const getRoutesComponents = (routes) =>
     routes.map((route, key) => {
@@ -65,7 +78,7 @@ export default function UserLayout() {
       <FooterUser />
 
       {/* Floating Chat */}
-      <ChatWidget />
+      <ChatWidget hidden={hideChatbot} />
     </Box>
   );
 }

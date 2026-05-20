@@ -31,10 +31,12 @@ import ReturnOrderService from 'services/ReturnOrderService';
 import OrderService from 'services/OrderService';
 import { useAppToast } from 'utils/ToastHelper';
 import { formatUSD } from 'utils/FormatHelper';
+import { PRODUCT_PLACEHOLDER, resolveImageUrl } from 'utils/ImageHelper';
 
 export default function PurchaseHistoryTab({
   orders,
   onReturnSubmitted,
+  onRefresh,
   isLoading,
   onLoadMore,
   hasMore = false,
@@ -87,6 +89,7 @@ export default function PurchaseHistoryTab({
     try {
       await OrderService.updateUserStatus(orderCode, newStatus);
       toast.success(`Order ${orderCode} updated to ${newStatus}`);
+      onRefresh?.();
     } catch (err) {
       console.error(err);
       toast.error('Cập nhật trạng thái thất bại');
@@ -215,10 +218,11 @@ export default function PurchaseHistoryTab({
                   >
                     <Box position="relative">
                       <Image
-                        src={item.thumbnailUrl}
+                        src={resolveImageUrl(item.imageUrl, item.thumbnailUrl)}
                         boxSize="80px"
                         borderRadius="8px"
                         objectFit="cover"
+                        fallbackSrc={PRODUCT_PLACEHOLDER}
                       />
                       <Badge
                         position="absolute"
@@ -350,10 +354,11 @@ export default function PurchaseHistoryTab({
                         colorScheme="brand"
                       />
                       <Image
-                        src={item.thumbnailUrl}
+                        src={resolveImageUrl(item.imageUrl, item.thumbnailUrl)}
                         boxSize="60px"
                         borderRadius="8px"
                         objectFit="cover"
+                        fallbackSrc={PRODUCT_PLACEHOLDER}
                       />
                       <Box>
                         <Text fontWeight="bold">{item.productName}</Text>

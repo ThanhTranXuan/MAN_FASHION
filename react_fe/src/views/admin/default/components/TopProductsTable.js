@@ -16,6 +16,7 @@ import {
 } from '@chakra-ui/react';
 import Card from 'components/card/Card';
 import { formatCurrencyVND } from 'utils/FormatHelper';
+import { PRODUCT_PLACEHOLDER, resolveImageUrl } from 'utils/ImageHelper';
 
 export default function TopProductsTable({ products = [] }) {
   const textColor = useColorModeValue('secondaryGray.900', 'white');
@@ -56,12 +57,12 @@ export default function TopProductsTable({ products = [] }) {
                   <Td>
                     <HStack spacing={3}>
                       <Image
-                        src={p.thumbnailUrl}
+                        src={resolveImageUrl(p.imageUrl, p.thumbnailUrl)}
                         alt={p.productName}
                         boxSize="40px"
                         borderRadius="md"
                         objectFit="cover"
-                        fallbackSrc="https://via.placeholder.com/40x40?text=?"
+                        fallbackSrc={PRODUCT_PLACEHOLDER}
                       />
                       <Text fontWeight="600" color={textColor}>
                         {p.productName || 'Unnamed'}

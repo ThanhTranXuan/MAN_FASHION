@@ -13,6 +13,25 @@ import CartService from 'services/CartService';
 
 const CartContext = createContext();
 
+const normalizeCartItems = (items = []) =>
+  items.map((item) => {
+    const imageUrl =
+      item.imageUrl ||
+      item.thumbnailUrl ||
+      item.productImage ||
+      item.variantImageUrl ||
+      item.product?.thumbnailUrl ||
+      item.product?.images?.[0]?.url ||
+      item.product?.images?.[0] ||
+      null;
+
+    return {
+      ...item,
+      imageUrl,
+      thumbnailUrl: item.thumbnailUrl || imageUrl,
+    };
+  });
+
 export function CartProvider({ children }) {
   const { user, isAuthenticated } = useUser();
   const location = useLocation();
@@ -58,10 +77,11 @@ export function CartProvider({ children }) {
         data = await CartHelper.getCart();
       }
 
+      const normalizedItems = normalizeCartItems(data.items || []);
       setCart({
-        items: data.items || [],
-        totalPrice: data.totalPrice || 0,
-        totalQuantity: data.totalQuantity || 0,
+        items: normalizedItems,
+        totalPrice: normalizedItems.reduce((s, i) => s + i.price * i.quantity, 0),
+        totalQuantity: normalizedItems.reduce((s, i) => s + i.quantity, 0),
       });
     } catch (err) {
       console.error(err);

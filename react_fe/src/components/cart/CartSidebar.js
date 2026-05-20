@@ -28,6 +28,7 @@ import { useState } from 'react';
 import { useCart } from 'contexts/CartContext';
 import { useAppToast } from 'utils/ToastHelper';
 import { formatUSD } from 'utils/FormatHelper';
+import { PRODUCT_PLACEHOLDER, resolveImageUrl } from 'utils/ImageHelper';
 import ProductService from 'services/ProductService';
 import CartVariantModal from './CartVariantModal';
 
@@ -132,11 +133,15 @@ export default function CartSidebar({ isOpen, onClose }) {
                   >
                     <Flex gap={3} align="flex-start">
                       <Image
-                        src={item.thumbnailUrl}
+                        src={resolveImageUrl(item.imageUrl, item.thumbnailUrl, item.productImage)}
                         alt={item.productName || 'Product'}
-                        boxSize="100px"
-                        borderRadius="md"
+                        w="96px"
+                        h="120px"
+                        minW="96px"
+                        borderRadius="12px"
                         objectFit="cover"
+                        bg="#f8fafc"
+                        fallbackSrc={PRODUCT_PLACEHOLDER}
                       />
                       <Box flex="1">
                         <Flex

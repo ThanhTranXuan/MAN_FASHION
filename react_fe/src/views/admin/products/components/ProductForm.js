@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import {
   Modal,
   ModalOverlay,
@@ -24,14 +24,12 @@ import {
   IconButton,
   Image,
 } from '@chakra-ui/react';
+import { ChevronDownIcon } from '@chakra-ui/icons';
 import { MdClose } from 'react-icons/md';
-
-import { useAppToast } from 'utils/ToastHelper';
-import { urlToFile } from 'utils/UrlToFile';
 
 import ProductService from 'services/ProductService';
 import { useCategories } from 'contexts/CategoryContext';
-import { ChevronDownIcon } from '@chakra-ui/icons';
+import { useAppToast } from 'utils/ToastHelper';
 
 export default function ProductForm({ isOpen, onClose, reload, editingItem }) {
   const toast = useAppToast();
@@ -43,8 +41,10 @@ export default function ProductForm({ isOpen, onClose, reload, editingItem }) {
   const [categoryId, setCategoryId] = useState('');
   const [categoryName, setCategoryName] = useState('');
 
-  const [files, setFiles] = useState([]);
-  const [imagePreviews, setImagePreviews] = useState([]);
+  const [existingImages, setExistingImages] = useState([]);
+  const [newImages, setNewImages] = useState([]);
+  const [newImagePreviews, setNewImagePreviews] = useState([]);
+  const [removedImageUrls, setRemovedImageUrls] = useState([]);
 
   const fileInputRef = useRef(null);
   const [loading, setLoading] = useState(false);
@@ -54,9 +54,6 @@ export default function ProductForm({ isOpen, onClose, reload, editingItem }) {
   const brandColor = useColorModeValue('brand.500', 'brand.400');
   const headerBg = useColorModeValue('gray.100', 'navy.800');
 
-  // ---------------------------
-  // Build category tree
-  // ---------------------------
   const buildTree = (flat) => {
     const map = {};
     flat.forEach((c) => (map[c.id] = { ...c, children: [] }));
@@ -70,9 +67,6 @@ export default function ProductForm({ isOpen, onClose, reload, editingItem }) {
 
   const categoryTree = buildTree(categories);
 
-  // ---------------------------
-  // Load form when edit
-  // ---------------------------
   useEffect(() => {
     if (editingItem) {
       setName(editingItem.name);
@@ -80,99 +74,98 @@ export default function ProductForm({ isOpen, onClose, reload, editingItem }) {
       setPrice(editingItem.price?.toString());
       setCategoryId(editingItem.categoryId?.toString());
       setCategoryName(editingItem.categoryName);
-
-      const imgs =
-        editingItem.images?.map((img) => img.url)?.filter(Boolean) || [];
-      setImagePreviews(imgs);
+      setExistingImages(editingItem.images?.filter((img) => img.url) || []);
     } else {
       setName('');
       setDescription('');
       setPrice('');
       setCategoryId('');
       setCategoryName('');
-      setImagePreviews([]);
+      setExistingImages([]);
     }
-    setFiles([]);
+
+    setNewImages([]);
+    setNewImagePreviews((prev) => {
+      prev.forEach((url) => URL.revokeObjectURL(url));
+      return [];
+    });
+    setRemovedImageUrls([]);
   }, [editingItem]);
 
-  // ---------------------------
-  // Chọn file ảnh mới
-  // ---------------------------
   const handleFileSelect = (e) => {
     if (!e.target.files || e.target.files.length === 0) return;
-    const arr = Array.from(e.target.files);
-    const previews = arr.map((file) => URL.createObjectURL(file));
-    setFiles((prev) => [...prev, ...arr]);
-    setImagePreviews((prev) => [...prev, ...previews]);
+
+    const selectedFiles = Array.from(e.target.files);
+    const previews = selectedFiles.map((file) => URL.createObjectURL(file));
+
+    setNewImages((prev) => [...prev, ...selectedFiles]);
+    setNewImagePreviews((prev) => [...prev, ...previews]);
+    e.target.value = '';
   };
 
-  // ---------------------------
-  // Xóa ảnh preview (không gọi biến undefined)
-  // ---------------------------
-  const handleDeletePreview = (idx) => {
-    setFiles((prev) => prev.filter((_, i) => i !== idx));
-    setImagePreviews((prev) => prev.filter((_, i) => i !== idx));
+  const handleRemoveExistingImage = (image) => {
+    if (!image?.url) return;
+
+    setExistingImages((prev) =>
+      prev.filter((item) =>
+        image.id ? item.id !== image.id : item.url !== image.url,
+      ),
+    );
+    setRemovedImageUrls((prev) =>
+      prev.includes(image.url) ? prev : [...prev, image.url],
+    );
   };
 
-  // ---------------------------
-  // Submit product
-  // ---------------------------
+  const handleRemoveNewImage = (index) => {
+    setNewImages((prev) => prev.filter((_, i) => i !== index));
+    setNewImagePreviews((prev) => {
+      URL.revokeObjectURL(prev[index]);
+      return prev.filter((_, i) => i !== index);
+    });
+  };
+
   const handleSubmit = async () => {
     if (!name || !price || !categoryId) {
       toast.error('Vui lòng điền đủ các trường bắt buộc');
       return;
     }
 
+    if (existingImages.length + newImages.length === 0) {
+      toast.error('Vui lòng giữ lại hoặc thêm ít nhất 1 ảnh sản phẩm.');
+      return;
+    }
+
     setLoading(true);
 
     try {
+      const remainingImageUrls = existingImages.map((img) => img.url).filter(Boolean);
+      const hasRemovedImages = removedImageUrls.length > 0;
       const payload = {
         name,
         description,
         price: parseFloat(price),
-        categoryId: categoryId.toString(), // ✅ bảo đảm là string
+        categoryId: categoryId.toString(),
         isActive: true,
       };
+
+      if (editingItem && hasRemovedImages) {
+        payload.remainingImageUrls = remainingImageUrls;
+      }
 
       const res = editingItem
         ? await ProductService.update(editingItem.id, payload)
         : await ProductService.create(payload);
 
-      // ✅ Xử lý success cho 201/200
       const status = res.status;
       if (status === 201 || status === 200) {
-        const productId = res.data?.id || editingItem?.id;
+        const productId = res.data?.data?.id || res.data?.id || editingItem?.id;
 
-        const needUpload =
-          files.length > 0 ||
-          imagePreviews.some(
-            (p) =>
-              !(typeof p === 'string' && p.startsWith('blob:')) &&
-              !p.startsWith('blob:'),
-          );
-
-        // nếu cần upload ảnh
-        if (needUpload && productId) {
-          const mergedFiles = [];
-
-          for (let i = 0; i < imagePreviews.length; i++) {
-            const preview = imagePreviews[i];
-
-            // ✅ Chỉ convert ảnh cũ là URL http real, không convert blob preview mới
-            if (typeof preview === 'string' && preview.startsWith('http')) {
-              const oldFile = await urlToFile(preview, `old_${i}.png`);
-              if (oldFile) mergedFiles.push(oldFile);
-            }
-          }
-
-          mergedFiles.push(...files);
-
-          if (mergedFiles.length > 0) {
-            await ProductService.uploadImages(productId, {
-              color: null,
-              files: mergedFiles,
-            });
-          }
+        if (newImages.length > 0 && productId) {
+          await ProductService.uploadImages(productId, {
+            color: null,
+            files: newImages,
+            remainingImageUrls: editingItem ? remainingImageUrls : undefined,
+          });
         }
 
         toast.success(editingItem ? 'Cập nhật sản phẩm thành công!' : 'Tạo sản phẩm thành công!');
@@ -183,13 +176,10 @@ export default function ProductForm({ isOpen, onClose, reload, editingItem }) {
       console.error(err);
       toast.error(err.response?.data?.message || 'Lỗi khi lưu sản phẩm');
     } finally {
-      setLoading(false); // ✅ chỉ 1 lần
+      setLoading(false);
     }
   };
 
-  // ---------------------------
-  // Render category tree UI
-  // ---------------------------
   const renderTreeUI = (nodes, level = 1) =>
     nodes.map((node) => (
       <Box key={node.id} bg={bgColor}>
@@ -224,13 +214,13 @@ export default function ProductForm({ isOpen, onClose, reload, editingItem }) {
         </ModalHeader>
         <ModalCloseButton />
         <ModalBody>
-          {/* Upload ảnh */}
           <FormControl mb={3} isRequired>
             <FormLabel>Ảnh Sản Phẩm</FormLabel>
             <Box
               border="2px dashed"
               borderColor={
-                files.length === 0 && imagePreviews.length > 0
+                newImages.length === 0 &&
+                existingImages.length + newImagePreviews.length > 0
                   ? 'transparent'
                   : 'gray.500'
               }
@@ -250,10 +240,35 @@ export default function ProductForm({ isOpen, onClose, reload, editingItem }) {
                 onChange={handleFileSelect}
               />
 
-              {imagePreviews.length > 0 && (
+              {existingImages.length + newImagePreviews.length > 0 && (
                 <SimpleGrid columns={[2, 3, 4]} spacing={3} mt={2}>
-                  {imagePreviews.map((src, idx) => (
-                    <Box key={idx} position="relative">
+                  {existingImages.map((img) => (
+                    <Box key={img.id || img.url} position="relative">
+                      <Image
+                        src={img.url}
+                        boxSize="90px"
+                        objectFit="cover"
+                        borderRadius="md"
+                      />
+                      <IconButton
+                        aria-label="delete"
+                        icon={<MdClose />}
+                        size="xs"
+                        colorScheme="red"
+                        position="absolute"
+                        top={-2}
+                        right={-1}
+                        borderRadius="full"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleRemoveExistingImage(img);
+                        }}
+                      />
+                    </Box>
+                  ))}
+
+                  {newImagePreviews.map((src, idx) => (
+                    <Box key={src} position="relative">
                       <Image
                         src={src}
                         boxSize="90px"
@@ -271,7 +286,7 @@ export default function ProductForm({ isOpen, onClose, reload, editingItem }) {
                         borderRadius="full"
                         onClick={(e) => {
                           e.stopPropagation();
-                          handleDeletePreview(idx);
+                          handleRemoveNewImage(idx);
                         }}
                       />
                     </Box>
@@ -279,7 +294,7 @@ export default function ProductForm({ isOpen, onClose, reload, editingItem }) {
                 </SimpleGrid>
               )}
 
-              {imagePreviews.length === 0 && (
+              {existingImages.length + newImagePreviews.length === 0 && (
                 <Text fontWeight="semibold" color="gray.400">
                   Nhấp để tải ảnh lên
                 </Text>
@@ -287,7 +302,6 @@ export default function ProductForm({ isOpen, onClose, reload, editingItem }) {
             </Box>
           </FormControl>
 
-          {/* Tên */}
           <FormControl mb={3} isRequired>
             <FormLabel>Tên Sản Phẩm</FormLabel>
             <Input
@@ -297,7 +311,6 @@ export default function ProductForm({ isOpen, onClose, reload, editingItem }) {
             />
           </FormControl>
 
-          {/* Mô tả */}
           <FormControl mb={3}>
             <FormLabel>Mô Tả</FormLabel>
             <Textarea
@@ -310,7 +323,6 @@ export default function ProductForm({ isOpen, onClose, reload, editingItem }) {
           </FormControl>
 
           <Flex gap={4} mb={3}>
-            {/* Giá */}
             <FormControl isRequired>
               <FormLabel>Giá</FormLabel>
               <Input
@@ -321,7 +333,6 @@ export default function ProductForm({ isOpen, onClose, reload, editingItem }) {
               />
             </FormControl>
 
-            {/* Danh mục */}
             <FormControl isRequired>
               <FormLabel>Danh Mục</FormLabel>
               <Menu isLazy matchWidth>

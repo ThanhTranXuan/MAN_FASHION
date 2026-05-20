@@ -15,6 +15,7 @@ import OrderService from 'services/OrderService';
 import ReturnOrderService from 'services/ReturnOrderService';
 import ProductService from 'services/ProductService';
 import { useAppToast } from 'utils/ToastHelper';
+import { resolveImageUrl } from 'utils/ImageHelper';
 
 import ProfileTab from './components/ProfileTab';
 import PasswordTab from './components/PasswordTab';
@@ -85,22 +86,29 @@ export default function ProfilePage() {
                     (v) => v.id === item.variantId,
                   );
 
-                  const img =
-                    variant?.imageUrl ||
+                  const img = resolveImageUrl(
+                    item.imageUrl,
+                    item.thumbnailUrl,
+                    variant?.imageUrl,
                     product.images?.find((img) => img.color === variant?.color)
-                      ?.url ||
-                    product.thumbnailUrl;
+                      ?.url,
+                    product.thumbnailUrl,
+                  );
 
                   return {
                     ...item,
-                    productName: product.name,
-                    color: variant?.color,
-                    size: variant?.size,
+                    productName: item.productName || product.name,
+                    color: item.color || variant?.color,
+                    size: item.size || variant?.size,
                     thumbnailUrl: img,
+                    imageUrl: img,
                   };
                 } catch {
                   // Nếu lỗi thì cứ trả item gốc
-                  return item;
+                  return {
+                    ...item,
+                    thumbnailUrl: resolveImageUrl(item.imageUrl, item.thumbnailUrl),
+                  };
                 }
               }),
             );
@@ -279,6 +287,7 @@ export default function ProfilePage() {
         <PurchaseHistoryTab
           orders={orders}
           onReturnSubmitted={handleReturnSubmitted}
+          onRefresh={handleReturnSubmitted}
           isLoading={loadingOrders}
           onLoadMore={loadMoreOrders}
           hasMore={orderHasMore}

@@ -64,7 +64,7 @@ export default function List({ table, isLoading = false }) {
             <Tr>
               <Td colSpan={table.getAllColumns().length} textAlign="center" py={8}>
                 <Text color="gray.500" fontSize="sm">
-                  No return orders found.
+                  Không tìm thấy yêu cầu hoàn trả phù hợp.
                 </Text>
               </Td>
             </Tr>

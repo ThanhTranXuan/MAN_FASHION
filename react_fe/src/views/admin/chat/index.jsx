@@ -16,9 +16,17 @@ import { MdSend } from 'react-icons/md';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { Image, Link } from '@chakra-ui/react';
+import { resolveImageUrl } from 'utils/ImageHelper';
 
 const ADMIN_LAST_VISIT_KEY = 'chat:adminLastVisit';
 const MESSAGES_PAGE_SIZE = 30;
+const getAvatarSrc = (...candidates) => {
+  const avatar = candidates.find(
+    (value) => typeof value === 'string' && value.trim(),
+  );
+  return avatar ? resolveImageUrl(avatar) : undefined;
+};
+
 const AdminMessageContent = ({ content }) => {
   // Tự động chuyển các URL cloudinary thành markdown image
   const safeContent = content || "";
@@ -255,7 +263,11 @@ export default function ChatPage() {
               cursor="pointer"
               onClick={() => setActiveConversation(c)}
             >
-              <Avatar name={c.userName} bg={avatarBg} />
+              <Avatar
+                name={c.userName}
+                src={getAvatarSrc(c.userAvatarUrl, c.avatarUrl, c.avatar, c.imageUrl, c.profileImage)}
+                bg={avatarBg}
+              />
               <Box flex="1">
                 <Text fontWeight="bold" noOfLines={1}>
                   {c.userName}
@@ -279,7 +291,19 @@ export default function ChatPage() {
         ) : (
           <>
             {/* Header */}
-            <Flex p={3} borderBottomWidth="1px" borderColor={inputBorderColor}>
+            <Flex p={3} gap={3} align="center" borderBottomWidth="1px" borderColor={inputBorderColor}>
+              <Avatar
+                size="sm"
+                name={activeConversation.userName}
+                src={getAvatarSrc(
+                  activeConversation.userAvatarUrl,
+                  activeConversation.avatarUrl,
+                  activeConversation.avatar,
+                  activeConversation.imageUrl,
+                  activeConversation.profileImage,
+                )}
+                bg={avatarBg}
+              />
               <Text fontWeight="bold">{activeConversation.userName}</Text>
             </Flex>
 
@@ -319,6 +343,14 @@ export default function ChatPage() {
                       <Avatar
                         size="sm"
                         name={m.senderName || 'User'}
+                        src={getAvatarSrc(
+                          m.senderAvatarUrl,
+                          m.avatarUrl,
+                          m.avatar,
+                          m.imageUrl,
+                          m.profileImage,
+                          activeConversation.userAvatarUrl,
+                        )}
                         bg="gray.400"
                         color="white"
                       />
@@ -349,6 +381,13 @@ export default function ChatPage() {
                       <Avatar
                         size="sm"
                         name={isBot ? 'Trendify Bot' : m.senderName || 'Admin'}
+                        src={!isBot ? getAvatarSrc(
+                          m.senderAvatarUrl,
+                          m.avatarUrl,
+                          m.avatar,
+                          m.imageUrl,
+                          m.profileImage,
+                        ) : undefined}
                         bg={isBot ? 'green.600' : 'blue.600'}
                         color="white"
                       />

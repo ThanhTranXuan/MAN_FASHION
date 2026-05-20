@@ -29,7 +29,8 @@ export const CartHelper = {
           quantity: product.quantity || 1,
           productName: product.productName || product.name || 'Unnamed Product',
           price: product.price,
-          thumbnailUrl: product.thumbnailUrl,
+          imageUrl: product.imageUrl || product.thumbnailUrl || product.productImage || null,
+          thumbnailUrl: product.thumbnailUrl || product.imageUrl || product.productImage || null,
           color: product.color || null,
           size: product.size || null,
         });

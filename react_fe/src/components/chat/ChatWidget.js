@@ -25,8 +25,8 @@ import { goToSignIn } from 'utils/NavigationHelper';
 
 const MotionBox = motion(Box);
 
-export default function ChatWidget() {
-  const { isAuthenticated } = useUser();
+export default function ChatWidget({ hidden = false }) {
+  const { isAuthenticated, user } = useUser();
   const navigate = useNavigate();
   const location = useLocation();
   const toast = useAppToast();
@@ -66,6 +66,18 @@ export default function ChatWidget() {
   const botBorderColor = useColorModeValue('gray.200', 'navy.600');
 
   const messagesContainerRef = useRef(null);
+  const chatUserKey = user?.id || user?.email || user?.username || null;
+  const chatLastReadKey = chatUserKey ? `chat:lastReadAt:${chatUserKey}` : null;
+
+  useEffect(() => {
+    if (!hidden) {
+      setIsWidgetHidden(false);
+      return;
+    }
+    setIsWidgetHidden(true);
+    setIsChatOpen(false);
+    setIsOpen(false);
+  }, [hidden, setIsChatOpen]);
 
   // ✅ Auto-scroll to bottom when messages arrive (FIXED: Messages must show at bottom)
   useEffect(() => {
@@ -106,7 +118,9 @@ export default function ChatWidget() {
       return;
     }
     setUserHasUnread(false);
-    localStorage.setItem('chat:lastReadAt', Date.now());
+    if (chatLastReadKey) {
+      localStorage.setItem(chatLastReadKey, Date.now());
+    }
     setIsChatOpen(true);
     setIsOpen(true);
   };
@@ -145,7 +159,7 @@ export default function ChatWidget() {
         const msgRes = await ChatService.messages(conv.id, 0, 50);
         setUserMessages(msgRes.data.content || []);
       } catch {
-        toast.error('Failed to start chat');
+        toast.error('Không thể mở chat. Vui lòng thử lại.');
       }
     };
     initChat();
@@ -322,12 +336,12 @@ export default function ChatWidget() {
               />
               <Box>
                 <Text fontWeight="bold" color="white" fontSize="lg">
-                  {chatMode === 'BOT' ? 'Trendify Bot' : 'Trendify Support'}
+                  {chatMode === 'BOT' ? 'Trendify Trợ lý' : 'Trendify Hỗ trợ khách hàng'}
                 </Text>
                 <Text fontSize="xs" color="whiteAlpha.800">
                   {chatMode === 'BOT'
-                    ? 'Online • 24/7 virtual assistant'
-                    : 'Chat directly with our staff • We will reply as soon as possible'}
+                    ? 'Đang hoạt động • Trợ lý ảo 24/7'
+                    : 'Đang hoạt động • Cửa hàng sẽ phản hồi sớm nhất'}
                 </Text>
               </Box>
             </Flex>
@@ -352,7 +366,7 @@ export default function ChatWidget() {
                     color={chatMode === 'BOT' ? 'brand.500' : 'whiteAlpha.900'}
                     onClick={() => setChatMode('BOT')}
                   >
-                    Bot
+                    Trợ lý
                   </Box>
                   <Box
                     as="button"
@@ -365,7 +379,7 @@ export default function ChatWidget() {
                     color={chatMode === 'SHOP' ? 'brand.500' : 'whiteAlpha.900'}
                     onClick={() => setChatMode('SHOP')}
                   >
-                    Shop
+                    Cửa hàng
                   </Box>
                 </Flex>
               </Box>
@@ -436,8 +450,8 @@ export default function ChatWidget() {
                           fontWeight="bold"
                         >
                           {m.senderName}
-                          {m.chatChannel === 'SHOP' && ' (Shop)'}
-                          {isBot && ' (Bot)'}
+                          {m.chatChannel === 'SHOP' && ' (Cửa hàng)'}
+                          {isBot && ' (Trợ lý)'}
                         </Text>
                       )}
                       <MessageContent content={m.content} />
@@ -460,8 +474,8 @@ export default function ChatWidget() {
               size="md"
               placeholder={
                 chatMode === 'BOT'
-                  ? 'Message the Bot...'
-                  : 'Message the Shop directly...'
+                  ? 'Nhập tin nhắn...'
+                  : 'Nhập tin nhắn cho cửa hàng...'
               }
               value={input}
               onChange={(e) => setInput(e.target.value)}
@@ -479,7 +493,7 @@ export default function ChatWidget() {
               color={inputTextColor}
             />
             <IconButton
-              aria-label="Send"
+              aria-label="Gửi"
               icon={<MdSend />}
               onClick={handleSend}
               isDisabled={!input.trim()}

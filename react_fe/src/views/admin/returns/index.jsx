@@ -26,6 +26,7 @@ export default function ReturnPage() {
   const [page, setPage] = useState(0);
   const [totalPages, setTotalPages] = useState(1);
   const [searchInput, setSearchInput] = useState('');
+  const [searchKeyword, setSearchKeyword] = useState('');
   const [statusFilter, setStatusFilter] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [loadingRow, setLoadingRow] = useState(null);
@@ -33,6 +34,10 @@ export default function ReturnPage() {
   // 🆕 Cooldown state
   const [lastReloadTime, setLastReloadTime] = useState(0);
   const wsReloadTimeoutRef = useRef(null);
+  const updateStatusFilter = useCallback((nextStatus) => {
+    setPage(0);
+    setStatusFilter(nextStatus);
+  }, []);
 
   // 📦 Load returns
   const loadReturns = useCallback(
@@ -42,6 +47,7 @@ export default function ReturnPage() {
         const res = await ReturnOrderService.getAllAdmin({
           page: p,
           size: 10,
+          keyword: searchKeyword || undefined,
           status: statusFilter || undefined,
         });
         setReturns(res.data.content || []);
@@ -54,8 +60,17 @@ export default function ReturnPage() {
       }
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [statusFilter],
+    [searchKeyword, statusFilter],
   );
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setPage(0);
+      setSearchKeyword(searchInput.trim());
+    }, 350);
+
+    return () => clearTimeout(timer);
+  }, [searchInput]);
 
   // ⏩ Load khi page/filter đổi
   useEffect(() => {
@@ -63,7 +78,7 @@ export default function ReturnPage() {
       clearNotification('/admin/return-management');
       localStorage.setItem('lastFetch:/admin/return-management', Date.now());
     });
-  }, [page, statusFilter, loadReturns, clearNotification]);
+  }, [page, statusFilter, searchKeyword, loadReturns, clearNotification]);
 
   // ------------------------------
   // 🚨 WS RELOAD với cooldown 60s + debounce 300ms
@@ -127,12 +142,12 @@ export default function ReturnPage() {
           }
         },
         statusFilter,
-        setStatusFilter,
+        setStatusFilter: updateStatusFilter,
         loadingRow,
         setLoadingRow,
       }),
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [statusFilter, page, loadReturns, loadingRow],
+    [statusFilter, page, loadReturns, loadingRow, updateStatusFilter],
   );
 
   const table = useReactTable({
@@ -155,7 +170,7 @@ export default function ReturnPage() {
           searchInput={searchInput}
           setSearchInput={setSearchInput}
           statusFilter={statusFilter}
-          setStatusFilter={setStatusFilter}
+          setStatusFilter={updateStatusFilter}
         />
         <List table={table} isLoading={isLoading} />
       </Card>

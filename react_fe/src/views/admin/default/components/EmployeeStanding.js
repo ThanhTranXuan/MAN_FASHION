@@ -41,7 +41,7 @@ export default function EmployeeStanding({ employees = [] }) {
         shadow="md"
       >
         <Center py={8}>
-          <Text color="gray.500">No employee data available</Text>
+          <Text color="gray.500">Chưa có dữ liệu nhân viên</Text>
         </Center>
       </Box>
     );
@@ -59,7 +59,7 @@ export default function EmployeeStanding({ employees = [] }) {
   const podiumHeights = { 1: 160, 2: 120, 3: 100 };
   const podiumOrder = [1, 0, 2];
   const now = new Date();
-  const month = now.toLocaleString('en-US', { month: 'long' });
+  const month = now.toLocaleString('vi-VN', { month: 'long' });
 
   const getIcon = (rank) =>
     rank === 1 ? (
@@ -83,7 +83,7 @@ export default function EmployeeStanding({ employees = [] }) {
       h="100%"
     >
       <Text fontSize="xl" fontWeight="bold" mb={6} textAlign="center">
-          Nhân Viên Xuất Sắc – {month}
+          Nhân viên xuất sắc - {month}
       </Text>
 
       <Flex justify="center" align="end" gap={8}>

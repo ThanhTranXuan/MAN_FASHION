@@ -17,6 +17,7 @@ import {
   Tooltip,
 } from '@chakra-ui/react';
 import { useState, useMemo } from 'react';
+import { PRODUCT_PLACEHOLDER, resolveImageUrl } from 'utils/ImageHelper';
 
 export default function CartVariantModal({
   isOpen,
@@ -33,7 +34,6 @@ export default function CartVariantModal({
 
   const [selectedColor, setSelectedColor] = useState(item.color);
   const [selectedSize, setSelectedSize] = useState(item.size);
-  console.log(item);
 
   // 🖼️ Lấy danh sách ảnh (chỉ tính lại khi item.images thay đổi)
   const productImages = useMemo(() => item.images || [], [item.images]);
@@ -41,7 +41,6 @@ export default function CartVariantModal({
   // 🖼️ Ảnh hiển thị theo màu chọn (ưu tiên ảnh có color trùng)
   const displayImage = useMemo(() => {
     if (selectedColor) {
-      console.log(productImages);
       const match = productImages.find(
         (img) => img.color?.toLowerCase() === selectedColor.toLowerCase(),
       );
@@ -50,8 +49,8 @@ export default function CartVariantModal({
     // fallback: ảnh thumbnail hoặc ảnh đầu tiên
     const thumb =
       productImages.find((img) => img.isThumbnail) || productImages[0];
-    return thumb?.url || item.thumbnailUrl;
-  }, [selectedColor, productImages, item.thumbnailUrl]);
+    return thumb?.url || item.imageUrl || item.thumbnailUrl;
+  }, [selectedColor, productImages, item.imageUrl, item.thumbnailUrl]);
 
   // 🎨 Danh sách color & size khả dụng
   const availableColors = useMemo(
@@ -139,11 +138,13 @@ export default function CartVariantModal({
           {/* 🖼 Header info */}
           <Flex gap={4} align="center" mb={5}>
             <Image
-              src={displayImage}
+              src={resolveImageUrl(displayImage)}
               alt={item.name}
               boxSize="90px"
               borderRadius="md"
               objectFit="cover"
+              bg="#f8fafc"
+              fallbackSrc={PRODUCT_PLACEHOLDER}
             />
             <Box flex="1">
               <Text fontWeight="semibold" color={textColor} noOfLines={1}>
@@ -190,7 +191,7 @@ export default function CartVariantModal({
                         borderColor={
                           selectedColor === c ? brandColor : borderColor
                         }
-                        bgImage={colorImage ? `url(${colorImage.url})` : 'none'}
+                        bgImage={colorImage ? `url(${resolveImageUrl(colorImage.url)})` : 'none'}
                         bgSize="cover"
                         bgPos="center"
                         bgColor={!colorImage ? c.toLowerCase() : undefined}
