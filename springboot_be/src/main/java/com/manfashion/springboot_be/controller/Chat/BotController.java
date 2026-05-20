@@ -28,8 +28,10 @@ public class BotController {
         try {
             String userMessage = request.get("message");
 
-            // Dùng conversationId làm định danh user để Dify nhớ hội thoại
-            String botReply = botService.askBot(conversationId, userMessage);
+            String botSessionId = "UNKNOWN".equals(userIdHex)
+                    ? conversationId
+                    : userIdHex + ":" + conversationId;
+            String botReply = botService.askBot(botSessionId, userMessage);
 
             // Đóng gói DTO khớp với Frontend ReactJS
             Map<String, Object> response = Map.of(

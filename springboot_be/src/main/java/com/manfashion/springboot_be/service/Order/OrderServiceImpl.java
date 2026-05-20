@@ -11,6 +11,7 @@ import com.manfashion.springboot_be.repository.Coupon.CouponRepository;
 import com.manfashion.springboot_be.repository.Order.OrderItemRepository;
 import com.manfashion.springboot_be.repository.Order.OrderRepository;
 import com.manfashion.springboot_be.repository.Payment.PaymentRepository;
+import com.manfashion.springboot_be.repository.Product.ProductImageRepository;
 import com.manfashion.springboot_be.repository.Product.ProductRepository;
 import com.manfashion.springboot_be.repository.Product.ProductVariantRepository;
 import com.manfashion.springboot_be.service.PayOs.PayOSService;
@@ -48,6 +49,7 @@ public class OrderServiceImpl implements OrderService {
     private final OrderRepository orderRepo;
     private final OrderItemRepository orderItemRepo;
     private final ProductRepository productRepo;
+    private final ProductImageRepository productImageRepo;
     private final ProductVariantRepository variantRepo;
     private final CouponRepository couponRepo;
     private final PaymentRepository paymentRepo;
@@ -340,6 +342,11 @@ public class OrderServiceImpl implements OrderService {
                 .id(String.valueOf(oi.getId()))
                 .productId(String.valueOf(oi.getProduct().getId()))
                 .variantId(String.valueOf(oi.getVariant().getId()))
+                .productName(oi.getProduct().getName())
+                .color(oi.getVariant() != null ? oi.getVariant().getColor() : null)
+                .size(oi.getVariant() != null ? oi.getVariant().getSize() : null)
+                .imageUrl(resolveOrderItemImage(oi))
+                .thumbnailUrl(resolveOrderItemImage(oi))
                 .quantity(oi.getQuantity())
                 .price(oi.getPrice())
                 .build()).toList();
@@ -422,6 +429,35 @@ public class OrderServiceImpl implements OrderService {
                 "Xem chi tiết đơn", "http://localhost:3000/user/profile"
         );
         sendMail.sendMail(order.getEmail(), "Trendify - Thanh toán " + order.getOrderCode(), htmlContent);
+    }
+
+    private String resolveOrderItemImage(OrderItem item) {
+        Integer productId = item.getProduct() != null ? item.getProduct().getId() : null;
+        if (productId == null) return null;
+
+        String color = item.getVariant() != null ? item.getVariant().getColor() : null;
+        if (color != null && !color.isBlank()) {
+            Optional<String> colorImage = productImageRepo
+                    .findByProductIdAndColorIgnoreCaseAndDeletedAtIsNull(productId, color)
+                    .stream()
+                    .filter(img -> img.getUrl() != null && !img.getUrl().isBlank())
+                    .map(ProductImage::getUrl)
+                    .findFirst();
+            if (colorImage.isPresent()) return colorImage.get();
+        }
+
+        Optional<String> thumbnail = productImageRepo
+                .findFirstByProductIdAndIsThumbnailTrueAndDeletedAtIsNull(productId)
+                .map(ProductImage::getUrl)
+                .filter(url -> !url.isBlank());
+        if (thumbnail.isPresent()) return thumbnail.get();
+
+        return productImageRepo.findByProductIdAndDeletedAtIsNull(productId)
+                .stream()
+                .filter(img -> img.getUrl() != null && !img.getUrl().isBlank())
+                .map(ProductImage::getUrl)
+                .findFirst()
+                .orElse(null);
     }
 }
 

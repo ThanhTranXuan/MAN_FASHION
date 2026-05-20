@@ -23,8 +23,8 @@ public class EmployeePayrollPdfServiceImpl implements EmployeePayrollPdfService 
     private final ReportService reportService;
 
     private static final String COMPANY_NAME = "TRENDIFY STORE";
-    private static final String COMPANY_SUBTITLE = "(Trendify Viet Nam)";
-    private static final String COMPANY_ADDRESS = "Address: ........................................................";
+    private static final String COMPANY_SUBTITLE = "(Trendify Việt Nam)";
+    private static final String COMPANY_ADDRESS = "Địa chỉ: ........................................................";
     private static final String COMPANY_HOTLINE = "Hotline: ...................................";
     private static final String COMPANY_EMAIL = "Email: trendify.store.vn@gmail.com";
     private static final String COMPANY_WEBSITE = "Website: https://trendify.store.vn";
@@ -130,7 +130,7 @@ public class EmployeePayrollPdfServiceImpl implements EmployeePayrollPdfService 
 
     private void addTitle(Document document, int month, int year) throws DocumentException {
         Font titleFont = new Font(Font.HELVETICA, 16, Font.BOLD);
-        String titleText = String.format("Employee Attendance & Payroll Report %02d/%d", month, year);
+        String titleText = String.format("Báo cáo chấm công và lương tháng %02d/%d", month, year);
         Paragraph title = new Paragraph(titleText, titleFont);
         title.setAlignment(Element.ALIGN_CENTER);
         title.setSpacingAfter(10f);
@@ -139,7 +139,7 @@ public class EmployeePayrollPdfServiceImpl implements EmployeePayrollPdfService 
 
     private void addGeneratedAt(Document document) throws DocumentException {
         Font metaFont = new Font(Font.HELVETICA, 9, Font.ITALIC);
-        String timeText = "Generated at: " + LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm"));
+        String timeText = "Ngày tạo: " + LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm"));
         Paragraph meta = new Paragraph(timeText, metaFont);
         meta.setAlignment(Element.ALIGN_RIGHT);
         meta.setSpacingAfter(10f);
@@ -151,7 +151,7 @@ public class EmployeePayrollPdfServiceImpl implements EmployeePayrollPdfService 
         Font labelFont = new Font(Font.HELVETICA, 10, Font.BOLD);
         Font valueFont = new Font(Font.HELVETICA, 10, Font.NORMAL);
 
-        Paragraph header = new Paragraph("1. Payroll Summary", headerFont);
+        Paragraph header = new Paragraph("1. Tổng quan lương", headerFont);
         header.setSpacingAfter(5f);
         document.add(header);
 
@@ -171,10 +171,10 @@ public class EmployeePayrollPdfServiceImpl implements EmployeePayrollPdfService 
         table.setHorizontalAlignment(Element.ALIGN_LEFT);
         table.setSpacingAfter(10f);
 
-        addSummaryRow(table, "Payroll Month:", String.format("%02d/%d", month, year), labelFont, valueFont);
-        addSummaryRow(table, "Total Employees:", String.valueOf(totalEmployees), labelFont, valueFont);
-        addSummaryRow(table, "Total Hours:", String.format("%.2f", totalHours), labelFont, valueFont);
-        addSummaryRow(table, "Total Net Payroll:", formatCurrency(totalSalary), labelFont, valueFont);
+        addSummaryRow(table, "Tháng lương:", String.format("%02d/%d", month, year), labelFont, valueFont);
+        addSummaryRow(table, "Tổng nhân viên:", String.valueOf(totalEmployees), labelFont, valueFont);
+        addSummaryRow(table, "Tổng giờ:", String.format("%.2f", totalHours), labelFont, valueFont);
+        addSummaryRow(table, "Tổng lương:", formatCurrency(totalSalary), labelFont, valueFont);
 
         document.add(table);
     }
@@ -192,13 +192,13 @@ public class EmployeePayrollPdfServiceImpl implements EmployeePayrollPdfService 
 
     private void addPayrollTable(Document document, List<TopEmployeeResponse> employees) throws DocumentException {
         Font sectionTitleFont = new Font(Font.HELVETICA, 11, Font.BOLD);
-        Paragraph header = new Paragraph("2. Employee Payroll Detail", sectionTitleFont);
+        Paragraph header = new Paragraph("2. Chi tiết lương nhân viên", sectionTitleFont);
         header.setSpacingBefore(5f);
         header.setSpacingAfter(5f);
         document.add(header);
 
         if (employees == null || employees.isEmpty()) {
-            Paragraph empty = new Paragraph("No attendance / payroll data for this period.", new Font(Font.HELVETICA, 10, Font.ITALIC));
+            Paragraph empty = new Paragraph("Không có dữ liệu chấm công/lương trong kỳ này.", new Font(Font.HELVETICA, 10, Font.ITALIC));
             empty.setSpacingAfter(10f);
             document.add(empty);
             return;
@@ -214,11 +214,11 @@ public class EmployeePayrollPdfServiceImpl implements EmployeePayrollPdfService 
         Font bodyFont = new Font(Font.HELVETICA, 9, Font.NORMAL);
 
         addHeaderCell(table, "#", headerFont);
-        addHeaderCell(table, "Full Name", headerFont);
+        addHeaderCell(table, "Họ tên", headerFont);
         addHeaderCell(table, "Email", headerFont);
-        addHeaderCell(table, "Hourly Rate", headerFont);
-        addHeaderCell(table, "Total Hours", headerFont);
-        addHeaderCell(table, "Total Salary", headerFont);
+        addHeaderCell(table, "Lương giờ", headerFont);
+        addHeaderCell(table, "Tổng giờ", headerFont);
+        addHeaderCell(table, "Tổng lương", headerFont);
 
         int index = 1;
         for (TopEmployeeResponse e : employees) {
@@ -246,7 +246,7 @@ public class EmployeePayrollPdfServiceImpl implements EmployeePayrollPdfService 
     }
 
     private String formatCurrency(Double value) {
-        if (value == null) return "$0.00";
-        return String.format("$%,.2f", value);
+        if (value == null) return "0 ₫";
+        return String.format("%,.0f ₫", value).replace(",", ".");
     }
 }

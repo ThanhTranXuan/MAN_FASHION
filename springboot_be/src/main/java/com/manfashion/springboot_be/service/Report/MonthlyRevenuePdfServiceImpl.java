@@ -24,8 +24,8 @@ public class MonthlyRevenuePdfServiceImpl implements MonthlyRevenuePdfService {
     private final ReportService reportService;
 
     private static final String COMPANY_NAME = "TRENDIFY STORE";
-    private static final String COMPANY_SUBTITLE = "(Trendify Viet Nam)";
-    private static final String COMPANY_ADDRESS = "Address: ........................................................";
+    private static final String COMPANY_SUBTITLE = "(Trendify Việt Nam)";
+    private static final String COMPANY_ADDRESS = "Địa chỉ: ........................................................";
     private static final String COMPANY_HOTLINE = "Hotline: ...................................";
     private static final String COMPANY_EMAIL = "Email: trendify.store.vn@gmail.com";
     private static final String COMPANY_WEBSITE = "Website: https://trendify.store.vn";
@@ -128,7 +128,7 @@ public class MonthlyRevenuePdfServiceImpl implements MonthlyRevenuePdfService {
 
     private void addTitle(Document document, MonthlyRevenueReportResponse data) throws DocumentException {
         Font titleFont = new Font(Font.HELVETICA, 16, Font.BOLD);
-        String titleText = String.format("Monthly Revenue Report %02d/%d", data.getMonth(), data.getYear());
+        String titleText = String.format("Báo cáo doanh thu tháng %02d/%d", data.getMonth(), data.getYear());
         Paragraph title = new Paragraph(titleText, titleFont);
         title.setAlignment(Element.ALIGN_CENTER);
         title.setSpacingAfter(10f);
@@ -137,7 +137,7 @@ public class MonthlyRevenuePdfServiceImpl implements MonthlyRevenuePdfService {
 
     private void addGeneratedAt(Document document) throws DocumentException {
         Font metaFont = new Font(Font.HELVETICA, 9, Font.ITALIC);
-        String timeText = "Generated at: " + LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm"));
+        String timeText = "Ngày tạo: " + LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm"));
         Paragraph meta = new Paragraph(timeText, metaFont);
         meta.setAlignment(Element.ALIGN_RIGHT);
         meta.setSpacingAfter(10f);
@@ -149,7 +149,7 @@ public class MonthlyRevenuePdfServiceImpl implements MonthlyRevenuePdfService {
         Font labelFont = new Font(Font.HELVETICA, 10, Font.BOLD);
         Font valueFont = new Font(Font.HELVETICA, 10, Font.NORMAL);
 
-        Paragraph sectionTitle = new Paragraph("1. Revenue Summary", headerFont);
+        Paragraph sectionTitle = new Paragraph("1. Tổng quan doanh thu", headerFont);
         sectionTitle.setSpacingAfter(5f);
         document.add(sectionTitle);
 
@@ -158,11 +158,11 @@ public class MonthlyRevenuePdfServiceImpl implements MonthlyRevenuePdfService {
         table.setHorizontalAlignment(Element.ALIGN_LEFT);
         table.setSpacingAfter(10f);
 
-        addSummaryRow(table, "Total Revenue:", formatCurrency(data.getTotalRevenue()), labelFont, valueFont);
-        addSummaryRow(table, "Total Orders:", String.valueOf(data.getTotalOrders()), labelFont, valueFont);
-        addSummaryRow(table, "Distinct Customers:", String.valueOf(data.getDistinctCustomers()), labelFont, valueFont);
-        addSummaryRow(table, "Average Order Value:", formatCurrency(data.getAverageOrderValue()), labelFont, valueFont);
-        addSummaryRow(table, "Total Refund:", formatCurrency(data.getTotalRefund()), labelFont, valueFont);
+        addSummaryRow(table, "Tổng doanh thu:", formatCurrency(data.getTotalRevenue()), labelFont, valueFont);
+        addSummaryRow(table, "Tổng đơn hàng:", String.valueOf(data.getTotalOrders()), labelFont, valueFont);
+        addSummaryRow(table, "Khách hàng:", String.valueOf(data.getDistinctCustomers()), labelFont, valueFont);
+        addSummaryRow(table, "Giá trị đơn trung bình:", formatCurrency(data.getAverageOrderValue()), labelFont, valueFont);
+        addSummaryRow(table, "Tổng hoàn tiền:", formatCurrency(data.getTotalRefund()), labelFont, valueFont);
 
         document.add(table);
     }
@@ -183,13 +183,13 @@ public class MonthlyRevenuePdfServiceImpl implements MonthlyRevenuePdfService {
         Font headerFont = new Font(Font.HELVETICA, 10, Font.BOLD);
         Font bodyFont = new Font(Font.HELVETICA, 9, Font.NORMAL);
 
-        Paragraph sectionTitle = new Paragraph("2. Product Sales Detail", sectionTitleFont);
+        Paragraph sectionTitle = new Paragraph("2. Chi tiết sản phẩm bán ra", sectionTitleFont);
         sectionTitle.setSpacingBefore(5f);
         sectionTitle.setSpacingAfter(5f);
         document.add(sectionTitle);
 
         if (products == null || products.isEmpty()) {
-            Paragraph empty = new Paragraph("No sales recorded for this period.", new Font(Font.HELVETICA, 10, Font.ITALIC));
+            Paragraph empty = new Paragraph("Không có doanh số trong kỳ này.", new Font(Font.HELVETICA, 10, Font.ITALIC));
             empty.setSpacingAfter(10f);
             document.add(empty);
             return;
@@ -200,10 +200,10 @@ public class MonthlyRevenuePdfServiceImpl implements MonthlyRevenuePdfService {
         table.setWidths(new float[]{1f, 5f, 2f, 3f});
         table.setSpacingBefore(5f);
 
-        addHeaderCell(table, "No.", headerFont);
-        addHeaderCell(table, "Product", headerFont);
-        addHeaderCell(table, "Quantity", headerFont);
-        addHeaderCell(table, "Revenue", headerFont);
+        addHeaderCell(table, "STT", headerFont);
+        addHeaderCell(table, "Sản phẩm", headerFont);
+        addHeaderCell(table, "Số lượng", headerFont);
+        addHeaderCell(table, "Doanh thu", headerFont);
 
         int index = 1;
         for (MonthlyProductSalesRow p : products) {
@@ -229,7 +229,7 @@ public class MonthlyRevenuePdfServiceImpl implements MonthlyRevenuePdfService {
     }
 
     private String formatCurrency(Double value) {
-        if (value == null) return "$0.00";
-        return String.format("$%,.2f", value);
+        if (value == null) return "0 ₫";
+        return String.format("%,.0f ₫", value).replace(",", ".");
     }
 }

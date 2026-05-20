@@ -64,13 +64,42 @@ public class CartServiceImpl implements CartService {
         ProductVariant variant = item.getVariant(); // Lấy thẳng Object Variant từ CartItem
 
         if (product != null) {
-            thumbnailUrl = imageRepo
-                    .findFirstByProductIdAndIsThumbnailTrueAndDeletedAtIsNull(product.getId())
-                    .map(ProductImage::getUrl)
-                    .orElse(null);
+            thumbnailUrl = resolveCartItemImage(product, variant);
         }
 
         return cartItemMapper.toResponseDTO(item, product, variant, thumbnailUrl);
+    }
+
+    private String resolveCartItemImage(Product product, ProductVariant variant) {
+        if (variant != null && variant.getColor() != null && !variant.getColor().isBlank()) {
+            Optional<String> colorImage = imageRepo
+                    .findByProductIdAndColorIgnoreCaseAndDeletedAtIsNull(product.getId(), variant.getColor())
+                    .stream()
+                    .map(ProductImage::getUrl)
+                    .filter(url -> url != null && !url.isBlank())
+                    .findFirst();
+
+            if (colorImage.isPresent()) {
+                return colorImage.get();
+            }
+        }
+
+        Optional<String> thumbnail = imageRepo
+                .findFirstByProductIdAndIsThumbnailTrueAndDeletedAtIsNull(product.getId())
+                .map(ProductImage::getUrl)
+                .filter(url -> url != null && !url.isBlank());
+
+        if (thumbnail.isPresent()) {
+            return thumbnail.get();
+        }
+
+        return imageRepo
+                .findByProductIdAndDeletedAtIsNull(product.getId())
+                .stream()
+                .map(ProductImage::getUrl)
+                .filter(url -> url != null && !url.isBlank())
+                .findFirst()
+                .orElse(null);
     }
 
     @Override

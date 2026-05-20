@@ -6,5 +6,5 @@ import org.springframework.web.multipart.MultipartFile;
 import java.util.List;
 
 public interface ProductImageService {
-    List<ProductImageResponse> uploadImages(String productId, String color, List<MultipartFile> files);
+    List<ProductImageResponse> uploadImages(String productId, String color, List<MultipartFile> files, List<String> remainingImageUrls);
 }

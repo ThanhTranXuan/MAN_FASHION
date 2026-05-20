@@ -2,6 +2,8 @@ package com.manfashion.springboot_be.DTO.Product;
 
 import lombok.Data;
 
+import java.util.List;
+
 @Data
 public class ProductRequest {
     private String name;
@@ -9,4 +11,5 @@ public class ProductRequest {
     private Double price;
     private String categoryId;
     private Boolean isActive = true;
+    private List<String> remainingImageUrls;
 }

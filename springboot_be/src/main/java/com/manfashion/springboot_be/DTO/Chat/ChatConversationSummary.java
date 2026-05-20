@@ -11,6 +11,7 @@ import java.time.LocalDateTime;
 public class ChatConversationSummary {
     private String id;
     private String userName;
+    private String userAvatarUrl;
     private String lastMessageText;
     private LocalDateTime lastMessageAt;
     private String status;

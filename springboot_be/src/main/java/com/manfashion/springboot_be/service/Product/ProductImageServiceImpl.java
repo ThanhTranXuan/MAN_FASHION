@@ -16,73 +16,104 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Service
 @RequiredArgsConstructor
-public class ProductImageServiceImpl implements ProductImageService{
+public class ProductImageServiceImpl implements ProductImageService {
     private final ProductImageRepository imageRepository;
     private final ProductRepository productRepository;
     private final ProductMapper productMapper;
     private final UploadImage uploadImage;
 
     @Override
-    public List<ProductImageResponse> uploadImages(String productId, String color, List<MultipartFile> files) {
-        Integer productIdstr = Integer.parseInt(productId);
-        Product product = productRepository.findById(productIdstr)
+    public List<ProductImageResponse> uploadImages(
+            String productId,
+            String color,
+            List<MultipartFile> files,
+            List<String> remainingImageUrls) {
+
+        Integer parsedProductId = Integer.parseInt(productId);
+        Product product = productRepository.findById(parsedProductId)
                 .orElseThrow(() -> new AppException(ErrorCode.PRODUCT_NOT_FOUND));
 
-        // 1. Lấy ảnh cũ (theo màu hoặc không màu)
-        List<ProductImage> oldImages;
-        if (color != null && !color.isBlank()) {
-            oldImages = imageRepository.findByProductIdAndColor(productIdstr, color.toLowerCase());
-        } else {
-            oldImages = imageRepository.findByProductIdAndColorIsNull(productIdstr);
-        }
+        List<ProductImage> oldImages = findCurrentImages(parsedProductId, color);
 
-        // 2. Xóa ảnh cũ trên Cloudinary và trong Database
-        for (ProductImage img : oldImages) {
-            try {
-                uploadImage.deleteImage(img.getUrl()); // Lưu ý đổi tên hàm cho khớp với util của bạn
-            } catch (Exception ignored) {
-                // Ignore lỗi xóa cloud để không làm gián đoạn luồng
+        if (remainingImageUrls != null) {
+            deleteImagesNotIn(oldImages, remainingImageUrls);
+
+            if (files == null || files.isEmpty()) {
+                return findCurrentImages(parsedProductId, color)
+                        .stream().map(productMapper::toImageResponseDTO).toList();
             }
-        }
-        if (!oldImages.isEmpty()) {
-            imageRepository.deleteAll(oldImages);
+
+            return saveUploadedImages(product, color, files);
         }
 
-        // 3. Nếu không có file mới gửi lên -> Chỉ là hành động xóa
+        deleteImages(oldImages);
+
         if (files == null || files.isEmpty()) {
             return Collections.emptyList();
         }
 
-        // 4. Upload ảnh mới và lưu Database
-        List<ProductImage> newImages = new ArrayList<>();
-        for (int i = 0; i < files.size(); i++) {
-            String url = "";
+        return saveUploadedImages(product, color, files);
+    }
 
-            // THÊM TRY-CATCH VÀO ĐÂY
+    private List<ProductImage> findCurrentImages(Integer productId, String color) {
+        if (color != null && !color.isBlank()) {
+            return imageRepository.findByProductIdAndColorIgnoreCaseAndDeletedAtIsNull(productId, color);
+        }
+
+        return imageRepository.findByProductIdAndColorIsNullAndDeletedAtIsNull(productId);
+    }
+
+    private void deleteImagesNotIn(List<ProductImage> images, List<String> remainingImageUrls) {
+        Set<String> remainingUrls = new HashSet<>(remainingImageUrls);
+        List<ProductImage> removedImages = images.stream()
+                .filter(image -> !remainingUrls.contains(image.getUrl()))
+                .toList();
+
+        deleteImages(removedImages);
+    }
+
+    private void deleteImages(List<ProductImage> images) {
+        for (ProductImage image : images) {
             try {
-                url = uploadImage.uploadImage(files.get(i)); // Gọi Cloudinary
+                uploadImage.deleteImage(image.getUrl());
+            } catch (Exception ignored) {
+                // Do not block the database update if Cloudinary cleanup fails.
+            }
+        }
+
+        if (!images.isEmpty()) {
+            imageRepository.deleteAll(images);
+        }
+    }
+
+    private List<ProductImageResponse> saveUploadedImages(Product product, String color, List<MultipartFile> files) {
+        List<ProductImage> newImages = new ArrayList<>();
+        boolean isProductImage = color == null || color.isBlank();
+
+        for (int i = 0; i < files.size(); i++) {
+            String url;
+            try {
+                url = uploadImage.uploadImage(files.get(i));
             } catch (IOException e) {
-                // Bắt lỗi và ném ra Exception của hệ thống
-                // Bạn có thể thêm mã UPLOAD_IMAGE_FAILED vào enum ErrorCode của bạn
                 throw new RuntimeException("Lỗi trong quá trình upload ảnh lên Cloud: " + e.getMessage());
-                // Hoặc chuẩn nhất là: throw new AppException(ErrorCode.UPLOAD_IMAGE_FAILED);
-            } // Gọi Cloudinary
+            }
 
-            ProductImage img = new ProductImage();
-            img.setProduct(product);
-            img.setUrl(url);
-            img.setColor((color != null && !color.isBlank()) ? color.toLowerCase() : null);
-            img.setIsThumbnail(color == null && i == 0); // Ảnh đầu tiên không màu là thumbnail
+            ProductImage image = new ProductImage();
+            image.setProduct(product);
+            image.setUrl(url);
+            image.setColor(isProductImage ? null : color.toLowerCase());
+            image.setIsThumbnail(isProductImage && i == 0);
 
-            newImages.add(img);
+            newImages.add(image);
         }
 
         return imageRepository.saveAll(newImages)
                 .stream().map(productMapper::toImageResponseDTO).toList();
     }
 }
-

@@ -23,6 +23,7 @@ public interface CartItemMapper {
     @Mapping(target = "price", source = "product.price")
     @Mapping(target = "color", source = "variant.color")
     @Mapping(target = "size", source = "variant.size")
+    @Mapping(target = "imageUrl", source = "thumbnailUrl")
     @Mapping(target = "thumbnailUrl", source = "thumbnailUrl")
     CartItemResponse toResponseDTO(CartItem item, Product product, ProductVariant variant, String thumbnailUrl);
 }

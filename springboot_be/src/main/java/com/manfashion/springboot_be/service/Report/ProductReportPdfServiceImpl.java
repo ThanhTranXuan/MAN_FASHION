@@ -26,8 +26,8 @@ public class ProductReportPdfServiceImpl implements ProductReportPdfService {
     private final ProductVariantRepository productVariantRepository;
 
     private static final String COMPANY_NAME = "TRENDIFY STORE";
-    private static final String COMPANY_SUBTITLE = "(Trendify Viet Nam)";
-    private static final String COMPANY_ADDRESS = "Address: ........................................................";
+    private static final String COMPANY_SUBTITLE = "(Trendify Việt Nam)";
+    private static final String COMPANY_ADDRESS = "Địa chỉ: ........................................................";
     private static final String COMPANY_HOTLINE = "Hotline: ...................................";
     private static final String COMPANY_EMAIL = "Email: trendify.store.vn@gmail.com";
     private static final String COMPANY_WEBSITE = "Website: https://trendify.store.vn";
@@ -131,7 +131,7 @@ public class ProductReportPdfServiceImpl implements ProductReportPdfService {
 
     private void addTitle(Document document, MonthlyRevenueReportResponse data) throws DocumentException {
         Font titleFont = new Font(Font.HELVETICA, 16, Font.BOLD);
-        String titleText = String.format("Product Sales & Inventory Report %02d/%d", data.getMonth(), data.getYear());
+        String titleText = String.format("Báo cáo bán hàng và tồn kho tháng %02d/%d", data.getMonth(), data.getYear());
         Paragraph title = new Paragraph(titleText, titleFont);
         title.setAlignment(Element.ALIGN_CENTER);
         title.setSpacingAfter(10f);
@@ -140,7 +140,7 @@ public class ProductReportPdfServiceImpl implements ProductReportPdfService {
 
     private void addGeneratedAt(Document document) throws DocumentException {
         Font metaFont = new Font(Font.HELVETICA, 9, Font.ITALIC);
-        String text = "Generated at: " + LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm"));
+        String text = "Ngày tạo: " + LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm"));
         Paragraph meta = new Paragraph(text, metaFont);
         meta.setAlignment(Element.ALIGN_RIGHT);
         meta.setSpacingAfter(10f);
@@ -152,7 +152,7 @@ public class ProductReportPdfServiceImpl implements ProductReportPdfService {
         Font labelFont = new Font(Font.HELVETICA, 10, Font.BOLD);
         Font valueFont = new Font(Font.HELVETICA, 10, Font.NORMAL);
 
-        Paragraph header = new Paragraph("1. Overview Summary", headerFont);
+        Paragraph header = new Paragraph("1. Tổng quan", headerFont);
         header.setSpacingAfter(5f);
         document.add(header);
 
@@ -161,11 +161,11 @@ public class ProductReportPdfServiceImpl implements ProductReportPdfService {
         table.setHorizontalAlignment(Element.ALIGN_LEFT);
         table.setSpacingAfter(10f);
 
-        addSummaryRow(table, "Total Revenue:", formatCurrency(data.getTotalRevenue()), labelFont, valueFont);
-        addSummaryRow(table, "Total Orders:", String.valueOf(data.getTotalOrders()), labelFont, valueFont);
-        addSummaryRow(table, "Distinct Customers:", String.valueOf(data.getDistinctCustomers()), labelFont, valueFont);
-        addSummaryRow(table, "Average Order Value:", formatCurrency(data.getAverageOrderValue()), labelFont, valueFont);
-        addSummaryRow(table, "Total Refund:", formatCurrency(data.getTotalRefund()), labelFont, valueFont);
+        addSummaryRow(table, "Tổng doanh thu:", formatCurrency(data.getTotalRevenue()), labelFont, valueFont);
+        addSummaryRow(table, "Tổng đơn hàng:", String.valueOf(data.getTotalOrders()), labelFont, valueFont);
+        addSummaryRow(table, "Khách hàng:", String.valueOf(data.getDistinctCustomers()), labelFont, valueFont);
+        addSummaryRow(table, "Giá trị đơn trung bình:", formatCurrency(data.getAverageOrderValue()), labelFont, valueFont);
+        addSummaryRow(table, "Tổng hoàn tiền:", formatCurrency(data.getTotalRefund()), labelFont, valueFont);
 
         document.add(table);
     }
@@ -183,13 +183,13 @@ public class ProductReportPdfServiceImpl implements ProductReportPdfService {
 
     private void addProductSalesSummary(Document document, List<MonthlyProductSalesRow> products) throws DocumentException {
         Font sectionTitleFont = new Font(Font.HELVETICA, 11, Font.BOLD);
-        Paragraph header = new Paragraph("2. Product Sales Summary", sectionTitleFont);
+        Paragraph header = new Paragraph("2. Tổng hợp sản phẩm bán ra", sectionTitleFont);
         header.setSpacingBefore(10f);
         header.setSpacingAfter(5f);
         document.add(header);
 
         if (products == null || products.isEmpty()) {
-            document.add(new Paragraph("No sales recorded for this period.", new Font(Font.HELVETICA, 10, Font.ITALIC)));
+            document.add(new Paragraph("Không có doanh số trong kỳ này.", new Font(Font.HELVETICA, 10, Font.ITALIC)));
             return;
         }
 
@@ -200,10 +200,10 @@ public class ProductReportPdfServiceImpl implements ProductReportPdfService {
         Font bodyFont = new Font(Font.HELVETICA, 9, Font.NORMAL);
 
         addHeaderCell(table, "#", headerFont);
-        addHeaderCell(table, "Product Name", headerFont);
+        addHeaderCell(table, "Tên sản phẩm", headerFont);
         addHeaderCell(table, "Slug", headerFont);
-        addHeaderCell(table, "Qty Sold", headerFont);
-        addHeaderCell(table, "Revenue", headerFont);
+        addHeaderCell(table, "Đã bán", headerFont);
+        addHeaderCell(table, "Doanh thu", headerFont);
 
         int i = 1;
         for (MonthlyProductSalesRow row : products) {
@@ -218,7 +218,7 @@ public class ProductReportPdfServiceImpl implements ProductReportPdfService {
 
     private void addLowStockSection(Document document) throws DocumentException {
         Font sectionTitleFont = new Font(Font.HELVETICA, 11, Font.BOLD);
-        Paragraph header = new Paragraph("3. Low Stock Variants", sectionTitleFont);
+        Paragraph header = new Paragraph("3. Biến thể sắp hết hàng", sectionTitleFont);
         header.setSpacingBefore(15f);
         header.setSpacingAfter(5f);
         document.add(header);
@@ -227,7 +227,7 @@ public class ProductReportPdfServiceImpl implements ProductReportPdfService {
         List<ProductVariant> lowStocks = productVariantRepository.findByStockLessThanAndDeletedAtIsNull(10);
 
         if (lowStocks.isEmpty()) {
-            document.add(new Paragraph("No variants with low stock.", new Font(Font.HELVETICA, 10, Font.ITALIC)));
+            document.add(new Paragraph("Không có biến thể sắp hết hàng.", new Font(Font.HELVETICA, 10, Font.ITALIC)));
             return;
         }
 
@@ -238,10 +238,10 @@ public class ProductReportPdfServiceImpl implements ProductReportPdfService {
         Font bodyFont = new Font(Font.HELVETICA, 9, Font.NORMAL);
 
         addHeaderCell(table, "#", headerFont);
-        addHeaderCell(table, "Product", headerFont);
-        addHeaderCell(table, "Color", headerFont);
+        addHeaderCell(table, "Sản phẩm", headerFont);
+        addHeaderCell(table, "Màu", headerFont);
         addHeaderCell(table, "Size", headerFont);
-        addHeaderCell(table, "Stock", headerFont);
+        addHeaderCell(table, "Tồn kho", headerFont);
 
         int i = 1;
         for (ProductVariant v : lowStocks) {
@@ -271,8 +271,8 @@ public class ProductReportPdfServiceImpl implements ProductReportPdfService {
     }
 
     private String formatCurrency(Double val) {
-        if (val == null) return "$0.00";
-        return String.format("$%,.2f", val);
+        if (val == null) return "0 ₫";
+        return String.format("%,.0f ₫", val).replace(",", ".");
     }
 
     private String formatColor(String color) {

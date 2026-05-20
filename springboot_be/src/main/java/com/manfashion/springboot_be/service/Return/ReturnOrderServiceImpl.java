@@ -217,8 +217,14 @@ public class ReturnOrderServiceImpl implements ReturnOrderService {
             List<Predicate> predicates = new ArrayList<>();
 
             if (code != null && !code.isBlank()) {
-                // Lọc LIKE %code% (Không phân biệt hoa thường)
-                predicates.add(cb.like(cb.lower(root.get("returnCode")), "%" + code.toLowerCase() + "%"));
+                String keyword = "%" + code.toLowerCase(Locale.ROOT) + "%";
+                predicates.add(cb.or(
+                        cb.like(cb.lower(root.get("returnCode")), keyword),
+                        cb.like(cb.lower(root.get("order").get("orderCode")), keyword),
+                        cb.like(cb.lower(root.get("user").get("fullName")), keyword),
+                        cb.like(cb.lower(root.get("user").get("email")), keyword),
+                        cb.like(cb.lower(root.get("user").get("phone")), keyword)
+                ));
             }
 
             if (status != null && !status.isBlank()) {

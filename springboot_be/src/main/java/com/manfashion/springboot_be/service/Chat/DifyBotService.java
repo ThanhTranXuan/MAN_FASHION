@@ -10,6 +10,8 @@ import org.springframework.web.client.RestClient;
 
 import java.util.List;
 import java.util.Map;
+import java.util.HashMap;
+import java.util.concurrent.ConcurrentHashMap;
 
     @Service
     @RequiredArgsConstructor
@@ -24,9 +26,10 @@ import java.util.Map;
         @Value("${dify.url}")
         private String apiUrl;
 
+        private final Map<String, String> difyConversationIds = new ConcurrentHashMap<>();
 
         public String askBot(String sessionId, String userMessage) {
-            Map<String, Object> requestBody = Map.of(
+            Map<String, Object> requestBody = new HashMap<>(Map.of(
                     // Các biến khai báo ở nút START phải nằm trong inputs
                     "inputs", Map.of(
                             "query", userMessage
@@ -35,7 +38,12 @@ import java.util.Map;
                     "query", userMessage,
                     "response_mode", "blocking",
                     "user", sessionId
-            );
+            ));
+
+            String difyConversationId = difyConversationIds.get(sessionId);
+            if (difyConversationId != null && !difyConversationId.isBlank()) {
+                requestBody.put("conversation_id", difyConversationId);
+            }
 
             // 2. Gọi sang server Dify
             try {
@@ -47,6 +55,11 @@ import java.util.Map;
                         .body(Map.class);
 
                 // 3. Dify trả câu trả lời trong trường "answer"
+                Object returnedConversationId = response.get("conversation_id");
+                if (returnedConversationId instanceof String id && !id.isBlank()) {
+                    difyConversationIds.put(sessionId, id);
+                }
+
                 return (String) response.get("answer");
 
             } catch (Exception e) {

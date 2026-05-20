@@ -159,11 +159,12 @@ public class ProductController {
     public ApiResponse<List<ProductImageResponse>> uploadImages(
             @PathVariable String id,
             @RequestParam(required = false) String color,
+            @RequestParam(required = false) List<String> remainingImageUrls,
             @RequestPart(value = "files", required = false) List<MultipartFile> files) throws IOException {
 
         return ApiResponse.<List<ProductImageResponse>>builder()
                 .message("product.upload_images.success")
-                .data(productImageService.uploadImages(id, color, files))
+                .data(productImageService.uploadImages(id, color, files, remainingImageUrls))
                 .build();
     }
 

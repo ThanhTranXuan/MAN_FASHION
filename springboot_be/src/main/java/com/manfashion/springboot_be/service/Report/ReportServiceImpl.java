@@ -16,8 +16,11 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.YearMonth;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
@@ -92,18 +95,42 @@ public class ReportServiceImpl implements ReportService {
 
     @Override
     public List<TrendResponse> getRevenueTrend() {
-        LocalDateTime start = LocalDate.now().minusMonths(5).withDayOfMonth(1).atStartOfDay();
-        return orderRepo.getRevenueTrend("COMPLETED", start).stream()
+        YearMonth firstMonth = YearMonth.now().minusMonths(5);
+        LocalDateTime start = firstMonth.atDay(1).atStartOfDay();
+        Map<String, Double> values = orderRepo.getRevenueTrend("COMPLETED", start).stream()
                 .map(r -> new TrendResponse(((Number)r[0]).intValue(), ((Number)r[1]).intValue(), ((Number)r[2]).doubleValue()))
-                .collect(Collectors.toList());
+                .collect(Collectors.toMap(r -> r.getYear() + "-" + r.getMonth(), TrendResponse::getValue));
+
+        List<TrendResponse> result = new ArrayList<>();
+        for (int i = 0; i < 6; i++) {
+            YearMonth ym = firstMonth.plusMonths(i);
+            result.add(new TrendResponse(
+                    ym.getYear(),
+                    ym.getMonthValue(),
+                    values.getOrDefault(ym.getYear() + "-" + ym.getMonthValue(), 0.0)
+            ));
+        }
+        return result;
     }
 
     @Override
     public List<TrendResponse> getCustomerTrend() {
-        LocalDateTime start = LocalDate.now().minusMonths(5).withDayOfMonth(1).atStartOfDay();
-        return orderRepo.getCustomerTrend("CANCELLED", start).stream()
+        YearMonth firstMonth = YearMonth.now().minusMonths(5);
+        LocalDateTime start = firstMonth.atDay(1).atStartOfDay();
+        Map<String, Double> values = orderRepo.getCustomerTrend("CANCELLED", start).stream()
                 .map(r -> new TrendResponse(((Number)r[0]).intValue(), ((Number)r[1]).intValue(), ((Number)r[2]).doubleValue()))
-                .collect(Collectors.toList());
+                .collect(Collectors.toMap(r -> r.getYear() + "-" + r.getMonth(), TrendResponse::getValue));
+
+        List<TrendResponse> result = new ArrayList<>();
+        for (int i = 0; i < 6; i++) {
+            YearMonth ym = firstMonth.plusMonths(i);
+            result.add(new TrendResponse(
+                    ym.getYear(),
+                    ym.getMonthValue(),
+                    values.getOrDefault(ym.getYear() + "-" + ym.getMonthValue(), 0.0)
+            ));
+        }
+        return result;
     }
 
     @Override

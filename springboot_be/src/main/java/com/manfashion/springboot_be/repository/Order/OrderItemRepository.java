@@ -14,7 +14,8 @@ public interface OrderItemRepository extends JpaRepository<OrderItem, Integer> {
     boolean existsByProduct_IdAndOrder_User_IdAndOrder_StatusIn(Integer productId, Integer userId, List<String> statuses);
     // 1. Top sản phẩm bán chạy trong khoảng thời gian (Đã fix lỗi cú pháp LIMIT của JPQL)
     @Query("SELECT p.id, p.name, " +
-            "(SELECT MAX(pi.url) FROM ProductImage pi WHERE pi.product.id = p.id AND pi.isThumbnail = true), " +
+            "COALESCE((SELECT MAX(pi.url) FROM ProductImage pi WHERE pi.product.id = p.id AND pi.isThumbnail = true AND pi.deletedAt IS NULL), " +
+            "(SELECT MIN(pi2.url) FROM ProductImage pi2 WHERE pi2.product.id = p.id AND pi2.deletedAt IS NULL)), " +
             "SUM(oi.quantity), SUM(oi.price * oi.quantity) " +
             "FROM OrderItem oi JOIN oi.order o JOIN oi.variant pv JOIN pv.product p " +
             "WHERE o.status = :status AND o.createdAt >= :start AND o.createdAt < :end " +

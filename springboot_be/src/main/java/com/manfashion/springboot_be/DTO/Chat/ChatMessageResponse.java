@@ -14,6 +14,7 @@ public class ChatMessageResponse {
     private String id;
     private String senderType; // USER | EMPLOYEE
     private String senderName;
+    private String senderAvatarUrl;
     private String content;
     private LocalDateTime createdAt;
 }

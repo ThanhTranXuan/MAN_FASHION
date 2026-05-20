@@ -21,8 +21,10 @@ import org.springframework.web.multipart.MultipartFile;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 
 @Service
 @RequiredArgsConstructor
@@ -134,7 +136,21 @@ public class ProductServiceImpl implements ProductService{
         }
 
         productMapper.updateProductFromRequest(req, product);
-        return productMapper.toResponseDTO(productRepository.save(product));
+        Product savedProduct = productRepository.save(product);
+        if (req.getRemainingImageUrls() != null) {
+            syncProductImages(savedProduct.getId(), req.getRemainingImageUrls());
+        }
+
+        return productMapper.toResponseDTO(productRepository.save(savedProduct));
+    }
+
+    private void syncProductImages(Integer productId, List<String> remainingImageUrls) {
+        Set<String> remainingUrls = new HashSet<>(remainingImageUrls);
+
+        imageRepository.findByProductIdAndColorIsNullAndDeletedAtIsNull(productId)
+                .stream()
+                .filter(image -> !remainingUrls.contains(image.getUrl()))
+                .forEach(imageRepository::delete);
     }
 
     @Override

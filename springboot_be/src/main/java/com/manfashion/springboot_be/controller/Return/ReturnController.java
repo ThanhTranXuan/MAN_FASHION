@@ -33,13 +33,27 @@ public class ReturnController {
     @PreAuthorize("hasAnyAuthority('ADMIN','EMPLOYEE')")
     public ApiResponse<Page<ReturnOrderResponse>> getAllReturns(Pageable pageable,
                                                                 @RequestParam(required = false) String code,
+                                                                @RequestParam(required = false) String keyword,
+                                                                @RequestParam(required = false) String search,
+                                                                @RequestParam(required = false) String q,
                                                                 @RequestParam(required = false) String status) {
-        Page<ReturnOrderResponse> returnOrders = returnService.getAll(code, status, pageable);
+        Page<ReturnOrderResponse> returnOrders = returnService.getAll(
+                firstNonBlank(code, keyword, search, q),
+                status,
+                pageable
+        );
 
         return ApiResponse.<Page<ReturnOrderResponse>>builder()
                 .message("return.get_all.success")
                 .data(returnOrders)
                 .build();
+    }
+
+    private String firstNonBlank(String... values) {
+        for (String value : values) {
+            if (value != null && !value.isBlank()) return value;
+        }
+        return null;
     }
 
     // 🔍 Check new returns since timestamp (ADMIN/EMPLOYEE)
