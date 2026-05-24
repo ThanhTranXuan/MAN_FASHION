@@ -22,6 +22,7 @@ public class OrderResponse {
     private String address;
 
     private String couponId;
+    private String couponCode;
     private Double discountPercent;
     private Double discountValue;
     private Double subtotal;

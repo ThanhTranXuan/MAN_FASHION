@@ -33,6 +33,27 @@ public interface ProductReviewRepository extends JpaRepository<ProductReview, Lo
     @Query("SELECT r.rating, COUNT(r) FROM ProductReview r WHERE r.product.id = :productId AND r.status = :status AND r.deletedAt IS NULL GROUP BY r.rating")
     List<Object[]> getRatingCountsByProductIdAndStatus(@Param("productId") Integer productId, @Param("status") ReviewStatus status);
 
+    @Query("""
+            SELECT r.product.id AS productId,
+                   AVG(r.rating) AS averageRating,
+                   COUNT(r) AS reviewCount
+            FROM ProductReview r
+            WHERE r.product.id IN :productIds
+              AND r.status = :status
+              AND r.deletedAt IS NULL
+            GROUP BY r.product.id
+            """)
+    List<ProductRatingSummary> getRatingSummariesByProductIds(
+            @Param("productIds") List<Integer> productIds,
+            @Param("status") ReviewStatus status
+    );
+
+    interface ProductRatingSummary {
+        Integer getProductId();
+        Double getAverageRating();
+        Long getReviewCount();
+    }
+
     @Query(value = """
             SELECT r FROM ProductReview r
             LEFT JOIN FETCH r.product p

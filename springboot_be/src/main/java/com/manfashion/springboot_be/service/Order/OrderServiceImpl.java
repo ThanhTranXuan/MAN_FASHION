@@ -363,6 +363,7 @@ public class OrderServiceImpl implements OrderService {
                 .phone(o.getPhone())
                 .address(o.getAddress())
                 .couponId(o.getCoupon() != null ? String.valueOf(o.getCoupon().getId()) : null)
+                .couponCode(o.getCoupon() != null ? o.getCoupon().getCode() : null)
                 .discountPercent(o.getDiscountPercent())
                 .discountValue(o.getDiscountValue())
                 .subtotal(o.getSubtotal())

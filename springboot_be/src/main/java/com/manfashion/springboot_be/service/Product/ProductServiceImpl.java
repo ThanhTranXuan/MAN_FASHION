@@ -3,12 +3,14 @@ package com.manfashion.springboot_be.service.Product;
 import com.manfashion.springboot_be.DTO.Product.*;
 import com.manfashion.springboot_be.entity.Category;
 import com.manfashion.springboot_be.entity.Product;
+import com.manfashion.springboot_be.entity.ReviewStatus;
 import com.manfashion.springboot_be.exception.AppException;
 import com.manfashion.springboot_be.exception.ErrorCode;
 import com.manfashion.springboot_be.mapper.ProductMapper;
 import com.manfashion.springboot_be.repository.Category.CategoryRepository;
 import com.manfashion.springboot_be.repository.Product.ProductImageRepository;
 import com.manfashion.springboot_be.repository.Product.ProductRepository;
+import com.manfashion.springboot_be.repository.Product.ProductReviewRepository;
 import com.manfashion.springboot_be.repository.Product.ProductVariantRepository;
 import com.manfashion.springboot_be.util.SlugGenerator;
 import jakarta.transaction.Transactional;
@@ -23,8 +25,11 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -33,9 +38,40 @@ public class ProductServiceImpl implements ProductService{
     private final CategoryRepository categoryRepository;
     private final ProductVariantRepository variantRepository; // Phục vụ cho hàm softDelete
     private final ProductImageRepository imageRepository;     // Phục vụ cho hàm softDelete
+    private final ProductReviewRepository reviewRepository;
     private final ProductMapper productMapper;
     private final SlugGenerator slugGenerator;
 //    private final CategoryService categoryService;
+
+    private ProductResponse toResponseWithRating(Product product) {
+        return addRatings(List.of(product)).get(0);
+    }
+
+    private List<ProductResponse> addRatings(List<Product> products) {
+        if (products == null || products.isEmpty()) {
+            return Collections.emptyList();
+        }
+
+        List<Integer> productIds = products.stream()
+                .map(Product::getId)
+                .toList();
+
+        Map<Integer, ProductReviewRepository.ProductRatingSummary> ratingByProductId =
+                reviewRepository.getRatingSummariesByProductIds(productIds, ReviewStatus.APPROVED)
+                        .stream()
+                        .collect(Collectors.toMap(
+                                ProductReviewRepository.ProductRatingSummary::getProductId,
+                                Function.identity()
+                        ));
+
+        return products.stream().map(product -> {
+            ProductResponse response = productMapper.toResponseDTO(product);
+            ProductReviewRepository.ProductRatingSummary rating = ratingByProductId.get(product.getId());
+            response.setAverageRating(rating != null ? rating.getAverageRating() : null);
+            response.setReviewCount(rating != null ? rating.getReviewCount() : 0L);
+            return response;
+        }).toList();
+    }
 
     private String generateUniqueSlug(String name) {
         String base = slugGenerator.toSlug(name);
@@ -77,14 +113,14 @@ public class ProductServiceImpl implements ProductService{
     public ProductResponse getBySlug(String slug) {
         Product p = productRepository.findBySlugAndDeletedAtIsNull(slug)
                 .orElseThrow(() -> new AppException(ErrorCode.PRODUCT_NOT_FOUND));
-        return productMapper.toResponseDTO(p);
+        return toResponseWithRating(p);
     }
 
     @Override
     public ProductResponse getById(String id) {
         Product product = productRepository.findById(Integer.parseInt(id))
                 .orElseThrow(() -> new AppException(ErrorCode.PRODUCT_NOT_FOUND));
-        return productMapper.toResponseDTO(product);
+        return toResponseWithRating(product);
     }
 
 //    @Override
@@ -250,7 +286,12 @@ public class ProductServiceImpl implements ProductService{
         // Gửi mảng categoryIds xuống DB để query bằng mệnh đề IN (...)
         Page<Product> products = productRepository.searchAllProducts(keyword, categoryIds, color, sizes, inStock, active, sort, pageable);
 
-        return products.map(productMapper::toResponseDTO);
+        Map<String, ProductResponse> responsesById = addRatings(products.getContent()).stream()
+                .collect(Collectors.toMap(ProductResponse::getId, Function.identity()));
+        return products.map(product -> responsesById.getOrDefault(
+                String.valueOf(product.getId()),
+                productMapper.toResponseDTO(product)
+        ));
     }
 
     // =====================================================
@@ -270,7 +311,7 @@ public class ProductServiceImpl implements ProductService{
         }
 
         List<Product> products = productRepository.searchForChatBot(keyword, categoryIds, color, sizes, limit);
-        return products.stream().map(productMapper::toResponseDTO).toList();
+        return addRatings(products);
     }
 
     // =====================================================
@@ -289,6 +330,6 @@ public class ProductServiceImpl implements ProductService{
         List<Product> similar = productRepository.findSimilarProducts(
                 current.getCategory().getId(), current.getId(), pageable);
 
-        return similar.stream().map(productMapper::toResponseDTO).toList();
+        return addRatings(similar);
     }
 }

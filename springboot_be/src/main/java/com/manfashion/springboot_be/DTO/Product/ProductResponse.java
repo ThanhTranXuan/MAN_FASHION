@@ -16,6 +16,10 @@ public class ProductResponse {
     private Integer categoryId;
     private String categoryName;
     private Boolean isActive;
+    private Double salePrice;
+    private Boolean isSale;
+    private Double averageRating;
+    private Long reviewCount;
     private List<ProductVariantResponse> variants;
     private List<ProductImageResponse> images;
 }
