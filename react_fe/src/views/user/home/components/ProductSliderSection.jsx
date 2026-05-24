@@ -123,6 +123,7 @@ export default function ProductSliderSection({
             <Box h="full">
               <ProductCard
                 product={product}
+                variant="home"
                 onClick={() =>
                   navigate(`/user/product/detail/${product.slug}`)
                 }

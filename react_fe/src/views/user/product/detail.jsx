@@ -15,7 +15,6 @@ import {
   SimpleGrid,
   Spinner,
   Divider,
-  Image,
 } from '@chakra-ui/react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { formatUSD } from 'utils/FormatHelper';
@@ -27,6 +26,7 @@ import ReviewService from 'services/ReviewService';
 import { useCart } from 'contexts/CartContext';
 import ReviewSection from './components/review/ReviewSection';
 import { StarRating } from './components/review/ReviewItem';
+import ProductCard from './components/ProductCard';
 
 // ─── RelatedProducts ────────────────────────────────────────
 function RelatedProducts({ categorySlug, currentProductId }) {
@@ -34,11 +34,7 @@ function RelatedProducts({ categorySlug, currentProductId }) {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  const cardBg = useColorModeValue('white', 'navy.800');
-  const cardBorder = useColorModeValue('gray.200', 'gray.600');
   const textColor = useColorModeValue('gray.800', 'white');
-  const subColor = useColorModeValue('gray.500', 'gray.400');
-  const noImageBg = useColorModeValue('gray.100', 'navy.700');
 
   useEffect(() => {
     if (!currentProductId) return;
@@ -69,68 +65,13 @@ function RelatedProducts({ categorySlug, currentProductId }) {
         Sản phẩm tương tự
       </Text>
       <SimpleGrid columns={{ base: 2, sm: 2, md: 4 }} spacing={{ base: 3, md: 5 }}>
-        {products.map((p) => {
-          const thumb =
-            p.images?.find((i) => i.isThumbnail)?.url ||
-            p.images?.[0]?.url ||
-            null;
-          return (
-            <Box
-              key={p.id}
-              bg={cardBg}
-              borderWidth="1px"
-              borderColor={cardBorder}
-              borderRadius="xl"
-              overflow="hidden"
-              cursor="pointer"
-              onClick={() => navigate(`/user/product/detail/${p.slug}`)}
-              _hover={{ boxShadow: 'lg', transform: 'translateY(-3px)' }}
-              transition="all 0.22s ease"
-            >
-              {/* Image */}
-              <Box position="relative" w="100%" pb="120%" overflow="hidden">
-                {thumb ? (
-                  <Image
-                    src={thumb}
-                    alt={p.name}
-                    position="absolute"
-                    top={0} left={0}
-                    w="100%" h="100%"
-                    objectFit="cover"
-                    transition="transform 0.35s ease"
-                    _groupHover={{ transform: 'scale(1.04)' }}
-                  />
-                ) : (
-                  <Flex
-                    position="absolute"
-                    top={0} left={0}
-                    w="100%" h="100%"
-                    align="center" justify="center"
-                    color={subColor} fontSize="sm"
-                    bg={noImageBg}
-                  >
-                    No image
-                  </Flex>
-                )}
-              </Box>
-              {/* Info */}
-              <Box p={3}>
-                <Text
-                  fontWeight="semibold"
-                  fontSize="sm"
-                  noOfLines={2}
-                  color={textColor}
-                  mb={1}
-                >
-                  {p.name}
-                </Text>
-                <Text fontWeight="bold" fontSize="md" color="brand.500">
-                  {formatUSD(p.price)}
-                </Text>
-              </Box>
-            </Box>
-          );
-        })}
+        {products.map((p) => (
+          <ProductCard
+            key={p.id}
+            product={p}
+            onClick={() => navigate(`/user/product/detail/${p.slug}`)}
+          />
+        ))}
       </SimpleGrid>
     </Box>
   );

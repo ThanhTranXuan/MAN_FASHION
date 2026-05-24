@@ -183,6 +183,27 @@ export default function PurchaseHistoryTab({
       >
         <VStack align="stretch" spacing={6}>
           {filteredOrders.map((order) => (
+            (() => {
+              const subtotal =
+                Number(order.subtotal) ||
+                order.items?.reduce(
+                  (sum, item) =>
+                    sum + Number(item.price || 0) * Number(item.quantity || 0),
+                  0,
+                ) ||
+                0;
+              const discountAmount = Number(
+                order.discountValue || order.discountAmount || 0,
+              );
+              const hasDiscount = discountAmount > 0;
+              const couponCode =
+                order.couponCode || order.discountCode || order.coupon?.code;
+              const totalAmount =
+                order.finalTotal ??
+                order.totalAmount ??
+                Math.max(subtotal - discountAmount, 0);
+
+              return (
             <Box
               key={order.id}
               bg={cardBg}
@@ -267,10 +288,30 @@ export default function PurchaseHistoryTab({
               <Divider my={4} />
 
               {/* Footer actions */}
-              <Flex justify="space-between" align="center">
-                <Text fontWeight="bold" color={textColor}>
-                  Tổng: {formatUSD(order.finalTotal)}
-                </Text>
+              <Flex
+                justify="space-between"
+                align={{ base: 'flex-start', md: 'center' }}
+                gap={4}
+                direction={{ base: 'column', md: 'row' }}
+              >
+                <Box>
+                  <Text fontSize="sm" color="gray.500">
+                    Tạm tính: {formatUSD(subtotal)}
+                  </Text>
+                  {hasDiscount && (
+                    <>
+                      <Text fontSize="sm" color="gray.500">
+                        Mã giảm giá: {couponCode || '-'}
+                      </Text>
+                      <Text fontSize="sm" color="red.500">
+                        Giảm giá: -{formatUSD(discountAmount)}
+                      </Text>
+                    </>
+                  )}
+                  <Text fontWeight="bold" color={textColor}>
+                    Tổng thanh toán: {formatUSD(totalAmount)}
+                  </Text>
+                </Box>
 
                 {order.status === 'DELIVERED' && (
                   <Flex gap={3}>
@@ -295,6 +336,8 @@ export default function PurchaseHistoryTab({
                 )}
               </Flex>
             </Box>
+              );
+            })()
           ))}
         </VStack>
 

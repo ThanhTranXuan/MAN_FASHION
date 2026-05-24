@@ -143,10 +143,11 @@ export default function Dashboard(props) {
             mx="auto"
             p={{ base: '20px', md: '30px' }}
             pt={{ base: '130px', md: '100px', xl: '100px' }}
-            minH="100vh"
-            initial={{ opacity: 0, y: 8 }}
+            minH="calc(100vh - 120px)"
+            sx={{ overflowAnchor: 'none' }}
+            initial={{ opacity: 0, y: 4 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.18, ease: [0.22, 1, 0.36, 1] }}
+            transition={{ duration: 0.16, ease: [0.22, 1, 0.36, 1] }}
           >
             <Routes>
               {getRoutesComponents(accessibleRoutes)}

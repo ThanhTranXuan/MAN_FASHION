@@ -43,14 +43,21 @@ export default function List({
           h="calc(100% - 60px)"
           align="center"
           justify="center"
-         backdropFilter="blur(2px)"
+          bg="blackAlpha.50"
+          backdropFilter="blur(1px)"
           zIndex="1"
+          transition="opacity 0.2s ease"
         >
           <Spinner size="xl" thickness="4px" speed="0.65s" color="brand.500" />
         </Flex>
       )}
 
-      <Table variant="simple" bg={bgColor} opacity={isLoading ? 0.6 : 1}>
+      <Table
+        variant="simple"
+        bg={bgColor}
+        opacity={isLoading ? 0.72 : 1}
+        transition="opacity 0.2s ease"
+      >
         <Thead bg={headerBg}>
           {table.getHeaderGroups().map((headerGroup) => (
             <Tr key={headerGroup.id}>

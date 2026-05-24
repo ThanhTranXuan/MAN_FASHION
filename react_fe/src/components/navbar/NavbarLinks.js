@@ -13,6 +13,7 @@ import {
   useColorModeValue,
   Box,
   Badge,
+  Circle,
 } from '@chakra-ui/react';
 import { useAppToast } from 'utils/ToastHelper';
 import { IoMdMoon, IoMdSunny, IoMdCart } from 'react-icons/io';
@@ -27,6 +28,8 @@ import { MdLogin } from 'react-icons/md';
 import { SidebarResponsive } from 'components/sidebar/Sidebar';
 import routes from 'routes.js';
 import { goToSignIn, hideChatWidget, showChatWidget } from 'utils/NavigationHelper';
+import { useNotification } from 'contexts/NotificationContext';
+import { useChat } from 'contexts/ChatContext';
 
 export default function NavbarLinks() {
   const { colorMode, toggleColorMode } = useColorMode();
@@ -42,6 +45,8 @@ export default function NavbarLinks() {
   const cartQty = cart.totalQuantity || 0;
 
   const { user, isAuthenticated, logout } = useUser();
+  const { hasNewOrder, hasNewReturn } = useNotification();
+  const { hasNewChat } = useChat();
   const navigate = useNavigate();
   const toast = useAppToast();
 
@@ -59,6 +64,10 @@ export default function NavbarLinks() {
   // - Không ở trang thanh toán
   // - Được phép dùng cart (guest + USER)
   const canShowCart = !isAdminRoute && !isPaymentRoute && canUseCart;
+  const isStaffUser =
+    isAuthenticated && ['ADMIN', 'EMPLOYEE'].includes(user?.roleName);
+  const hasAdminUnread =
+    isStaffUser && !isAdminRoute && (hasNewOrder || hasNewReturn || hasNewChat);
 
   const handleToggleDashboard = () => {
     hideChatWidget();
@@ -184,14 +193,27 @@ export default function NavbarLinks() {
       ) : (
         <Popover placement="bottom-end">
           <PopoverTrigger>
-            <Avatar
-              src={user?.avatarUrl}
-              name={user?.fullName || user?.email?.split('@')[0] || 'User'}
-              size="sm"
-              w="40px"
-              h="40px"
-              cursor="pointer"
-            />
+            <Box position="relative">
+              <Avatar
+                src={user?.avatarUrl}
+                name={user?.fullName || user?.email?.split('@')[0] || 'User'}
+                size="sm"
+                w="40px"
+                h="40px"
+                cursor="pointer"
+              />
+              {hasAdminUnread && (
+                <Circle
+                  size="10px"
+                  bg="brand.400"
+                  position="absolute"
+                  top="1px"
+                  right="1px"
+                  border="2px solid"
+                  borderColor={menuBg}
+                />
+              )}
+            </Box>
           </PopoverTrigger>
           <PopoverContent
             mt="10px"
@@ -231,8 +253,17 @@ export default function NavbarLinks() {
                     justifyContent="flex-start"
                     size="sm"
                     onClick={handleToggleDashboard}
+                    position="relative"
                   >
                     {isAdminRoute ? 'Về Trang Web' : 'Vào Trang Quản Trị'}
+                    {hasAdminUnread && (
+                      <Circle
+                        size="8px"
+                        bg="brand.400"
+                        position="absolute"
+                        right="10px"
+                      />
+                    )}
                   </Button>
                 )}
 

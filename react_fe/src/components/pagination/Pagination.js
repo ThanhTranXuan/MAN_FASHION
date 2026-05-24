@@ -1,13 +1,17 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { HStack, Button, Input, useColorModeValue } from '@chakra-ui/react';
 import { useAppToast } from 'utils/ToastHelper';
 
-function Pagination({ page, totalPages, onPageChange }) {
+function Pagination({ page, totalPages, onPageChange, isDisabled = false }) {
   const [showInput, setShowInput] = useState(false);
   const [inputValue, setInputValue] = useState(page + 1);
   const toast = useAppToast();
 
   const activeColor = useColorModeValue('brand.500', 'navy.700');
+
+  useEffect(() => {
+    setInputValue(page + 1);
+  }, [page]);
 
   const pageNumbers = [];
   const delta = 2;
@@ -18,6 +22,7 @@ function Pagination({ page, totalPages, onPageChange }) {
   for (let i = start; i <= end; i++) pageNumbers.push(i);
 
   const handleGoToPage = () => {
+    if (isDisabled) return;
     const n = Number(inputValue);
     if (n >= 1 && n <= totalPages) {
       onPageChange(n - 1);
@@ -27,11 +32,16 @@ function Pagination({ page, totalPages, onPageChange }) {
     }
   };
 
+  const handlePageChange = (nextPage) => {
+    if (isDisabled || nextPage === page) return;
+    onPageChange(nextPage);
+  };
+
   return (
     <HStack spacing={2} justify="center" mt={4}>
       {/* Prev */}
       {page > 0 && (
-        <Button size="sm" onClick={() => onPageChange(page - 1)}>
+        <Button size="sm" isDisabled={isDisabled} onClick={() => handlePageChange(page - 1)}>
           &lt;
         </Button>
       )}
@@ -39,11 +49,11 @@ function Pagination({ page, totalPages, onPageChange }) {
       {/* First page */}
       {start > 1 && (
         <>
-          <Button size="sm" onClick={() => onPageChange(0)}>
+          <Button size="sm" isDisabled={isDisabled} onClick={() => handlePageChange(0)}>
             1
           </Button>
           {start > 2 && (
-            <Button size="sm" onClick={() => setShowInput(true)}>
+            <Button size="sm" isDisabled={isDisabled} onClick={() => setShowInput(true)}>
               ...
             </Button>
           )}
@@ -56,7 +66,8 @@ function Pagination({ page, totalPages, onPageChange }) {
           key={p}
           size="sm"
           bg={p === page + 1 ? activeColor : 'transparent'}
-          onClick={() => onPageChange(p - 1)}
+          isDisabled={isDisabled}
+          onClick={() => handlePageChange(p - 1)}
           color={p === page + 1 ? 'white' : 'grey.500'}
         >
           {p}
@@ -67,11 +78,11 @@ function Pagination({ page, totalPages, onPageChange }) {
       {end < totalPages && (
         <>
           {end < totalPages - 1 && (
-            <Button size="sm" onClick={() => setShowInput(true)}>
+            <Button size="sm" isDisabled={isDisabled} onClick={() => setShowInput(true)}>
               ...
             </Button>
           )}
-          <Button size="sm" onClick={() => onPageChange(totalPages - 1)}>
+          <Button size="sm" isDisabled={isDisabled} onClick={() => handlePageChange(totalPages - 1)}>
             {totalPages}
           </Button>
         </>
@@ -79,7 +90,7 @@ function Pagination({ page, totalPages, onPageChange }) {
 
       {/* Next */}
       {page < totalPages - 1 && (
-        <Button size="sm" onClick={() => onPageChange(page + 1)}>
+        <Button size="sm" isDisabled={isDisabled} onClick={() => handlePageChange(page + 1)}>
           &gt;
         </Button>
       )}

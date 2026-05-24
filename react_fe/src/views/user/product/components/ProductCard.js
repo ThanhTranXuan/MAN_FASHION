@@ -11,12 +11,20 @@ import {
 } from '@chakra-ui/react';
 import { formatUSD } from 'utils/FormatHelper';
 
-export default function ProductCard({ product, onClick, activeColor }) {
+export default function ProductCard({ product, onClick, activeColor, variant }) {
   const borderColor = useColorModeValue('gray.200', 'gray.600');
   const bgColor = useColorModeValue('white', 'navy.800');
   const bgHover = useColorModeValue('gray.50', 'navy.700');
   const textColor = useColorModeValue('secondaryGray.900', 'white');
   const subTextColor = useColorModeValue('gray.600', 'gray.400');
+  const isHomeCard = variant === 'home';
+  const averageRating = Number(product.averageRating || 0);
+  const reviewCount = Number(product.reviewCount || 0);
+  const showRating = reviewCount > 0 && averageRating > 0;
+  const price = Number(product.price || 0);
+  const salePrice = Number(product.salePrice || 0);
+  const hasSale =
+    Boolean(product.isSale) && salePrice > 0 && price > 0 && salePrice < price;
 
   // ✅ Lấy danh sách màu duy nhất từ variants
   const colors = useMemo(() => {
@@ -73,7 +81,10 @@ export default function ProductCard({ product, onClick, activeColor }) {
         boxShadow: '2xl',
         transform: 'translateY(-8px)',
         bg: bgHover,
-        '& .product-image': { transform: 'scale(1.1)' }
+        '& .product-image': {
+          transform: isHomeCard ? 'scale(1.03)' : 'scale(1.1)',
+        },
+        '& .home-product-image-overlay': { opacity: 1 },
       }}
       color={textColor}
     >
@@ -84,6 +95,7 @@ export default function ProductCard({ product, onClick, activeColor }) {
         pb="130%"
         overflow="hidden"
         borderTopRadius="xl"
+        borderBottomRadius={isHomeCard ? 'lg' : '0'}
       >
         {displayImage ? (
           <Image
@@ -96,7 +108,7 @@ export default function ProductCard({ product, onClick, activeColor }) {
             w="100%"
             h="100%"
             objectFit="cover"
-            transition="transform 0.6s cubic-bezier(0.4, 0, 0.2, 1)"
+            transition="transform 0.35s ease"
           />
         ) : (
           <Flex
@@ -113,6 +125,18 @@ export default function ProductCard({ product, onClick, activeColor }) {
             No image
           </Flex>
         )}
+        {isHomeCard && (
+          <Box
+            className="home-product-image-overlay"
+            position="absolute"
+            inset={0}
+            borderRadius="inherit"
+            pointerEvents="none"
+            opacity={0}
+            transition="opacity 0.25s ease"
+            bgGradient="linear(to-b, transparent 62%, rgba(0,0,0,0.10))"
+          />
+        )}
       </Box>
 
       {/* 🧾 Info */}
@@ -126,9 +150,34 @@ export default function ProductCard({ product, onClick, activeColor }) {
           {product.name}
         </Text>
 
-        <Text fontWeight="bold" fontSize="lg" color="brand.500">
-          {formatUSD(product.price)}
-        </Text>
+        <VStack align="start" spacing={0}>
+          <Text fontWeight="bold" fontSize="lg" color="brand.500">
+            {formatUSD(hasSale ? salePrice : price)}
+          </Text>
+          {hasSale && (
+            <Text
+              fontSize="sm"
+              color={subTextColor}
+              textDecoration="line-through"
+            >
+              {formatUSD(price)}
+            </Text>
+          )}
+        </VStack>
+
+        {showRating && (
+          <HStack spacing={1} color={textColor} fontSize="sm" lineHeight="1">
+            <Text as="span" fontWeight="bold">
+              ★
+            </Text>
+            <Text as="span" fontWeight="semibold">
+              {averageRating.toFixed(1)}
+            </Text>
+            <Text as="span" color={subTextColor}>
+              ({reviewCount})
+            </Text>
+          </HStack>
+        )}
 
         {/* 🎨 Colors */}
         {colors.length > 0 && (

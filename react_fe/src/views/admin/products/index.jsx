@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
   Box,
   Card,
@@ -46,6 +46,7 @@ export default function ProductPage() {
   const [isLoadingStats, setIsLoadingStats] = useState(false);
 
   const [products, setProducts] = useState([]);
+  const tableTopRef = useRef(null);
   const [expandedRows, setExpandedRows] = useState({});
   const [page, setPage] = useState(0);
   const [totalPages, setTotalPages] = useState(1);
@@ -248,6 +249,14 @@ export default function ProductPage() {
     getCoreRowModel: getCoreRowModel(),
   });
 
+  const handlePageChange = (nextPage) => {
+    setPage(nextPage);
+    tableTopRef.current?.scrollIntoView({
+      behavior: 'smooth',
+      block: 'start',
+    });
+  };
+
   return (
     <Box>
       {/* 🔽 Nút export PDF giống dashboard */}
@@ -337,7 +346,14 @@ export default function ProductPage() {
       />
 
       {/* Table */}
-      <Card w="100%" borderRadius="16px" boxShadow="md" bg={bgColor}>
+      <Card
+        ref={tableTopRef}
+        w="100%"
+        borderRadius="16px"
+        boxShadow="md"
+        bg={bgColor}
+        minH="690px"
+      >
         <Header
           searchInput={searchInput}
           setSearchInput={setSearchInput}
@@ -389,11 +405,12 @@ export default function ProductPage() {
         )}
       </Card>
 
-      {!isLoadingProducts && totalPages > 1 && (
+      {totalPages > 1 && (
         <Pagination
           page={page}
           totalPages={totalPages}
-          onPageChange={setPage}
+          onPageChange={handlePageChange}
+          isDisabled={isLoadingProducts}
         />
       )}
     </Box>

@@ -73,6 +73,19 @@ export default function Detail({ isOpen, onClose, order }) {
 
   if (!order) return null;
 
+  const subtotal =
+    Number(order.subtotal) ||
+    order.items?.reduce(
+      (sum, item) => sum + Number(item.price || 0) * Number(item.quantity || 0),
+      0,
+    ) ||
+    0;
+  const discountAmount = Number(order.discountValue || order.discountAmount || 0);
+  const hasDiscount = discountAmount > 0;
+  const couponCode = order.couponCode || order.discountCode || order.coupon?.code;
+  const totalAmount =
+    order.finalTotal ?? order.totalAmount ?? Math.max(subtotal - discountAmount, 0);
+
   const getStatusText = (status) => {
     switch (status) {
       case 'PENDING': return 'Chờ xử lý';
@@ -116,8 +129,18 @@ export default function Detail({ isOpen, onClose, order }) {
               <Text>Trạng thái đơn: {getStatusText(order.status)}</Text>
               <Text>Thanh toán: {getStatusText(order.paymentStatus)} ({order.paymentMethod || '-'})</Text>
               <Text>Ngày đặt: {order.createdAt ? new Date(order.createdAt).toLocaleString('vi-VN') : '-'}</Text>
-              <Text>Tạm tính: {formatUSD(order.subtotal || 0)}</Text>
-              <Text fontWeight="bold" color="brand.500">Tổng tiền: {formatUSD(order.finalTotal || order.totalAmount || 0)}</Text>
+              <Text>Tạm tính: {formatUSD(subtotal)}</Text>
+              {hasDiscount && (
+                <>
+                  <Text>Mã giảm giá: {couponCode || '-'}</Text>
+                  <Text color="red.500">
+                    Giảm giá: -{formatUSD(discountAmount)}
+                  </Text>
+                </>
+              )}
+              <Text fontWeight="bold" color="brand.500">
+                Tổng thanh toán: {formatUSD(totalAmount)}
+              </Text>
             </Box>
           </Flex>
 
