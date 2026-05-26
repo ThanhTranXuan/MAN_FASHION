@@ -31,6 +31,32 @@ import { goToSignIn, hideChatWidget, showChatWidget } from 'utils/NavigationHelp
 import { useNotification } from 'contexts/NotificationContext';
 import { useChat } from 'contexts/ChatContext';
 
+const API_BASE_URL =
+  process.env.REACT_APP_API_BASE_URL ||
+  process.env.REACT_APP_API_URL ||
+  'http://localhost:8080';
+
+const resolveAvatarUrl = (...candidates) => {
+  const raw = candidates.find(
+    (value) => typeof value === 'string' && value.trim(),
+  );
+
+  if (!raw) return undefined;
+
+  const value = raw.trim();
+  if (value.startsWith('//')) return `https:${value}`;
+  if (
+    value.startsWith('http://') ||
+    value.startsWith('https://') ||
+    value.startsWith('data:') ||
+    value.startsWith('blob:')
+  ) {
+    return value;
+  }
+
+  return `${API_BASE_URL}${value.startsWith('/') ? '' : '/'}${value}`;
+};
+
 export default function NavbarLinks() {
   const { colorMode, toggleColorMode } = useColorMode();
   const navbarIcon = useColorModeValue('gray.600', 'white');
@@ -68,6 +94,14 @@ export default function NavbarLinks() {
     isAuthenticated && ['ADMIN', 'EMPLOYEE'].includes(user?.roleName);
   const hasAdminUnread =
     isStaffUser && !isAdminRoute && (hasNewOrder || hasNewReturn || hasNewChat);
+  const avatarSrc = resolveAvatarUrl(
+    user?.avatarUrl,
+    user?.photoUrl,
+    user?.photoURL,
+    user?.picture,
+    user?.profileImage,
+    user?.imageUrl,
+  );
 
   const handleToggleDashboard = () => {
     hideChatWidget();
@@ -195,7 +229,8 @@ export default function NavbarLinks() {
           <PopoverTrigger>
             <Box position="relative">
               <Avatar
-                src={user?.avatarUrl}
+                src={avatarSrc}
+                referrerPolicy="no-referrer"
                 name={user?.fullName || user?.email?.split('@')[0] || 'User'}
                 size="sm"
                 w="40px"
