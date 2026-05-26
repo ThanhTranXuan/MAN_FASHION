@@ -3,6 +3,7 @@ package com.manfashion.springboot_be.controller.Authentication;
 import com.manfashion.springboot_be.DTO.ApiResponse.ApiResponse;
 import com.manfashion.springboot_be.DTO.Authentication.AuthenticationRequest;
 import com.manfashion.springboot_be.DTO.Authentication.AuthenticationResponse;
+import com.manfashion.springboot_be.DTO.Authentication.SocialLoginRequest;
 import com.manfashion.springboot_be.DTO.User.UserCreateRequest;
 import com.manfashion.springboot_be.DTO.User.UserResponse;
 import com.manfashion.springboot_be.service.Authentication.auth.AuthenticationService;
@@ -39,6 +40,15 @@ public class AuthController {
         AuthenticationResponse result = authenticationService.refreshToken(refreshToken);
         return ApiResponse.<AuthenticationResponse>builder()
                 .message(("auth.refresh.success"))
+                .data(result)
+                .build();
+    }
+
+    @PostMapping("/social-login")
+    public ApiResponse<AuthenticationResponse> socialLogin(@Valid @RequestBody SocialLoginRequest request) {
+        AuthenticationResponse result = authenticationService.socialLogin(request);
+        return ApiResponse.<AuthenticationResponse>builder()
+                .message(("auth.login.success"))
                 .data(result)
                 .build();
     }

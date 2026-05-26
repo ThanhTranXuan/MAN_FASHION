@@ -2,6 +2,7 @@ package com.manfashion.springboot_be.service.Authentication.auth;
 
 import com.manfashion.springboot_be.DTO.Authentication.AuthenticationRequest;
 import com.manfashion.springboot_be.DTO.Authentication.AuthenticationResponse;
+import com.manfashion.springboot_be.DTO.Authentication.SocialLoginRequest;
 import com.manfashion.springboot_be.config.JwtUtils;
 import com.manfashion.springboot_be.entity.PasswordResetToken;
 import com.manfashion.springboot_be.entity.Role;
@@ -14,8 +15,10 @@ import com.manfashion.springboot_be.repository.User.UserRepository;
 import com.manfashion.springboot_be.util.EmailTemplateBuilder;
 import com.manfashion.springboot_be.util.SendMail;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.Optional;
@@ -23,13 +26,17 @@ import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class AuthenticationServiceImpl implements AuthenticationService{
+    private static final String GOOGLE_PROVIDER = "GOOGLE";
+
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
     private final JwtUtils jwtUtils;
     private final PasswordEncoder passwordEncoder;
     private final PasswordResetTokenRepository passwordResetTokenRepository;
     private final SendMail sendMail;
+    private final FirebaseTokenVerifier firebaseTokenVerifier;
     @Override
     public AuthenticationResponse authenticate(AuthenticationRequest request) {
 
@@ -76,6 +83,74 @@ public class AuthenticationServiceImpl implements AuthenticationService{
         return AuthenticationResponse.builder().message("Token refreshed")
 
                 .accessToken(newAccess).refreshToken(newRefresh).build();
+    }
+
+    @Override
+    @Transactional
+    public AuthenticationResponse socialLogin(SocialLoginRequest request) {
+        String provider = Optional.ofNullable(request.getProvider())
+                .map(String::trim)
+                .map(String::toUpperCase)
+                .orElse(GOOGLE_PROVIDER);
+
+        if (!GOOGLE_PROVIDER.equals(provider)) {
+            throw new AppException(ErrorCode.AUTHENTICATION_FAILED);
+        }
+
+        FirebaseTokenVerifier.FirebaseToken token = firebaseTokenVerifier.verify(request.getIdToken());
+        log.info("Firebase Google token verified: uid={}, email={}", token.getUid(), token.getEmail());
+
+        User user = userRepository.findBySocialProviderAndSocialId(GOOGLE_PROVIDER, token.getUid())
+                .orElseGet(() -> linkOrCreateGoogleUser(token));
+
+        Role role = roleRepository.findById(user.getRole().getId())
+                .orElseThrow(() -> new AppException(ErrorCode.ROLE_NOT_FOUND));
+
+        String accessToken = jwtUtils.generateAccessToken(String.valueOf(user.getId()), role.getName());
+        String refreshToken = jwtUtils.generateRefreshToken(String.valueOf(user.getId()), role.getName());
+
+        return AuthenticationResponse.builder()
+                .message("Login success")
+                .accessToken(accessToken)
+                .refreshToken(refreshToken)
+                .build();
+    }
+
+    private User linkOrCreateGoogleUser(FirebaseTokenVerifier.FirebaseToken token) {
+        Optional<User> existingByEmail = userRepository.findByEmail(token.getEmail());
+
+        if (existingByEmail.isPresent()) {
+            User user = existingByEmail.get();
+            if (user.getSocialProvider() != null && !GOOGLE_PROVIDER.equalsIgnoreCase(user.getSocialProvider())) {
+                throw new AppException(ErrorCode.AUTHENTICATION_FAILED);
+            }
+            user.setSocialProvider(GOOGLE_PROVIDER);
+            user.setSocialId(token.getUid());
+            if ((user.getAvatarUrl() == null || user.getAvatarUrl().isBlank()) && token.getAvatarUrl() != null) {
+                user.setAvatarUrl(token.getAvatarUrl());
+            }
+            if ((user.getFullName() == null || user.getFullName().isBlank()) && token.getFullName() != null) {
+                user.setFullName(token.getFullName());
+            }
+            return userRepository.save(user);
+        }
+
+        Role userRole = roleRepository.findByName("USER")
+                .orElseThrow(() -> new AppException(ErrorCode.ROLE_NOT_FOUND));
+
+        String fallbackName = token.getEmail().split("@")[0];
+
+        User newUser = User.builder()
+                .email(token.getEmail())
+                .password(passwordEncoder.encode(UUID.randomUUID().toString()))
+                .fullName(Optional.ofNullable(token.getFullName()).filter(name -> !name.isBlank()).orElse(fallbackName))
+                .avatarUrl(token.getAvatarUrl())
+                .role(userRole)
+                .socialProvider(GOOGLE_PROVIDER)
+                .socialId(token.getUid())
+                .build();
+
+        return userRepository.save(newUser);
     }
 
     @Override
