@@ -50,10 +50,9 @@ const AuthService = {
   },
 
   // ==== SOCIAL LOGIN ====
-  socialLogin: async ({ idToken, provider, keepLoggedIn }) => {
+  socialLogin: async ({ idToken, keepLoggedIn }) => {
     const res = await ApiClient.post(ApiUrl.SOCIAL_LOGIN, {
       idToken,
-      provider,
     });
 
     const { accessToken, refreshToken /*, user*/ } = res.data.data || {};

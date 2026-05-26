@@ -8,6 +8,7 @@ import CollectionGridSection from './components/CollectionGridSection';
 import AboutSection from './components/AboutSection';
 import FeaturesSection from './components/FeaturesSection';
 import FashionShowcaseSection from './components/FashionShowcaseSection';
+import PromotionalBlogBanner from './components/PromotionalBlogBanner';
 import ProductSliderSection from './components/ProductSliderSection';
 import BlogSliderSection from './components/BlogSliderSection';
 import SubscribeSection from './components/SubscribeSection';
@@ -101,6 +102,7 @@ export default function Home() {
     >
       <HeroSection textColor={textColor} />
       <CollectionGridSection />
+      <PromotionalBlogBanner />
       <FashionShowcaseSection />
 
       {mainCategories.map((cat) => (
