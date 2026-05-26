@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import {
   Box,
   Heading,
@@ -18,6 +18,7 @@ import {
   Radio,
   Stack,
   Icon,
+  SimpleGrid,
 } from '@chakra-ui/react';
 import { FaMoneyBillWave, FaQrcode } from 'react-icons/fa';
 import { useAppToast } from 'utils/ToastHelper';
@@ -28,27 +29,61 @@ import OrderService from 'services/OrderService';
 import { useCart } from 'contexts/CartContext';
 import { useNavigate } from 'react-router-dom';
 import { v4 as uuidv4 } from 'uuid';
-import { useEffect} from 'react';
 
 export default function Summary({ cart, formData }) {
   const sectionBg = useColorModeValue('gray.50', 'navy.700');
   const textColor = useColorModeValue('secondaryGray.900', 'white');
   const borderColor = useColorModeValue('gray.200', 'gray.600');
+  const couponBg = useColorModeValue('white', 'navy.800');
+  const couponHoverBg = useColorModeValue('gray.100', 'whiteAlpha.100');
+  const couponSelectedBg = useColorModeValue('green.50', 'whiteAlpha.200');
   const toast = useAppToast();
   const navigate = useNavigate();
   const { clearCart } = useCart();
 
   const [couponCode, setCouponCode] = useState('');
   const [selectedCouponId, setSelectedCouponId] = useState(null);
+  const [availableCoupons, setAvailableCoupons] = useState([]);
   const [discountPercent, setDiscountPercent] = useState(0);
   const [applied, setApplied] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [isCouponLoading, setIsCouponLoading] = useState(false);
   const [paymentMethod, setPaymentMethod] = useState('VIETQR');
 
   const subtotal = cart.totalPrice || 0;
   const discountValue = subtotal * discountPercent;
-  const finalTotal = subtotal - discountValue;
+  const finalTotal = Math.max(subtotal - discountValue, 0);
   const [checkoutSessionId, setCheckoutSessionId] = useState('');
+
+  const isCouponUsable = useCallback((coupon) => {
+    if (!coupon) return false;
+
+    const now = new Date();
+    const active = coupon.active ?? coupon.isActive;
+    const usageLimit = Number(coupon.usageLimit || 0);
+    const usedCount = Number(coupon.usedCount || 0);
+    const isInUseLimit = usageLimit <= 0 || usedCount < usageLimit;
+
+    return (
+      active !== false &&
+      isInUseLimit &&
+      (!coupon.startDate || now >= new Date(coupon.startDate)) &&
+      (!coupon.endDate || now <= new Date(coupon.endDate))
+    );
+  }, []);
+
+  const applyCoupon = useCallback((coupon, showToast = true) => {
+    setCouponCode(coupon.code || '');
+    setSelectedCouponId(coupon.id);
+    setDiscountPercent((Number(coupon.discountValue) || 0) / 100);
+    setApplied(true);
+
+    if (showToast) {
+      toast.success(
+        `Áp dụng mã giảm giá thành công! Giảm ${coupon.discountValue || 0}%`,
+      );
+    }
+  }, [toast]);
 
   useEffect(() => {
     let sessionId = localStorage.getItem('checkoutSessionId');
@@ -64,13 +99,45 @@ export default function Summary({ cart, formData }) {
     setCheckoutSessionId(sessionId);
   }, []);
 
+  useEffect(() => {
+    let ignore = false;
+
+    const loadCoupons = async () => {
+      setIsCouponLoading(true);
+      try {
+        const { data } = await CouponService.getAll({ page: 0, size: 20 });
+        const coupons = (data?.content || []).filter(isCouponUsable);
+
+        if (!ignore) {
+          setAvailableCoupons(coupons);
+        }
+      } catch (err) {
+        if (!ignore) {
+          setAvailableCoupons([]);
+        }
+      } finally {
+        if (!ignore) {
+          setIsCouponLoading(false);
+        }
+      }
+    };
+
+    loadCoupons();
+
+    return () => {
+      ignore = true;
+    };
+  }, [isCouponUsable]);
+
   const handleApplyCoupon = async () => {
     const code = couponCode.trim().toUpperCase();
     if (!code) return toast.info('Vui lòng nhập mã giảm giá.');
 
     try {
-      const { data } = await CouponService.getAll({ code });
-      const coupon = data?.content?.find((c) => c.code === code && c.active);
+      const { data } = await CouponService.getAll({ keyword: code, size: 10 });
+      const coupon = data?.content?.find(
+        (c) => c.code?.toUpperCase() === code && isCouponUsable(c),
+      );
 
       if (!coupon) {
         setDiscountPercent(0);
@@ -258,6 +325,56 @@ export default function Summary({ cart, formData }) {
             {applied ? 'Đã Áp Dụng' : 'Áp Dụng'}
           </Button>
         </HStack>
+
+        {(isCouponLoading || availableCoupons.length > 0) && (
+          <Box mt={3}>
+            <Text fontSize="sm" fontWeight="semibold" mb={2} color={textColor}>
+              Mã giảm giá hiện có
+            </Text>
+            {isCouponLoading ? (
+              <Text fontSize="sm" color="gray.500">
+                Đang tải mã giảm giá...
+              </Text>
+            ) : (
+              <SimpleGrid columns={{ base: 1, sm: 2 }} spacing={2}>
+                {availableCoupons.map((coupon) => {
+                  const isSelected = selectedCouponId === coupon.id;
+
+                  return (
+                    <Button
+                      key={coupon.id}
+                      type="button"
+                      variant="outline"
+                      h="auto"
+                      minH="58px"
+                      px={3}
+                      py={2}
+                      justifyContent="space-between"
+                      borderColor={isSelected ? 'green.400' : borderColor}
+                      bg={isSelected ? couponSelectedBg : couponBg}
+                      _hover={{ bg: couponHoverBg }}
+                      onClick={() => applyCoupon(coupon)}
+                    >
+                      <Box textAlign="left" minW={0}>
+                        <Text fontSize="sm" fontWeight="bold" noOfLines={1}>
+                          {coupon.code}
+                        </Text>
+                        <Text fontSize="xs" color="gray.500" noOfLines={1}>
+                          Giảm {coupon.discountValue || 0}%
+                        </Text>
+                      </Box>
+                      {isSelected && (
+                        <Badge colorScheme="green" flexShrink={0}>
+                          Đã chọn
+                        </Badge>
+                      )}
+                    </Button>
+                  );
+                })}
+              </SimpleGrid>
+            )}
+          </Box>
+        )}
       </Box>
 
       {/* Total Amount */}
