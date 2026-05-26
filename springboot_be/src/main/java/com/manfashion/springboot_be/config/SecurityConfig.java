@@ -28,7 +28,10 @@ public class SecurityConfig {
             "/api/users/create",
             "/ws/**",
             "/api/v1/bot/**",
-            "/api/v1/newsletter/subscribe"
+            "/api/v1/newsletter/subscribe",
+            "/v3/api-docs/**",
+            "/swagger-ui/**",
+            "/swagger-ui.html"
     };
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
