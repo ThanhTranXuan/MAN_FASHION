@@ -38,6 +38,10 @@ const AuthService = {
 
     if (accessToken && refreshToken) {
       const storage = getStorage(keepLoggedIn);
+      const otherStorage = keepLoggedIn ? sessionStorage : localStorage;
+      otherStorage.removeItem('access_token');
+      otherStorage.removeItem('refresh_token');
+      otherStorage.removeItem('keepLoggedIn');
       storage.setItem('access_token', accessToken);
       storage.setItem('refresh_token', refreshToken);
       storage.setItem('keepLoggedIn', keepLoggedIn.toString());
@@ -58,6 +62,10 @@ const AuthService = {
     const { accessToken, refreshToken /*, user*/ } = res.data.data || {};
     if (accessToken && refreshToken) {
       const storage = getStorage(keepLoggedIn);
+      const otherStorage = keepLoggedIn ? sessionStorage : localStorage;
+      otherStorage.removeItem('access_token');
+      otherStorage.removeItem('refresh_token');
+      otherStorage.removeItem('keepLoggedIn');
       storage.setItem('access_token', accessToken);
       storage.setItem('refresh_token', refreshToken);
       storage.setItem('keepLoggedIn', keepLoggedIn.toString());

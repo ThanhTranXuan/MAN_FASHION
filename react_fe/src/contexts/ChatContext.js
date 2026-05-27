@@ -32,6 +32,29 @@ const safeJsonParse = (value, fallback) => {
   }
 };
 
+const mergeMessagesById = (currentMessages, incomingMessages) => {
+  const merged = [...currentMessages];
+
+  incomingMessages.forEach((incoming) => {
+    if (!incoming) return;
+    const existingIndex = merged.findIndex((message) => {
+      if (message.id && incoming.id && message.id === incoming.id) return true;
+      return (
+        String(message.id || '').startsWith('temp-shop-') &&
+        message.senderType === incoming.senderType &&
+        message.content === incoming.content
+      );
+    });
+
+    if (existingIndex >= 0) merged[existingIndex] = incoming;
+    else merged.push(incoming);
+  });
+
+  return merged.sort(
+    (a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0),
+  );
+};
+
 // const ADMIN_LAST_VISIT_KEY = 'chat:adminLastVisit';
 
 export function ChatProvider({ children }) {
@@ -48,6 +71,7 @@ export function ChatProvider({ children }) {
   const [userHasUnread, setUserHasUnread] = useState(false);
   const [isChatOpen, setIsChatOpen] = useState(false); // user popup open/close
   const [botMessages, setBotMessages] = useState([]);
+  const [isBotLoading, setIsBotLoading] = useState(false);
   const [latestProductSuggestions, setLatestProductSuggestions] = useState([]);
   // ====== ADMIN BADGE ======
   const [hasNewChat, setHasNewChat] = useState(false);
@@ -189,14 +213,15 @@ useEffect(() => {
       // 1. Optimistic update → tin mới hiện ngay ở dưới cùng
       setUserMessages((prev) => {
         if (prev.some((m) => m.id === data.id)) return prev;
-        return [...prev, data];
+        return mergeMessagesById(prev, [data]);
       });
 
       // 2. Silent refresh history từ API (page 0)
       try {
         const res = await ChatService.messages(convId, 0, 50);
         const page = res.data;
-        setUserMessages(page.content || []);
+        const history = page.content || [];
+        setUserMessages((prev) => mergeMessagesById(prev, history));
       } catch (err) {
         console.error('❌ Failed to refresh user messages:', err);
       }
@@ -237,6 +262,16 @@ useEffect(() => {
     };
 
     if (finalMode === 'SHOP') {
+      if (!isStaff) {
+        setUserMessages((prev) =>
+          mergeMessagesById(prev, [
+            {
+              ...tempMsg,
+              id: `temp-shop-${Date.now()}`,
+            },
+          ]),
+        );
+      }
       ChatSocketHelper.sendMessage(conversationId, content, 'SHOP');
       // KHÔNG CẦN OPTIMISTIC UI NỮA:
       // WebSocket server sẽ echo lại message (cùng ID thật).
@@ -247,7 +282,8 @@ useEffect(() => {
         : '';
       const messageWithContext = `${content}${contextHint}`;
       // LUỒNG BOT: Lưu vào ngăn kéo botMessages
-      setBotMessages((prev) => [tempMsg, ...prev]); 
+      setBotMessages((prev) => [tempMsg, ...prev]);
+      setIsBotLoading(true);
 
       try {
         const currentUserIdHex = user?.id ? user.id.toString(16) : "UNKNOWN";
@@ -263,14 +299,16 @@ useEffect(() => {
         setBotMessages((prev) => [botReply, ...prev]);
       } catch (err) {
         console.error('Bot API Error:', err);
-        setBotMessages((prev) => [...prev, { // Lỗi cũng hiển thị ở tab Bot
+        setBotMessages((prev) => [{ // Lỗi cũng hiển thị ở tab Bot
           id: `err-${Date.now()}`,
           content: 'Không thể gửi tin nhắn. Vui lòng thử lại.',
           senderType: 'BOT',
           senderName: 'Trendify Bot',
           createdAt: new Date().toISOString(),
           chatChannel: 'BOT'
-        }]);
+        }, ...prev]);
+      } finally {
+        setIsBotLoading(false);
       }
     }
   };
@@ -300,6 +338,7 @@ useEffect(() => {
         setIsChatOpen,
         botMessages,         // THÊM DÒNG NÀY
         setBotMessages,
+        isBotLoading,
         latestProductSuggestions,
       }}
     >

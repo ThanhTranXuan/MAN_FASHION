@@ -23,6 +23,11 @@ function connect() {
 
   stompClient.onConnect = () => {
     console.log('🟢 Chat WebSocket connected');
+    const existingSubscriptions = Array.from(subscribedTopics.entries());
+    existingSubscriptions.forEach(([topic, callback]) => {
+      stompClient.subscribe(topic, callback);
+    });
+
     // Subscribe any pending topics that were registered before connection
     const queued = pendingSubscriptions;
     pendingSubscriptions = [];
@@ -31,10 +36,6 @@ function connect() {
         stompClient.subscribe(topic, callback);
         subscribedTopics.set(topic, callback);
       }
-    });
-    // Re-subscribe to existing topics on reconnect
-    subscribedTopics.forEach((callback, topic) => {
-      stompClient.subscribe(topic, callback);
     });
   };
 

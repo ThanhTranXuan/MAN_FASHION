@@ -20,6 +20,7 @@ import {
 } from '@chakra-ui/react';
 import { formatUSD } from 'utils/FormatHelper';
 import ProductService from 'services/ProductService';
+import { translateOrderStatus, translatePaymentMethod } from 'utils/OrderDisplayHelper';
 
 export default function Detail({ isOpen, onClose, order }) {
   const borderColor = useColorModeValue('gray.200', 'gray.700');
@@ -99,7 +100,7 @@ export default function Detail({ isOpen, onClose, order }) {
       case 'FAILED': return 'Thất bại';
       case 'REFUNDED': return 'Đã hoàn tiền';
       case 'RETURN': return 'Hoàn trả';
-      default: return status || '-';
+      default: return translateOrderStatus(status);
     }
   };
 
@@ -127,7 +128,7 @@ export default function Detail({ isOpen, onClose, order }) {
                 Thông tin đơn hàng
               </Text>
               <Text>Trạng thái đơn: {getStatusText(order.status)}</Text>
-              <Text>Thanh toán: {getStatusText(order.paymentStatus)} ({order.paymentMethod || '-'})</Text>
+              <Text>Thanh toán: {getStatusText(order.paymentStatus)} ({translatePaymentMethod(order.paymentMethod)})</Text>
               <Text>Ngày đặt: {order.createdAt ? new Date(order.createdAt).toLocaleString('vi-VN') : '-'}</Text>
               <Text>Tạm tính: {formatUSD(subtotal)}</Text>
               {hasDiscount && (

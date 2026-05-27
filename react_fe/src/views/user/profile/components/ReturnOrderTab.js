@@ -14,6 +14,7 @@ import {
   useColorModeValue,
 } from '@chakra-ui/react';
 import { formatUSD } from 'utils/FormatHelper';
+import { translateReturnStatus } from 'utils/OrderDisplayHelper';
 
 export default function ReturnOrderTab({
   returns,
@@ -104,7 +105,7 @@ export default function ReturnOrderTab({
                   </Text>
                 </Box>
                 <Badge colorScheme={getStatusColor(ro.status)} px={3} py={1}>
-                  {ro.status}
+                  {translateReturnStatus(ro.status)}
                 </Badge>
               </Flex>
 

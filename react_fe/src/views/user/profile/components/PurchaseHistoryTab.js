@@ -32,6 +32,7 @@ import OrderService from 'services/OrderService';
 import { useAppToast } from 'utils/ToastHelper';
 import { formatUSD } from 'utils/FormatHelper';
 import { PRODUCT_PLACEHOLDER, resolveImageUrl } from 'utils/ImageHelper';
+import { translateOrderStatus } from 'utils/OrderDisplayHelper';
 
 export default function PurchaseHistoryTab({
   orders,
@@ -224,7 +225,7 @@ export default function PurchaseHistoryTab({
                   </Text>
                 </Box>
                 <Badge colorScheme={getStatusColor(order.status)} px={3} py={1}>
-                  {order.status}
+                  {translateOrderStatus(order.status)}
                 </Badge>
               </Flex>
 

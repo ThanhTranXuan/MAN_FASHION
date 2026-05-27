@@ -41,6 +41,7 @@ export default function ChatWidget({ hidden = false }) {
     sendMessage,
     setIsChatOpen,
     botMessages,
+    isBotLoading,
   } = useChat();
 
   const [isOpen, setIsOpen] = useState(false);
@@ -69,6 +70,15 @@ export default function ChatWidget({ hidden = false }) {
   const chatUserKey = user?.id || user?.email || user?.username || null;
   const chatLastReadKey = chatUserKey ? `chat:lastReadAt:${chatUserKey}` : null;
 
+  const scrollMessagesToBottom = (behavior = 'smooth') => {
+    const el = messagesContainerRef.current;
+    if (!el) return;
+    el.scrollTo({
+      top: el.scrollHeight,
+      behavior,
+    });
+  };
+
   useEffect(() => {
     if (!hidden) {
       setIsWidgetHidden(false);
@@ -81,30 +91,17 @@ export default function ChatWidget({ hidden = false }) {
 
   // ✅ Auto-scroll to bottom when messages arrive (FIXED: Messages must show at bottom)
   useEffect(() => {
-    if (messagesContainerRef.current) {
-      setTimeout(() => {
-        messagesContainerRef.current.scrollTop =
-          messagesContainerRef.current.scrollHeight;
-      }, 0);
-    }
-  }, [userMessages]);
+    window.requestAnimationFrame(() => scrollMessagesToBottom('smooth'));
+  }, [userMessages, botMessages, isBotLoading]);
 
   // Original open popup scroll
   useEffect(() => {
-    if (isOpen && messagesContainerRef.current) {
-      messagesContainerRef.current.scrollTop =
-        messagesContainerRef.current.scrollHeight;
-    }
+    if (isOpen) window.requestAnimationFrame(() => scrollMessagesToBottom('auto'));
   }, [isOpen]);
 
   // ✅ Auto-scroll when switching between BOT and SHOP tabs
   useEffect(() => {
-    if (messagesContainerRef.current) {
-      setTimeout(() => {
-        messagesContainerRef.current.scrollTop =
-          messagesContainerRef.current.scrollHeight;
-      }, 0);
-    }
+    window.requestAnimationFrame(() => scrollMessagesToBottom('auto'));
   }, [chatMode]);
 
   const handleOpenPopup = () => {
@@ -313,6 +310,7 @@ export default function ChatWidget({ hidden = false }) {
             display="flex"
             flexDir="column"
             overflow="hidden"
+            fontFamily="inherit"
             initial={{ opacity: 0, y: 18 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 14 }}
@@ -404,6 +402,7 @@ export default function ChatWidget({ hidden = false }) {
             overflowY="auto"
             direction="column"
             gap={4}
+            fontFamily="inherit"
           >
             <VStack spacing={4} align="stretch">
               {[...(chatMode === 'BOT' ? botMessages : userMessages)].reverse().map((m) => {
@@ -441,6 +440,9 @@ export default function ChatWidget({ hidden = false }) {
                       boxShadow="sm"
                       borderWidth={borderWidth}
                       borderColor={borderColor}
+                      fontFamily="inherit"
+                      fontSize="14px"
+                      lineHeight="1.55"
                     >
                       {!isMine && (
                         <Text
@@ -459,6 +461,31 @@ export default function ChatWidget({ hidden = false }) {
                   </Flex>
                 );
               })}
+              {chatMode === 'BOT' && isBotLoading && (
+                <Flex justify="flex-start">
+                  <Box
+                    maxW="88%"
+                    px={4}
+                    py={3}
+                    borderRadius="xl"
+                    bg={botBgColor}
+                    color={botTextColor}
+                    boxShadow="sm"
+                    borderWidth="1px"
+                    borderColor={botBorderColor}
+                    fontFamily="inherit"
+                    fontSize="14px"
+                    lineHeight="1.55"
+                  >
+                    <Text fontSize="xs" opacity={0.9} mb={1} fontWeight="bold">
+                      Trendify Bot (Trợ lý)
+                    </Text>
+                    <Text fontSize="sm" lineHeight="1.5">
+                      Đang trả lời...
+                    </Text>
+                  </Box>
+                </Flex>
+              )}
             </VStack>
           </Flex>
 

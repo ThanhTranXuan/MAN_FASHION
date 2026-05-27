@@ -15,6 +15,7 @@ import { createColumnHelper } from '@tanstack/react-table';
 import { ChevronDownIcon } from '@chakra-ui/icons';
 import StatusFilter from './StatusFilter';
 import { formatUSD } from 'utils/FormatHelper';
+import { translatePaymentMethod } from 'utils/OrderDisplayHelper';
 
 const columnHelper = createColumnHelper();
 
@@ -87,7 +88,7 @@ export default function Columns({
             >
               <Flex align="center" gap={1.5}>
                 <FaQrcode />
-                <Text fontWeight="600">VIETQR</Text>
+                <Text fontWeight="600">{translatePaymentMethod(method)}</Text>
               </Flex>
             </Badge>
           );
@@ -103,7 +104,7 @@ export default function Columns({
             >
               <Flex align="center" gap={1.5}>
                 <FaMoneyBillWave />
-                <Text fontWeight="600">COD</Text>
+                <Text fontWeight="600">{translatePaymentMethod(method)}</Text>
               </Flex>
             </Badge>
           );
