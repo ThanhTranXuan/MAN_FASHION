@@ -1,8 +1,11 @@
 package com.manfashion.springboot_be.controller.Chat;
 
+import com.manfashion.springboot_be.config.JwtUtils;
 import com.manfashion.springboot_be.service.Chat.DifyBotService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.Instant;
@@ -14,15 +17,49 @@ import java.util.UUID;
 public class BotController {
 
     private final DifyBotService botService;
+    private final JwtUtils jwtUtils;
 
-    public BotController(DifyBotService botService) {
+    public BotController(DifyBotService botService, JwtUtils jwtUtils) {
         this.botService = botService;
+        this.jwtUtils = jwtUtils;
+    }
+
+    private Integer getCurrentUserIdOrNull(String authorizationHeader) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String principal = authentication != null && authentication.getPrincipal() != null
+                ? String.valueOf(authentication.getPrincipal())
+                : null;
+
+        if (principal != null && !"guest".equalsIgnoreCase(principal)) {
+            try {
+                return Integer.valueOf(principal);
+            } catch (NumberFormatException ignored) {
+                // Fall through to direct Authorization parsing below.
+            }
+        }
+
+        if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
+            String token = authorizationHeader.substring(7);
+            try {
+                if (jwtUtils.validateJwtToken(token)) {
+                    return Integer.valueOf(jwtUtils.getUserIdFromJwtToken(token));
+                }
+            } catch (Exception ex) {
+                System.err.println("Bot auth debug: Authorization header exists but token is invalid: " + ex.getMessage());
+            }
+        }
+
+        System.out.println("Bot auth debug: missing logged-in user. hasAuthorization="
+                + (authorizationHeader != null && !authorizationHeader.isBlank())
+                + ", principal=" + principal);
+        return null;
     }
 
     @PostMapping("/chat/{conversationId}")
     public ResponseEntity<?> chatWithBot(
             @PathVariable String conversationId,
             @RequestBody Map<String, String> request,
+            @RequestHeader(value = "Authorization", required = false) String authorizationHeader,
             @RequestHeader(value = "X-User-Id-Hex", required = false, defaultValue = "UNKNOWN") String userIdHex) {
 
         try {
@@ -31,7 +68,7 @@ public class BotController {
             String botSessionId = "UNKNOWN".equals(userIdHex)
                     ? conversationId
                     : userIdHex + ":" + conversationId;
-            String botReply = botService.askBot(botSessionId, userMessage);
+            String botReply = botService.askBot(botSessionId, userMessage, getCurrentUserIdOrNull(authorizationHeader));
 
             // Đóng gói DTO khớp với Frontend ReactJS
             Map<String, Object> response = Map.of(
