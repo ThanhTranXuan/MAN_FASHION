@@ -8,6 +8,7 @@ import java.util.Optional;
 
 public interface ProductImageRepository extends JpaRepository<ProductImage,Integer> {
     List<ProductImage> findByProductIdAndDeletedAtIsNull(Integer productId);
+    List<ProductImage> findByProductIdInAndDeletedAtIsNull(List<Integer> productIds);
     List<ProductImage> findByProductIdAndColor(Integer productId, String color);
     List<ProductImage> findByProductIdAndColorIgnoreCaseAndDeletedAtIsNull(Integer productId, String color);
     List<ProductImage> findByProductIdAndColorIsNull(Integer productId);

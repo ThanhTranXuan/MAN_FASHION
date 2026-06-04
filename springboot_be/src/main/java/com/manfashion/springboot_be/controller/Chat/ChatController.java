@@ -10,12 +10,11 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.Payload;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
-import java.security.Principal;
 import java.util.Map;
 
 @RestController
@@ -43,6 +42,11 @@ public class ChatController {
         }
     }
     // 1. Khởi tạo Chat
+    private boolean isStaff(Authentication auth) {
+        return auth != null && auth.getAuthorities().stream()
+                .anyMatch(r -> r.getAuthority().equals("ADMIN") || r.getAuthority().equals("EMPLOYEE"));
+    }
+
     @PostMapping("/start")
     public ApiResponse<ChatConversationSummary> start() {
         Integer userId = getCurrentUserId();
@@ -69,16 +73,19 @@ public class ChatController {
     public ApiResponse<Page<ChatMessageResponse>> getMessages(
             @PathVariable Integer conversationId,
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "30") int size
+            @RequestParam(defaultValue = "30") int size,
+            Authentication auth
     ) {
+        Integer userId = getCurrentUserId();
         return ApiResponse.<Page<ChatMessageResponse>>builder()
                 .message("chat.get_messages.success")
-                .data(chatService.getMessagesPaged(conversationId, page, size))
+                .data(chatService.getMessagesPaged(conversationId, userId, isStaff(auth), page, size))
                 .build();
     }
 
     // 4. Admin lấy danh sách phòng chat
     @GetMapping("/admin/conversations")
+    @PreAuthorize("hasAnyAuthority('ADMIN','EMPLOYEE')")
     public ApiResponse<Page<ChatConversationSummary>> getAllForStaff(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "20") int size
@@ -98,9 +105,7 @@ public class ChatController {
         Integer senderId = getCurrentUserId();
 
         // Phân quyền: Xác định ai đang gửi
-        boolean isStaff = auth.getAuthorities().stream()
-                .anyMatch(r -> r.getAuthority().equals("ADMIN") || r.getAuthority().equals("EMPLOYEE"));
-        String senderType = isStaff ? "EMPLOYEE" : "USER";
+        String senderType = isStaff(auth) ? "EMPLOYEE" : "USER";
 
         ChatMessageResponse savedMessage = chatService.processAndBroadcastMessage(
                 Integer.valueOf(req.getConversationId()),
@@ -117,9 +122,9 @@ public class ChatController {
 
     // 6. Đánh dấu đã đọc
     @PutMapping("/mark-read")
-    public ApiResponse<Map<String, Boolean>> markRead(@RequestBody MarkReadRequest req) {
+    public ApiResponse<Map<String, Boolean>> markRead(@RequestBody MarkReadRequest req, Authentication auth) {
         Integer userId = getCurrentUserId();
-        chatService.markConversationAsRead(req.getConversationId(), userId);
+        chatService.markConversationAsRead(req.getConversationId(), userId, isStaff(auth));
         return ApiResponse.<Map<String, Boolean>>builder()
                 .message("Đã cập nhật trạng thái đọc")
                 .data(Map.of("success", true))
@@ -133,9 +138,7 @@ public class ChatController {
         Integer senderId = Integer.valueOf((String) auth.getPrincipal());
 
         // 2. Xác định vai trò để gán senderType
-        boolean isStaff = auth.getAuthorities().stream()
-                .anyMatch(a -> a.getAuthority().equals("ADMIN") || a.getAuthority().equals("EMPLOYEE"));
-        String senderType = isStaff ? "EMPLOYEE" : "USER";
+        String senderType = isStaff(auth) ? "EMPLOYEE" : "USER";
 
         // 3. Gọi Service để lưu vào MySQL và Broadcast ngược lại
         // Dùng đúng hàm chatService mà bạn đã viết logic xử lý

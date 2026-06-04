@@ -1,9 +1,9 @@
 package com.manfashion.springboot_be.controller.Payment;
 
 import com.manfashion.springboot_be.entity.Order;
-import com.manfashion.springboot_be.entity.Payment;
 import com.manfashion.springboot_be.repository.Order.OrderRepository;
 import com.manfashion.springboot_be.service.Cart.CartService;
+import com.manfashion.springboot_be.service.Payment.PaymentMarkResult;
 import com.manfashion.springboot_be.service.Payment.PaymentService;
 import com.manfashion.springboot_be.util.EmailTemplateBuilder;
 import com.manfashion.springboot_be.util.SendMail;
@@ -49,16 +49,21 @@ public class PayOSWebhookController {
             if ("00".equals(code)) {
                 String transactionId = data.getReference();
 
-                Payment payment = paymentService.markAsPaid(paymentOrderCode, transactionId);
+                PaymentMarkResult markResult = paymentService.markAsPaid(paymentOrderCode, transactionId);
 
-                if (payment == null) {
+                if (markResult == null || markResult.payment() == null) {
                     log.warn("Webhook PayOS: không tìm thấy Payment cho paymentOrderCode {}, bỏ qua.", paymentOrderCode);
                     return ResponseEntity.ok("OK");
                 }
 
-                Order order = orderRepository.findById(payment.getOrderId()).orElse(null);
+                Order order = orderRepository.findById(markResult.payment().getOrderId()).orElse(null);
                 if (order == null) {
-                    log.warn("Không tìm thấy đơn hàng với id: {}", payment.getOrderId());
+                    log.warn("Không tìm thấy đơn hàng với id: {}", markResult.payment().getOrderId());
+                    return ResponseEntity.ok("OK");
+                }
+
+                if (!markResult.newlyPaid()) {
+                    log.info("Webhook PayOS lặp lại cho đơn {}, bỏ qua side effect", order.getOrderCode());
                     return ResponseEntity.ok("OK");
                 }
 

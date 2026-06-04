@@ -5,6 +5,8 @@ import com.manfashion.springboot_be.DTO.Order.OrderItemResponse;
 import com.manfashion.springboot_be.DTO.Order.OrderRequest;
 import com.manfashion.springboot_be.DTO.Order.OrderResponse;
 import com.manfashion.springboot_be.entity.*;
+import com.manfashion.springboot_be.exception.AppException;
+import com.manfashion.springboot_be.exception.ErrorCode;
 import com.manfashion.springboot_be.mapper.OrderItemMapper;
 import com.manfashion.springboot_be.mapper.OrderMapper;
 import com.manfashion.springboot_be.repository.Coupon.CouponRepository;
@@ -27,7 +29,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
-import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Service;
 import vn.payos.model.v2.paymentRequests.PaymentLinkItem;
 
@@ -35,9 +36,12 @@ import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 
 
@@ -65,7 +69,7 @@ public class OrderServiceImpl implements OrderService {
     @Transactional
     public OrderResponse createFromCart(Integer userId, OrderRequest req) {
         if (req.getItems() == null || req.getItems().isEmpty()) {
-            throw new RuntimeException("Cart is empty");
+            throw new AppException(ErrorCode.ORDER_ITEMS_EMPTY);
         }
 
         String checkoutSessionId = req.getCheckoutSessionId();
@@ -109,20 +113,23 @@ public class OrderServiceImpl implements OrderService {
             }
 
             int quantity = ci.getQuantity();
-            int currentStock = variant.getStock() == null ? 0 : variant.getStock();
-            if (currentStock < quantity) {
-                throw new RuntimeException("Not enough stock for product variant: " + variantId);
+            if (quantity <= 0) {
+                throw new RuntimeException("Invalid quantity");
             }
 
-            variant.setStock(currentStock - quantity);
-            variantRepo.save(variant);
+            int updatedRows = variantRepo.decrementStockIfAvailable(variantId, quantity);
+            if (updatedRows == 0) {
+                throw new AppException(ErrorCode.PRODUCT_OUT_OF_STOCK);
+            }
 
-            double priceVND = getProductPrice(productId);
+            Product product = productRepo.findById(productId)
+                    .orElseThrow(() -> new RuntimeException("Product not found: " + productId));
+            double priceVND = Optional.ofNullable(product.getPrice()).orElse(0.0);
             subtotal += quantity * priceVND;
 
             // SỬA Ở ĐÂY: Dùng Object Product và Variant
             orderItems.add(OrderItem.builder()
-                    .product(Product.builder().id(productId).build())
+                    .product(product)
                     .variant(variant)
                     .quantity(quantity)
                     .price(priceVND)
@@ -142,20 +149,21 @@ public class OrderServiceImpl implements OrderService {
         if (req.getCouponId() != null && !req.getCouponId().isBlank()) {
             Integer couponId = Integer.valueOf(req.getCouponId());
             appliedCoupon = couponRepo.findById(couponId)
-                    .orElseThrow(() -> new RuntimeException("Invalid coupon"));
+                    .orElseThrow(() -> new AppException(ErrorCode.VOUCHER_INVALID));
 
             LocalDateTime now = LocalDateTime.now();
             if ((appliedCoupon.getStartDate() != null && now.isBefore(appliedCoupon.getStartDate()))
                     || (appliedCoupon.getEndDate() != null && now.isAfter(appliedCoupon.getEndDate()))) {
-                throw new RuntimeException("Coupon invalid or expired");
+                throw new AppException(ErrorCode.VOUCHER_INVALID);
             }
 
             discountPercent = Optional.ofNullable(appliedCoupon.getDiscountValue()).orElse(0.0);
             discountValue = subtotal * discountPercent / 100.0;
 
-            Integer usedCount = appliedCoupon.getUsedCount() == null ? 0 : appliedCoupon.getUsedCount();
-            appliedCoupon.setUsedCount(usedCount + 1);
-            couponRepo.save(appliedCoupon);
+            int updatedCoupon = couponRepo.incrementUsedCountIfAvailable(couponId);
+            if (updatedCoupon == 0) {
+                throw new AppException(ErrorCode.VOUCHER_USAGE_LIMIT_EXCEEDED);
+            }
         }
 
         double finalTotal = subtotal - discountValue;
@@ -214,7 +222,6 @@ public class OrderServiceImpl implements OrderService {
         try {
             payResult = payOSService.createPaymentLink(orderCode, amountVND, itemsForPayOS);
         } catch (Exception e) {
-            rollbackStock(orderItems);
             throw new RuntimeException("Thanh toán tạm thời không khả dụng. Vui lòng thử lại sau.", e);
         }
 
@@ -234,7 +241,7 @@ public class OrderServiceImpl implements OrderService {
     @Override
     public Page<OrderResponse> getOrdersByUserId(Integer userId, Pageable pageable) {
         Page<Order> page = orderRepo.findByUserIdOrderByCreatedAtDesc(userId, pageable);
-        return page.map(o -> toResponse(o, orderItemRepo.findByOrderId(o.getId())));
+        return mapOrderPage(page, pageable);
     }
 
     @Override
@@ -311,11 +318,7 @@ public class OrderServiceImpl implements OrderService {
         };
 
         Page<Order> page = orderRepo.findAll(spec, pageable);
-        List<OrderResponse> result = page.getContent().stream()
-                .map(o -> toResponse(o, orderItemRepo.findByOrderId(o.getId())))
-                .toList();
-
-        return new PageImpl<>(result, pageable, page.getTotalElements());
+        return mapOrderPage(page, pageable);
     }
 
     @Override
@@ -331,12 +334,49 @@ public class OrderServiceImpl implements OrderService {
 
     // ================== HELPER METHODS ==================
 
-    private double getProductPrice(Integer productId) {
-        Product p = productRepo.findById(productId).orElseThrow(() -> new RuntimeException("Product not found: " + productId));
-        return Optional.ofNullable(p.getPrice()).orElse(0.0);
+    private OrderResponse toResponse(Order o, List<OrderItem> items) {
+        return toResponse(o, items, null, null);
     }
 
-    private OrderResponse toResponse(Order o, List<OrderItem> items) {
+    private Page<OrderResponse> mapOrderPage(Page<Order> page, Pageable pageable) {
+        List<Order> orders = page.getContent();
+        if (orders.isEmpty()) {
+            return new PageImpl<>(Collections.emptyList(), pageable, page.getTotalElements());
+        }
+
+        List<Integer> orderIds = orders.stream().map(Order::getId).toList();
+        List<OrderItem> allItems = orderItemRepo.findByOrderIdIn(orderIds);
+
+        Map<Integer, List<OrderItem>> itemsByOrderId = allItems.stream()
+                .collect(Collectors.groupingBy(item -> item.getOrder().getId()));
+
+        Map<Integer, Payment> paymentByOrderId = paymentRepo.findByOrderIdIn(orderIds).stream()
+                .collect(Collectors.toMap(Payment::getOrderId, payment -> payment, (first, ignored) -> first));
+
+        List<Integer> productIds = allItems.stream()
+                .map(item -> item.getProduct() != null ? item.getProduct().getId() : null)
+                .filter(id -> id != null)
+                .distinct()
+                .toList();
+
+        Map<Integer, List<ProductImage>> imagesByProductId = productIds.isEmpty()
+                ? Collections.emptyMap()
+                : productImageRepo.findByProductIdInAndDeletedAtIsNull(productIds).stream()
+                .collect(Collectors.groupingBy(image -> image.getProduct().getId()));
+
+        List<OrderResponse> result = orders.stream()
+                .map(order -> toResponse(
+                        order,
+                        itemsByOrderId.getOrDefault(order.getId(), Collections.emptyList()),
+                        paymentByOrderId.get(order.getId()),
+                        imagesByProductId
+                ))
+                .toList();
+
+        return new PageImpl<>(result, pageable, page.getTotalElements());
+    }
+
+    private OrderResponse toResponse(Order o, List<OrderItem> items, Payment preloadedPayment, Map<Integer, List<ProductImage>> imagesByProductId) {
         // SỬA Ở ĐÂY: Get qua liên kết Object
         List<OrderItemResponse> itemDtos = items.stream().map(oi -> OrderItemResponse.builder()
                 .id(String.valueOf(oi.getId()))
@@ -345,13 +385,13 @@ public class OrderServiceImpl implements OrderService {
                 .productName(oi.getProduct().getName())
                 .color(oi.getVariant() != null ? oi.getVariant().getColor() : null)
                 .size(oi.getVariant() != null ? oi.getVariant().getSize() : null)
-                .imageUrl(resolveOrderItemImage(oi))
-                .thumbnailUrl(resolveOrderItemImage(oi))
+                .imageUrl(resolveOrderItemImage(oi, imagesByProductId))
+                .thumbnailUrl(resolveOrderItemImage(oi, imagesByProductId))
                 .quantity(oi.getQuantity())
                 .price(oi.getPrice())
                 .build()).toList();
 
-        Payment payment = paymentRepo.findByOrderId(o.getId()).orElse(null);
+        Payment payment = preloadedPayment != null ? preloadedPayment : paymentRepo.findByOrderId(o.getId()).orElse(null);
         String paymentStatus = "COD".equals(o.getPaymentMethod()) ? "COD" : (payment != null ? payment.getPaymentStatus() : "PENDING");
 
         return OrderResponse.builder()
@@ -391,8 +431,7 @@ public class OrderServiceImpl implements OrderService {
         for (OrderItem oi : orderItems) {
             // SỬA Ở ĐÂY: Lấy ID từ Object Variant
             variantRepo.findById(oi.getVariant().getId()).ifPresent(variant -> {
-                variant.setStock(variant.getStock() + oi.getQuantity());
-                variantRepo.save(variant);
+                variantRepo.incrementStock(variant.getId(), oi.getQuantity());
             });
         }
     }
@@ -433,10 +472,39 @@ public class OrderServiceImpl implements OrderService {
     }
 
     private String resolveOrderItemImage(OrderItem item) {
+        return resolveOrderItemImage(item, null);
+    }
+
+    private String resolveOrderItemImage(OrderItem item, Map<Integer, List<ProductImage>> imagesByProductId) {
         Integer productId = item.getProduct() != null ? item.getProduct().getId() : null;
         if (productId == null) return null;
 
         String color = item.getVariant() != null ? item.getVariant().getColor() : null;
+        if (imagesByProductId != null) {
+            List<ProductImage> images = imagesByProductId.getOrDefault(productId, Collections.emptyList());
+            if (color != null && !color.isBlank()) {
+                Optional<String> colorImage = images.stream()
+                        .filter(img -> img.getColor() != null && img.getColor().equalsIgnoreCase(color))
+                        .filter(img -> img.getUrl() != null && !img.getUrl().isBlank())
+                        .map(ProductImage::getUrl)
+                        .findFirst();
+                if (colorImage.isPresent()) return colorImage.get();
+            }
+
+            Optional<String> thumbnail = images.stream()
+                    .filter(img -> Boolean.TRUE.equals(img.getIsThumbnail()))
+                    .map(ProductImage::getUrl)
+                    .filter(url -> url != null && !url.isBlank())
+                    .findFirst();
+            if (thumbnail.isPresent()) return thumbnail.get();
+
+            return images.stream()
+                    .map(ProductImage::getUrl)
+                    .filter(url -> url != null && !url.isBlank())
+                    .findFirst()
+                    .orElse(null);
+        }
+
         if (color != null && !color.isBlank()) {
             Optional<String> colorImage = productImageRepo
                     .findByProductIdAndColorIgnoreCaseAndDeletedAtIsNull(productId, color)

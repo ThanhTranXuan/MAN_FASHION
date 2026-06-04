@@ -5,6 +5,8 @@ import com.manfashion.springboot_be.DTO.Chat.*;
 import com.manfashion.springboot_be.entity.ChatConversation;
 import com.manfashion.springboot_be.entity.ChatMessage;
 import com.manfashion.springboot_be.entity.User;
+import com.manfashion.springboot_be.exception.AppException;
+import com.manfashion.springboot_be.exception.ErrorCode;
 import com.manfashion.springboot_be.mapper.ChatMapper;
 import com.manfashion.springboot_be.repository.Chat.ChatConversationRepository;
 import com.manfashion.springboot_be.repository.Chat.ChatMessageRepository;
@@ -48,11 +50,15 @@ public class ChatServiceImpl implements ChatService {
     @Override
     @Transactional
     public ChatMessageResponse processAndBroadcastMessage(Integer conversationId, Integer senderId, String senderType, String content) {
-        ChatConversation conversation = conversationRepo.getReferenceById(conversationId);
+        ChatConversation conversation = conversationRepo.findById(conversationId)
+                .orElseThrow(() -> new RuntimeException("Conversation not found"));
         User sender = userRepository.findById(senderId)
                 .orElseThrow(() -> new RuntimeException("User không tồn tại"));
 
         // 1. Lưu tin nhắn vào MySQL
+        boolean isStaff = "EMPLOYEE".equalsIgnoreCase(senderType);
+        ensureConversationAccess(conversation, senderId, isStaff);
+
         ChatMessage message = new ChatMessage();
         message.setConversation(conversation);
         message.setSender(sender);
@@ -80,8 +86,12 @@ public class ChatServiceImpl implements ChatService {
     }
 
     @Override
-    public Page<ChatMessageResponse> getMessagesPaged(Integer conversationId, int page, int size) {
-        Pageable pageable = PageRequest.of(page, size);
+    public Page<ChatMessageResponse> getMessagesPaged(Integer conversationId, Integer currentUserId, boolean isStaff, int page, int size) {
+        ChatConversation conversation = conversationRepo.findById(conversationId)
+                .orElseThrow(() -> new RuntimeException("Conversation not found"));
+        ensureConversationAccess(conversation, currentUserId, isStaff);
+
+        Pageable pageable = PageRequest.of(page, Math.min(Math.max(size, 1), 50));
         Page<ChatMessage> messagePage = messageRepo.findByConversationIdOrderByCreatedAtDesc(conversationId, pageable);
 
         // Map Page<Entity> -> Page<DTO>
@@ -98,9 +108,22 @@ public class ChatServiceImpl implements ChatService {
 
     @Override
     @Transactional
-    public void markConversationAsRead(Integer conversationId, Integer userId) {
+    public void markConversationAsRead(Integer conversationId, Integer userId, boolean isStaff) {
         // Thực thi logic đánh dấu đã đọc (Ví dụ: Update status các message của người khác thành READ)
         // Hiện tại có thể để trống hoặc thêm query vào Repository sau
+        ChatConversation conversation = conversationRepo.findById(conversationId)
+                .orElseThrow(() -> new RuntimeException("Conversation not found"));
+        ensureConversationAccess(conversation, userId, isStaff);
         log.info("Marked conversation {} as read for user {}", conversationId, userId);
+    }
+
+    private void ensureConversationAccess(ChatConversation conversation, Integer userId, boolean isStaff) {
+        if (isStaff) {
+            return;
+        }
+        Integer ownerId = conversation.getUser() != null ? conversation.getUser().getId() : null;
+        if (ownerId == null || !ownerId.equals(userId)) {
+            throw new AppException(ErrorCode.ACCESS_DENIED);
+        }
     }
 }

@@ -50,7 +50,7 @@ public class PaymentServiceImpl implements PaymentService {
 
     @Override
     @Transactional
-    public Payment markAsPaid(Long paymentOrderCode, String transactionId) {
+    public PaymentMarkResult markAsPaid(Long paymentOrderCode, String transactionId) {
         var optionalPayment = paymentRepo.findByPaymentOrderCode(paymentOrderCode);
 
         if (optionalPayment.isEmpty()) {
@@ -62,7 +62,7 @@ public class PaymentServiceImpl implements PaymentService {
 
         if ("PAID".equals(payment.getPaymentStatus())) {
             log.info("PayOS webhook - Payment {} đã được xử lý trước đó (PAID), bỏ qua", paymentOrderCode);
-            return payment;
+            return new PaymentMarkResult(payment, false);
         }
 
         payment.setPaymentStatus("PAID");
@@ -81,7 +81,7 @@ public class PaymentServiceImpl implements PaymentService {
                 );
 
         log.info("Thanh toán thành công → paymentOrderCode: {}, transactionId: {}", paymentOrderCode, transactionId);
-        return payment;
+        return new PaymentMarkResult(payment, true);
     }
 
     @Override

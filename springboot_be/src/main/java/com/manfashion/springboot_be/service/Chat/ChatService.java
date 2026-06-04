@@ -14,9 +14,9 @@ public interface ChatService {
     ChatMessageResponse processAndBroadcastMessage(Integer conversationId, Integer senderId, String senderType, String content);
 
     // Các hàm phân trang mới
-    Page<ChatMessageResponse> getMessagesPaged(Integer conversationId, int page, int size);
+    Page<ChatMessageResponse> getMessagesPaged(Integer conversationId, Integer currentUserId, boolean isStaff, int page, int size);
     Page<ChatConversationSummary> getAllConversationsForStaffPaged(int page, int size);
 
-    void markConversationAsRead(Integer conversationId, Integer userId);
+    void markConversationAsRead(Integer conversationId, Integer userId, boolean isStaff);
 
 }

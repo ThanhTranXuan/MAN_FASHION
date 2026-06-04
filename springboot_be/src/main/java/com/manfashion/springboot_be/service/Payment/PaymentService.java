@@ -15,7 +15,7 @@ public interface PaymentService {
     /**
      * Xử lý webhook: Đánh dấu thanh toán thành công và cập nhật đơn hàng
      */
-    Payment markAsPaid(Long paymentOrderCode, String transactionId);
+    PaymentMarkResult markAsPaid(Long paymentOrderCode, String transactionId);
 
     /**
      * Xử lý webhook/timeout: Đánh dấu thanh toán thất bại và hủy đơn hàng
