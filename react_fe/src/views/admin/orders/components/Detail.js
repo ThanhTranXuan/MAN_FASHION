@@ -121,7 +121,7 @@ export default function Detail({ isOpen, onClose, order }) {
               <Text>Họ tên: {order.fullName || order.customer?.name || order.user?.fullName || '-'}</Text>
               <Text>Email: {order.email || '-'}</Text>
               <Text>SĐT: {order.phone || '-'}</Text>
-              <Text>Địa chỉ: {order.address || order.shippingAddress || '-'}</Text>
+              <Text>Địa chỉ: {order.address || '-'}</Text>
             </Box>
             <Box flex={1}>
               <Text fontWeight="600" color={textColor} fontSize="md" mb={2}>

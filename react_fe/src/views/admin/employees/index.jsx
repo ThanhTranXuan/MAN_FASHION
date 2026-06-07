@@ -93,14 +93,26 @@ export default function EmployeePage() {
 
   // ❌ Delete employee
   const handleDelete = async () => {
+    if (!employeeToDelete?.id) return;
+
     try {
       await EmployeeService.delete(employeeToDelete.id);
       toast.success('Xóa nhân viên thành công');
+      setEmployees((current) =>
+        current.filter((employee) => employee.id !== employeeToDelete.id),
+      );
       setEmployeeToDelete(null);
       setIsConfirmOpen(false);
-      loadEmployees(page);
+      await loadEmployees(page);
     } catch (err) {
-      toast.error('Xóa nhân viên thất bại');
+      const status = err.response?.status;
+      const message =
+        status === 403
+          ? 'Không thể xóa tài khoản này. Chỉ được xóa nhân viên khác.'
+          : status === 409
+            ? 'Không thể xóa nhân viên vì còn dữ liệu liên quan.'
+            : 'Không thể xóa nhân viên. Vui lòng thử lại.';
+      toast.error(message);
     }
   };
 

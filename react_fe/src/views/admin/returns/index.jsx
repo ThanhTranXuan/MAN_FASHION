@@ -20,7 +20,11 @@ export default function ReturnPage() {
   const bgColor = useColorModeValue('white', 'navy.800');
   const toast = useAppToast();
 
-  const { clearNotification, refreshReturnSignal } = useNotification();
+  const {
+    clearNotification,
+    refreshReturnSignal,
+    latestReturnStatusEvent,
+  } = useNotification();
 
   const [returns, setReturns] = useState([]);
   const [page, setPage] = useState(0);
@@ -116,6 +120,18 @@ export default function ReturnPage() {
     }, DEBOUNCE);
   }, [refreshReturnSignal, lastReloadTime, loadReturns, page]);
 
+  useEffect(() => {
+    if (!latestReturnStatusEvent) return;
+
+    setReturns((current) =>
+      current.map((returnOrder) =>
+        returnOrder.returnCode === latestReturnStatusEvent.returnCode
+          ? { ...returnOrder, status: latestReturnStatusEvent.status }
+          : returnOrder,
+      ),
+    );
+  }, [latestReturnStatusEvent]);
+
   // 🔁 Auto refresh mỗi 60 giây
   useEffect(() => {
     const interval = setInterval(() => {
@@ -133,9 +149,16 @@ export default function ReturnPage() {
       Columns({
         onUpdateStatus: async (rCode, status) => {
           try {
-            await ReturnOrderService.updateStatusAdmin(rCode, status);
+            const updatedReturn =
+              await ReturnOrderService.updateStatusAdmin(rCode, status);
+            setReturns((current) =>
+              current.map((returnOrder) =>
+                returnOrder.returnCode === rCode
+                  ? { ...returnOrder, ...updatedReturn }
+                  : returnOrder,
+              ),
+            );
             toast.success('Cập nhật trạng thái hoàn trả thành công');
-            loadReturns(page);
           } catch (err) {
             console.error(err);
             toast.error('Cập nhật trạng thái thất bại');
@@ -166,7 +189,7 @@ export default function ReturnPage() {
         bg={bgColor}
       >
         <Header
-          title="Quản lý hoàn trả"
+          title="Danh Sách Yêu Cầu Hoàn Trả"
           searchInput={searchInput}
           setSearchInput={setSearchInput}
           statusFilter={statusFilter}

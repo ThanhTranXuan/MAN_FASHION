@@ -1,118 +1,147 @@
 import React, {
   createContext,
+  useCallback,
   useContext,
   useEffect,
-  useRef,
   useState,
 } from 'react';
-
 import { Client } from '@stomp/stompjs';
 import SockJS from 'sockjs-client';
 
 import OrderService from 'services/OrderService';
 import ReturnOrderService from 'services/ReturnOrderService';
+import AuthService from 'services/AuthService';
 import { useUser } from 'contexts/UserContext';
+import { useAppToast } from 'utils/ToastHelper';
+import { translateOrderStatus } from 'utils/OrderDisplayHelper';
 
 const NotificationContext = createContext();
 
+const parseMessage = (message) => {
+  try {
+    return JSON.parse(message.body);
+  } catch {
+    return null;
+  }
+};
+
 export function NotificationProvider({ children }) {
   const { user, isAuthenticated } = useUser();
+  const toast = useAppToast();
 
   const [hasNewOrder, setHasNewOrder] = useState(false);
   const [hasNewReturn, setHasNewReturn] = useState(false);
+  const [hasProfileOrderUpdate, setHasProfileOrderUpdate] = useState(false);
+  const [hasProfileReturnUpdate, setHasProfileReturnUpdate] = useState(false);
+  const [refreshOrderSignal, setRefreshOrderSignal] = useState(0);
+  const [refreshReturnSignal, setRefreshReturnSignal] = useState(0);
+  const [latestOrderStatusEvent, setLatestOrderStatusEvent] = useState(null);
+  const [latestReturnStatusEvent, setLatestReturnStatusEvent] = useState(null);
+  const [latestUserNotification, setLatestUserNotification] = useState(null);
+  const [userUnreadCount, setUserUnreadCount] = useState(0);
 
-  const stompClientRef = useRef(null);
+  const isStaff = ['ADMIN', 'EMPLOYEE'].includes(user?.roleName);
 
-  // 🟢 WebSocket connect + real-time
   useEffect(() => {
-    // ❗ Chỉ ADMIN + EMPLOYEE mới cần WebSocket
-    if (!isAuthenticated || !['ADMIN', 'EMPLOYEE'].includes(user?.roleName)) {
-      console.log('⏭ Skip WebSocket (not admin/employee)');
-      return;
-    }
+    if (!isAuthenticated || !user) return undefined;
 
-    const BASE = process.env.REACT_APP_API_BASE_URL || 'http://localhost:8080';
-
+    const baseUrl =
+      process.env.REACT_APP_API_BASE_URL || 'http://localhost:8080';
     const client = new Client({
       reconnectDelay: 5000,
-      webSocketFactory: () => new SockJS(`${BASE}/ws`),
+      webSocketFactory: () => new SockJS(`${baseUrl}/ws`),
+      connectHeaders: {
+        Authorization: `Bearer ${AuthService.getAccessToken() || ''}`,
+      },
     });
 
     client.onConnect = () => {
-      console.log('🟢 WebSocket connected');
+      if (isStaff) {
+        client.subscribe('/topic/new-order', (message) => {
+          const data = parseMessage(message);
+          if (!data) return;
 
-      // =========================
-      // NEW ORDER
-      // =========================
-      client.subscribe('/topic/new-order', (msg) => {
-        console.log('📥 WS new-order:', msg.body);
+          setRefreshOrderSignal((value) => value + 1);
+          if (!window.location.pathname.includes('/admin/order-management')) {
+            setHasNewOrder(true);
+            toast.info('Có đơn hàng mới.');
+          }
+        });
 
-        let data;
-        try {
-          data = JSON.parse(msg.body);
-        } catch {
-          return;
-        }
+        client.subscribe('/topic/new-return', (message) => {
+          const data = parseMessage(message);
+          if (!data) return;
 
-        const lastFetch = Number(
-          localStorage.getItem('lastFetch:/admin/order-management'),
-        );
+          setRefreshReturnSignal((value) => value + 1);
+          if (!window.location.pathname.includes('/admin/return-management')) {
+            setHasNewReturn(true);
+            toast.info('Có yêu cầu hoàn trả mới.');
+          }
+        });
+      }
 
-        const isInPage = window.location.pathname.includes(
-          '/admin/order-management',
-        );
+      if (isStaff) {
+        client.subscribe('/topic/order-status', (message) => {
+          const data = parseMessage(message);
+          if (!data) return;
 
-        if (isInPage) return;
+          setLatestOrderStatusEvent(data);
+          const isOnOrderPage = window.location.pathname.includes(
+            '/admin/order-management',
+          );
+          if (!isOnOrderPage) {
+            setHasNewOrder(true);
+            toast.info(`Đơn hàng ${data.orderCode} đã cập nhật trạng thái.`);
+          }
+        });
+      } else {
+        client.subscribe(`/topic/users/${user.id}/notifications`, (message) => {
+          const data = parseMessage(message);
+          if (!data || data.type !== 'ORDER_STATUS_UPDATED') return;
 
-        if (!lastFetch || data.timestamp > lastFetch) {
-          setHasNewOrder(true);
-        }
-      });
+          setLatestOrderStatusEvent(data);
+          setLatestUserNotification(data);
+          setUserUnreadCount((value) => value + 1);
+          setRefreshOrderSignal((value) => value + 1);
+          setHasProfileOrderUpdate(true);
+          toast.info(
+            `Đơn hàng ${data.orderCode} đã chuyển sang: ${translateOrderStatus(
+              data.status,
+            )}`,
+          );
+        });
+      }
 
-      // =========================
-      // NEW RETURN
-      // =========================
-      client.subscribe('/topic/new-return', (msg) => {
-        console.log('📥 WS new-return:', msg.body);
+      client.subscribe('/topic/return-status', (message) => {
+        const data = parseMessage(message);
+        if (!data) return;
 
-        let data;
-        try {
-          data = JSON.parse(msg.body);
-        } catch {
-          return;
-        }
-
-        const lastFetch = Number(
-          localStorage.getItem('lastFetch:/admin/return-management'),
-        );
-
-        const isInPage = window.location.pathname.includes(
-          '/admin/return-management',
-        );
-
-        if (isInPage) return;
-
-        if (!lastFetch || data.timestamp > lastFetch) {
-          setHasNewReturn(true);
+        const belongsToUser = String(data.userId) === String(user.id);
+        if (isStaff) {
+          setLatestReturnStatusEvent(data);
+          const isOnReturnPage = window.location.pathname.includes(
+            '/admin/return-management',
+          );
+          if (!isOnReturnPage) {
+            setHasNewReturn(true);
+            toast.info(`Yêu cầu hoàn trả ${data.returnCode} đã cập nhật.`);
+          }
+        } else if (belongsToUser) {
+          setRefreshReturnSignal((value) => value + 1);
+          setHasProfileReturnUpdate(true);
+          toast.info(`Yêu cầu hoàn trả ${data.returnCode} đã cập nhật.`);
         }
       });
     };
 
     client.activate();
-    stompClientRef.current = client;
-
     return () => client.deactivate();
-  }, [isAuthenticated, user]);
+  }, [isAuthenticated, isStaff, toast, user]);
 
-  // 🔍 Kiểm tra missed events khi online lại
   useEffect(() => {
-    const checkMissed = async () => {
-      // ❗ MUST HAVE ADMIN OR EMPLOYEE
-      if (!isAuthenticated || !['ADMIN', 'EMPLOYEE'].includes(user?.roleName)) {
-        console.log('⏭ Skip has-new check (not admin/employee)');
-        return;
-      }
+    if (!isAuthenticated || !isStaff) return undefined;
 
+    const checkMissed = async () => {
       const lastOrderFetch = Number(
         localStorage.getItem('lastFetch:/admin/order-management') || 0,
       );
@@ -122,38 +151,30 @@ export function NotificationProvider({ children }) {
 
       try {
         if (lastOrderFetch) {
-          const res = await OrderService.hasNewSince(lastOrderFetch);
-          if (res.data === true) setHasNewOrder(true);
+          const response = await OrderService.hasNewSince(lastOrderFetch);
+          if (response.data?.data === true) setHasNewOrder(true);
         }
-      } catch (err) {
-        console.error('❌ Failed to check new orders:', err);
+      } catch (error) {
+        console.error('Failed to check new orders:', error);
       }
 
       try {
         if (lastReturnFetch) {
-          const res = await ReturnOrderService.hasNewSince(lastReturnFetch);
-          if (res.data === true) setHasNewReturn(true);
+          const response =
+            await ReturnOrderService.hasNewSince(lastReturnFetch);
+          if (response.data?.data === true) setHasNewReturn(true);
         }
-      } catch (err) {
-        console.error('❌ Failed to check new returns:', err);
+      } catch (error) {
+        console.error('Failed to check new returns:', error);
       }
     };
 
-    const handleOnline = () => {
-      console.log('🌐 Back online');
-      checkMissed();
-    };
-
-    window.addEventListener('online', handleOnline);
-
-    // Lần đầu vào khi đã online → check luôn
+    window.addEventListener('online', checkMissed);
     if (navigator.onLine) checkMissed();
+    return () => window.removeEventListener('online', checkMissed);
+  }, [isAuthenticated, isStaff]);
 
-    return () => window.removeEventListener('online', handleOnline);
-  }, [isAuthenticated, user]);
-
-  // 🧽 CLEAR BADGE
-  const clearNotification = (path) => {
+  const clearNotification = useCallback((path) => {
     if (path === '/admin/order-management') {
       setHasNewOrder(false);
       localStorage.setItem(`lastFetch:${path}`, Date.now());
@@ -163,14 +184,31 @@ export function NotificationProvider({ children }) {
       setHasNewReturn(false);
       localStorage.setItem(`lastFetch:${path}`, Date.now());
     }
-  };
+  }, []);
+
+  const clearProfileNotification = useCallback((type) => {
+    if (type === 'order') {
+      setHasProfileOrderUpdate(false);
+      setUserUnreadCount(0);
+    }
+    if (type === 'return') setHasProfileReturnUpdate(false);
+  }, []);
 
   return (
     <NotificationContext.Provider
       value={{
         hasNewOrder,
         hasNewReturn,
+        hasProfileOrderUpdate,
+        hasProfileReturnUpdate,
+        refreshOrderSignal,
+        refreshReturnSignal,
+        latestOrderStatusEvent,
+        latestReturnStatusEvent,
+        latestUserNotification,
+        userUnreadCount,
         clearNotification,
+        clearProfileNotification,
       }}
     >
       {children}

@@ -352,7 +352,8 @@ export default function ProductPage() {
         borderRadius="16px"
         boxShadow="md"
         bg={bgColor}
-        minH="690px"
+        minH={{ base: '520px', md: '690px' }}
+        overflow="hidden"
       >
         <Header
           searchInput={searchInput}

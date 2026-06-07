@@ -12,14 +12,14 @@ const OrderService = {
   updateUserStatus: (orderCode, status) =>
     ApiClient.patch(ApiUrl.UPDATE_ORDER_STATUS(orderCode), null, {
       params: { status },
-    }),
+    }).then((res) => res.data.data),
 
   // ADMIN
   getAllAdmin: (params) => ApiClient.get(ApiUrl.ORDERS, { params }).then(res=>{ return { data: res.data.data };}),
   updateAdminStatus: (orderCode, status) =>
     ApiClient.patch(ApiUrl.UPDATE_ORDER_STATUS(orderCode), null, {
       params: { status },
-    }),
+    }).then((res) => res.data.data),
 
   hasNewSince: (since) =>
     ApiClient.get(ApiUrl.ORDERS_HAS_NEW, { params: { since } }),

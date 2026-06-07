@@ -1,22 +1,37 @@
 import React from 'react';
 import {
+  Badge,
   Box,
-  Heading,
-  VStack,
   FormControl,
   FormLabel,
+  Heading,
   Input,
-  useColorModeValue,
+  Radio,
+  RadioGroup,
   SimpleGrid,
+  Stack,
+  Text,
+  useColorModeValue,
+  VStack,
 } from '@chakra-ui/react';
 
-export default function Form({ formData, setFormData }) {
+export default function Form({
+  formData,
+  setFormData,
+  addressMode,
+  hasProfileAddress,
+  profileAddress,
+  isAuthenticated,
+  onAddressModeChange,
+}) {
   const sectionBg = useColorModeValue('gray.50', 'navy.700');
   const textColor = useColorModeValue('secondaryGray.900', 'white');
+  const selectedBg = useColorModeValue('brand.50', 'whiteAlpha.100');
+  const formDisabled = addressMode === 'profile';
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
+  const handleChange = (event) => {
+    const { name, value } = event.target;
+    setFormData((previous) => ({ ...previous, [name]: value }));
   };
 
   return (
@@ -25,8 +40,51 @@ export default function Form({ formData, setFormData }) {
         Thông Tin Giao Hàng
       </Heading>
 
+      {isAuthenticated && (
+        <Box mb={6}>
+          <Text fontWeight="semibold" mb={3} color={textColor}>
+            Địa chỉ giao hàng
+          </Text>
+
+          <RadioGroup value={addressMode} onChange={onAddressModeChange} mb={3}>
+            <Stack direction={{ base: 'column', sm: 'row' }} spacing={4}>
+              <Radio value="profile" isDisabled={!hasProfileAddress}>
+                Dùng địa chỉ trong hồ sơ
+              </Radio>
+              <Radio value="new">Nhập địa chỉ mới</Radio>
+            </Stack>
+          </RadioGroup>
+
+          {!hasProfileAddress && (
+            <Text fontSize="sm" color="gray.500">
+              Hồ sơ của bạn chưa có địa chỉ. Vui lòng nhập địa chỉ giao hàng
+              mới.
+            </Text>
+          )}
+
+          {addressMode === 'profile' && hasProfileAddress && (
+            <Box
+              p={3}
+              border="1px solid"
+              borderColor="brand.500"
+              bg={selectedBg}
+              borderRadius="12px"
+            >
+              <Text fontSize="sm" fontWeight="bold">
+                {formData.fullName || ''} · {formData.phone || ''}
+              </Text>
+              <Text fontSize="sm" color="gray.500" mt={1}>
+                {profileAddress}
+              </Text>
+              <Badge colorScheme="green" mt={2}>
+                Địa chỉ hồ sơ
+              </Badge>
+            </Box>
+          )}
+        </Box>
+      )}
+
       <SimpleGrid columns={{ base: 1, md: 2 }} spacing={10}>
-        {/* Cột trái - Personal Info */}
         <VStack spacing={6} align="stretch">
           <FormControl isRequired>
             <FormLabel>Họ Tên</FormLabel>
@@ -35,6 +93,7 @@ export default function Form({ formData, setFormData }) {
               name="fullName"
               value={formData.fullName}
               onChange={handleChange}
+              isDisabled={formDisabled}
             />
           </FormControl>
 
@@ -46,6 +105,7 @@ export default function Form({ formData, setFormData }) {
               name="email"
               value={formData.email}
               onChange={handleChange}
+              isDisabled={formDisabled}
             />
           </FormControl>
 
@@ -56,11 +116,11 @@ export default function Form({ formData, setFormData }) {
               name="phone"
               value={formData.phone}
               onChange={handleChange}
+              isDisabled={formDisabled}
             />
           </FormControl>
         </VStack>
 
-        {/* Cột phải - Address Info */}
         <VStack spacing={6} align="stretch">
           <FormControl isRequired>
             <FormLabel>Số Nhà / Tên Đường</FormLabel>
@@ -69,6 +129,7 @@ export default function Form({ formData, setFormData }) {
               name="addressStreet"
               value={formData.addressStreet}
               onChange={handleChange}
+              isDisabled={formDisabled}
             />
           </FormControl>
 
@@ -79,6 +140,7 @@ export default function Form({ formData, setFormData }) {
               name="addressWard"
               value={formData.addressWard}
               onChange={handleChange}
+              isDisabled={formDisabled}
             />
           </FormControl>
 
@@ -89,6 +151,7 @@ export default function Form({ formData, setFormData }) {
               name="addressDistrict"
               value={formData.addressDistrict}
               onChange={handleChange}
+              isDisabled={formDisabled}
             />
           </FormControl>
 
@@ -99,6 +162,7 @@ export default function Form({ formData, setFormData }) {
               name="addressCity"
               value={formData.addressCity}
               onChange={handleChange}
+              isDisabled={formDisabled}
             />
           </FormControl>
         </VStack>

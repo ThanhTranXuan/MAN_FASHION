@@ -30,7 +30,13 @@ import { useCart } from 'contexts/CartContext';
 import { useNavigate } from 'react-router-dom';
 import { v4 as uuidv4 } from 'uuid';
 
-export default function Summary({ cart, formData }) {
+export default function Summary({
+  cart,
+  formData,
+  addressMode,
+  hasProfileAddress,
+  profileAddress,
+}) {
   const sectionBg = useColorModeValue('gray.50', 'navy.700');
   const textColor = useColorModeValue('secondaryGray.900', 'white');
   const borderColor = useColorModeValue('gray.200', 'gray.600');
@@ -170,26 +176,38 @@ export default function Summary({ cart, formData }) {
 
   const handlePlaceOrder = async () => {
     if (!cart?.items?.length) return toast.warning('Giỏ hàng của bạn đang trống!');
+
+    if (addressMode === 'profile' && !hasProfileAddress) {
+      return toast.warning('Hồ sơ của bạn chưa có địa chỉ giao hàng.');
+    }
+
     if (
       !formData.fullName ||
       !formData.email ||
       !formData.phone ||
-      !formData.addressStreet ||
-      !formData.addressCity
-    )
+      (addressMode === 'new' &&
+        (!formData.addressStreet ||
+          !formData.addressWard ||
+          !formData.addressDistrict ||
+          !formData.addressCity))
+    ) {
       return toast.warning('Vui lòng điền đủ thông tin giao hàng.');
+    }
 
     setIsLoading(true);
 
     try {
-      const fullAddress = [
-        formData.addressStreet,
-        formData.addressWard,
-        formData.addressDistrict,
-        formData.addressCity,
-      ]
-        .filter(Boolean)
-        .join(', ');
+      const fullAddress =
+        addressMode === 'profile'
+          ? profileAddress
+          : [
+              formData.addressStreet,
+              formData.addressWard,
+              formData.addressDistrict,
+              formData.addressCity,
+            ]
+              .filter(Boolean)
+              .join(', ');
 
       const payload = {
         fullName: formData.fullName,

@@ -55,6 +55,7 @@ export default function List({
       <Table
         variant="simple"
         bg={bgColor}
+        minW="900px"
         opacity={isLoading ? 0.72 : 1}
         transition="opacity 0.2s ease"
       >

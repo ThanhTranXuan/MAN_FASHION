@@ -14,6 +14,27 @@ import { useCart } from 'contexts/CartContext';
 import Form from 'views/user/order/components/Form';
 import Summary from 'views/user/order/components/Summary';
 
+const emptyFormData = {
+  fullName: '',
+  email: '',
+  phone: '',
+  addressStreet: '',
+  addressWard: '',
+  addressDistrict: '',
+  addressCity: '',
+};
+
+const mapProfileToForm = (user) => ({
+  ...emptyFormData,
+  fullName: user?.fullName || '',
+  email: user?.email || '',
+  phone: user?.phone || '',
+  addressStreet: user?.addressStreet || '',
+  addressWard: user?.addressWard || '',
+  addressDistrict: user?.addressDistrict || '',
+  addressCity: user?.addressCity || '',
+});
+
 export default function OrderPage() {
   const { user } = useUser();
   const { cart, loading } = useCart();
@@ -24,29 +45,35 @@ export default function OrderPage() {
   const breadcrumbColor = useColorModeValue('gray.500', 'gray.400');
   const brandColor = useColorModeValue('brand.500', 'brand.400');
 
-  const [formData, setFormData] = useState({
-    fullName: '',
-    email: '',
-    phone: '',
-    addressStreet: '',
-    addressWard: '',
-    addressDistrict: '',
-    addressCity: '',
-  });
+  const [formData, setFormData] = useState(emptyFormData);
+  const [addressMode, setAddressMode] = useState('new');
+
+  const hasProfileAddress = Boolean(user?.address?.trim());
 
   useEffect(() => {
-    if (user) {
-      setFormData({
-        fullName: user.fullName || '',
-        email: user.email || '',
-        phone: user.phone || '',
-        addressStreet: user.addressStreet || '',
-        addressWard: user.addressWard || '',
-        addressDistrict: user.addressDistrict || '',
-        addressCity: user.addressCity || '',
-      });
+    if (!user) {
+      setAddressMode('new');
+      setFormData(emptyFormData);
+      return;
+    }
+
+    if (user.address?.trim()) {
+      setAddressMode('profile');
+      setFormData(mapProfileToForm(user));
+    } else {
+      setAddressMode('new');
+      setFormData(emptyFormData);
     }
   }, [user]);
+
+  const handleAddressModeChange = (mode) => {
+    setAddressMode(mode);
+    setFormData(
+      mode === 'profile'
+        ? mapProfileToForm(user)
+        : emptyFormData,
+    );
+  };
 
   if (loading) {
     return (
@@ -59,7 +86,7 @@ export default function OrderPage() {
   return (
     <Box bg={bgColor} p={{ base: 4, md: 8, lg: 20 }}>
       <Flex direction="column">
-        <Breadcrumb fontWeight="medium" fontSize="sm" mb={8} separator={'/'}>
+        <Breadcrumb fontWeight="medium" fontSize="sm" mb={8} separator="/">
           <BreadcrumbItem>
             <BreadcrumbLink
               color={breadcrumbColor}
@@ -75,14 +102,26 @@ export default function OrderPage() {
         </Breadcrumb>
 
         <Flex direction={{ base: 'column', md: 'row' }} gap={8}>
-          {/* Form rộng hơn */}
           <Box flex={1}>
-            <Form formData={formData} setFormData={setFormData} />
+            <Form
+              formData={formData}
+              setFormData={setFormData}
+              addressMode={addressMode}
+              hasProfileAddress={hasProfileAddress}
+              profileAddress={user?.address || ''}
+              isAuthenticated={Boolean(user)}
+              onAddressModeChange={handleAddressModeChange}
+            />
           </Box>
 
-          {/* Summary hẹp hơn */}
           <Box flex={1}>
-            <Summary cart={cart} formData={formData} />
+            <Summary
+              cart={cart}
+              formData={formData}
+              addressMode={addressMode}
+              hasProfileAddress={hasProfileAddress}
+              profileAddress={user?.address || ''}
+            />
           </Box>
         </Flex>
       </Flex>

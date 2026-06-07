@@ -42,7 +42,12 @@ export default function List({
         </Flex>
       )}
 
-      <Table variant="simple" bg={bgColor} opacity={isLoading ? 0.6 : 1}>
+      <Table
+        variant="simple"
+        bg={bgColor}
+        opacity={isLoading ? 0.6 : 1}
+        minW="720px"
+      >
         <Thead bg={headerBg}>
           {table.getHeaderGroups().map((headerGroup) => (
             <Tr key={headerGroup.id}>

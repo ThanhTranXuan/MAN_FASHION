@@ -15,7 +15,11 @@ export default function OrderPage() {
   const bgColor = useColorModeValue('white', 'navy.800');
   const toast = useAppToast();
 
-  const { clearNotification, refreshOrderSignal } = useNotification();
+  const {
+    clearNotification,
+    refreshOrderSignal,
+    latestOrderStatusEvent,
+  } = useNotification();
 
   const [orders, setOrders] = useState([]);
   const [page, setPage] = useState(0);
@@ -98,6 +102,23 @@ export default function OrderPage() {
 
   }, [refreshOrderSignal, lastReloadTime, loadOrders, page]);
 
+  useEffect(() => {
+    if (!latestOrderStatusEvent) return;
+
+    setOrders((current) =>
+      current.map((order) =>
+        order.orderCode === latestOrderStatusEvent.orderCode
+          ? { ...order, status: latestOrderStatusEvent.status }
+          : order,
+      ),
+    );
+    setSelectedOrder((current) =>
+      current?.orderCode === latestOrderStatusEvent.orderCode
+        ? { ...current, status: latestOrderStatusEvent.status }
+        : current,
+    );
+  }, [latestOrderStatusEvent]);
+
   // 🔁 Auto refresh mỗi 60 giây khi đang xem trang
   useEffect(() => {
     const interval = setInterval(() => {
@@ -113,16 +134,28 @@ export default function OrderPage() {
   const handleUpdateStatus = useCallback(
     async (orderCode, newStatus) => {
       try {
-        await OrderService.updateAdminStatus(orderCode, newStatus);
+        const updatedOrder = await OrderService.updateAdminStatus(
+          orderCode,
+          newStatus,
+        );
+        setOrders((current) =>
+          current.map((order) =>
+            order.orderCode === orderCode ? { ...order, ...updatedOrder } : order,
+          ),
+        );
+        setSelectedOrder((current) =>
+          current?.orderCode === orderCode
+            ? { ...current, ...updatedOrder }
+            : current,
+        );
         toast.success('Cập nhật trạng thái đơn hàng thành công');
-        loadOrders(page);
       } catch (err) {
         console.error(err);
         toast.error('Cập nhật trạng thái thất bại');
       }
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [page, loadOrders],
+    [],
   );
 
   const columns = useMemo(
@@ -151,7 +184,7 @@ export default function OrderPage() {
     <Box>
       <Card flexDirection="column" w="100%" borderRadius="16px" boxShadow="md" bg={bgColor}>
         <Header
-          title="Quản Lý Đơn Hàng"
+          title="Danh Sách Đơn Hàng"
           searchInput={searchInput}
           setSearchInput={setSearchInput}
           statusFilter={statusFilter}

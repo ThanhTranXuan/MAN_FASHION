@@ -9,6 +9,7 @@ import {
   Box,
   useColorModeValue,
   Flex,
+  Circle,
 } from '@chakra-ui/react';
 
 import OrderService from 'services/OrderService';
@@ -24,9 +25,17 @@ import PurchaseHistoryTab from './components/PurchaseHistoryTab';
 import ReturnOrderTab from './components/ReturnOrderTab';
 
 import { useUser } from 'contexts/UserContext';
+import { useNotification } from 'contexts/NotificationContext';
 
 export default function ProfilePage() {
   const { user, isAuthenticated, loadingUser, logout } = useUser();
+  const {
+    hasProfileOrderUpdate,
+    hasProfileReturnUpdate,
+    refreshOrderSignal,
+    refreshReturnSignal,
+    clearProfileNotification,
+  } = useNotification();
 
   const [orders, setOrders] = useState([]);
   const [returns, setReturns] = useState([]);
@@ -43,6 +52,7 @@ export default function ProfilePage() {
   const [returnPage, setReturnPage] = useState(0);
   const [returnHasMore, setReturnHasMore] = useState(true);
   const [returnLoadingMore, setReturnLoadingMore] = useState(false);
+  const [tabIndex, setTabIndex] = useState(0);
 
   const toast = useAppToast();
   const bgColor = useColorModeValue('white', 'navy.800');
@@ -261,6 +271,41 @@ export default function ProfilePage() {
     init();
   }, [loadingUser, isAuthenticated, user, fetchOrders, fetchReturns, logout]);
 
+  useEffect(() => {
+    if (
+      !refreshOrderSignal ||
+      !isAuthenticated ||
+      ["ADMIN", "EMPLOYEE"].includes(user?.roleName)
+    ) {
+      return;
+    }
+
+    fetchOrders(0, false);
+  }, [refreshOrderSignal, isAuthenticated, user?.roleName, fetchOrders]);
+
+  useEffect(() => {
+    if (
+      !refreshReturnSignal ||
+      !isAuthenticated ||
+      ["ADMIN", "EMPLOYEE"].includes(user?.roleName)
+    ) {
+      return;
+    }
+
+    const refreshReturns = async () => {
+      const currentOrders = await fetchOrders(0, false);
+      await fetchReturns(0, false, currentOrders);
+    };
+
+    refreshReturns();
+  }, [
+    refreshReturnSignal,
+    isAuthenticated,
+    user?.roleName,
+    fetchOrders,
+    fetchReturns,
+  ]);
+
   // Callback khi tạo return xong -> reload lại từ đầu
   const handleReturnSubmitted = async () => {
     try {
@@ -322,6 +367,12 @@ export default function ProfilePage() {
       mx="auto"
     >
       <Tabs
+        index={tabIndex}
+        onChange={(index) => {
+          setTabIndex(index);
+          if (index === 0) clearProfileNotification('order');
+          if (index === 1) clearProfileNotification('return');
+        }}
         variant="unstyled"
         orientation={{ base: 'horizontal', md: 'vertical' }}
         border="1px solid"
@@ -349,7 +400,7 @@ export default function ProfilePage() {
               scrollbarWidth: 'none',
             }}
           >
-            {tabs.map((tab) => (
+            {tabs.map((tab, index) => (
               <Tab
                 key={tab.label}
                 flexShrink={0}
@@ -367,7 +418,13 @@ export default function ProfilePage() {
                   borderColor: brandColor,
                 }}
               >
-                {tab.label}
+                <Flex align="center" gap={2}>
+                  {tab.label}
+                  {((index === 0 && hasProfileOrderUpdate) ||
+                    (index === 1 && hasProfileReturnUpdate)) && (
+                    <Circle size="8px" bg="red.400" flexShrink={0} />
+                  )}
+                </Flex>
               </Tab>
             ))}
           </TabList>

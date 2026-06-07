@@ -38,7 +38,14 @@ function Pagination({ page, totalPages, onPageChange, isDisabled = false }) {
   };
 
   return (
-    <HStack spacing={2} justify="center" mt={4}>
+    <HStack
+      spacing={2}
+      justify="center"
+      mt={4}
+      flexWrap="wrap"
+      rowGap={2}
+      px={{ base: 2, md: 0 }}
+    >
       {/* Prev */}
       {page > 0 && (
         <Button size="sm" isDisabled={isDisabled} onClick={() => handlePageChange(page - 1)}>

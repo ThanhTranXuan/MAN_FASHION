@@ -15,7 +15,7 @@ import { SidebarContext } from 'contexts/SidebarContext';
 import routes from 'routes.js';
 import { useUser } from 'contexts/UserContext';   // ✅ chỉ dùng UserContext
 import { useAppToast } from 'utils/ToastHelper';
-import { motion } from 'framer-motion';
+import { AnimatePresence, motion } from 'framer-motion';
 
 const MotionBox = motion(Box);
 
@@ -57,6 +57,10 @@ export default function Dashboard(props) {
       '/product-management',
       '/order-management',
       '/return-management',
+      '/coupon-management',
+      '/blog-management',
+      '/chat-support',
+      '/review-management',
     ];
 
     const filtered = routes.filter((r) => {
@@ -119,7 +123,8 @@ export default function Dashboard(props) {
           float="right"
           minHeight="100vh"
           height="100%"
-          overflow="auto"
+          overflowX="hidden"
+          overflowY="auto"
           position="relative"
           maxHeight="100%"
           w={{ base: '100%', xl: 'calc(100% - 290px)' }}
@@ -138,31 +143,35 @@ export default function Dashboard(props) {
             </Box>
           </Portal>
 
-          <MotionBox
-            key={location.pathname}
-            mx="auto"
-            p={{ base: '20px', md: '30px' }}
-            pt={{ base: '130px', md: '100px', xl: '100px' }}
-            minH="calc(100vh - 120px)"
-            sx={{ overflowAnchor: 'none' }}
-            initial={{ opacity: 0, y: 4 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.16, ease: [0.22, 1, 0.36, 1] }}
-          >
-            <Routes>
-              {getRoutesComponents(accessibleRoutes)}
-              <Route
-                path="/"
-                element={
-                  (user?.roleName || user?.role?.name) === 'EMPLOYEE' ? (
-                    <Navigate to="/admin/order-management" replace />
-                  ) : (
-                    <Navigate to="/admin/default" replace />
-                  )
-                }
-              />
-            </Routes>
-          </MotionBox>
+          <AnimatePresence mode="wait" initial={false}>
+            <MotionBox
+              key={location.pathname}
+              mx="auto"
+              p={{ base: '12px', sm: '16px', md: '24px', xl: '30px' }}
+              pt={{ base: '145px', sm: '135px', md: '105px', xl: '100px' }}
+              minH="calc(100vh - 120px)"
+              maxW="100%"
+              sx={{ overflowAnchor: 'none' }}
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -4 }}
+              transition={{ duration: 0.18, ease: [0.22, 1, 0.36, 1] }}
+            >
+              <Routes location={location}>
+                {getRoutesComponents(accessibleRoutes)}
+                <Route
+                  path="/"
+                  element={
+                    (user?.roleName || user?.role?.name) === 'EMPLOYEE' ? (
+                      <Navigate to="/admin/order-management" replace />
+                    ) : (
+                      <Navigate to="/admin/default" replace />
+                    )
+                  }
+                />
+              </Routes>
+            </MotionBox>
+          </AnimatePresence>
 
           <Footer />
         </Box>

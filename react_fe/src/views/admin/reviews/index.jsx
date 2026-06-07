@@ -4,19 +4,16 @@ import {
   Box,
   Button,
   Card,
+  Divider,
   Flex,
   HStack,
   Select,
+  SimpleGrid,
   Spinner,
-  Table,
-  Tbody,
-  Td,
   Text,
   Textarea,
-  Th,
-  Thead,
-  Tr,
   useColorModeValue,
+  VStack,
 } from '@chakra-ui/react';
 import Pagination from 'components/pagination/Pagination';
 import ReviewService from 'services/ReviewService';
@@ -31,7 +28,6 @@ const STATUS_META = {
 export default function AdminReviews() {
   const cardBg = useColorModeValue('white', 'navy.800');
   const borderColor = useColorModeValue('gray.200', 'navy.700');
-  const headerBg = useColorModeValue('gray.100', 'navy.800');
   const toast = useAppToast();
 
   const [reviews, setReviews] = useState([]);
@@ -110,71 +106,151 @@ export default function AdminReviews() {
           </HStack>
         </Flex>
 
-        <Box minH="560px" overflowX="auto" p={3} position="relative">
+        <Box minH="560px" p={{ base: 3, md: 5 }} position="relative">
           {loading && (
             <Flex position="absolute" top="0" left="0" w="100%" h="100%" align="center" justify="center" zIndex="1" backdropFilter="blur(2px)">
               <Spinner size="xl" thickness="4px" color="brand.500" />
             </Flex>
           )}
-          <Table variant="simple" opacity={loading ? 0.6 : 1}>
-            <Thead bg={headerBg}>
-              <Tr>
-                <Th borderColor={borderColor}>Sản phẩm</Th>
-                <Th borderColor={borderColor}>Đánh giá</Th>
-                <Th borderColor={borderColor}>Người gửi</Th>
-                <Th borderColor={borderColor}>Trạng thái</Th>
-                <Th borderColor={borderColor}>Phản hồi</Th>
-                <Th borderColor={borderColor} textAlign="right">Thao tác</Th>
-              </Tr>
-            </Thead>
-            <Tbody>
-              {!loading && reviews.length === 0 ? (
-                <Tr>
-                  <Td colSpan={6} textAlign="center" py={8}>
-                    <Text color="gray.500">Chưa có đánh giá nào.</Text>
-                  </Td>
-                </Tr>
-              ) : (
-                reviews.map((review) => (
-                  <Tr key={review.id}>
-                    <Td borderColor={borderColor} minW="180px">
+          {!loading && reviews.length === 0 ? (
+            <Flex minH="420px" align="center" justify="center">
+              <Text color="gray.500">Chưa có đánh giá nào.</Text>
+            </Flex>
+          ) : (
+            <VStack spacing={4} align="stretch" opacity={loading ? 0.6 : 1}>
+              {reviews.map((review) => (
+                <Box
+                  key={review.id}
+                  border="1px solid"
+                  borderColor={borderColor}
+                  borderRadius="14px"
+                  p={{ base: 4, md: 5 }}
+                  bg={cardBg}
+                >
+                  <Flex
+                    justify="space-between"
+                    align={{ base: 'flex-start', md: 'center' }}
+                    gap={3}
+                    direction={{ base: 'column', md: 'row' }}
+                  >
+                    <Box>
                       <Text fontWeight="700">{review.productName || '-'}</Text>
-                      <Text fontSize="xs" color="gray.500">ID: {review.productId}</Text>
-                    </Td>
-                    <Td borderColor={borderColor} minW="260px">
-                      <Text fontWeight="700">{review.rating}/5 - {review.title}</Text>
-                      <Text fontSize="sm" color="gray.600" noOfLines={3}>{review.comment}</Text>
-                      {review.verifiedPurchase && <Badge mt={2} colorScheme="green">Đã mua hàng</Badge>}
-                    </Td>
-                    <Td borderColor={borderColor} minW="160px">
-                      <Text fontWeight="600">{review.nickname || review.userFullName || 'Khách hàng'}</Text>
-                      <Text fontSize="xs" color="gray.500">{review.location || '-'}</Text>
-                    </Td>
-                    <Td borderColor={borderColor}>{renderStatus(review.status)}</Td>
-                    <Td borderColor={borderColor} minW="240px">
+                      <Text fontSize="xs" color="gray.500">
+                        Sản phẩm #{review.productId}
+                      </Text>
+                    </Box>
+                    <HStack spacing={2} flexWrap="wrap">
+                      <Badge colorScheme="yellow">{review.rating}/5 sao</Badge>
+                      {renderStatus(review.status)}
+                      {review.verifiedPurchase && (
+                        <Badge colorScheme="green">Đã mua hàng</Badge>
+                      )}
+                    </HStack>
+                  </Flex>
+
+                  <Divider my={4} />
+
+                  <SimpleGrid columns={{ base: 1, lg: 2 }} spacing={5}>
+                    <Box>
+                      <Text fontWeight="700" mb={1}>
+                        {review.title || 'Đánh giá sản phẩm'}
+                      </Text>
+                      <Text fontSize="sm" color="gray.600" whiteSpace="pre-wrap">
+                        {review.comment || '-'}
+                      </Text>
+                      <Text mt={3} fontSize="sm" fontWeight="600">
+                        {review.nickname ||
+                          review.userFullName ||
+                          'Khách hàng'}
+                      </Text>
+                      <Text fontSize="xs" color="gray.500">
+                        {review.location || 'Không có vị trí'}
+                      </Text>
+                    </Box>
+
+                    <Box>
+                      <Text fontSize="sm" fontWeight="600" mb={2}>
+                        Phản hồi từ shop
+                      </Text>
                       <Textarea
                         size="sm"
                         rows={3}
                         value={replyDrafts[review.id] || ''}
-                        onChange={(e) => setReplyDrafts((prev) => ({ ...prev, [review.id]: e.target.value }))}
+                        onChange={(event) =>
+                          setReplyDrafts((previous) => ({
+                            ...previous,
+                            [review.id]: event.target.value,
+                          }))
+                        }
                         placeholder="Nhập phản hồi từ shop"
                       />
-                      <Button mt={2} size="xs" colorScheme="brand" onClick={() => runAction(() => ReviewService.replyReview(review.id, replyDrafts[review.id]), 'Đã lưu phản hồi')}>
+                      <Button
+                        mt={2}
+                        size="sm"
+                        colorScheme="brand"
+                        onClick={() =>
+                          runAction(
+                            () =>
+                              ReviewService.replyReview(
+                                review.id,
+                                replyDrafts[review.id],
+                              ),
+                            'Đã lưu phản hồi',
+                          )
+                        }
+                      >
                         Lưu phản hồi
                       </Button>
-                    </Td>
-                    <Td borderColor={borderColor} textAlign="right" minW="220px">
-                      <HStack justify="flex-end" spacing={2}>
-                        <Button size="xs" colorScheme="green" variant="outline" onClick={() => runAction(() => ReviewService.approveReview(review.id), 'Đã duyệt đánh giá')}>Duyệt</Button>
-                        <Button size="xs" colorScheme="red" variant="outline" onClick={() => runAction(() => ReviewService.rejectReview(review.id), 'Đã từ chối đánh giá')}>Từ chối</Button>
-                        <Button size="xs" colorScheme="gray" variant="outline" onClick={() => runAction(() => ReviewService.deleteReview(review.id), 'Đã xóa đánh giá')}>Xóa</Button>
-                      </HStack>
-                    </Td>
-                  </Tr>
-                ))
-              )}
-            </Tbody>
-          </Table>
+                    </Box>
+                  </SimpleGrid>
+
+                  <Divider my={4} />
+
+                  <Flex justify="flex-end" gap={2} flexWrap="wrap">
+                    <Button
+                      size="sm"
+                      colorScheme="green"
+                      variant="outline"
+                      onClick={() =>
+                        runAction(
+                          () => ReviewService.approveReview(review.id),
+                          'Đã duyệt đánh giá',
+                        )
+                      }
+                    >
+                      Duyệt
+                    </Button>
+                    <Button
+                      size="sm"
+                      colorScheme="red"
+                      variant="outline"
+                      onClick={() =>
+                        runAction(
+                          () => ReviewService.rejectReview(review.id),
+                          'Đã từ chối đánh giá',
+                        )
+                      }
+                    >
+                      Từ chối
+                    </Button>
+                    <Button
+                      size="sm"
+                      colorScheme="gray"
+                      variant="outline"
+                      onClick={() =>
+                        runAction(
+                          () => ReviewService.deleteReview(review.id),
+                          'Đã xóa đánh giá',
+                        )
+                      }
+                    >
+                      Xóa
+                    </Button>
+                  </Flex>
+                </Box>
+              ))}
+            </VStack>
+          )}
         </Box>
       </Card>
       {totalPages > 1 && <Pagination page={page} totalPages={totalPages} onPageChange={setPage} />}

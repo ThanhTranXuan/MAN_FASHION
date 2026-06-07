@@ -7,11 +7,18 @@ export default function Header({ searchInput, setSearchInput, onAdd }) {
   const textColor = useColorModeValue('secondaryGray.900', 'white');
 
   return (
-    <Flex px="25px" my="8px" justifyContent="space-between" align="center">
-      <Text color={textColor} fontSize="22px" fontWeight="700">
+    <Flex
+      px={{ base: 4, md: '25px' }}
+      py="12px"
+      justifyContent="space-between"
+      align={{ base: 'stretch', md: 'center' }}
+      direction={{ base: 'column', md: 'row' }}
+      gap={3}
+    >
+      <Text color={textColor} fontSize={{ base: '18px', md: '22px' }} fontWeight="700">
         Danh Sách Nhân Viên
       </Text>
-      <Flex gap={2}>
+      <Flex gap={2} w={{ base: '100%', md: 'auto' }}>
         <SearchBar
           placeholder="Tìm kiếm nhân viên..."
           value={searchInput}

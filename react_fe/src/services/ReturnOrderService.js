@@ -11,7 +11,7 @@ const ReturnOrderService = {
   updateStatusAdmin: (orderCode, status) =>
     ApiClient.patch(ApiUrl.UPDATE_RETURN_STATUS(orderCode), null, {
       params: { status },
-    }),
+    }).then((res) => res.data.data),
 
   // 🔍 Check xem có return mới sau một mốc thời gian (millis)
   hasNewSince: (since) =>

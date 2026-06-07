@@ -16,7 +16,12 @@ import {
   Circle,
 } from '@chakra-ui/react';
 import { useAppToast } from 'utils/ToastHelper';
-import { IoMdMoon, IoMdSunny, IoMdCart } from 'react-icons/io';
+import {
+  IoMdMoon,
+  IoMdSunny,
+  IoMdCart,
+  IoMdNotificationsOutline,
+} from 'react-icons/io';
 import React, { useState } from 'react';
 import ConfirmDialog from 'components/dialog/ConfirmDialog';
 import { useNavigate, useLocation } from 'react-router-dom';
@@ -71,7 +76,14 @@ export default function NavbarLinks() {
   const cartQty = cart.totalQuantity || 0;
 
   const { user, isAuthenticated, logout } = useUser();
-  const { hasNewOrder, hasNewReturn } = useNotification();
+  const {
+    hasNewOrder,
+    hasNewReturn,
+    hasProfileOrderUpdate,
+    latestUserNotification,
+    userUnreadCount,
+    clearProfileNotification,
+  } = useNotification();
   const { hasNewChat } = useChat();
   const navigate = useNavigate();
   const toast = useAppToast();
@@ -94,6 +106,8 @@ export default function NavbarLinks() {
     isAuthenticated && ['ADMIN', 'EMPLOYEE'].includes(user?.roleName);
   const hasAdminUnread =
     isStaffUser && !isAdminRoute && (hasNewOrder || hasNewReturn || hasNewChat);
+  const hasUserOrderUnread =
+    user?.roleName === 'USER' && hasProfileOrderUpdate;
   const avatarSrc = resolveAvatarUrl(
     user?.avatarUrl,
     user?.photoUrl,
@@ -196,6 +210,51 @@ export default function NavbarLinks() {
         </>
       )}
 
+      {hasUserOrderUnread && (
+        <Button
+          variant="ghost"
+          p="0"
+          minW="unset"
+          aria-label="Thông báo đơn hàng"
+          title={
+            latestUserNotification?.orderCode
+              ? `Đơn hàng ${latestUserNotification.orderCode} vừa cập nhật`
+              : 'Đơn hàng vừa cập nhật'
+          }
+          onClick={() => {
+            clearProfileNotification('order');
+            hideChatWidget();
+            navigate('/user/profile');
+          }}
+          _hover={{ bg: 'transparent' }}
+        >
+          <Box position="relative">
+            <Icon
+              h="24px"
+              w="24px"
+              color={navbarIcon}
+              as={IoMdNotificationsOutline}
+            />
+            <Badge
+              position="absolute"
+              top="-7px"
+              right="-8px"
+              minW="16px"
+              h="16px"
+              px="4px"
+              bg="red.500"
+              color="white"
+              borderRadius="full"
+              fontSize="10px"
+              lineHeight="16px"
+              textAlign="center"
+            >
+              {Math.min(userUnreadCount, 9)}
+            </Badge>
+          </Box>
+        </Button>
+      )}
+
       {/* 🌗 Dark/Light toggle */}
       <Button
         variant="ghost"
@@ -237,10 +296,10 @@ export default function NavbarLinks() {
                 h="40px"
                 cursor="pointer"
               />
-              {hasAdminUnread && (
+              {(hasAdminUnread || hasUserOrderUnread) && (
                 <Circle
                   size="10px"
-                  bg="brand.400"
+                  bg={hasUserOrderUnread ? 'red.500' : 'brand.400'}
                   position="absolute"
                   top="1px"
                   right="1px"
@@ -306,12 +365,22 @@ export default function NavbarLinks() {
                   variant="ghost"
                   justifyContent="flex-start"
                   size="sm"
+                  position="relative"
                   onClick={() => {
+                    clearProfileNotification('order');
                     hideChatWidget();
                     navigate('/user/profile');
                   }}
                 >
                   Hồ Sơ Của Bạn
+                  {hasUserOrderUnread && (
+                    <Circle
+                      size="8px"
+                      bg="red.500"
+                      position="absolute"
+                      right="10px"
+                    />
+                  )}
                 </Button>
                 <Button
                   variant="ghost"

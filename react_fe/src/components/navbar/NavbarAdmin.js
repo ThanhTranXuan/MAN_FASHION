@@ -99,10 +99,11 @@ export default function AdminNavbar(props) {
           sm: 'column',
           md: 'row',
         }}
-        alignItems={{ xl: 'center' }}
+        alignItems={{ base: 'stretch', md: 'center' }}
+        gap={{ base: 2, md: 4 }}
         mb={gap}
       >
-        <Box mb={{ sm: '8px', md: '0px' }}>
+        <Box mb={{ base: '4px', md: '0px' }} minW={0}>
           <Breadcrumb>
             <BreadcrumbItem color={secondaryText} fontSize="sm" mb="5px">
               <BreadcrumbLink href="#" color={secondaryText}>
@@ -123,7 +124,8 @@ export default function AdminNavbar(props) {
             bg="inherit"
             borderRadius="inherit"
             fontWeight="bold"
-            fontSize="34px"
+            fontSize={{ base: '22px', sm: '26px', md: '30px', xl: '34px' }}
+            lineHeight="1.2"
             _hover={{ color: { mainText } }}
             _active={{
               bg: 'inherit',
@@ -137,7 +139,7 @@ export default function AdminNavbar(props) {
             {brandText}
           </Link>
         </Box>
-        <Box ms="auto" w={{ sm: '100%', md: 'unset' }}>
+        <Box ms={{ base: 0, md: 'auto' }} w={{ base: '100%', md: 'unset' }}>
           <NavbarLinks scrolled={scrolled} />
         </Box>
       </Flex>

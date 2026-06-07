@@ -44,7 +44,7 @@ export default function ProductForm({ isOpen, onClose, reload, editingItem }) {
   const [existingImages, setExistingImages] = useState([]);
   const [newImages, setNewImages] = useState([]);
   const [newImagePreviews, setNewImagePreviews] = useState([]);
-  const [removedImageUrls, setRemovedImageUrls] = useState([]);
+  const [deletedImageIds, setDeletedImageIds] = useState([]);
 
   const fileInputRef = useRef(null);
   const [loading, setLoading] = useState(false);
@@ -89,7 +89,7 @@ export default function ProductForm({ isOpen, onClose, reload, editingItem }) {
       prev.forEach((url) => URL.revokeObjectURL(url));
       return [];
     });
-    setRemovedImageUrls([]);
+    setDeletedImageIds([]);
   }, [editingItem]);
 
   const handleFileSelect = (e) => {
@@ -111,9 +111,12 @@ export default function ProductForm({ isOpen, onClose, reload, editingItem }) {
         image.id ? item.id !== image.id : item.url !== image.url,
       ),
     );
-    setRemovedImageUrls((prev) =>
-      prev.includes(image.url) ? prev : [...prev, image.url],
-    );
+    if (image.id != null) {
+      const imageId = Number(image.id);
+      setDeletedImageIds((prev) =>
+        prev.includes(imageId) ? prev : [...prev, imageId],
+      );
+    }
   };
 
   const handleRemoveNewImage = (index) => {
@@ -138,8 +141,6 @@ export default function ProductForm({ isOpen, onClose, reload, editingItem }) {
     setLoading(true);
 
     try {
-      const remainingImageUrls = existingImages.map((img) => img.url).filter(Boolean);
-      const hasRemovedImages = removedImageUrls.length > 0;
       const payload = {
         name,
         description,
@@ -148,8 +149,8 @@ export default function ProductForm({ isOpen, onClose, reload, editingItem }) {
         isActive: true,
       };
 
-      if (editingItem && hasRemovedImages) {
-        payload.remainingImageUrls = remainingImageUrls;
+      if (editingItem && deletedImageIds.length > 0) {
+        payload.deletedImageIds = deletedImageIds;
       }
 
       const res = editingItem
@@ -161,10 +162,17 @@ export default function ProductForm({ isOpen, onClose, reload, editingItem }) {
         const productId = res.data?.data?.id || res.data?.id || editingItem?.id;
 
         if (newImages.length > 0 && productId) {
+          const remainingProductImageUrls = existingImages
+            .filter((img) => !img.color)
+            .map((img) => img.url)
+            .filter(Boolean);
+
           await ProductService.uploadImages(productId, {
             color: null,
             files: newImages,
-            remainingImageUrls: editingItem ? remainingImageUrls : undefined,
+            remainingImageUrls: editingItem
+              ? remainingProductImageUrls
+              : undefined,
           });
         }
 
@@ -208,7 +216,13 @@ export default function ProductForm({ isOpen, onClose, reload, editingItem }) {
       scrollBehavior="inside"
     >
       <ModalOverlay />
-      <ModalContent borderRadius="20px" bg={bgColor} color={textColor}>
+      <ModalContent
+        borderRadius="20px"
+        bg={bgColor}
+        color={textColor}
+        mx={{ base: 3, md: 0 }}
+        maxH={{ base: 'calc(100vh - 24px)', md: 'calc(100vh - 48px)' }}
+      >
         <ModalHeader bg={headerBg}>
           {editingItem ? 'Chỉnh Sửa Sản Phẩm' : 'Tạo Sản Phẩm'}
         </ModalHeader>
@@ -322,7 +336,7 @@ export default function ProductForm({ isOpen, onClose, reload, editingItem }) {
             />
           </FormControl>
 
-          <Flex gap={4} mb={3}>
+          <Flex gap={4} mb={3} direction={{ base: 'column', sm: 'row' }}>
             <FormControl isRequired>
               <FormLabel>Giá</FormLabel>
               <Input

@@ -106,7 +106,6 @@ const routes = [
     path: '/coupon-management',
     icon: <Icon as={MdLocalOffer} w="20px" h="20px" color="inherit" />,
     component: <CouponPage />,
-    adminOnly: true,
   },
   {
     name: 'Quản Lý Bài Viết',
@@ -114,7 +113,6 @@ const routes = [
     path: '/blog-management',
     icon: <Icon as={MdArticle} w="20px" h="20px" color="inherit" />,
     component: <BlogPage />,
-    adminOnly: true,
   },
   {
     name: 'Hỗ Trợ Chat',
