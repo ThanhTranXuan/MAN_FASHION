@@ -14,6 +14,10 @@ public interface ProductMapper {
     // Chuyển từ Entity sang Response DTO để trả về cho Client
     @Mapping(target = "categoryName", expression = "java(product.getCategory() != null ? product.getCategory().getName() : null)")
     @Mapping(target = "categoryId", expression = "java(product.getCategory() != null ? product.getCategory().getId() : null)")
+    @Mapping(target = "salePrice", ignore = true)
+    @Mapping(target = "isSale", ignore = true)
+    @Mapping(target = "averageRating", ignore = true)
+    @Mapping(target = "reviewCount", ignore = true)
     ProductResponse toResponseDTO(Product product);
 
     @AfterMapping

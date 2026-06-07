@@ -11,4 +11,6 @@ public interface AttendanceRepository extends JpaRepository<Attendance,Integer> 
     Optional<Attendance> findFirstByUserIdAndCheckOutTimeIsNullOrderByCheckInTimeDesc(Integer userId);
 
     List<Attendance> findByUserIdAndCheckInTimeBetween(Integer userId, LocalDateTime start, LocalDateTime end);
+
+    void deleteByUserId(Integer userId);
 }

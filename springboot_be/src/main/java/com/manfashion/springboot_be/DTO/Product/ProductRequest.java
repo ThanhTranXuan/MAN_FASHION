@@ -12,4 +12,5 @@ public class ProductRequest {
     private String categoryId;
     private Boolean isActive = true;
     private List<String> remainingImageUrls;
+    private List<Integer> deletedImageIds;
 }

@@ -9,6 +9,7 @@ import com.manfashion.springboot_be.repository.Product.ProductRepository;
 import com.manfashion.springboot_be.service.Order.OrderService;
 import com.manfashion.springboot_be.service.Return.ReturnOrderService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -31,6 +32,7 @@ import java.util.regex.Pattern;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class DifyBotService {
 
     private final RestClient restClient;
@@ -49,7 +51,7 @@ public class DifyBotService {
 
     private static final Pattern ORDER_CODE_PATTERN = Pattern.compile("\\bORD-[A-Z0-9-]+\\b", Pattern.CASE_INSENSITIVE);
     private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
-    private static final NumberFormat VND_FORMATTER = NumberFormat.getCurrencyInstance(new Locale("vi", "VN"));
+    private static final NumberFormat VND_FORMATTER = NumberFormat.getCurrencyInstance(Locale.forLanguageTag("vi-VN"));
     private static final Set<String> RETURN_ORDER_STATUSES = Set.of("RETURN", "RETURNED", "REFUNDED");
 
     public String askBot(String sessionId, String userMessage) {
@@ -89,7 +91,7 @@ public class DifyBotService {
 
             return (String) response.get("answer");
         } catch (Exception e) {
-            System.err.println("Loi goi Dify: " + e.getMessage());
+            log.error("Failed to call Dify", e);
             return "Xin lỗi, hệ thống tư vấn đang bận. Bạn vui lòng thử lại sau nhé!";
         }
     }
@@ -100,7 +102,7 @@ public class DifyBotService {
 
         StringBuilder sb = new StringBuilder("KẾT QUẢ TÌM KIẾM:\n");
         products.forEach(p -> sb.append(String.format("- %s (Giá: %.0f VNĐ) - Slug: %s\n", p.getName(), p.getPrice(), p.getSlug())));
-        System.out.println("Du lieu gui sang Dify: " + sb);
+        log.debug("Product data sent to Dify: {}", sb);
         return sb.toString();
     }
 

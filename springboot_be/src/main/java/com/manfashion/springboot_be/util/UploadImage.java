@@ -2,6 +2,7 @@ package com.manfashion.springboot_be.util;
 import com.cloudinary.Cloudinary;
 import com.cloudinary.utils.ObjectUtils;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
@@ -9,6 +10,7 @@ import java.util.Map;
 
 @Component
 @RequiredArgsConstructor
+@Slf4j
 public class UploadImage {
     private final Cloudinary cloudinary;
 
@@ -32,13 +34,13 @@ public class UploadImage {
 
             if (publicId != null) {
                 cloudinary.uploader().destroy(publicId, ObjectUtils.emptyMap());
-                System.out.println("✅ Deleted Cloudinary image: " + publicId);
+                log.info("Deleted Cloudinary image: {}", publicId);
             } else {
-                System.err.println("⚠️ Cannot extract public_id from URL: " + imageUrl);
+                log.warn("Cannot extract Cloudinary public ID from URL: {}", imageUrl);
             }
 
         } catch (Exception e) {
-            System.err.println("❌ Error deleting image from Cloudinary: " + e.getMessage());
+            log.error("Failed to delete Cloudinary image: {}", imageUrl, e);
         }
     }
 

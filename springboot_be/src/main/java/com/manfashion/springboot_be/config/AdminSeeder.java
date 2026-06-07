@@ -6,6 +6,7 @@ import com.manfashion.springboot_be.repository.Role.RoleRepository;
 import com.manfashion.springboot_be.repository.User.UserRepository;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
@@ -13,6 +14,7 @@ import java.time.LocalDateTime;
 
 @Component
 @RequiredArgsConstructor
+@Slf4j
 public class AdminSeeder {
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
@@ -35,6 +37,6 @@ public class AdminSeeder {
 
         userRepository.save(admin);
 
-        System.out.println("✅ ADMIN SEEDED SUCCESSFULLY");
+        log.info("Default admin account seeded successfully");
     }
 }

@@ -101,7 +101,7 @@ public class BlogServiceImpl implements BlogService {
     public void deleteBlog(String idStr) {
         Integer id = Integer.valueOf(idStr);
         if (!blogRepository.existsById(id)) {
-            throw new RuntimeException("");
+            throw new AppException(ErrorCode.BLOG_NOT_FOUND);
         }
         blogRepository.deleteById(id);
     }

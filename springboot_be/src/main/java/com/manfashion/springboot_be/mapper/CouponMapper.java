@@ -15,6 +15,7 @@ public interface CouponMapper {
 
     // 2. Uỷ quyền việc tính toán isActive cho hàm default bên dưới
     @Mapping(target = "isActive", expression = "java(calculateIsActive(coupon))")
+    @Mapping(target = "points", ignore = true)
     CouponResponse toResponseDTO(Coupon coupon);
 
     // =====================================================

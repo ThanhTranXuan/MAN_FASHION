@@ -173,7 +173,7 @@ public class AuthenticationServiceImpl implements AuthenticationService{
         boolean sent = sendMail.sendMail(email, "Trendify - Reset Password", html);
 
         if (!sent) {
-            System.err.println("⚠️ Email could not be sent.");
+            log.warn("Password reset email could not be sent to {}", email);
         }
 
         return "Reset link sent";

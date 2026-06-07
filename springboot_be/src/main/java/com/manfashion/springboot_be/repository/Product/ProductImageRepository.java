@@ -13,6 +13,7 @@ public interface ProductImageRepository extends JpaRepository<ProductImage,Integ
     List<ProductImage> findByProductIdAndColorIgnoreCaseAndDeletedAtIsNull(Integer productId, String color);
     List<ProductImage> findByProductIdAndColorIsNull(Integer productId);
     List<ProductImage> findByProductIdAndColorIsNullAndDeletedAtIsNull(Integer productId);
+    List<ProductImage> findByIdInAndProductIdAndDeletedAtIsNull(List<Integer> ids, Integer productId);
     Optional<ProductImage> findFirstByProductIdAndIsThumbnailTrueAndDeletedAtIsNull(Integer id);
 
 }

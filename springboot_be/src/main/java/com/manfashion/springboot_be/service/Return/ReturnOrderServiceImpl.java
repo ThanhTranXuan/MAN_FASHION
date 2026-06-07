@@ -1,10 +1,10 @@
 package com.manfashion.springboot_be.service.Return;
 
 import com.manfashion.springboot_be.DTO.Return.ReturnItemRequest;
-import com.manfashion.springboot_be.DTO.Return.ReturnItemResponse;
 import com.manfashion.springboot_be.DTO.Return.ReturnOrderRequest;
 import com.manfashion.springboot_be.DTO.Return.ReturnOrderResponse;
 import com.manfashion.springboot_be.entity.*;
+import com.manfashion.springboot_be.mapper.ReturnOrderMapper;
 import com.manfashion.springboot_be.repository.Order.OrderItemRepository;
 import com.manfashion.springboot_be.repository.Order.OrderRepository;
 import com.manfashion.springboot_be.repository.Product.ProductVariantRepository;
@@ -21,7 +21,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
-import org.springframework.data.jpa.repository.Query;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 
@@ -29,7 +28,6 @@ import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.*;
-import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -47,6 +45,7 @@ public class ReturnOrderServiceImpl implements ReturnOrderService {
     private final SendMail sendMail;
     private final CodeGenerator codeGenerator;
     private final SimpMessagingTemplate messaging;
+    private final ReturnOrderMapper returnOrderMapper;
 
     // =====================================================
     // 🟢 USER REQUEST RETURN
@@ -133,6 +132,20 @@ public class ReturnOrderServiceImpl implements ReturnOrderService {
         // 6. Cập nhật trạng thái đơn hàng gốc
         order.setStatus("RETURN");
         orderRepo.save(order);
+        Map<String, Object> orderStatusEvent = Map.of(
+                "type", "ORDER_STATUS_UPDATED",
+                "orderId", order.getId(),
+                "orderCode", order.getOrderCode(),
+                "status", order.getStatus(),
+                "userId", order.getUser().getId(),
+                "message", "Đơn hàng " + order.getOrderCode() + " đã được cập nhật trạng thái",
+                "timestamp", System.currentTimeMillis()
+        );
+        messaging.convertAndSend("/topic/order-status", (Object) orderStatusEvent);
+        messaging.convertAndSend(
+                "/topic/users/" + order.getUser().getId() + "/notifications",
+                (Object) orderStatusEvent
+        );
 
         // 7. Gửi Email thông báo cho khách hàng
         sendMailWithTemplate(
@@ -151,7 +164,7 @@ public class ReturnOrderServiceImpl implements ReturnOrderService {
                 "timestamp", System.currentTimeMillis()
         ));
 
-        return toResponse(ro, createdItems);
+        return returnOrderMapper.toResponse(ro, createdItems);
     }
 
     // =====================================================
@@ -204,8 +217,15 @@ public class ReturnOrderServiceImpl implements ReturnOrderService {
                 "http://localhost:3000/user/profile"
         );
 
+        messaging.convertAndSend("/topic/return-status", (Object) Map.of(
+                "returnCode", ro.getReturnCode(),
+                "status", ro.getStatus(),
+                "userId", order.getUser().getId(),
+                "timestamp", System.currentTimeMillis()
+        ));
+
         List<ReturnItem> items = returnItemRepo.findByReturnOrderId(ro.getId());
-        return toResponse(ro, items);
+        return returnOrderMapper.toResponse(ro, items);
     }
 
     // =====================================================
@@ -239,7 +259,7 @@ public class ReturnOrderServiceImpl implements ReturnOrderService {
 
         return page.map(ro -> {
             List<ReturnItem> items = returnItemRepo.findByReturnOrderId(ro.getId());
-            return toResponse(ro, items);
+            return returnOrderMapper.toResponse(ro, items);
         });
     }
 
@@ -253,7 +273,7 @@ public class ReturnOrderServiceImpl implements ReturnOrderService {
 
         return page.map(ro -> {
             List<ReturnItem> items = returnItemRepo.findByReturnOrderId(ro.getId());
-            return toResponse(ro, items);
+            return returnOrderMapper.toResponse(ro, items);
         });
     }
 
@@ -275,42 +295,6 @@ public class ReturnOrderServiceImpl implements ReturnOrderService {
     // =====================================================
     // 🧱 HELPER MAPPING & EMAIL (PRIVATE METHODS)
     // =====================================================
-    private ReturnItemResponse toItemResponse(ReturnItem item) {
-        return ReturnItemResponse.builder()
-                .id(String.valueOf(item.getId()))
-                .orderItemId(String.valueOf(item.getOrderItem().getId()))
-                .quantity(item.getQuantity())
-                .unitPrice(item.getUnitPrice())
-                .status(item.getStatus())
-                .createdAt(item.getCreatedAt())
-                .build();
-    }
-
-    private ReturnOrderResponse toResponse(ReturnOrder ro, List<ReturnItem> items) {
-        List<ReturnItemResponse> itemResponses = items.stream()
-                .map(this::toItemResponse)
-                .collect(Collectors.toList());
-
-        String orderCode = orderRepo.findById(ro.getOrder().getId())
-                .map(Order::getOrderCode)
-                .orElse(null);
-
-        return ReturnOrderResponse.builder()
-                .id(String.valueOf(ro.getId()))
-                .returnCode(ro.getReturnCode())
-                .orderId(String.valueOf(ro.getOrder().getId()))
-                .orderCode(orderCode)
-                .userId(String.valueOf(ro.getUser().getId()))
-                .reason(ro.getReason())
-                .note(ro.getNote())
-                .status(ro.getStatus())
-                .refundAmount(ro.getRefundAmount())
-                .items(itemResponses)
-                .createdAt(ro.getCreatedAt())
-                .updatedAt(ro.getUpdatedAt())
-                .build();
-    }
-
     private void sendMailWithTemplate(
             String email,
             String name,

@@ -15,5 +15,14 @@ public interface OrderItemMapper {
     @Mapping(source = "variant.id", target = "variantId")
     @Mapping(source = "variant.color", target = "color")
     @Mapping(source = "variant.size", target = "size")
+    @Mapping(target = "imageUrl", ignore = true)
+    @Mapping(target = "thumbnailUrl", ignore = true)
     OrderItemResponse toResponse(OrderItem item);
+
+    default OrderItemResponse toResponse(OrderItem item, String imageUrl) {
+        OrderItemResponse response = toResponse(item);
+        response.setImageUrl(imageUrl);
+        response.setThumbnailUrl(imageUrl);
+        return response;
+    }
 }

@@ -3,6 +3,7 @@ package com.manfashion.springboot_be.service.Product;
 import com.manfashion.springboot_be.DTO.Product.*;
 import com.manfashion.springboot_be.entity.Category;
 import com.manfashion.springboot_be.entity.Product;
+import com.manfashion.springboot_be.entity.ProductImage;
 import com.manfashion.springboot_be.entity.ReviewStatus;
 import com.manfashion.springboot_be.exception.AppException;
 import com.manfashion.springboot_be.exception.ErrorCode;
@@ -13,6 +14,7 @@ import com.manfashion.springboot_be.repository.Product.ProductRepository;
 import com.manfashion.springboot_be.repository.Product.ProductReviewRepository;
 import com.manfashion.springboot_be.repository.Product.ProductVariantRepository;
 import com.manfashion.springboot_be.util.SlugGenerator;
+import com.manfashion.springboot_be.util.UploadImage;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -41,6 +43,7 @@ public class ProductServiceImpl implements ProductService{
     private final ProductReviewRepository reviewRepository;
     private final ProductMapper productMapper;
     private final SlugGenerator slugGenerator;
+    private final UploadImage uploadImage;
 //    private final CategoryService categoryService;
 
     private ProductResponse toResponseWithRating(Product product) {
@@ -173,20 +176,43 @@ public class ProductServiceImpl implements ProductService{
 
         productMapper.updateProductFromRequest(req, product);
         Product savedProduct = productRepository.save(product);
-        if (req.getRemainingImageUrls() != null) {
+        if (req.getDeletedImageIds() != null && !req.getDeletedImageIds().isEmpty()) {
+            deleteProductImages(savedProduct, req.getDeletedImageIds());
+        } else if (req.getRemainingImageUrls() != null) {
             syncProductImages(savedProduct.getId(), req.getRemainingImageUrls());
         }
 
-        return productMapper.toResponseDTO(productRepository.save(savedProduct));
+        return productMapper.toResponseDTO(savedProduct);
+    }
+
+    private void deleteProductImages(Product product, List<Integer> deletedImageIds) {
+        List<Integer> distinctIds = deletedImageIds.stream()
+                .filter(Objects::nonNull)
+                .distinct()
+                .toList();
+        if (distinctIds.isEmpty()) return;
+
+        List<ProductImage> removedImages =
+                imageRepository.findByIdInAndProductIdAndDeletedAtIsNull(distinctIds, product.getId());
+        if (removedImages.isEmpty()) return;
+
+        removedImages.forEach(image -> uploadImage.deleteImage(image.getUrl()));
+        imageRepository.deleteAll(removedImages);
+        product.getImages().removeIf(image ->
+                removedImages.stream().anyMatch(removed -> removed.getId().equals(image.getId())));
     }
 
     private void syncProductImages(Integer productId, List<String> remainingImageUrls) {
         Set<String> remainingUrls = new HashSet<>(remainingImageUrls);
 
-        imageRepository.findByProductIdAndColorIsNullAndDeletedAtIsNull(productId)
+        List<ProductImage> removedImages =
+                imageRepository.findByProductIdAndDeletedAtIsNull(productId)
                 .stream()
                 .filter(image -> !remainingUrls.contains(image.getUrl()))
-                .forEach(imageRepository::delete);
+                .toList();
+
+        removedImages.forEach(image -> uploadImage.deleteImage(image.getUrl()));
+        imageRepository.deleteAll(removedImages);
     }
 
     @Override

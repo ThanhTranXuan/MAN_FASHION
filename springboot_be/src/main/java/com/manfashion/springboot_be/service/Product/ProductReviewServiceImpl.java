@@ -9,6 +9,7 @@ import com.manfashion.springboot_be.entity.ReviewStatus;
 import com.manfashion.springboot_be.entity.User;
 import com.manfashion.springboot_be.exception.AppException;
 import com.manfashion.springboot_be.exception.ErrorCode;
+import com.manfashion.springboot_be.mapper.ProductReviewMapper;
 import com.manfashion.springboot_be.repository.Order.OrderItemRepository;
 import com.manfashion.springboot_be.repository.Product.ProductRepository;
 import com.manfashion.springboot_be.repository.Product.ProductReviewRepository;
@@ -35,13 +36,14 @@ public class ProductReviewServiceImpl implements ProductReviewService {
     private final ProductRepository productRepository;
     private final UserRepository userRepository;
     private final OrderItemRepository orderItemRepository;
+    private final ProductReviewMapper productReviewMapper;
 
     @Override
     @Transactional(readOnly = true)
     public Page<ReviewResponse> getReviewsByProduct(Integer productId, Pageable pageable) {
         return reviewRepository
                 .findByProductIdAndStatusAndDeletedAtIsNull(productId, ReviewStatus.APPROVED, pageable)
-                .map(this::convertToResponse);
+                .map(productReviewMapper::toResponse);
     }
 
     @Override
@@ -50,7 +52,7 @@ public class ProductReviewServiceImpl implements ProductReviewService {
         return reviewRepository
                 .findLatestReviews(productId, ReviewStatus.APPROVED, PageRequest.of(0, limit))
                 .stream()
-                .map(this::convertToResponse)
+                .map(productReviewMapper::toResponse)
                 .collect(Collectors.toList());
     }
 
@@ -102,14 +104,14 @@ public class ProductReviewServiceImpl implements ProductReviewService {
                 .verifiedPurchase(isVerifiedPurchase(productId, userId))
                 .build();
 
-        return convertToResponse(reviewRepository.save(review));
+        return productReviewMapper.toResponse(reviewRepository.save(review));
     }
 
     @Override
     @Transactional(readOnly = true)
     public Page<ReviewResponse> getAdminReviews(ReviewStatus status, Integer rating, Integer productId, Pageable pageable) {
         return reviewRepository.findAdminReviews(status, rating, productId, pageable)
-                .map(this::convertToResponse);
+                .map(productReviewMapper::toResponse);
     }
 
     @Override
@@ -117,7 +119,7 @@ public class ProductReviewServiceImpl implements ProductReviewService {
     public ReviewResponse approveReview(Long reviewId) {
         ProductReview review = getActiveReview(reviewId);
         review.setStatus(ReviewStatus.APPROVED);
-        return convertToResponse(reviewRepository.save(review));
+        return productReviewMapper.toResponse(reviewRepository.save(review));
     }
 
     @Override
@@ -125,7 +127,7 @@ public class ProductReviewServiceImpl implements ProductReviewService {
     public ReviewResponse rejectReview(Long reviewId) {
         ProductReview review = getActiveReview(reviewId);
         review.setStatus(ReviewStatus.REJECTED);
-        return convertToResponse(reviewRepository.save(review));
+        return productReviewMapper.toResponse(reviewRepository.save(review));
     }
 
     @Override
@@ -135,7 +137,7 @@ public class ProductReviewServiceImpl implements ProductReviewService {
         review.setAdminReply(adminReply);
         review.setAdminReplyAt(LocalDateTime.now());
         review.setAdminReplyBy(adminUserId);
-        return convertToResponse(reviewRepository.save(review));
+        return productReviewMapper.toResponse(reviewRepository.save(review));
     }
 
     @Override
@@ -163,29 +165,4 @@ public class ProductReviewServiceImpl implements ProductReviewService {
         return orderItemRepository.existsByProduct_IdAndOrder_User_IdAndOrder_StatusIn(productId, userId, verifiedStatuses);
     }
 
-    private ReviewResponse convertToResponse(ProductReview review) {
-        return ReviewResponse.builder()
-                .id(review.getId())
-                .productId(review.getProduct() != null ? review.getProduct().getId() : null)
-                .productName(review.getProduct() != null ? review.getProduct().getName() : null)
-                .productSlug(review.getProduct() != null ? review.getProduct().getSlug() : null)
-                .rating(review.getRating())
-                .title(review.getTitle())
-                .comment(review.getComment())
-                .purchasedSize(review.getPurchasedSize())
-                .purchasedColor(review.getPurchasedColor())
-                .nickname(review.getNickname())
-                .gender(review.getGender())
-                .location(review.getLocation())
-                .status(review.getStatus())
-                .verifiedPurchase(Boolean.TRUE.equals(review.getVerifiedPurchase()))
-                .adminReply(review.getAdminReply())
-                .adminReplyAt(review.getAdminReplyAt())
-                .adminReplyBy(review.getAdminReplyBy())
-                .createdAt(review.getCreatedAt())
-                .deletedAt(review.getDeletedAt())
-                .userFullName(review.getUser() != null ? review.getUser().getFullName() : review.getNickname())
-                .userAvatarUrl(review.getUser() != null ? review.getUser().getAvatarUrl() : null)
-                .build();
-    }
 }

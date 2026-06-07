@@ -65,9 +65,7 @@ public class UserServiceImpl implements UserService {
         Integer userId = Integer.valueOf(userIdStr);
 
         return userRepository.findById(userId).map(existing -> {
-            existing.setFullName(req.getFullName());
-            existing.setPhone(req.getPhone());
-            existing.setAddress(req.getAddress());
+            userMapper.updateProfile(req, existing);
             User saved = userRepository.save(existing);
             return userMapper.toResponseDTO(saved);
         });
@@ -77,7 +75,7 @@ public class UserServiceImpl implements UserService {
     public Optional<UserResponse> updateAvatar(String userIdHex, UserUpdateAvatarRequest req) {
         Integer userId = Integer.parseInt(userIdHex);
         return userRepository.findById(userId).map(user -> {
-            user.setAvatarUrl(req.getAvatarUrl());
+            userMapper.updateAvatar(req, user);
             return userMapper.toResponseDTO(userRepository.save(user));
         });
     }

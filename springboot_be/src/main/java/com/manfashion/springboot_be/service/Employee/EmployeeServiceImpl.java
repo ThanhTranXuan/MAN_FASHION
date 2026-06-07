@@ -9,13 +9,18 @@ import com.manfashion.springboot_be.entity.User;
 import com.manfashion.springboot_be.exception.AppException;
 import com.manfashion.springboot_be.exception.ErrorCode;
 import com.manfashion.springboot_be.mapper.EmployeeMapper;
+import com.manfashion.springboot_be.repository.Attendance.AttendanceRepository;
+import com.manfashion.springboot_be.repository.Chat.ChatConversationRepository;
+import com.manfashion.springboot_be.repository.Chat.ChatMessageRepository;
 import com.manfashion.springboot_be.repository.Role.RoleRepository;
 import com.manfashion.springboot_be.repository.User.UserRepository;
 import com.manfashion.springboot_be.service.Attendance.AttendanceService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -29,6 +34,9 @@ public class EmployeeServiceImpl implements EmployeeService{
     private final PasswordEncoder passwordEncoder;
     private final AttendanceService attendanceService;
     private final EmployeeMapper employeeMapper;
+    private final AttendanceRepository attendanceRepository;
+    private final ChatConversationRepository chatConversationRepository;
+    private final ChatMessageRepository chatMessageRepository;
     @Override
     public Page<EmployeeResponse> getAllEmployees(String keyword, Pageable pageable) {
         Role employeeRole = getEmployeeRole();
@@ -63,8 +71,7 @@ public class EmployeeServiceImpl implements EmployeeService{
         User user = userRepo.findById(Integer.parseInt(id))
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
 
-        user.setHourlyRate(req.getHourlyRate());
-        user.setFullName(req.getFullName());
+        employeeMapper.updateEmployee(req, user);
         // Có thể cập nhật thêm fullName, phone tùy nghiệp vụ
         return employeeMapper.toResponse(userRepo.save(user));
     }
@@ -72,10 +79,35 @@ public class EmployeeServiceImpl implements EmployeeService{
     @Override
     @Transactional
     public void deleteEmployee(String id) {
-        if (!userRepo.existsById(Integer.parseInt(id))) {
-            throw new AppException(ErrorCode.USER_NOT_FOUND);
+        Integer employeeId = Integer.parseInt(id);
+        User employee = userRepo.findById(employeeId)
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
+
+        if (employee.getRole() == null || !"EMPLOYEE".equals(employee.getRole().getName())) {
+            throw new AppException(ErrorCode.EMPLOYEE_DELETE_NOT_ALLOWED);
         }
-        userRepo.deleteById(Integer.parseInt(id));
+
+        Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        if (String.valueOf(employeeId).equals(String.valueOf(principal))) {
+            throw new AppException(ErrorCode.EMPLOYEE_DELETE_NOT_ALLOWED);
+        }
+
+        attendanceRepository.deleteByUserId(employeeId);
+
+        var assignedConversations = chatConversationRepository.findByAssignedEmployeeId(employeeId);
+        assignedConversations.forEach(conversation -> conversation.setAssignedEmployee(null));
+        chatConversationRepository.saveAll(assignedConversations);
+
+        var sentMessages = chatMessageRepository.findBySenderId(employeeId);
+        sentMessages.forEach(message -> message.setSender(null));
+        chatMessageRepository.saveAll(sentMessages);
+
+        try {
+            userRepo.delete(employee);
+            userRepo.flush();
+        } catch (DataIntegrityViolationException exception) {
+            throw new AppException(ErrorCode.EMPLOYEE_DELETE_HAS_RELATED_DATA);
+        }
     }
 
     @Override

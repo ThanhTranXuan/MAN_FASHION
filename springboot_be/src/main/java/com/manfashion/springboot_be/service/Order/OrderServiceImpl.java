@@ -1,7 +1,6 @@
 package com.manfashion.springboot_be.service.Order;
 
 import com.manfashion.springboot_be.DTO.Cart.CartItemRequest;
-import com.manfashion.springboot_be.DTO.Order.OrderItemResponse;
 import com.manfashion.springboot_be.DTO.Order.OrderRequest;
 import com.manfashion.springboot_be.DTO.Order.OrderResponse;
 import com.manfashion.springboot_be.entity.*;
@@ -29,6 +28,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 import vn.payos.model.v2.paymentRequests.PaymentLinkItem;
 
@@ -63,6 +63,7 @@ public class OrderServiceImpl implements OrderService {
     private final PaymentService paymentService;
     private final OrderMapper orderMapper;
     private final OrderItemMapper orderItemMapper;
+    private final SimpMessagingTemplate messaging;
 
 
     @Override
@@ -259,6 +260,7 @@ public class OrderServiceImpl implements OrderService {
         order.setStatus(s);
         orderRepo.save(order);
         sendMail(order.getEmail(), order.getFullName(), orderCode, "Order status updated: <b>" + s + "</b>");
+        publishOrderStatus(order);
         return toResponse(order, orderItemRepo.findByOrderId(order.getId()));
     }
 
@@ -295,6 +297,7 @@ public class OrderServiceImpl implements OrderService {
         }
         orderRepo.save(order);
         sendMail(order.getEmail(), order.getFullName(), orderCode, "Order status updated: <b>" + status + "</b>");
+        publishOrderStatus(order);
         return toResponse(order, orderItemRepo.findByOrderId(order.getId()));
     }
 
@@ -333,6 +336,24 @@ public class OrderServiceImpl implements OrderService {
 
 
     // ================== HELPER METHODS ==================
+
+    private void publishOrderStatus(Order order) {
+        Map<String, Object> event = Map.of(
+                "type", "ORDER_STATUS_UPDATED",
+                "orderId", order.getId(),
+                "orderCode", order.getOrderCode(),
+                "status", order.getStatus(),
+                "userId", order.getUser().getId(),
+                "message", "Đơn hàng " + order.getOrderCode() + " đã được cập nhật trạng thái",
+                "timestamp", System.currentTimeMillis()
+        );
+
+        messaging.convertAndSend("/topic/order-status", (Object) event);
+        messaging.convertAndSend(
+                "/topic/users/" + order.getUser().getId() + "/notifications",
+                (Object) event
+        );
+    }
 
     private OrderResponse toResponse(Order o, List<OrderItem> items) {
         return toResponse(o, items, null, null);
@@ -378,47 +399,15 @@ public class OrderServiceImpl implements OrderService {
 
     private OrderResponse toResponse(Order o, List<OrderItem> items, Payment preloadedPayment, Map<Integer, List<ProductImage>> imagesByProductId) {
         // SỬA Ở ĐÂY: Get qua liên kết Object
-        List<OrderItemResponse> itemDtos = items.stream().map(oi -> OrderItemResponse.builder()
-                .id(String.valueOf(oi.getId()))
-                .productId(String.valueOf(oi.getProduct().getId()))
-                .variantId(String.valueOf(oi.getVariant().getId()))
-                .productName(oi.getProduct().getName())
-                .color(oi.getVariant() != null ? oi.getVariant().getColor() : null)
-                .size(oi.getVariant() != null ? oi.getVariant().getSize() : null)
-                .imageUrl(resolveOrderItemImage(oi, imagesByProductId))
-                .thumbnailUrl(resolveOrderItemImage(oi, imagesByProductId))
-                .quantity(oi.getQuantity())
-                .price(oi.getPrice())
-                .build()).toList();
+        var itemResponses = items.stream()
+                .map(item -> orderItemMapper.toResponse(
+                        item,
+                        resolveOrderItemImage(item, imagesByProductId)
+                ))
+                .toList();
 
         Payment payment = preloadedPayment != null ? preloadedPayment : paymentRepo.findByOrderId(o.getId()).orElse(null);
-        String paymentStatus = "COD".equals(o.getPaymentMethod()) ? "COD" : (payment != null ? payment.getPaymentStatus() : "PENDING");
-
-        return OrderResponse.builder()
-                .id(String.valueOf(o.getId()))
-                .orderCode(o.getOrderCode())
-                .userId(o.getUser() != null ? String.valueOf(o.getUser().getId()) : null)
-                .fullName(o.getFullName())
-                .email(o.getEmail())
-                .phone(o.getPhone())
-                .address(o.getAddress())
-                .couponId(o.getCoupon() != null ? String.valueOf(o.getCoupon().getId()) : null)
-                .couponCode(o.getCoupon() != null ? o.getCoupon().getCode() : null)
-                .discountPercent(o.getDiscountPercent())
-                .discountValue(o.getDiscountValue())
-                .subtotal(o.getSubtotal())
-                .finalTotal(o.getFinalTotal())
-                .status(o.getStatus())
-                .deliveredAt(o.getDeliveredAt())
-                .createdAt(o.getCreatedAt())
-                .updatedAt(o.getUpdatedAt())
-                .items(itemDtos)
-                .paymentMethod(o.getPaymentMethod())
-                .paymentLink(payment != null ? payment.getPaymentLink() : null)
-                .qrCodeUrl(payment != null ? payment.getQrCodeUrl() : null)
-                .paymentStatus(paymentStatus)
-                .paidAt(payment != null ? payment.getPaidAt() : null)
-                .build();
+        return orderMapper.toResponse(o, itemResponses, payment);
     }
 
     private String customerName(Order order) {

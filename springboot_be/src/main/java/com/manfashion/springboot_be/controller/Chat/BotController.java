@@ -2,6 +2,7 @@ package com.manfashion.springboot_be.controller.Chat;
 
 import com.manfashion.springboot_be.config.JwtUtils;
 import com.manfashion.springboot_be.service.Chat.DifyBotService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -14,6 +15,7 @@ import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/v1/bot")
+@Slf4j
 public class BotController {
 
     private final DifyBotService botService;
@@ -45,13 +47,15 @@ public class BotController {
                     return Integer.valueOf(jwtUtils.getUserIdFromJwtToken(token));
                 }
             } catch (Exception ex) {
-                System.err.println("Bot auth debug: Authorization header exists but token is invalid: " + ex.getMessage());
+                log.debug("Bot request contains an invalid bearer token", ex);
             }
         }
 
-        System.out.println("Bot auth debug: missing logged-in user. hasAuthorization="
-                + (authorizationHeader != null && !authorizationHeader.isBlank())
-                + ", principal=" + principal);
+        log.debug(
+                "Bot request has no authenticated user. hasAuthorization={}, principal={}",
+                authorizationHeader != null && !authorizationHeader.isBlank(),
+                principal
+        );
         return null;
     }
 

@@ -14,5 +14,6 @@ public class ProductStatsResponse {
     private String description;
     private Double price;
     private String categoryId;
+    @Builder.Default
     private Boolean isActive = true;
 }

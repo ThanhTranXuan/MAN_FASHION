@@ -9,5 +9,6 @@ import org.mapstruct.Mapping;
 public interface AttendanceMapper {
 
     @Mapping(target = "id", source = "id")
+    @Mapping(target = "userId", source = "user.id")
     AttendanceResponse toResponse(Attendance attendance);
 }

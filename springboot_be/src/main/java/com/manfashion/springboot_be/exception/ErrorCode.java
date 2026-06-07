@@ -56,6 +56,8 @@ public enum ErrorCode {
     USER_VIP_NOT_FOUND(3004, "error.user.vip.not-found", HttpStatus.NOT_FOUND),
     USER_VIP_POINTS_NOT_FOUND(3005, "error.user.vip.points.not-enough", HttpStatus.BAD_REQUEST),
     USER_NOT_ACCESS(3006, "error.user.access.denied", HttpStatus.FORBIDDEN),
+    EMPLOYEE_DELETE_NOT_ALLOWED(3007, "error.employee.delete.not-allowed", HttpStatus.FORBIDDEN),
+    EMPLOYEE_DELETE_HAS_RELATED_DATA(3008, "error.employee.delete.related-data", HttpStatus.CONFLICT),
 
     // ========================
     // 4000-4999: PRODUCT ERRORS

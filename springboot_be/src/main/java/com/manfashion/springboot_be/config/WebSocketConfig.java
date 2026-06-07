@@ -1,6 +1,6 @@
 package com.manfashion.springboot_be.config;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.MessageChannel;
@@ -21,10 +21,10 @@ import java.util.List;
 
 @Configuration
 @EnableWebSocketMessageBroker
+@RequiredArgsConstructor
 public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 
-    @Autowired
-    private JwtUtils jwtUtils;
+    private final JwtUtils jwtUtils;
 
     @Override
     public void configureMessageBroker(MessageBrokerRegistry config) {
@@ -60,6 +60,23 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
                                     );
                             accessor.setUser(userAuth);
                             SecurityContextHolder.getContext().setAuthentication(userAuth);
+                        }
+                    }
+                } else if (accessor != null && StompCommand.SUBSCRIBE.equals(accessor.getCommand())) {
+                    String destination = accessor.getDestination();
+                    String prefix = "/topic/users/";
+                    String suffix = "/notifications";
+
+                    if (destination != null &&
+                            destination.startsWith(prefix) &&
+                            destination.endsWith(suffix)) {
+                        String destinationUserId = destination.substring(
+                                prefix.length(),
+                                destination.length() - suffix.length()
+                        );
+                        if (accessor.getUser() == null ||
+                                !destinationUserId.equals(accessor.getUser().getName())) {
+                            return null;
                         }
                     }
                 }
