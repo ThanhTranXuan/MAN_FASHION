@@ -83,14 +83,15 @@ export const globalStyles = {
       body: {
         overflowX: "hidden",
         bg: mode("secondaryGray.300", "navy.900")(props),
-        fontFamily: "'Inter', 'Roboto', 'Be Vietnam Pro', 'Noto Sans', Arial, sans-serif",
-        letterSpacing: "-0.5px",
+        fontFamily: "'TT Commons Pro', 'Helvetica Neue', Helvetica, Arial, 'Noto Sans', sans-serif",
+        letterSpacing: "normal",
+        color: mode("secondaryGray.900", "white")(props),
       },
       input: {
         color: "gray.700",
       },
       html: {
-        fontFamily: "'Inter', 'Roboto', 'Be Vietnam Pro', 'Noto Sans', Arial, sans-serif",
+        fontFamily: "'TT Commons Pro', 'Helvetica Neue', Helvetica, Arial, 'Noto Sans', sans-serif",
       },
     }),
   },

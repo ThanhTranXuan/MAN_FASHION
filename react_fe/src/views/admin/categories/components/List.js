@@ -46,7 +46,7 @@ export default function List({
   const hasData = treeData && treeData.length > 0;
 
   return (
-    <Box minH="600px" overflowX="auto" p={3} position="relative" bg={bgColor} borderRadius="10px">
+    <Box minH={{ base: '360px', md: '520px' }} overflowX="auto" p={{ base: 2, md: 3 }} position="relative" bg={bgColor} borderRadius="10px">
       {/* 🔄 Loading overlay */}
       {isLoading && (
         <Flex
@@ -87,7 +87,7 @@ export default function List({
             <Tr>
               <Th colSpan={table.getAllColumns().length} py={10} textAlign="center">
                 <Text color="gray.500" fontSize="sm">
-                  No categories found.
+                  Không tìm thấy danh mục.
                 </Text>
               </Th>
             </Tr>

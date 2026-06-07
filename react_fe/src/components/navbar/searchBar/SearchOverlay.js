@@ -119,14 +119,17 @@ export default function SearchOverlay({ isOpen, onClose }) {
           display="flex"
           justifyContent="center"
           alignItems="flex-start"
-          pt={{ base: '10vh', md: '15vh' }}
+          overflowY="auto"
+          px={{ base: 4, md: 6 }}
+          py={{ base: 6, md: '12vh' }}
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           transition={{ duration: 0.2, ease: [0.22, 1, 0.36, 1] }}
         >
       <MotionBox
-        w={{ base: '90%', md: '600px' }}
+        w="100%"
+        maxW="600px"
         position="relative"
         initial={{ opacity: 0, y: -18, scale: 0.98 }}
         animate={{ opacity: 1, y: 0, scale: 1 }}
@@ -135,9 +138,10 @@ export default function SearchOverlay({ isOpen, onClose }) {
       >
         {/* Nút đóng */}
         <CloseButton 
-          position="absolute" 
-          top="-40px" 
-          right="0" 
+          position="relative"
+          display="block"
+          ml="auto"
+          mb={3}
           size="lg" 
           onClick={onClose} 
         />
@@ -147,8 +151,8 @@ export default function SearchOverlay({ isOpen, onClose }) {
           align="center"
           bg={bg}
           borderRadius="full"
-          boxShadow="0 10px 30px rgba(0,0,0,0.1)"
-          px={4}
+          boxShadow="0 8px 24px rgba(15,23,42,0.10)"
+          px={{ base: 3, md: 4 }}
           py={2}
           border="1px solid"
           borderColor="gray.200"
@@ -159,8 +163,9 @@ export default function SearchOverlay({ isOpen, onClose }) {
             onChange={(e) => setQuery(e.target.value)}
             placeholder="Bạn đang tìm kiếm gì?"
             variant="unstyled"
-            fontSize="lg"
-            ml={3}
+            fontSize={{ base: 'md', md: 'lg' }}
+            ml={{ base: 2, md: 3 }}
+            minW={0}
             onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
             autoFocus
           />
@@ -182,7 +187,7 @@ export default function SearchOverlay({ isOpen, onClose }) {
         )}
 
         {/* Lịch sử & Gợi ý */}
-        <Flex mt={8} direction={{ base: 'column', md: 'row' }} gap={8}>
+        <Flex mt={{ base: 6, md: 8 }} direction={{ base: 'column', md: 'row' }} gap={{ base: 6, md: 8 }}>
           <Box flex={1}>
             <Text fontWeight="bold" mb={4} color="gray.500">LỊCH SỬ TÌM KIẾM</Text>
             <VStack align="stretch" spacing={3}>

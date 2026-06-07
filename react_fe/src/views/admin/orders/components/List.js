@@ -23,7 +23,7 @@ export default function List({ table, isLoading }) {
   const rows = table.getRowModel().rows;
 
   return (
-    <Box minH="600px" overflowX="auto" p={3} position="relative" bg={bgColor} borderRadius="10px">
+    <Box minH={{ base: '360px', md: '520px' }} overflowX="auto" p={{ base: 2, md: 3 }} position="relative" bg={bgColor} borderRadius="10px">
       {/* 🔄 Loading overlay */}
       {isLoading && (
         <Flex
@@ -70,7 +70,7 @@ export default function List({ table, isLoading }) {
             <Tr>
               <Td colSpan={table.getAllColumns().length} textAlign="center" py={8}>
                 <Text color="gray.500" fontSize="sm">
-                  No orders found.
+                  Không tìm thấy đơn hàng.
                 </Text>
               </Td>
             </Tr>

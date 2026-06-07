@@ -299,13 +299,15 @@ export default function ChatWidget({ hidden = false }) {
         {isOpen && (
           <MotionBox
             position="fixed"
-            bottom="90px"
-            right="24px"
-            w={{ base: '90%', sm: '380px' }}
-            h="560px"
+            bottom={{ base: '78px', sm: '90px' }}
+            right={{ base: '12px', sm: '24px' }}
+            left={{ base: '12px', sm: 'auto' }}
+            w={{ base: 'auto', sm: '380px' }}
+            h={{ base: 'min(560px, calc(100dvh - 104px))', sm: '560px' }}
+            maxH="calc(100dvh - 104px)"
             bg={bg}
-            borderRadius="xl"
-            boxShadow="2xl"
+            borderRadius={{ base: 'lg', sm: 'xl' }}
+            boxShadow="0 18px 48px rgba(15, 23, 42, 0.18)"
             zIndex="2100"
             display="flex"
             flexDir="column"
@@ -320,7 +322,7 @@ export default function ChatWidget({ hidden = false }) {
           <Flex
             align="center"
             justify="space-between"
-            px={4}
+            px={{ base: 3, sm: 4 }}
             py={3}
             bg="brand.500"
             borderTopRadius="xl"
@@ -333,7 +335,12 @@ export default function ChatWidget({ hidden = false }) {
                 border="2px solid white"
               />
               <Box>
-                <Text fontWeight="bold" color="white" fontSize="lg">
+                <Text
+                  fontWeight="bold"
+                  color="white"
+                  fontSize={{ base: 'md', sm: 'lg' }}
+                  noOfLines={1}
+                >
                   {chatMode === 'BOT' ? 'Trendify Trợ lý' : 'Trendify Hỗ trợ khách hàng'}
                 </Text>
                 <Text fontSize="xs" color="whiteAlpha.800">

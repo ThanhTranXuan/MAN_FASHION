@@ -1,17 +1,17 @@
 import { mode } from '@chakra-ui/theme-tools';
 const Card = {
   baseStyle: (props) => ({
-    p: '20px',
+    p: { base: '16px', md: '20px' },
     display: 'flex',
     flexDirection: 'column',
     width: '100%',
     position: 'relative',
-    borderRadius: '20px',
+    borderRadius: '16px',
     minWidth: '0px',
     wordWrap: 'break-word',
     bg: mode('#ffffff', 'navy.800')(props),
     boxShadow: mode(
-      '14px 17px 40px 4px rgba(112, 144, 176, 0.08)',
+      '0 8px 24px rgba(15, 23, 42, 0.06)',
       'unset',
     )(props),
     backgroundClip: 'border-box',

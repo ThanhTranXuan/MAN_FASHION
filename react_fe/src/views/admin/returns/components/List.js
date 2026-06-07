@@ -23,7 +23,7 @@ export default function List({ table, isLoading = false }) {
   const rows = table.getRowModel().rows;
 
   return (
-    <Box minH="560px" overflowX="auto" p={3} position="relative">
+    <Box minH={{ base: '360px', md: '520px' }} overflowX="auto" p={{ base: 2, md: 3 }} position="relative">
       {isLoading ? (
         <Flex
           position="absolute"

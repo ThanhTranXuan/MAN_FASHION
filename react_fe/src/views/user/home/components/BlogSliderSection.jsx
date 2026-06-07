@@ -73,10 +73,9 @@ export default function BlogSliderSection() {
     <Box py={10} px={{ base: 4, md: 20 }}>
       <Flex justify="space-between" align="center" mb={8}>
         <Text
-          fontSize={{ base: '2xl', md: '4xl' }}
+          fontSize={{ base: '2xl', md: '3xl' }}
           fontWeight="bold"
-          bgGradient="linear(to-r, teal.500, purple.600)"
-          bgClip="text"
+          color={textColor}
         >
           Xu hướng thời trang & Blog
         </Text>
@@ -112,15 +111,15 @@ export default function BlogSliderSection() {
               to={`/user/blog/detail/${blog.slug}`}
               display="block"
               bg={bg}
-              borderRadius="2xl"
+              borderRadius="xl"
               overflow="hidden"
-              boxShadow="md"
+              boxShadow="sm"
               h="100%"
-              transition="all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275)"
+              transition="transform 0.2s ease, box-shadow 0.2s ease"
               _hover={{
-                transform: 'translateY(-10px)',
-                shadow: '2xl',
-                '& img': { transform: 'scale(1.1)' }
+                transform: 'translateY(-3px)',
+                shadow: 'md',
+                '& img': { transform: 'scale(1.025)' }
               }}
             >
               <Box overflow="hidden" h="200px">
@@ -131,7 +130,7 @@ export default function BlogSliderSection() {
                     h="100%"
                     w="100%"
                     objectFit="cover"
-                    transition="transform 0.6s cubic-bezier(0.4, 0, 0.2, 1)"
+                    transition="transform 0.25s ease"
                   />
                 ) : (
                   <Flex

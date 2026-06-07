@@ -1,10 +1,9 @@
-@import url("https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,400;0,500;0,700;1,400;1,500;1,700&display=swap");
 /* LIGHT MODE + GENERAL */
 
 .react-calendar {
   border: unset;
   background-color: transparent;
-  font-family: 'Inter', 'Roboto', 'Be Vietnam Pro', 'Noto Sans', Arial, sans-serif;
+  font-family: 'TT Commons Pro', 'Helvetica Neue', Helvetica, Arial, 'Noto Sans', sans-serif;
 }
 .react-calendar__navigation__prev2-button {
   display: none;

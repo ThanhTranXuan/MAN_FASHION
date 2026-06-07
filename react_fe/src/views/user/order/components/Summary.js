@@ -10,7 +10,6 @@ import {
   Button,
   useColorModeValue,
   Input,
-  HStack,
   Badge,
   Tag,
   TagLabel,
@@ -255,7 +254,15 @@ export default function Summary({
   };
 
   return (
-    <Box flex="1" bg={sectionBg} p={6} borderRadius="16px" boxShadow="lg">
+    <Box
+      flex="1"
+      bg={sectionBg}
+      p={{ base: 4, md: 6 }}
+      borderRadius="16px"
+      border="1px solid"
+      borderColor={borderColor}
+      boxShadow="sm"
+    >
       <Heading size="md" mb={6} color={textColor}>
         Tóm Tắt Đơn Hàng
       </Heading>
@@ -325,7 +332,7 @@ export default function Summary({
         <Text fontWeight="semibold" mb={2}>
           Mã Giảm Giá
         </Text>
-        <HStack>
+        <Stack direction={{ base: 'column', sm: 'row' }} spacing={3}>
           <Input
             placeholder="Nhập mã giảm giá..."
             value={couponCode}
@@ -342,7 +349,7 @@ export default function Summary({
           >
             {applied ? 'Đã Áp Dụng' : 'Áp Dụng'}
           </Button>
-        </HStack>
+        </Stack>
 
         {(isCouponLoading || availableCoupons.length > 0) && (
           <Box mt={3}>
@@ -428,7 +435,7 @@ export default function Summary({
           Phương Thức Thanh Toán
         </Text>
         <RadioGroup value={paymentMethod} onChange={setPaymentMethod}>
-          <Stack direction="row" spacing={4} align="stretch">
+          <Stack direction={{ base: 'column', sm: 'row' }} spacing={4} align="stretch">
             <Radio value="VIETQR" size="md">
               <Flex align="center" gap={2}>
                 <Icon as={FaQrcode} />
@@ -461,7 +468,7 @@ export default function Summary({
         onClick={handlePlaceOrder}
         isLoading={isLoading}
         loadingText="Đang xử lý..."
-        boxShadow="lg"
+        boxShadow="sm"
         color="white"
       >
         {paymentMethod === 'COD'

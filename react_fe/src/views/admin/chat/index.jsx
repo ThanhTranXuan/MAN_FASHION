@@ -236,7 +236,9 @@ export default function ChatPage() {
 
   return (
     <Flex
-      h="80vh"
+      h={{ base: '72vh', lg: '80vh' }}
+      minH={{ base: '560px', lg: '640px' }}
+      direction={{ base: 'column', lg: 'row' }}
       bg={appBg}
       color={textColor}
       borderRadius="2xl"
@@ -245,10 +247,14 @@ export default function ChatPage() {
     >
       {/* Sidebar: conversation list */}
       <Box
-        w="320px"
-        borderRightWidth="1px"
+        w={{ base: '100%', lg: '320px' }}
+        h={{ base: '220px', lg: 'auto' }}
+        flexShrink={0}
+        borderRightWidth={{ base: 0, lg: '1px' }}
+        borderBottomWidth={{ base: '1px', lg: 0 }}
         bg={sidebarBg}
-        borderLeftRadius="2xl"
+        borderTopRadius="2xl"
+        borderBottomLeftRadius={{ base: 0, lg: '2xl' }}
         overflowY="auto"
       >
         <VStack align="stretch" spacing={0}>
@@ -283,7 +289,15 @@ export default function ChatPage() {
       </Box>
 
       {/* Chat panel */}
-      <Flex flex="1" direction="column" bg={sidebarBg} borderRightRadius="2xl">
+      <Flex
+        flex="1"
+        minH={0}
+        minW={0}
+        direction="column"
+        bg={sidebarBg}
+        borderBottomRadius="2xl"
+        borderTopRightRadius={{ base: 0, lg: '2xl' }}
+      >
         {!activeConversation ? (
           <Flex flex="1" align="center" justify="center">
             <Text color={emptyTextColor}>Chọn một cuộc hội thoại</Text>

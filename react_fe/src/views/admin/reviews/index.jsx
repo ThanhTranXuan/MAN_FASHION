@@ -106,7 +106,7 @@ export default function AdminReviews() {
           </HStack>
         </Flex>
 
-        <Box minH="560px" p={{ base: 3, md: 5 }} position="relative">
+        <Box minH={{ base: '360px', md: '520px' }} p={{ base: 3, md: 5 }} position="relative">
           {loading && (
             <Flex position="absolute" top="0" left="0" w="100%" h="100%" align="center" justify="center" zIndex="1" backdropFilter="blur(2px)">
               <Spinner size="xl" thickness="4px" color="brand.500" />

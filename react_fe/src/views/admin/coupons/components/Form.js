@@ -178,7 +178,7 @@ export default function Form({ isOpen, onClose, reloadCoupons, coupon }) {
   return (
     <Modal isOpen={isOpen} onClose={onClose} isCentered>
       <ModalOverlay />
-      <ModalContent borderRadius="20px" bg={bgColor} color={textColor}>
+      <ModalContent borderRadius="16px" bg={bgColor} color={textColor} maxH="calc(100vh - 32px)">
         <ModalHeader bg={headerBg} borderTopRadius="20px">
           {coupon ? 'Chỉnh Sửa Mã Giảm Giá' : 'Tạo Mã Giảm Giá Mới'}
         </ModalHeader>

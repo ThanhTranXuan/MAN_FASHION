@@ -84,8 +84,8 @@ export default function OrderPage() {
   }
 
   return (
-    <Box bg={bgColor} p={{ base: 4, md: 8, lg: 20 }}>
-      <Flex direction="column">
+    <Box bg={bgColor} px={{ base: 4, md: 8 }} py={{ base: 6, md: 10 }}>
+      <Flex direction="column" maxW="1440px" mx="auto">
         <Breadcrumb fontWeight="medium" fontSize="sm" mb={8} separator="/">
           <BreadcrumbItem>
             <BreadcrumbLink
@@ -101,7 +101,7 @@ export default function OrderPage() {
           </BreadcrumbItem>
         </Breadcrumb>
 
-        <Flex direction={{ base: 'column', md: 'row' }} gap={8}>
+        <Flex direction={{ base: 'column', lg: 'row' }} gap={{ base: 6, lg: 8 }}>
           <Box flex={1}>
             <Form
               formData={formData}

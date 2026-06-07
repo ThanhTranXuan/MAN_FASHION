@@ -69,6 +69,7 @@ export default function ProductCard({ product, onClick, activeColor, variant }) 
       align="stretch"
       spacing={3}
       pb={4}
+      h="100%"
       borderWidth="1px"
       borderColor={borderColor}
       borderRadius="xl"
@@ -76,13 +77,14 @@ export default function ProductCard({ product, onClick, activeColor, variant }) 
       cursor="pointer"
       onClick={onClick}
       position="relative"
-      transition="all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275)"
+      transition="transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease"
       _hover={{
-        boxShadow: '2xl',
-        transform: 'translateY(-8px)',
+        boxShadow: '0 12px 28px rgba(15, 23, 42, 0.10)',
+        transform: 'translateY(-3px)',
+        borderColor: 'brand.100',
         bg: bgHover,
         '& .product-image': {
-          transform: isHomeCard ? 'scale(1.03)' : 'scale(1.1)',
+          transform: 'scale(1.025)',
         },
         '& .home-product-image-overlay': { opacity: 1 },
       }}
@@ -140,9 +142,10 @@ export default function ProductCard({ product, onClick, activeColor, variant }) 
       </Box>
 
       {/* 🧾 Info */}
-      <VStack px={4} align="start" spacing={2}>
+      <VStack px={4} align="start" spacing={2} flex="1">
         <Text
-          noOfLines={1}
+          noOfLines={2}
+          minH="48px"
           fontWeight="semibold"
           fontSize="md"
           color={textColor}
@@ -150,7 +153,7 @@ export default function ProductCard({ product, onClick, activeColor, variant }) 
           {product.name}
         </Text>
 
-        <VStack align="start" spacing={0}>
+        <VStack align="start" spacing={0} minH="48px">
           <Text fontWeight="bold" fontSize="lg" color="brand.500">
             {formatUSD(hasSale ? salePrice : price)}
           </Text>
@@ -165,23 +168,26 @@ export default function ProductCard({ product, onClick, activeColor, variant }) 
           )}
         </VStack>
 
-        {showRating && (
-          <HStack spacing={1} color={textColor} fontSize="sm" lineHeight="1">
-            <Text as="span" fontWeight="bold">
-              ★
-            </Text>
-            <Text as="span" fontWeight="semibold">
-              {averageRating.toFixed(1)}
-            </Text>
-            <Text as="span" color={subTextColor}>
-              ({reviewCount})
-            </Text>
-          </HStack>
-        )}
+        <Box minH="20px">
+          {showRating && (
+            <HStack spacing={1} color={textColor} fontSize="sm" lineHeight="1">
+              <Text as="span" fontWeight="bold">
+                ★
+              </Text>
+              <Text as="span" fontWeight="semibold">
+                {averageRating.toFixed(1)}
+              </Text>
+              <Text as="span" color={subTextColor}>
+                ({reviewCount})
+              </Text>
+            </HStack>
+          )}
+        </Box>
 
         {/* 🎨 Colors */}
-        {colors.length > 0 && (
-          <HStack spacing={2} pt={2} flexWrap="wrap">
+        <Box minH="32px">
+          {colors.length > 0 && (
+            <HStack spacing={2} pt={1} flexWrap="wrap">
             {colors.slice(0, 6).map((c) => {
               const isSelected =
                 selectedColor?.toLowerCase() === c.toLowerCase();
@@ -219,8 +225,9 @@ export default function ProductCard({ product, onClick, activeColor, variant }) 
                 +{colors.length - 6}
               </Text>
             )}
-          </HStack>
-        )}
+            </HStack>
+          )}
+        </Box>
       </VStack>
     </VStack>
   );

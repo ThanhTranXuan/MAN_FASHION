@@ -127,7 +127,7 @@ export default function Dashboard(props) {
           overflowY="auto"
           position="relative"
           maxHeight="100%"
-          w={{ base: '100%', xl: 'calc(100% - 290px)' }}
+          w={{ base: '100%', xl: 'calc(100% - 280px)' }}
         >
           <Portal>
             <Box>
@@ -147,8 +147,8 @@ export default function Dashboard(props) {
             <MotionBox
               key={location.pathname}
               mx="auto"
-              p={{ base: '12px', sm: '16px', md: '24px', xl: '30px' }}
-              pt={{ base: '145px', sm: '135px', md: '105px', xl: '100px' }}
+              p={{ base: '12px', sm: '16px', md: '24px' }}
+              pt={{ base: '124px', sm: '116px', md: '104px' }}
               minH="calc(100vh - 120px)"
               maxW="100%"
               sx={{ overflowAnchor: 'none' }}

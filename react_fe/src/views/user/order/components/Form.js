@@ -27,6 +27,7 @@ export default function Form({
   const sectionBg = useColorModeValue('gray.50', 'navy.700');
   const textColor = useColorModeValue('secondaryGray.900', 'white');
   const selectedBg = useColorModeValue('brand.50', 'whiteAlpha.100');
+  const borderColor = useColorModeValue('gray.200', 'whiteAlpha.200');
   const formDisabled = addressMode === 'profile';
 
   const handleChange = (event) => {
@@ -35,7 +36,15 @@ export default function Form({
   };
 
   return (
-    <Box flex="1" bg={sectionBg} p={6} borderRadius="16px" boxShadow="lg">
+    <Box
+      flex="1"
+      bg={sectionBg}
+      p={{ base: 4, md: 6 }}
+      borderRadius="16px"
+      border="1px solid"
+      borderColor={borderColor}
+      boxShadow="sm"
+    >
       <Heading size="md" mb={6} color={textColor}>
         Thông Tin Giao Hàng
       </Heading>
@@ -84,7 +93,7 @@ export default function Form({
         </Box>
       )}
 
-      <SimpleGrid columns={{ base: 1, md: 2 }} spacing={10}>
+      <SimpleGrid columns={{ base: 1, md: 2 }} spacing={{ base: 6, md: 8 }}>
         <VStack spacing={6} align="stretch">
           <FormControl isRequired>
             <FormLabel>Họ Tên</FormLabel>

@@ -6,14 +6,14 @@ export default function HeroSection({ textColor }) {
   const navigate = useNavigate();
 
   return (
-    <Box px={{ base: 4, md: 8 }} pb={10}>
+    <Box px={{ base: 4, md: 8 }} pb={{ base: 8, md: 10 }}>
       <Box
         position="relative"
         w="100%"
-        h={{ base: '430px', md: '550px' }}
+        h={{ base: '400px', md: '520px' }}
         overflow="hidden"
-        borderRadius={{ base: '24px', md: '30px' }}
-        boxShadow="0 22px 60px rgba(15, 23, 42, 0.14)"
+        borderRadius={{ base: '16px', md: '20px' }}
+        boxShadow="0 14px 38px rgba(15, 23, 42, 0.12)"
       >
         <Box
           position="absolute"
@@ -51,9 +51,9 @@ export default function HeroSection({ textColor }) {
             maxW={{ base: '100%', md: '430px' }}
             p={{ base: 4, md: 5 }}
             borderRadius="lg"
-            bg="rgba(8, 12, 20, 0.18)"
+            bg="rgba(8, 12, 20, 0.22)"
             border="1px solid rgba(255,255,255,0.14)"
-            boxShadow="0 14px 34px rgba(0,0,0,0.12)"
+            boxShadow="0 8px 24px rgba(0,0,0,0.10)"
           >
             <MotionText
               fontSize={{ base: '2xl', md: '3xl' }}
@@ -86,7 +86,7 @@ export default function HeroSection({ textColor }) {
               _active={{ transform: 'translateY(0)' }}
               rounded="full"
               px={7}
-              boxShadow="0 10px 22px rgba(115,102,255,0.24)"
+              boxShadow="0 6px 16px rgba(115,102,255,0.20)"
               onClick={() => navigate('/user/product')}
             >
               Mua Sắm Ngay

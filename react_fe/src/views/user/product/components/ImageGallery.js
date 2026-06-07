@@ -73,8 +73,8 @@ export default function ImageGallery({
   };
 
   // ===== Thumbnail size config =====
-  const thumbWidth = 120; // 👉 chỉnh chiều rộng thumbnail
-  const thumbHeight = 150; // 👉 chỉnh chiều cao thumbnail
+  const thumbWidth = 88;
+  const thumbHeight = 110;
 
   // ===== Thumbnail List (responsive) =====
   const ThumbList = (
@@ -87,7 +87,7 @@ export default function ImageGallery({
       spacing={2}
       overflowX={isMobile ? 'auto' : 'hidden'}
       overflowY={isMobile ? 'hidden' : 'auto'}
-      maxH={!isMobile ? '650px' : 'auto'}
+      maxH={!isMobile ? '560px' : 'auto'}
       maxW={isMobile ? '100%' : `${thumbWidth + 16}px`}
       py={isMobile ? 2 : 0}
       pr={isMobile ? 0 : 1}
@@ -147,7 +147,7 @@ export default function ImageGallery({
         borderRadius="lg"
         overflow="hidden"
         position="relative"
-        pb="100%"
+        aspectRatio="3 / 4"
         bg="gray.50"
         flex="1"
       >
@@ -160,7 +160,7 @@ export default function ImageGallery({
             left={0}
             w="100%"
             h="100%"
-            objectFit="cover"
+            objectFit="contain"
           />
         )}
 

@@ -107,12 +107,12 @@ export default function Detail({ isOpen, onClose, order }) {
   return (
     <Modal isOpen={isOpen} onClose={onClose} size="xl" isCentered>
       <ModalOverlay />
-      <ModalContent>
+      <ModalContent maxH="calc(100vh - 32px)">
         <ModalHeader fontWeight="bold">
           Chi Tiết Đơn Hàng - {order.orderCode}
         </ModalHeader>
         <ModalCloseButton />
-        <ModalBody>
+        <ModalBody overflowY="auto" pb={6}>
           <Flex gap={4} direction={{ base: 'column', md: 'row' }} mb={4}>
             <Box flex={1}>
               <Text fontWeight="600" color={textColor} fontSize="md" mb={2}>
@@ -151,7 +151,8 @@ export default function Detail({ isOpen, onClose, order }) {
               <Spinner size="lg" color="brand.500" />
             </Flex>
           ) : (
-            <Table variant="simple" size="sm">
+            <Box overflowX="auto">
+            <Table variant="simple" size="sm" minW="760px">
               <Thead>
                 <Tr>
                   <Th borderColor={borderColor}>#</Th>
@@ -187,6 +188,7 @@ export default function Detail({ isOpen, onClose, order }) {
                 ))}
               </Tbody>
             </Table>
+            </Box>
           )}
         </ModalBody>
       </ModalContent>

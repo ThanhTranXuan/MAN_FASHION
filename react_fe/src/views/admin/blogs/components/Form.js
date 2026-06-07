@@ -94,7 +94,7 @@ export default function Form({ isOpen, onClose, reloadBlogs, blog }) {
   return (
     <Modal isOpen={isOpen} onClose={onClose} isCentered size="3xl">
       <ModalOverlay />
-      <ModalContent borderRadius="20px" bg={bgColor} color={textColor}>
+      <ModalContent borderRadius="16px" bg={bgColor} color={textColor} maxH="calc(100vh - 32px)">
         <ModalHeader bg={headerBg} borderTopRadius="20px">
           {blog ? 'Chỉnh sửa bài viết' : 'Tạo bài viết mới'}
         </ModalHeader>

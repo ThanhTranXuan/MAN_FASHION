@@ -19,7 +19,7 @@ export default function BlogList({ table }) {
   const bgColor = useColorModeValue('white', 'navy.800');
 
   return (
-    <Box minH="600px" overflowX="auto" p={3}>
+    <Box minH={{ base: '360px', md: '520px' }} overflowX="auto" p={{ base: 2, md: 3 }}>
       <Table variant="simple" bg={bgColor}>
         <Thead bg={headerBg}>
           {table.getHeaderGroups().map((headerGroup) => (

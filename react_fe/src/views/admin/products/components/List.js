@@ -32,7 +32,7 @@ export default function List({
   const bgColor = useColorModeValue('white', 'navy.800');
 
   return (
-    <Box minH="600px" overflowX="auto" p={3} position="relative">
+    <Box minH={{ base: '360px', md: '520px' }} overflowX="auto" p={{ base: 2, md: 3 }} position="relative">
       {/* 🔄 Loading overlay (chỉ phủ table body) */}
       {isLoading && (
         <Flex

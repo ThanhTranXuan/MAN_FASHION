@@ -31,7 +31,7 @@ export default function List({ coupons, columns, borderColor, headerBg, isLoadin
   const rows = table.getRowModel().rows;
 
   return (
-    <Box minH="600px" overflowX="auto" p={3} position="relative" bg={bgColor} borderRadius="10px">
+    <Box minH={{ base: '360px', md: '520px' }} overflowX="auto" p={{ base: 2, md: 3 }} position="relative" bg={bgColor} borderRadius="10px">
       {/* 🔄 Loading overlay */}
       {isLoading && (
         <Flex

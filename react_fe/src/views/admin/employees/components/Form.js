@@ -141,7 +141,7 @@ export default function Form({
   return (
     <Modal isOpen={isOpen} onClose={onClose} size="lg" isCentered>
       <ModalOverlay />
-      <ModalContent borderRadius="20px" bg={bgColor} color={textColor}>
+      <ModalContent borderRadius="16px" bg={bgColor} color={textColor} maxH="calc(100vh - 32px)">
         <ModalHeader bg={headerBg} borderTopRadius="20px">
           {editingEmployee ? 'Chỉnh Sửa Nhân Viên' : 'Thêm Nhân Viên'}
         </ModalHeader>

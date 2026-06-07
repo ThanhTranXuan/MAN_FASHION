@@ -60,8 +60,8 @@ export default function AdminNavbar(props) {
       backdropFilter={navbarBackdrop}
       backgroundPosition="center"
       backgroundSize="cover"
-      borderRadius="16px"
-      borderWidth="1.5px"
+      borderRadius="14px"
+      borderWidth="1px"
       borderStyle="solid"
       transitionDelay="0s, 0s, 0s, 0s"
       transitionDuration=" 0.25s, 0.25s, 0.25s, 0s"
@@ -75,7 +75,7 @@ export default function AdminNavbar(props) {
       mx="auto"
       mt={secondaryMargin}
       pb="8px"
-      right={{ base: '12px', md: '30px', lg: '30px', xl: '30px' }}
+      right={{ base: '12px', md: '24px' }}
       px={{
         sm: paddingX,
         md: '10px',
@@ -84,13 +84,13 @@ export default function AdminNavbar(props) {
         xl: '12px',
       }}
       pt="8px"
-      top={{ base: '12px', md: '16px', lg: '20px', xl: '20px' }}
+      top={{ base: '12px', md: '16px' }}
       w={{
         base: 'calc(100vw - 6%)',
         md: 'calc(100vw - 8%)',
         lg: 'calc(100vw - 6%)',
-        xl: 'calc(100vw - 350px)',
-        '2xl': 'calc(100vw - 365px)',
+        xl: 'calc(100vw - 328px)',
+        '2xl': 'calc(100vw - 328px)',
       }}
     >
       <Flex
@@ -124,7 +124,7 @@ export default function AdminNavbar(props) {
             bg="inherit"
             borderRadius="inherit"
             fontWeight="bold"
-            fontSize={{ base: '22px', sm: '26px', md: '30px', xl: '34px' }}
+            fontSize={{ base: '20px', sm: '22px', md: '26px', xl: '28px' }}
             lineHeight="1.2"
             _hover={{ color: { mainText } }}
             _active={{

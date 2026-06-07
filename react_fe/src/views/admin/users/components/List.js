@@ -23,7 +23,7 @@ export default function List({ table, textColor, isLoading }) {
 
   return (
     <Box
-      minH="600px"
+      minH={{ base: '360px', md: '520px' }}
       overflowX="auto"
       bg={bgColor}
       borderRadius="10px"

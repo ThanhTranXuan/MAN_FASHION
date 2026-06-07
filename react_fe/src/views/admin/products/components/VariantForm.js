@@ -225,7 +225,7 @@ export default function VariantForm({
   return (
     <Modal isOpen={isOpen} onClose={onClose} size={modalSize} isCentered>
       <ModalOverlay />
-      <ModalContent borderRadius="20px" bg={bgColor} color={textColor}>
+      <ModalContent borderRadius="16px" bg={bgColor} color={textColor} maxH="calc(100vh - 32px)">
         <ModalHeader bg={headerBg}>
           {editingVariant ? 'Chỉnh sửa biến thể' : 'Thêm biến thể'}
         </ModalHeader>

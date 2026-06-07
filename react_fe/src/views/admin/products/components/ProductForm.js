@@ -217,7 +217,7 @@ export default function ProductForm({ isOpen, onClose, reload, editingItem }) {
     >
       <ModalOverlay />
       <ModalContent
-        borderRadius="20px"
+        borderRadius="16px"
         bg={bgColor}
         color={textColor}
         mx={{ base: 3, md: 0 }}
