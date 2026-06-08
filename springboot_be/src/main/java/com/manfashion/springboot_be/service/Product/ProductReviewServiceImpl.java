@@ -18,6 +18,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -37,6 +38,7 @@ public class ProductReviewServiceImpl implements ProductReviewService {
     private final UserRepository userRepository;
     private final OrderItemRepository orderItemRepository;
     private final ProductReviewMapper productReviewMapper;
+    private final SimpMessagingTemplate messagingTemplate;
 
     @Override
     @Transactional(readOnly = true)
@@ -89,6 +91,14 @@ public class ProductReviewServiceImpl implements ProductReviewService {
             user = userRepository.findById(userId).orElse(null);
         }
 
+        if (!isVerifiedPurchase(productId, userId)) {
+            throw new AppException(ErrorCode.PRODUCT_NOT_DELIVERED);
+        }
+
+        if (reviewRepository.existsByUser_IdAndProduct_IdAndDeletedAtIsNull(userId, productId)) {
+            throw new AppException(ErrorCode.PRODUCT_REVIEW_ALREADY_EXISTS);
+        }
+
         ProductReview review = ProductReview.builder()
                 .product(product)
                 .user(user)
@@ -104,7 +114,14 @@ public class ProductReviewServiceImpl implements ProductReviewService {
                 .verifiedPurchase(isVerifiedPurchase(productId, userId))
                 .build();
 
-        return productReviewMapper.toResponse(reviewRepository.save(review));
+        ProductReview savedReview = reviewRepository.save(review);
+        messagingTemplate.convertAndSend("/topic/admin/notifications", (Object) Map.of(
+                "type", "NEW_REVIEW",
+                "reviewId", savedReview.getId(),
+                "productId", productId,
+                "createdAt", LocalDateTime.now().toString()
+        ));
+        return productReviewMapper.toResponse(savedReview);
     }
 
     @Override

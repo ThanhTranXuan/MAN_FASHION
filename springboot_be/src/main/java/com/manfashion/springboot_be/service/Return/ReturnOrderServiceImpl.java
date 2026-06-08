@@ -163,6 +163,13 @@ public class ReturnOrderServiceImpl implements ReturnOrderService {
                 "code", ro.getReturnCode(),
                 "timestamp", System.currentTimeMillis()
         ));
+        messaging.convertAndSend("/topic/admin/notifications", (Object) Map.of(
+                "type", "NEW_RETURN",
+                "returnId", ro.getId(),
+                "returnCode", ro.getReturnCode(),
+                "orderCode", order.getOrderCode(),
+                "createdAt", LocalDateTime.now().toString()
+        ));
 
         return returnOrderMapper.toResponse(ro, createdItems);
     }

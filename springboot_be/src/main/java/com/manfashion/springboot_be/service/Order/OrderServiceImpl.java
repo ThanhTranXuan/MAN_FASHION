@@ -14,6 +14,7 @@ import com.manfashion.springboot_be.repository.Order.OrderRepository;
 import com.manfashion.springboot_be.repository.Payment.PaymentRepository;
 import com.manfashion.springboot_be.repository.Product.ProductImageRepository;
 import com.manfashion.springboot_be.repository.Product.ProductRepository;
+import com.manfashion.springboot_be.repository.Product.ProductReviewRepository;
 import com.manfashion.springboot_be.repository.Product.ProductVariantRepository;
 import com.manfashion.springboot_be.service.PayOs.PayOSService;
 import com.manfashion.springboot_be.service.Payment.PaymentService;
@@ -64,6 +65,7 @@ public class OrderServiceImpl implements OrderService {
     private final OrderMapper orderMapper;
     private final OrderItemMapper orderItemMapper;
     private final SimpMessagingTemplate messaging;
+    private final ProductReviewRepository productReviewRepository;
 
 
     @Override
@@ -203,6 +205,18 @@ public class OrderServiceImpl implements OrderService {
             oi.setOrder(order);
             orderItemRepo.save(oi);
         }
+
+        publishAdminNotification(Map.of(
+                "type", "NEW_ORDER",
+                "orderId", order.getId(),
+                "orderCode", order.getOrderCode(),
+                "createdAt", LocalDateTime.now().toString()
+        ));
+        messaging.convertAndSend("/topic/new-order", (Object) Map.of(
+                "orderId", order.getId(),
+                "orderCode", order.getOrderCode(),
+                "timestamp", System.currentTimeMillis()
+        ));
 
         if ("COD".equals(paymentMethod)) {
             String successMessage = """
@@ -353,6 +367,11 @@ public class OrderServiceImpl implements OrderService {
                 "/topic/users/" + order.getUser().getId() + "/notifications",
                 (Object) event
         );
+        publishAdminNotification(event);
+    }
+
+    private void publishAdminNotification(Map<String, Object> event) {
+        messaging.convertAndSend("/topic/admin/notifications", (Object) event);
     }
 
     private OrderResponse toResponse(Order o, List<OrderItem> items) {
@@ -406,8 +425,40 @@ public class OrderServiceImpl implements OrderService {
                 ))
                 .toList();
 
+        Integer userId = o.getUser() != null ? o.getUser().getId() : null;
+        List<Integer> reviewedProductIds = items.stream()
+                .map(item -> item.getProduct() != null ? item.getProduct().getId() : null)
+                .filter(id -> id != null)
+                .distinct()
+                .toList();
+        Map<Integer, Long> reviewIdByProductId = (userId == null || reviewedProductIds.isEmpty())
+                ? Collections.emptyMap()
+                : productReviewRepository
+                .findByUser_IdAndProduct_IdInAndDeletedAtIsNull(userId, reviewedProductIds)
+                .stream()
+                .collect(Collectors.toMap(
+                        review -> review.getProduct().getId(),
+                        ProductReview::getId,
+                        (first, ignored) -> first
+                ));
+
+        itemResponses.forEach(item -> {
+            Integer productId = parseInteger(item.getProductId());
+            Long reviewId = productId == null ? null : reviewIdByProductId.get(productId);
+            item.setReviewed(reviewId != null);
+            item.setReviewId(reviewId);
+        });
+
         Payment payment = preloadedPayment != null ? preloadedPayment : paymentRepo.findByOrderId(o.getId()).orElse(null);
         return orderMapper.toResponse(o, itemResponses, payment);
+    }
+
+    private Integer parseInteger(String value) {
+        try {
+            return value == null ? null : Integer.valueOf(value);
+        } catch (NumberFormatException ignored) {
+            return null;
+        }
     }
 
     private String customerName(Order order) {

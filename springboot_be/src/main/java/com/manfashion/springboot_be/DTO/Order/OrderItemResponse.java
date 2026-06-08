@@ -20,4 +20,6 @@ public class OrderItemResponse {
     private String thumbnailUrl;
     private Integer quantity;
     private Double price;
+    private Boolean reviewed;
+    private Long reviewId;
 }

@@ -78,6 +78,14 @@ public class ChatServiceImpl implements ChatService {
         // 4. Bắn qua WebSocket
         WsEventPayload wsPayload = new WsEventPayload("NEW_MESSAGE", responseDto);
         messagingTemplate.convertAndSend("/topic/chat/" + conversationId, wsPayload);
+        if ("USER".equalsIgnoreCase(senderType)) {
+            messagingTemplate.convertAndSend("/topic/admin/notifications", (Object) Map.of(
+                    "type", "NEW_SUPPORT_MESSAGE",
+                    "conversationId", conversationId,
+                    "senderId", senderId,
+                    "createdAt", LocalDateTime.now().toString()
+            ));
+        }
 
         // 5. Trả về cho API POST
         // (Lưu ý: API POST của bạn đang khai báo trả về MessageDetailResponse,

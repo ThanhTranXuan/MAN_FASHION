@@ -14,6 +14,9 @@ import java.util.List;
 @Repository
 public interface ProductReviewRepository extends JpaRepository<ProductReview, Long> {
     Page<ProductReview> findByProductIdAndStatusAndDeletedAtIsNull(Integer productId, ReviewStatus status, Pageable pageable);
+    boolean existsByUser_IdAndProduct_IdAndDeletedAtIsNull(Integer userId, Integer productId);
+
+    List<ProductReview> findByUser_IdAndProduct_IdInAndDeletedAtIsNull(Integer userId, List<Integer> productIds);
 
     @Query("""
             SELECT r FROM ProductReview r

@@ -150,16 +150,32 @@ public class DifyBotService {
                 "don gan nhat cua toi",
                 "trang thai don cua toi"
         );
+        boolean asksAccount = containsAny(normalized,
+                "tai khoan cua toi",
+                "ho so cua toi",
+                "thong tin ca nhan",
+                "profile cua toi",
+                "dia chi cua toi",
+                "so dien thoai cua toi",
+                "email cua toi"
+        );
 
         Matcher orderCodeMatcher = ORDER_CODE_PATTERN.matcher(userMessage == null ? "" : userMessage);
-        if (!asksOrder && !asksReturn && !orderCodeMatcher.find()) {
+        if (!asksOrder && !asksReturn && !asksAccount && !orderCodeMatcher.find()) {
             return Optional.empty();
         }
 
         if (currentUserId == null) {
+            if (asksAccount) {
+                return Optional.of("Bạn cần đăng nhập để mình hỗ trợ thông tin tài khoản hoặc hồ sơ cá nhân.");
+            }
             return Optional.of(asksReturn
                     ? "Bạn cần đăng nhập để mình kiểm tra đơn hoàn trả giúp bạn."
                     : "Bạn cần đăng nhập để mình kiểm tra đơn hàng giúp bạn.");
+        }
+
+        if (asksAccount && !asksOrder && !asksReturn) {
+            return Optional.empty();
         }
 
         if (asksReturn) {
