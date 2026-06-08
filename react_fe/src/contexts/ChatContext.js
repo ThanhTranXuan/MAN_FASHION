@@ -189,6 +189,20 @@ useEffect(() => {
   });
 }, [isStaff, conversations]);
 
+  useEffect(() => {
+    if (!isStaff) return;
+
+    ChatSocketHelper.subscribe('/topic/admin/notifications', (msg) => {
+      const eventData = JSON.parse(msg.body);
+      if (eventData.type !== 'NEW_SUPPORT_MESSAGE') return;
+
+      const isOnChatPage = window.location.pathname.includes('/admin/chat-support');
+      if (!isOnChatPage) {
+        setHasNewChat(true);
+      }
+    });
+  }, [isStaff]);
+
   // ====== USER: SUBSCRIBE CONVERSATION CỦA USER ======
   useEffect(() => {
     if (!isAuthenticated || !userConversation?.id) return;

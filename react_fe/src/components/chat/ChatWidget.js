@@ -14,21 +14,17 @@ import { ChatIcon, CloseIcon } from '@chakra-ui/icons';
 import { MdSend } from 'react-icons/md';
 import { useChat } from 'contexts/ChatContext';
 import { useUser } from 'contexts/UserContext';
-import { useLocation, useNavigate } from 'react-router-dom';
 import { useAppToast } from 'utils/ToastHelper';
 import ChatService from 'services/ChatService';
 import logo from 'assets/img/auth/auth.png';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { AnimatePresence, motion } from 'framer-motion';
-import { goToSignIn } from 'utils/NavigationHelper';
 
 const MotionBox = motion(Box);
 
 export default function ChatWidget({ hidden = false }) {
   const { isAuthenticated, user } = useUser();
-  const navigate = useNavigate();
-  const location = useLocation();
   const toast = useAppToast();
 
   const {
@@ -48,6 +44,9 @@ export default function ChatWidget({ hidden = false }) {
   const [isWidgetHidden, setIsWidgetHidden] = useState(false);
   const [input, setInput] = useState('');
   const [chatMode, setChatMode] = useState('BOT'); // 'BOT' | 'SHOP'
+  const [guestBotConversationId] = useState(
+    () => `guest-${Date.now()}-${Math.random().toString(36).slice(2, 10)}`,
+  );
 
   // Popup background
   const bg = useColorModeValue('white', 'navy.800');
@@ -105,15 +104,6 @@ export default function ChatWidget({ hidden = false }) {
   }, [chatMode]);
 
   const handleOpenPopup = () => {
-    if (!isAuthenticated) {
-      goToSignIn(
-        navigate,
-        location,
-        toast,
-        'Bạn phải đăng nhập để sử dụng chat hỗ trợ.',
-      );
-      return;
-    }
     setUserHasUnread(false);
     if (chatLastReadKey) {
       localStorage.setItem(chatLastReadKey, Date.now());
@@ -179,14 +169,34 @@ export default function ChatWidget({ hidden = false }) {
   }, [isOpen]);
 
   const handleSend = () => {
-    if (!input.trim() || !userConversation) return;
+    if (!input.trim()) return;
+
+    if (chatMode === 'SHOP' && !isAuthenticated) {
+      toast.warning('Vui lòng đăng nhập để chat với nhân viên hỗ trợ.');
+      return;
+    }
+
+    const conversationId =
+      chatMode === 'BOT'
+        ? userConversation?.id || guestBotConversationId
+        : userConversation?.id;
+
+    if (!conversationId) return;
 
     const trimmed = input.trim();
 
     // ✅ Send message WITHOUT gắn [SHOP] vào content
     // Backend sẽ handle chatChannel/chatMode logic
-    sendMessage(userConversation.id, trimmed, chatMode);
+    sendMessage(conversationId, trimmed, chatMode);
     setInput('');
+  };
+
+  const selectChatMode = (mode) => {
+    if (mode === 'SHOP' && !isAuthenticated) {
+      toast.warning('Bạn cần đăng nhập để chat với nhân viên hỗ trợ.');
+      return;
+    }
+    setChatMode(mode);
   };
 
   // MARKDOWN MESSAGE RENDERER
@@ -369,7 +379,7 @@ export default function ChatWidget({ hidden = false }) {
                     fontWeight="semibold"
                     bg={chatMode === 'BOT' ? 'white' : 'transparent'}
                     color={chatMode === 'BOT' ? 'brand.500' : 'whiteAlpha.900'}
-                    onClick={() => setChatMode('BOT')}
+                    onClick={() => selectChatMode('BOT')}
                   >
                     Trợ lý
                   </Box>
@@ -382,7 +392,7 @@ export default function ChatWidget({ hidden = false }) {
                     fontWeight="semibold"
                     bg={chatMode === 'SHOP' ? 'white' : 'transparent'}
                     color={chatMode === 'SHOP' ? 'brand.500' : 'whiteAlpha.900'}
-                    onClick={() => setChatMode('SHOP')}
+                    onClick={() => selectChatMode('SHOP')}
                   >
                     Cửa hàng
                   </Box>

@@ -27,6 +27,7 @@ import {
   Checkbox,
   Input,
 } from '@chakra-ui/react';
+import { useNavigate } from 'react-router-dom';
 import ReturnOrderService from 'services/ReturnOrderService';
 import OrderService from 'services/OrderService';
 import { useAppToast } from 'utils/ToastHelper';
@@ -44,6 +45,7 @@ export default function PurchaseHistoryTab({
   loadingMore = false,
 }) {
   const toast = useAppToast();
+  const navigate = useNavigate();
   const [selectedOrder, setSelectedOrder] = useState(null);
   const [reason, setReason] = useState('');
   const [note, setNote] = useState('');
@@ -84,6 +86,19 @@ export default function PurchaseHistoryTab({
       default:
         return 'gray';
     }
+  };
+
+  const canReviewOrder = (status) =>
+    ['COMPLETED', 'DELIVERED'].includes(String(status || '').toUpperCase());
+
+  const goToReview = (order, item) => {
+    const params = new URLSearchParams({
+      orderCode: order.orderCode || '',
+      orderItemId: item.id || '',
+    });
+    if (item.size) params.set('size', item.size);
+    if (item.color) params.set('color', item.color);
+    navigate(`/user/product/${item.productId}/reviews/new?${params.toString()}`);
   };
 
   const handleUpdateStatus = async (orderCode, newStatus) => {
@@ -279,9 +294,33 @@ export default function PurchaseHistoryTab({
                       )}
                     </Box>
 
-                    <Text fontWeight="semibold">
-                      {formatUSD(item.price * item.quantity)}
-                    </Text>
+                    <Flex
+                      direction="column"
+                      align={{ base: 'flex-start', md: 'flex-end' }}
+                      gap={2}
+                      minW={{ base: '100%', md: '170px' }}
+                    >
+                      <Text fontWeight="semibold">
+                        {formatUSD(item.price * item.quantity)}
+                      </Text>
+                      {canReviewOrder(order.status) && (
+                        item.reviewed ? (
+                          <Badge colorScheme="green" borderRadius="full" px={3} py={1}>
+                            Đã đánh giá
+                          </Badge>
+                        ) : (
+                          <Button
+                            size="xs"
+                            colorScheme="brand"
+                            variant="outline"
+                            borderRadius="full"
+                            onClick={() => goToReview(order, item)}
+                          >
+                            Đánh giá sản phẩm
+                          </Button>
+                        )
+                      )}
+                    </Flex>
                   </Flex>
                 ))}
               </VStack>

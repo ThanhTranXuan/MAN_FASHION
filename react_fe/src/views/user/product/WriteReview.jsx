@@ -54,6 +54,10 @@ export default function WriteReview() {
   const bgColor = useColorModeValue('gray.50', 'navy.900');
   const cardBg = useColorModeValue('white', 'navy.800');
   const variants = useMemo(() => product?.variants || [], [product]);
+  const queryParams = useMemo(
+    () => new URLSearchParams(location.search),
+    [location.search],
+  );
   const colors = useMemo(() => {
     return Array.from(
       new Set(variants.map((variant) => variant.color).filter(Boolean)),
@@ -112,6 +116,18 @@ export default function WriteReview() {
     };
     loadProduct();
   }, [productId, navigate, loadingUser, isAuthenticated, toast]);
+
+  useEffect(() => {
+    const purchasedSize = queryParams.get('size') || '';
+    const purchasedColor = queryParams.get('color') || '';
+    if (!purchasedSize && !purchasedColor) return;
+
+    setFormData((prev) => ({
+      ...prev,
+      purchasedSize: purchasedSize || prev.purchasedSize,
+      purchasedColor: purchasedColor || prev.purchasedColor,
+    }));
+  }, [queryParams]);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;

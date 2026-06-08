@@ -18,6 +18,7 @@ import {
 import Pagination from 'components/pagination/Pagination';
 import ReviewService from 'services/ReviewService';
 import { useAppToast } from 'utils/ToastHelper';
+import { useNotification } from 'contexts/NotificationContext';
 
 const STATUS_META = {
   PENDING: { label: 'Chờ duyệt', color: 'yellow' },
@@ -29,6 +30,7 @@ export default function AdminReviews() {
   const cardBg = useColorModeValue('white', 'navy.800');
   const borderColor = useColorModeValue('gray.200', 'navy.700');
   const toast = useAppToast();
+  const { clearNotification } = useNotification();
 
   const [reviews, setReviews] = useState([]);
   const [page, setPage] = useState(0);
@@ -68,6 +70,10 @@ export default function AdminReviews() {
   useEffect(() => {
     loadReviews();
   }, [loadReviews]);
+
+  useEffect(() => {
+    clearNotification('/admin/review-management');
+  }, [clearNotification]);
 
   const runAction = async (action, successMessage) => {
     try {

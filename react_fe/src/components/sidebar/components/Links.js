@@ -17,8 +17,9 @@ export function SidebarLinks(props) {
   const { routes } = props;
   let location = useLocation();
 
-  const { hasNewOrder, hasNewReturn } = useNotification();
-  const { hasNewChat } = useChat(); // 🔴 NEW
+  const { hasNewOrder, hasNewReturn, hasNewReview, clearNotification } =
+    useNotification();
+  const { hasNewChat, setHasNewChat } = useChat(); // 🔴 NEW
 
   let activeColor = useColorModeValue('gray.700', 'white');
   let activeIcon = useColorModeValue('brand.500', 'white');
@@ -58,6 +59,7 @@ export function SidebarLinks(props) {
       // ================================
       const isOrderRoute = route.path === '/order-management';
       const isReturnRoute = route.path === '/return-management';
+      const isReviewRoute = route.path === '/review-management';
 
       // 👉 tùy path chat của bạn: '/chat', '/chat-support', ...
       const isChatRoute =
@@ -66,10 +68,18 @@ export function SidebarLinks(props) {
       const showBadge =
         (isOrderRoute && hasNewOrder) ||
         (isReturnRoute && hasNewReturn) ||
+        (isReviewRoute && hasNewReview) ||
         (isChatRoute && hasNewChat);
 
       return (
-        <NavLink key={index} to={route.layout + route.path}>
+        <NavLink
+          key={index}
+          to={route.layout + route.path}
+          onClick={() => {
+            clearNotification(route.layout + route.path);
+            if (isChatRoute) setHasNewChat(false);
+          }}
+        >
           <Box>
             <HStack
               spacing={activeRoute(route.path) ? '22px' : '26px'}

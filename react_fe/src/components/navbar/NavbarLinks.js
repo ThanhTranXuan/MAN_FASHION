@@ -20,7 +20,6 @@ import {
   IoMdMoon,
   IoMdSunny,
   IoMdCart,
-  IoMdNotificationsOutline,
 } from 'react-icons/io';
 import React, { useState } from 'react';
 import ConfirmDialog from 'components/dialog/ConfirmDialog';
@@ -79,9 +78,8 @@ export default function NavbarLinks() {
   const {
     hasNewOrder,
     hasNewReturn,
+    hasNewReview,
     hasProfileOrderUpdate,
-    latestUserNotification,
-    userUnreadCount,
     clearProfileNotification,
   } = useNotification();
   const { hasNewChat } = useChat();
@@ -105,7 +103,9 @@ export default function NavbarLinks() {
   const isStaffUser =
     isAuthenticated && ['ADMIN', 'EMPLOYEE'].includes(user?.roleName);
   const hasAdminUnread =
-    isStaffUser && !isAdminRoute && (hasNewOrder || hasNewReturn || hasNewChat);
+    isStaffUser &&
+    !isAdminRoute &&
+    (hasNewOrder || hasNewReturn || hasNewReview || hasNewChat);
   const hasUserOrderUnread =
     user?.roleName === 'USER' && hasProfileOrderUpdate;
   const avatarSrc = resolveAvatarUrl(
@@ -208,51 +208,6 @@ export default function NavbarLinks() {
             }}
           />
         </>
-      )}
-
-      {hasUserOrderUnread && (
-        <Button
-          variant="ghost"
-          p="0"
-          minW="unset"
-          aria-label="Thông báo đơn hàng"
-          title={
-            latestUserNotification?.orderCode
-              ? `Đơn hàng ${latestUserNotification.orderCode} vừa cập nhật`
-              : 'Đơn hàng vừa cập nhật'
-          }
-          onClick={() => {
-            clearProfileNotification('order');
-            hideChatWidget();
-            navigate('/user/profile');
-          }}
-          _hover={{ bg: 'transparent' }}
-        >
-          <Box position="relative">
-            <Icon
-              h="24px"
-              w="24px"
-              color={navbarIcon}
-              as={IoMdNotificationsOutline}
-            />
-            <Badge
-              position="absolute"
-              top="-7px"
-              right="-8px"
-              minW="16px"
-              h="16px"
-              px="4px"
-              bg="red.500"
-              color="white"
-              borderRadius="full"
-              fontSize="10px"
-              lineHeight="16px"
-              textAlign="center"
-            >
-              {Math.min(userUnreadCount, 9)}
-            </Badge>
-          </Box>
-        </Button>
       )}
 
       {/* 🌗 Dark/Light toggle */}

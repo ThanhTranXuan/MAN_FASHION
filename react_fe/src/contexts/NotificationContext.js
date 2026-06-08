@@ -31,6 +31,7 @@ export function NotificationProvider({ children }) {
 
   const [hasNewOrder, setHasNewOrder] = useState(false);
   const [hasNewReturn, setHasNewReturn] = useState(false);
+  const [hasNewReview, setHasNewReview] = useState(false);
   const [hasProfileOrderUpdate, setHasProfileOrderUpdate] = useState(false);
   const [hasProfileReturnUpdate, setHasProfileReturnUpdate] = useState(false);
   const [refreshOrderSignal, setRefreshOrderSignal] = useState(0);
@@ -41,6 +42,13 @@ export function NotificationProvider({ children }) {
   const [userUnreadCount, setUserUnreadCount] = useState(0);
 
   const isStaff = ['ADMIN', 'EMPLOYEE'].includes(user?.roleName);
+
+  useEffect(() => {
+    if (!isAuthenticated || !user || isStaff) return;
+    setHasProfileOrderUpdate(
+      localStorage.getItem(`profileOrderUpdate:${user.id}`) === 'true',
+    );
+  }, [isAuthenticated, isStaff, user]);
 
   useEffect(() => {
     if (!isAuthenticated || !user) return undefined;
@@ -57,6 +65,18 @@ export function NotificationProvider({ children }) {
 
     client.onConnect = () => {
       if (isStaff) {
+        client.subscribe('/topic/admin/notifications', (message) => {
+          const data = parseMessage(message);
+          if (!data) return;
+
+          if (data.type === 'NEW_REVIEW') {
+            if (!window.location.pathname.includes('/admin/review-management')) {
+              setHasNewReview(true);
+              toast.info('Có đánh giá sản phẩm mới.');
+            }
+          }
+        });
+
         client.subscribe('/topic/new-order', (message) => {
           const data = parseMessage(message);
           if (!data) return;
@@ -104,6 +124,7 @@ export function NotificationProvider({ children }) {
           setUserUnreadCount((value) => value + 1);
           setRefreshOrderSignal((value) => value + 1);
           setHasProfileOrderUpdate(true);
+          localStorage.setItem(`profileOrderUpdate:${user.id}`, 'true');
           toast.info(
             `Đơn hàng ${data.orderCode} đã chuyển sang: ${translateOrderStatus(
               data.status,
@@ -184,21 +205,28 @@ export function NotificationProvider({ children }) {
       setHasNewReturn(false);
       localStorage.setItem(`lastFetch:${path}`, Date.now());
     }
+
+    if (path === '/admin/review-management') {
+      setHasNewReview(false);
+      localStorage.setItem(`lastFetch:${path}`, Date.now());
+    }
   }, []);
 
   const clearProfileNotification = useCallback((type) => {
     if (type === 'order') {
       setHasProfileOrderUpdate(false);
       setUserUnreadCount(0);
+      if (user?.id) localStorage.removeItem(`profileOrderUpdate:${user.id}`);
     }
     if (type === 'return') setHasProfileReturnUpdate(false);
-  }, []);
+  }, [user?.id]);
 
   return (
     <NotificationContext.Provider
       value={{
         hasNewOrder,
         hasNewReturn,
+        hasNewReview,
         hasProfileOrderUpdate,
         hasProfileReturnUpdate,
         refreshOrderSignal,
