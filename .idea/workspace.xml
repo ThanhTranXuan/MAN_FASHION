@@ -2,8 +2,16 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="8906c0a1-47bf-4fa1-af9f-b462f969b41d" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/springboot_be/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/springboot_be/pom.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/springboot_be/src/main/resources/application.properties" beforeDir="false" afterPath="$PROJECT_DIR$/springboot_be/src/main/resources/application.properties" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/react_fe/src/constants/ApiUrl.js" beforeDir="false" afterPath="$PROJECT_DIR$/react_fe/src/constants/ApiUrl.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/react_fe/src/layouts/admin/index.js" beforeDir="false" afterPath="$PROJECT_DIR$/react_fe/src/layouts/admin/index.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/react_fe/src/routes.js" beforeDir="false" afterPath="$PROJECT_DIR$/react_fe/src/routes.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/react_fe/src/views/admin/orders/components/Detail.js" beforeDir="false" afterPath="$PROJECT_DIR$/react_fe/src/views/admin/orders/components/Detail.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/react_fe/src/views/user/order/components/Form.js" beforeDir="false" afterPath="$PROJECT_DIR$/react_fe/src/views/user/order/components/Form.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/react_fe/src/views/user/order/components/Summary.js" beforeDir="false" afterPath="$PROJECT_DIR$/react_fe/src/views/user/order/components/Summary.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/react_fe/src/views/user/order/index.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/react_fe/src/views/user/order/index.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/springboot_be/src/main/java/com/manfashion/springboot_be/DTO/Order/OrderRequest.java" beforeDir="false" afterPath="$PROJECT_DIR$/springboot_be/src/main/java/com/manfashion/springboot_be/DTO/Order/OrderRequest.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/springboot_be/src/main/java/com/manfashion/springboot_be/entity/Order.java" beforeDir="false" afterPath="$PROJECT_DIR$/springboot_be/src/main/java/com/manfashion/springboot_be/entity/Order.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/springboot_be/src/main/java/com/manfashion/springboot_be/service/Order/OrderServiceImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/springboot_be/src/main/java/com/manfashion/springboot_be/service/Order/OrderServiceImpl.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -13,9 +21,25 @@
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
-  <component name="ProjectColorInfo"><![CDATA[{
-  "associatedIndex": 2
+  <component name="GitHubPullRequestSearchHistory"><![CDATA[{
+  "lastFilter": {
+    "state": "OPEN",
+    "assignee": "ThanhTranXuan"
+  }
 }]]></component>
+  <component name="GithubPullRequestsUISettings"><![CDATA[{
+  "selectedUrlAndAccountId": {
+    "url": "https://github.com/ThanhTranXuan/MAN_FASHION.git",
+    "accountId": "b7ab91ae-c817-4d9c-a1c0-1a066e5988fd"
+  }
+}]]></component>
+  <component name="McpProjectServerCommands">
+    <commands />
+    <urls />
+  </component>
+  <component name="ProjectColorInfo">{
+  &quot;associatedIndex&quot;: 2
+}</component>
   <component name="ProjectId" id="3AlA9m1ict0kqCV5i4eatF1NBRF" />
   <component name="ProjectViewState">
     <option name="autoscrollFromSource" value="true" />
@@ -26,12 +50,14 @@
   <component name="PropertiesComponent"><![CDATA[{
   "keyToString": {
     "ModuleVcsDetector.initialDetectionPerformed": "true",
+    "RunOnceActivity.MCP Project settings loaded": "true",
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "RunOnceActivity.git.unshallow": "true",
     "RunOnceActivity.typescript.service.memoryLimit.init": "true",
-    "git-widget-placeholder": "feature/register",
+    "git-widget-placeholder": "main",
+    "ignore.virus.scanning.warn.message": "true",
     "kotlin-language-version-configured": "true",
-    "last_opened_file_path": "E:/Tai_Lieu_Lap_Trinh/CodeDuAn/MAN_FASHION",
+    "last_opened_file_path": "E:/CODE/CodeDA/Trendify",
     "nodejs_package_manager_path": "npm",
     "vue.rearranger.settings.migration": "true"
   }
@@ -40,6 +66,7 @@
     <attachedChunks>
       <set>
         <option value="bundled-jdk-30f59d01ecdd-2fc7cc6b9a17-intellij.indexing.shared.core-IU-253.31033.145" />
+        <option value="bundled-js-predefined-d6986cc7102b-9b0f141eb926-JavaScript-IU-253.31033.145" />
       </set>
     </attachedChunks>
   </component>
@@ -51,6 +78,7 @@
       <option name="presentableId" value="Default" />
       <updated>1773156636613</updated>
       <workItem from="1773156692936" duration="38000" />
+      <workItem from="1780763467639" duration="11000" />
     </task>
     <servers />
   </component>

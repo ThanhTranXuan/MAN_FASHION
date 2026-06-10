@@ -204,7 +204,7 @@ function SignIn() {
             fontWeight="400"
             fontSize="md"
           >
-            Vui lòng nhập địa chỉ email của bạn
+            {/* Vui lòng nhập địa chỉ email của bạn */}
           </Text>
         </Box>
 
