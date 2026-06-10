@@ -33,7 +33,7 @@ import OrderService from 'services/OrderService';
 import { useAppToast } from 'utils/ToastHelper';
 import { formatUSD } from 'utils/FormatHelper';
 import { PRODUCT_PLACEHOLDER, resolveImageUrl } from 'utils/ImageHelper';
-import { translateOrderStatus } from 'utils/OrderDisplayHelper';
+import { translateOrderStatus, translatePaymentMethod } from 'utils/OrderDisplayHelper';
 
 export default function PurchaseHistoryTab({
   orders,
@@ -350,6 +350,14 @@ export default function PurchaseHistoryTab({
                   )}
                   <Text fontWeight="bold" color={textColor}>
                     Tổng thanh toán: {formatUSD(totalAmount)}
+                  </Text>
+                  <Text fontSize="sm" color="gray.500">
+                    Thanh toán: {translatePaymentMethod(order.paymentMethod)} -{' '}
+                    {order.paymentStatus === 'PAID'
+                      ? 'Đã thanh toán'
+                      : order.paymentStatus === 'UNPAID'
+                        ? 'Chưa thanh toán'
+                        : order.paymentStatus || 'Chờ xử lý'}
                   </Text>
                 </Box>
 

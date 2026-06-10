@@ -44,6 +44,7 @@ export default function Columns({
   setStatusFilter,
   loadingRow,
   setLoadingRow,
+  onReject,
 }) {
   return [
     columnHelper.accessor('returnCode', {
@@ -104,6 +105,10 @@ export default function Columns({
         const isLoading = loadingRow === row.returnCode;
 
         const handleChangeStatus = async (newStatus) => {
+          if (newStatus === 'REJECTED') {
+            onReject(row);
+            return;
+          }
           try {
             setLoadingRow(row.returnCode);
             await onUpdateStatus(row.returnCode, newStatus);

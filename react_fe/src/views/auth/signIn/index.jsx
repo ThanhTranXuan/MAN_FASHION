@@ -139,7 +139,12 @@ function SignIn() {
       await afterLoginCommon();
     } catch (error) {
       console.error(error);
-      toast.error('Sai email hoặc mật khẩu');
+      const message = error?.response?.data?.message;
+      toast.error(
+        message === 'Tài khoản đã ngừng hoạt động.'
+          ? message
+          : 'Sai email hoặc mật khẩu',
+      );
     } finally {
       setLoading(false);
     }

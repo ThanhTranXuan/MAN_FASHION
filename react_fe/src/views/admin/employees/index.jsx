@@ -97,7 +97,7 @@ export default function EmployeePage() {
 
     try {
       await EmployeeService.delete(employeeToDelete.id);
-      toast.success('Xóa nhân viên thành công');
+      toast.success('Đã ngừng hoạt động tài khoản nhân viên');
       setEmployees((current) =>
         current.filter((employee) => employee.id !== employeeToDelete.id),
       );
@@ -220,8 +220,8 @@ export default function EmployeePage() {
         isOpen={isConfirmOpen}
         onClose={() => setIsConfirmOpen(false)}
         onConfirm={handleDelete}
-        title="Xóa Nhân Viên"
-        message={`Bạn có chắc chắn muốn xóa ${employeeToDelete?.fullName}?`}
+        title="Ngừng Hoạt Động Nhân Viên"
+        message={`Bạn có chắc muốn ngừng hoạt động tài khoản ${employeeToDelete?.fullName}? Dữ liệu cũ vẫn được giữ lại.`}
       />
 
       {/* 📦 Main Table */}

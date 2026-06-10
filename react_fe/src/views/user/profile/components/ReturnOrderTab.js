@@ -173,6 +173,16 @@ export default function ReturnOrderTab({
                   Ghi chú: {ro.note}
                 </Text>
               )}
+              {ro.status === 'REJECTED' && ro.rejectReason && (
+                <Text fontSize="sm" color="red.500" mt={2}>
+                  Lý do từ chối: {ro.rejectReason}
+                </Text>
+              )}
+              {ro.processedAt && (
+                <Text fontSize="xs" color="gray.400" mt={1}>
+                  Xử lý lúc: {new Date(ro.processedAt).toLocaleString('vi-VN')}
+                </Text>
+              )}
             </Box>
           ))}
         </VStack>

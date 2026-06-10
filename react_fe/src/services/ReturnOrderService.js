@@ -8,9 +8,9 @@ const ReturnOrderService = {
 
   // ADMIN/EMPLOYEE
   getAllAdmin: (params) => ApiClient.get(ApiUrl.RETURNS, { params }).then(res=>{ return { data: res.data.data };}),
-  updateStatusAdmin: (orderCode, status) =>
+  updateStatusAdmin: (orderCode, status, rejectReason) =>
     ApiClient.patch(ApiUrl.UPDATE_RETURN_STATUS(orderCode), null, {
-      params: { status },
+      params: { status, rejectReason: rejectReason || undefined },
     }).then((res) => res.data.data),
 
   // 🔍 Check xem có return mới sau một mốc thời gian (millis)

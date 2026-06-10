@@ -5,7 +5,22 @@ import React, {
   useCallback,
   useRef,
 } from 'react';
-import { Box, Card, useColorModeValue } from '@chakra-ui/react';
+import {
+  Box,
+  Card,
+  useColorModeValue,
+  Modal,
+  ModalOverlay,
+  ModalContent,
+  ModalHeader,
+  ModalCloseButton,
+  ModalBody,
+  ModalFooter,
+  FormControl,
+  FormLabel,
+  Textarea,
+  Button,
+} from '@chakra-ui/react';
 import { getCoreRowModel, useReactTable } from '@tanstack/react-table';
 import { useAppToast } from 'utils/ToastHelper';
 import { useNotification } from 'contexts/NotificationContext';
@@ -34,6 +49,8 @@ export default function ReturnPage() {
   const [statusFilter, setStatusFilter] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [loadingRow, setLoadingRow] = useState(null);
+  const [rejectingReturn, setRejectingReturn] = useState(null);
+  const [rejectReason, setRejectReason] = useState('');
 
   // 🆕 Cooldown state
   const [lastReloadTime, setLastReloadTime] = useState(0);
@@ -168,6 +185,10 @@ export default function ReturnPage() {
         setStatusFilter: updateStatusFilter,
         loadingRow,
         setLoadingRow,
+        onReject: (returnOrder) => {
+          setRejectingReturn(returnOrder);
+          setRejectReason('');
+        },
       }),
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [statusFilter, page, loadReturns, loadingRow, updateStatusFilter],
@@ -205,6 +226,65 @@ export default function ReturnPage() {
           onPageChange={setPage}
         />
       )}
+
+      <Modal
+        isOpen={Boolean(rejectingReturn)}
+        onClose={() => setRejectingReturn(null)}
+        isCentered
+      >
+        <ModalOverlay />
+        <ModalContent>
+          <ModalHeader>Từ chối yêu cầu hoàn trả</ModalHeader>
+          <ModalCloseButton />
+          <ModalBody>
+            <FormControl isRequired>
+              <FormLabel>Lý do từ chối</FormLabel>
+              <Textarea
+                value={rejectReason}
+                onChange={(event) => setRejectReason(event.target.value)}
+                placeholder="Nhập lý do để khách hàng có thể xem"
+              />
+            </FormControl>
+          </ModalBody>
+          <ModalFooter>
+            <Button variant="ghost" mr={3} onClick={() => setRejectingReturn(null)}>
+              Hủy
+            </Button>
+            <Button
+              colorScheme="red"
+              isDisabled={!rejectReason.trim()}
+              isLoading={loadingRow === rejectingReturn?.returnCode}
+              onClick={async () => {
+                const returnCode = rejectingReturn.returnCode;
+                try {
+                  setLoadingRow(returnCode);
+                  const updatedReturn = await ReturnOrderService.updateStatusAdmin(
+                    returnCode,
+                    'REJECTED',
+                    rejectReason.trim(),
+                  );
+                  setReturns((current) =>
+                    current.map((item) =>
+                      item.returnCode === returnCode
+                        ? { ...item, ...updatedReturn }
+                        : item,
+                    ),
+                  );
+                  setRejectingReturn(null);
+                  toast.success('Đã từ chối yêu cầu hoàn trả');
+                } catch (err) {
+                  console.error(err);
+                  toast.error('Không thể từ chối yêu cầu hoàn trả');
+                } finally {
+                  setLoadingRow(null);
+                }
+              }}
+            >
+              Xác nhận từ chối
+            </Button>
+          </ModalFooter>
+        </ModalContent>
+      </Modal>
     </Box>
   );
 }
