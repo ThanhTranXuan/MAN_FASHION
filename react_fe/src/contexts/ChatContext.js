@@ -15,6 +15,7 @@ const ChatContext = createContext();
 const BOT_HISTORY_KEY_PREFIX = 'trendify:botMessages';
 const BOT_SUGGESTIONS_KEY_PREFIX = 'trendify:latestProductSuggestions';
 const CHAT_LAST_READ_KEY_PREFIX = 'chat:lastReadAt';
+const GUEST_BOT_STORAGE_SCOPE = 'guest';
 
 const getChatUserKey = (user) => {
   if (!user) return null;
@@ -86,8 +87,9 @@ export function ChatProvider({ children }) {
   const isStaff =
     isAuthenticated && ['ADMIN', 'EMPLOYEE'].includes(user?.roleName);
   const chatUserKey = isAuthenticated && !isStaff ? getChatUserKey(user) : null;
-  const botHistoryKey = getScopedStorageKey(BOT_HISTORY_KEY_PREFIX, chatUserKey);
-  const botSuggestionsKey = getScopedStorageKey(BOT_SUGGESTIONS_KEY_PREFIX, chatUserKey);
+  const botStorageScope = chatUserKey || GUEST_BOT_STORAGE_SCOPE;
+  const botHistoryKey = getScopedStorageKey(BOT_HISTORY_KEY_PREFIX, botStorageScope);
+  const botSuggestionsKey = getScopedStorageKey(BOT_SUGGESTIONS_KEY_PREFIX, botStorageScope);
   const chatLastReadKey = getScopedStorageKey(CHAT_LAST_READ_KEY_PREFIX, chatUserKey);
 
   useEffect(() => {
@@ -313,9 +315,15 @@ useEffect(() => {
         setBotMessages((prev) => [botReply, ...prev]);
       } catch (err) {
         console.error('Bot API Error:', err);
+        const status = err.response?.status;
+        const serverMessage = err.response?.data?.message;
+        const fallbackMessage =
+          err.code === 'ECONNABORTED' || status === 408 || status === 504
+            ? 'Trợ lý phản hồi hơi chậm. Bạn thử gửi lại câu hỏi ngắn hơn hoặc thử lại sau ít phút nhé.'
+            : serverMessage || 'Hiện tại trợ lý đang phản hồi chậm. Bạn thử lại sau ít phút nhé, hoặc hỏi ngắn hơn để mình hỗ trợ nhanh hơn.';
         setBotMessages((prev) => [{ // Lỗi cũng hiển thị ở tab Bot
           id: `err-${Date.now()}`,
-          content: 'Không thể gửi tin nhắn. Vui lòng thử lại.',
+          content: fallbackMessage,
           senderType: 'BOT',
           senderName: 'Trendify Bot',
           createdAt: new Date().toISOString(),

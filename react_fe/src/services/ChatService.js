@@ -23,7 +23,10 @@ const ChatService = {
     botChat: (conversationId, message, userIdHex = "UNKNOWN") =>
     ApiClient.post(`/api/v1/bot/chat/${conversationId}`, 
       { message },
-      { headers: { 'X-User-Id-Hex': userIdHex } }
+      {
+        headers: { 'X-User-Id-Hex': userIdHex },
+        timeout: 70000,
+      }
     ).then(res => { return { data: res.data }; }),
 };
 

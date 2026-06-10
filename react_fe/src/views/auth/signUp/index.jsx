@@ -94,7 +94,15 @@ function SignUp() {
       navigate('/auth/sign-in');
     } catch (error) {
       console.error(error);
-      toast.error('Đăng ký thất bại. Vui lòng thử lại.');
+      const status = error.response?.status;
+      const errorCode = error.response?.data?.code;
+      const backendMessage = error.response?.data?.message;
+
+      if (status === 409 || errorCode === 3002) {
+        toast.error('Email đã tồn tại.');
+      } else {
+        toast.error(backendMessage || 'Đăng ký thất bại. Vui lòng thử lại.');
+      }
     } finally {
       setLoading(false);
     }

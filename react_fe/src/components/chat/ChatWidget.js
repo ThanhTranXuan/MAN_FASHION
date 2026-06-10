@@ -44,9 +44,14 @@ export default function ChatWidget({ hidden = false }) {
   const [isWidgetHidden, setIsWidgetHidden] = useState(false);
   const [input, setInput] = useState('');
   const [chatMode, setChatMode] = useState('BOT'); // 'BOT' | 'SHOP'
-  const [guestBotConversationId] = useState(
-    () => `guest-${Date.now()}-${Math.random().toString(36).slice(2, 10)}`,
-  );
+  const [guestBotConversationId] = useState(() => {
+    const storageKey = 'trendify:guestBotConversationId';
+    const existingId = localStorage.getItem(storageKey);
+    if (existingId) return existingId;
+    const newId = `guest-${Date.now()}-${Math.random().toString(36).slice(2, 10)}`;
+    localStorage.setItem(storageKey, newId);
+    return newId;
+  });
 
   // Popup background
   const bg = useColorModeValue('white', 'navy.800');
@@ -178,7 +183,9 @@ export default function ChatWidget({ hidden = false }) {
 
     const conversationId =
       chatMode === 'BOT'
-        ? userConversation?.id || guestBotConversationId
+        ? isAuthenticated
+          ? userConversation?.id || guestBotConversationId
+          : guestBotConversationId
         : userConversation?.id;
 
     if (!conversationId) return;
@@ -541,6 +548,7 @@ export default function ChatWidget({ hidden = false }) {
               icon={<MdSend />}
               onClick={handleSend}
               isDisabled={!input.trim()}
+              isLoading={chatMode === 'BOT' && isBotLoading}
               bg={sendBtnBg}
               _hover={{ bg: sendBtnHover }}
               borderRadius="full"

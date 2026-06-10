@@ -162,6 +162,8 @@ const AuthService = {
     sessionStorage.removeItem('refresh_token');
     sessionStorage.removeItem('keepLoggedIn');
     sessionStorage.removeItem('user');
+
+    delete ApiClient.defaults.headers.common.Authorization;
   },
 };
 
