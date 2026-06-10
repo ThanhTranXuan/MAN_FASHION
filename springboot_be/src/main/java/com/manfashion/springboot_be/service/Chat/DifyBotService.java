@@ -13,9 +13,14 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.client.HttpServerErrorException;
+import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.client.RestClient;
 
+import java.net.http.HttpTimeoutException;
 import java.text.Normalizer;
 import java.text.NumberFormat;
 import java.time.LocalDateTime;
@@ -47,7 +52,21 @@ public class DifyBotService {
     @Value("${dify.url}")
     private String apiUrl;
 
+    @Value("${dify.request-timeout-seconds:60}")
+    private long requestTimeoutSeconds;
+
     private final Map<String, String> difyConversationIds = new ConcurrentHashMap<>();
+
+    private static final String TIMEOUT_MESSAGE =
+            "Hiện tại trợ lý phản hồi hơi chậm. Bạn thử gửi lại câu hỏi ngắn hơn hoặc thử lại sau ít phút nhé.";
+    private static final String CONFIG_MESSAGE =
+            "Trợ lý đang gặp lỗi cấu hình. Vui lòng thử lại sau.";
+    private static final String RATE_LIMIT_MESSAGE =
+            "Trợ lý đang nhận quá nhiều yêu cầu. Bạn thử lại sau ít phút nhé.";
+    private static final String SERVER_ERROR_MESSAGE =
+            "Dịch vụ trợ lý đang bận. Bạn vui lòng thử lại sau nhé.";
+    private static final String INVALID_RESPONSE_MESSAGE =
+            "Trợ lý chưa nhận được phản hồi phù hợp. Bạn thử hỏi lại rõ hơn nhé.";
 
     private static final Pattern ORDER_CODE_PATTERN = Pattern.compile("\\bORD-[A-Z0-9-]+\\b", Pattern.CASE_INSENSITIVE);
     private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
@@ -62,6 +81,11 @@ public class DifyBotService {
         Optional<String> accountAnswer = answerAccountIntent(userMessage, currentUserId);
         if (accountAnswer.isPresent()) {
             return accountAnswer.get();
+        }
+
+        if (apiKey == null || apiKey.isBlank()) {
+            log.error("Dify API key is not configured");
+            return CONFIG_MESSAGE;
         }
 
         Map<String, Object> requestBody = new HashMap<>(Map.of(
@@ -84,16 +108,127 @@ public class DifyBotService {
                     .retrieve()
                     .body(Map.class);
 
+            if (response == null) {
+                log.warn("Dify returned an empty response body");
+                return INVALID_RESPONSE_MESSAGE;
+            }
+
             Object returnedConversationId = response.get("conversation_id");
             if (returnedConversationId instanceof String id && !id.isBlank()) {
                 difyConversationIds.put(sessionId, id);
             }
 
-            return (String) response.get("answer");
+            String answer = extractDifyAnswer(response);
+            if (answer == null) {
+                Object rawAnswer = response.get("answer");
+                log.warn(
+                        "Dify response did not contain a usable answer. event={}, mode={}, taskId={}, messageId={}, answerType={}, answerLength={}, responseKeys={}",
+                        response.get("event"),
+                        response.get("mode"),
+                        response.get("task_id"),
+                        response.get("message_id"),
+                        rawAnswer == null ? "null" : rawAnswer.getClass().getSimpleName(),
+                        rawAnswer instanceof CharSequence value ? value.length() : null,
+                        response.keySet()
+                );
+                return INVALID_RESPONSE_MESSAGE;
+            }
+            return answer;
+        } catch (ResourceAccessException e) {
+            if (hasCause(e, HttpTimeoutException.class)
+                    || containsIgnoreCase(e.getMessage(), "timeout")
+                    || containsIgnoreCase(e.getMessage(), "request cancelled")) {
+                log.warn("Dify request timeout after {} seconds", requestTimeoutSeconds);
+                return TIMEOUT_MESSAGE;
+            }
+            log.error("Failed to access Dify API", e);
+            return SERVER_ERROR_MESSAGE;
+        } catch (HttpClientErrorException e) {
+            HttpStatusCode status = e.getStatusCode();
+            String responseBody = e.getResponseBodyAsString();
+            if (status.value() == 401 || status.value() == 403) {
+                log.error("Dify API key invalid or unauthorized. status={}", status.value());
+                return CONFIG_MESSAGE;
+            }
+            if (status.value() == 429 || isUpstreamRateLimit(responseBody)) {
+                log.warn("Dify rate limit. status={}, upstreamRateLimit={}", status.value(), status.value() != 429);
+                return RATE_LIMIT_MESSAGE;
+            }
+            log.error(
+                    "Dify client error. status={}, code={}, message={}",
+                    status.value(),
+                    extractJsonField(responseBody, "code"),
+                    abbreviate(extractJsonField(responseBody, "message"), 300)
+            );
+            return SERVER_ERROR_MESSAGE;
+        } catch (HttpServerErrorException e) {
+            log.error("Dify server error. status={}", e.getStatusCode().value());
+            return SERVER_ERROR_MESSAGE;
         } catch (Exception e) {
             log.error("Failed to call Dify", e);
-            return "Xin lỗi, hệ thống tư vấn đang bận. Bạn vui lòng thử lại sau nhé!";
+            return INVALID_RESPONSE_MESSAGE;
         }
+    }
+
+    private boolean containsIgnoreCase(String value, String expected) {
+        return value != null && value.toLowerCase(Locale.ROOT).contains(expected.toLowerCase(Locale.ROOT));
+    }
+
+    private boolean isUpstreamRateLimit(String responseBody) {
+        return containsIgnoreCase(responseBody, "resource_exhausted")
+                || containsIgnoreCase(responseBody, "quota exceeded")
+                || containsIgnoreCase(responseBody, "rate limit")
+                || containsIgnoreCase(responseBody, "\"code\": 429")
+                || containsIgnoreCase(responseBody, "\"code\":429");
+    }
+
+    private String extractJsonField(String json, String fieldName) {
+        if (json == null || json.isBlank()) return null;
+        Matcher matcher = Pattern.compile(
+                "\"" + Pattern.quote(fieldName) + "\"\\s*:\\s*\"([^\"]*)\"",
+                Pattern.CASE_INSENSITIVE
+        ).matcher(json);
+        return matcher.find() ? matcher.group(1) : null;
+    }
+
+    private String abbreviate(String value, int maxLength) {
+        if (value == null || value.length() <= maxLength) return value;
+        return value.substring(0, maxLength) + "...";
+    }
+
+    private String extractDifyAnswer(Map<?, ?> response) {
+        String directAnswer = nonBlankText(response.get("answer"));
+        if (directAnswer != null) return directAnswer;
+
+        Object data = response.get("data");
+        if (data instanceof Map<?, ?> dataMap) {
+            String nestedAnswer = nonBlankText(dataMap.get("answer"));
+            if (nestedAnswer != null) return nestedAnswer;
+
+            Object outputs = dataMap.get("outputs");
+            if (outputs instanceof Map<?, ?> outputsMap) {
+                for (String key : List.of("answer", "text", "output", "result")) {
+                    String output = nonBlankText(outputsMap.get(key));
+                    if (output != null) return output;
+                }
+            }
+        }
+        return null;
+    }
+
+    private String nonBlankText(Object value) {
+        if (!(value instanceof CharSequence text)) return null;
+        String normalized = text.toString().trim();
+        return normalized.isEmpty() ? null : normalized;
+    }
+
+    private boolean hasCause(Throwable throwable, Class<? extends Throwable> causeType) {
+        Throwable current = throwable;
+        while (current != null) {
+            if (causeType.isInstance(current)) return true;
+            current = current.getCause();
+        }
+        return false;
     }
 
     public String searchProductsForBot(String keyword) {

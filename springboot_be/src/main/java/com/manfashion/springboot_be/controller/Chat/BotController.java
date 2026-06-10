@@ -69,10 +69,11 @@ public class BotController {
         try {
             String userMessage = request.get("message");
 
-            String botSessionId = "UNKNOWN".equals(userIdHex)
-                    ? conversationId
-                    : userIdHex + ":" + conversationId;
-            String botReply = botService.askBot(botSessionId, userMessage, getCurrentUserIdOrNull(authorizationHeader));
+            Integer currentUserId = getCurrentUserIdOrNull(authorizationHeader);
+            String botSessionId = currentUserId == null
+                    ? "guest:" + conversationId
+                    : "user:" + currentUserId + ":" + conversationId;
+            String botReply = botService.askBot(botSessionId, userMessage, currentUserId);
 
             // Đóng gói DTO khớp với Frontend ReactJS
             Map<String, Object> response = Map.of(
@@ -87,11 +88,11 @@ public class BotController {
             return ResponseEntity.ok(response);
 
         } catch (Exception e) {
+            log.error("Unexpected error while processing bot request. conversationId={}", conversationId, e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(Map.of(
-                            "error", "Lỗi xử lý Bot",
-                            "message", e.getMessage(),
-                            "userIdHex", userIdHex
+                            "error", "BOT_PROCESSING_ERROR",
+                            "message", "Trợ lý đang gặp sự cố. Bạn vui lòng thử lại sau."
                     ));
         }
     }

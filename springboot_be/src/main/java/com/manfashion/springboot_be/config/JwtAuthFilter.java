@@ -27,6 +27,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
             throws ServletException, IOException {
 
         String path = request.getServletPath();
+        boolean isPublicBotRequest = path.startsWith("/api/v1/bot/");
 
         // 🟢 Bỏ qua xác thực cho các endpoint đăng nhập/đăng ký
         if (path.startsWith("/api/auth/")) {
@@ -63,6 +64,11 @@ public class JwtAuthFilter extends OncePerRequestFilter {
             }
             // ❌ Token hết hạn
             catch (io.jsonwebtoken.ExpiredJwtException ex) {
+                if (isPublicBotRequest) {
+                    setGuestAuthentication();
+                    filterChain.doFilter(request, response);
+                    return;
+                }
                 response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
                 response.setContentType("application/json");
                 response.getWriter().write("{\"error\": \"Access token expired\"}");
@@ -70,6 +76,11 @@ public class JwtAuthFilter extends OncePerRequestFilter {
             }
             // ❌ Token không hợp lệ
             catch (Exception ex) {
+                if (isPublicBotRequest) {
+                    setGuestAuthentication();
+                    filterChain.doFilter(request, response);
+                    return;
+                }
                 response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
                 response.setContentType("application/json");
                 response.getWriter().write("{\"error\": \"Invalid token\"}");
@@ -77,16 +88,20 @@ public class JwtAuthFilter extends OncePerRequestFilter {
             }
         } else {
             // ✅ Không có token → coi là Guest user
-            UsernamePasswordAuthenticationToken guestAuth =
-                    new UsernamePasswordAuthenticationToken(
-                            "guest",
-                            null,
-                            List.of(new SimpleGrantedAuthority("GUEST"))
-                    );
-            SecurityContextHolder.getContext().setAuthentication(guestAuth);
+            setGuestAuthentication();
         }
 
         // ➡️ Tiếp tục xử lý request
         filterChain.doFilter(request, response);
+    }
+
+    private void setGuestAuthentication() {
+        UsernamePasswordAuthenticationToken guestAuth =
+                new UsernamePasswordAuthenticationToken(
+                        "guest",
+                        null,
+                        List.of(new SimpleGrantedAuthority("GUEST"))
+                );
+        SecurityContextHolder.getContext().setAuthentication(guestAuth);
     }
 }
