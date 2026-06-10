@@ -70,7 +70,7 @@ public class BlogServiceImpl implements BlogService {
     public BlogResponse updateBlog(String idStr, BlogRequest req, MultipartFile file) throws IOException {
         Integer id = Integer.valueOf(idStr); // Ép kiểu cho MySQL
 
-        Blog blog = blogRepository.findById(id)
+        Blog blog = blogRepository.findByIdAndDeletedAtIsNull(id)
                 .orElseThrow(() -> new AppException(ErrorCode.BLOG_NOT_FOUND));
 
         String oldTitle = blog.getTitle();
@@ -95,15 +95,15 @@ public class BlogServiceImpl implements BlogService {
     }
 
     // =====================================================
-    // ❌ Hard Delete
+    // ❌ Soft Delete
     // =====================================================
     @Override
     public void deleteBlog(String idStr) {
         Integer id = Integer.valueOf(idStr);
-        if (!blogRepository.existsById(id)) {
-            throw new AppException(ErrorCode.BLOG_NOT_FOUND);
-        }
-        blogRepository.deleteById(id);
+        Blog blog = blogRepository.findByIdAndDeletedAtIsNull(id)
+                .orElseThrow(() -> new AppException(ErrorCode.BLOG_NOT_FOUND));
+        blog.setDeletedAt(LocalDateTime.now());
+        blogRepository.save(blog);
     }
 
     // =====================================================
@@ -112,8 +112,8 @@ public class BlogServiceImpl implements BlogService {
     @Override
     public Page<BlogResponse> getAllBlogs(String keyword, Pageable pageable) {
         Page<Blog> page = (keyword != null && !keyword.isBlank())
-                ? blogRepository.findByTitleContainingIgnoreCaseOrderByCreatedAtDesc(keyword, pageable)
-                : blogRepository.findAllByOrderByCreatedAtDesc(pageable);
+                ? blogRepository.findByTitleContainingIgnoreCaseAndDeletedAtIsNullOrderByCreatedAtDesc(keyword, pageable)
+                : blogRepository.findAllByDeletedAtIsNullOrderByCreatedAtDesc(pageable);
 
         // Map nguyên cái Page Entity sang Page DTO cực mượt
         return page.map(blogMapper::toResponseDTO);
@@ -125,7 +125,7 @@ public class BlogServiceImpl implements BlogService {
     @Override
     public BlogResponse getBlogById(String idStr) {
         Integer id = Integer.valueOf(idStr);
-        Blog blog = blogRepository.findById(id)
+        Blog blog = blogRepository.findByIdAndDeletedAtIsNull(id)
                 .orElseThrow(() -> new AppException(ErrorCode.BLOG_NOT_FOUND));
         return blogMapper.toResponseDTO(blog);
     }
@@ -135,7 +135,7 @@ public class BlogServiceImpl implements BlogService {
     // =====================================================
     @Override
     public BlogResponse getBySlug(String slug) {
-        Blog blog = blogRepository.findBySlug(slug)
+        Blog blog = blogRepository.findBySlugAndDeletedAtIsNull(slug)
                 .orElseThrow(() -> new AppException(ErrorCode.BLOG_NOT_FOUND));
         return blogMapper.toResponseDTO(blog);
     }

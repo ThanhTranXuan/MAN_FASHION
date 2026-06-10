@@ -58,6 +58,8 @@ public enum ErrorCode {
     USER_NOT_ACCESS(3006, "error.user.access.denied", HttpStatus.FORBIDDEN),
     EMPLOYEE_DELETE_NOT_ALLOWED(3007, "error.employee.delete.not-allowed", HttpStatus.FORBIDDEN),
     EMPLOYEE_DELETE_HAS_RELATED_DATA(3008, "error.employee.delete.related-data", HttpStatus.CONFLICT),
+    USER_INACTIVE(3009, "Tài khoản đã ngừng hoạt động.", HttpStatus.FORBIDDEN),
+    RETURN_REJECT_REASON_REQUIRED(3010, "Vui lòng nhập lý do từ chối hoàn trả.", HttpStatus.BAD_REQUEST),
 
     // ========================
     // 4000-4999: PRODUCT ERRORS

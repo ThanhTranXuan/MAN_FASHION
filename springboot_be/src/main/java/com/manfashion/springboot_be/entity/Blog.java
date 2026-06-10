@@ -27,6 +27,9 @@ public class Blog {
 
     private String thumbnail;
 
+    @Column(name = "deleted_at")
+    private LocalDateTime deletedAt;
+
     @CreationTimestamp
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;

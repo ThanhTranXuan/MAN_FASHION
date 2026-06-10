@@ -38,6 +38,9 @@ public class Payment {
     @Column(name = "payment_status", length = 50)
     private String paymentStatus; // Mặc định: PAID, FAILED, REFUNDED
 
+    @Column(name = "payment_method", length = 30)
+    private String paymentMethod;
+
     @Column(name = "paid_at")
     private LocalDateTime paidAt;
 

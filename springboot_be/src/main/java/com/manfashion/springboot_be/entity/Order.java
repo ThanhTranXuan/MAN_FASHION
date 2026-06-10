@@ -61,6 +61,10 @@ public class Order {
     @Column(name = "checkout_session_id")
     private String checkoutSessionId;
 
+    @Builder.Default
+    @Column(name = "stock_restored", nullable = false)
+    private Boolean stockRestored = false;
+
     @CreationTimestamp
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;

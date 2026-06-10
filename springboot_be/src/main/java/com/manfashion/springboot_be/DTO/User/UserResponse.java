@@ -12,5 +12,6 @@ public class UserResponse {
     private String address;
     private String avatarUrl;
     private String roleName;
+    private Boolean isActive;
 }
 

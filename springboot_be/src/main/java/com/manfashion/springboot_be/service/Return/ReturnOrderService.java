@@ -10,7 +10,7 @@ public interface ReturnOrderService {
     ReturnOrderResponse requestReturn(String userId, ReturnOrderRequest req);
 
     // 🟣 ADMIN UPDATE STATUS
-    ReturnOrderResponse updateStatus(String returnCode, String status);
+    ReturnOrderResponse updateStatus(String returnCode, String status, String rejectReason, String processedById);
 
     // 📃 ADMIN GET ALL
     Page<ReturnOrderResponse> getAll(String code, String status, Pageable pageable);

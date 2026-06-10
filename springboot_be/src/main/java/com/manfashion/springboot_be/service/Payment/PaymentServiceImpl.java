@@ -3,6 +3,7 @@ package com.manfashion.springboot_be.service.Payment;
 import com.manfashion.springboot_be.entity.Payment;
 import com.manfashion.springboot_be.repository.Order.OrderRepository;
 import com.manfashion.springboot_be.repository.Payment.PaymentRepository;
+import com.manfashion.springboot_be.service.Order.OrderCancellationService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -17,6 +18,7 @@ public class PaymentServiceImpl implements PaymentService {
 
     private final PaymentRepository paymentRepo;
     private final OrderRepository orderRepo;
+    private final OrderCancellationService cancellationService;
 
     @Override
     @Transactional
@@ -40,12 +42,28 @@ public class PaymentServiceImpl implements PaymentService {
                 .qrCodeUrl(qrCodeUrl)
                 .amountVND(amountVND)
                 .paymentStatus("PENDING")
+                .paymentMethod("VIETQR")
                 .createdAt(LocalDateTime.now())
                 .build();
 
         Payment saved = paymentRepo.save(payment);
         log.info("Tạo Payment thành công → orderCode: {}, paymentOrderCode: {}", orderId, paymentOrderCode);
         return saved;
+    }
+
+    @Override
+    @Transactional
+    public Payment createCodPayment(Integer orderId, Double amountVND) {
+        return paymentRepo.findByOrderId(orderId).orElseGet(() ->
+                paymentRepo.save(Payment.builder()
+                        .orderId(orderId)
+                        .amountVND(amountVND)
+                        .paymentStatus("UNPAID")
+                        .paymentMethod("COD")
+                        .description("Thanh toán khi nhận hàng")
+                        .createdAt(LocalDateTime.now())
+                        .build())
+        );
     }
 
     @Override
@@ -58,10 +76,25 @@ public class PaymentServiceImpl implements PaymentService {
             return null;
         }
 
-        Payment payment = optionalPayment.get();
+        Integer orderId = optionalPayment.get().getOrderId();
+        var optionalOrder = orderRepo.findByIdForUpdate(orderId);
+        if (optionalOrder.isEmpty()) {
+            log.error("Không tìm thấy Order với orderId: {}", orderId);
+            return null;
+        }
+
+        Payment payment = paymentRepo.findByOrderIdForUpdate(orderId)
+                .orElse(optionalPayment.get());
 
         if ("PAID".equals(payment.getPaymentStatus())) {
             log.info("PayOS webhook - Payment {} đã được xử lý trước đó (PAID), bỏ qua", paymentOrderCode);
+            return new PaymentMarkResult(payment, false);
+        }
+        if ("CANCELLED".equals(optionalOrder.get().getStatus())
+                || "FAILED".equals(payment.getPaymentStatus())
+                || "CANCELLED".equals(payment.getPaymentStatus())) {
+            log.warn("Ignore late PAID webhook for closed payment: paymentOrderCode={}, status={}",
+                    paymentOrderCode, payment.getPaymentStatus());
             return new PaymentMarkResult(payment, false);
         }
 
@@ -70,15 +103,10 @@ public class PaymentServiceImpl implements PaymentService {
         payment.setPaidAt(LocalDateTime.now());
         paymentRepo.save(payment);
 
-        orderRepo.findById(payment.getOrderId())
-                .ifPresentOrElse(
-                        order -> {
-                            order.setStatus("PAID");
-                            orderRepo.save(order);
-                            log.info("Cập nhật trạng thái đơn hàng {} → PAID", payment.getOrderId());
-                        },
-                        () -> log.error("Không tìm thấy Order với orderId: {}", payment.getOrderId())
-                );
+        var order = optionalOrder.get();
+        order.setStatus("PAID");
+        orderRepo.save(order);
+        log.info("Cập nhật trạng thái đơn hàng {} → PAID", payment.getOrderId());
 
         log.info("Thanh toán thành công → paymentOrderCode: {}, transactionId: {}", paymentOrderCode, transactionId);
         return new PaymentMarkResult(payment, true);
@@ -90,23 +118,29 @@ public class PaymentServiceImpl implements PaymentService {
         paymentRepo.findByPaymentOrderCode(paymentOrderCode)
                 .ifPresentOrElse(
                         payment -> {
-                            if ("FAILED".equals(payment.getPaymentStatus()) || "CANCELLED".equals(payment.getPaymentStatus())) {
+                            if ("PAID".equals(payment.getPaymentStatus())
+                                    || "FAILED".equals(payment.getPaymentStatus())
+                                    || "CANCELLED".equals(payment.getPaymentStatus())) {
                                 log.info("Payment đã được đánh dấu thất bại trước đó → paymentOrderCode: {}", paymentOrderCode);
                                 return;
                             }
-
-                            payment.setPaymentStatus("FAILED");
-                            payment.setFailureReason(reason);
-                            paymentRepo.save(payment);
-
-                            orderRepo.findById(payment.getOrderId())
-                                    .ifPresent(order -> {
-                                        order.setStatus("CANCELLED");
-                                        orderRepo.save(order);
-                                        log.info("Đơn hàng {} đã bị hủy do thanh toán thất bại", payment.getOrderId());
-                                    });
+                            cancellationService.cancelAndRestoreStock(
+                                    payment.getOrderId(), "FAILED", reason
+                            );
                         },
                         () -> log.warn("Không tìm thấy Payment để đánh dấu FAILED → paymentOrderCode: {}", paymentOrderCode)
                 );
+    }
+
+    @Override
+    @Transactional
+    public void markCodAsPaid(Integer orderId) {
+        paymentRepo.findByOrderId(orderId).ifPresent(payment -> {
+            if ("COD".equals(payment.getPaymentMethod()) && !"PAID".equals(payment.getPaymentStatus())) {
+                payment.setPaymentStatus("PAID");
+                payment.setPaidAt(LocalDateTime.now());
+                paymentRepo.save(payment);
+            }
+        });
     }
 }

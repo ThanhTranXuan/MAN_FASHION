@@ -28,6 +28,7 @@ public interface UserMapper {
     @Mapping(target = "hourlyRate", ignore = true)
     @Mapping(target = "createdAt", ignore = true)
     @Mapping(target = "updatedAt", ignore = true)
+    @Mapping(target = "isActive", ignore = true)
     User toEntity(UserCreateRequest dto);
 
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
@@ -41,6 +42,7 @@ public interface UserMapper {
     @Mapping(target = "hourlyRate", ignore = true)
     @Mapping(target = "createdAt", ignore = true)
     @Mapping(target = "updatedAt", ignore = true)
+    @Mapping(target = "isActive", ignore = true)
     void updateProfile(UserUpdateProfileRequest dto, @MappingTarget User user);
 
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
@@ -56,5 +58,6 @@ public interface UserMapper {
     @Mapping(target = "hourlyRate", ignore = true)
     @Mapping(target = "createdAt", ignore = true)
     @Mapping(target = "updatedAt", ignore = true)
+    @Mapping(target = "isActive", ignore = true)
     void updateAvatar(UserUpdateAvatarRequest dto, @MappingTarget User user);
 }

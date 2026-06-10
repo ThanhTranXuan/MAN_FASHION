@@ -30,9 +30,9 @@ public interface OrderMapper {
     ) {
         OrderResponse response = toResponse(order);
         response.setItems(items);
-        response.setPaymentStatus("COD".equals(order.getPaymentMethod())
-                ? "COD"
-                : payment != null ? payment.getPaymentStatus() : "PENDING");
+        response.setPaymentStatus(payment != null
+                ? payment.getPaymentStatus()
+                : "COD".equals(order.getPaymentMethod()) ? "UNPAID" : "PENDING");
 
         if (payment != null) {
             response.setPaymentLink(payment.getPaymentLink());

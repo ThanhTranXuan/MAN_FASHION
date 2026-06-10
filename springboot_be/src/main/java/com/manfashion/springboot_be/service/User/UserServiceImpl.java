@@ -82,7 +82,10 @@ public class UserServiceImpl implements UserService {
     //delete
     @Override
     public void delete(String userIdHex) {
-        userRepository.deleteById(Integer.parseInt(userIdHex));
+        User user = userRepository.findById(Integer.parseInt(userIdHex))
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
+        user.setIsActive(false);
+        userRepository.save(user);
     }
     //change password
     public void changePassword(String userIdHex, UserChangePasswordRequest req) {

@@ -66,6 +66,7 @@ public class OrderServiceImpl implements OrderService {
     private final OrderItemMapper orderItemMapper;
     private final SimpMessagingTemplate messaging;
     private final ProductReviewRepository productReviewRepository;
+    private final OrderCancellationService cancellationService;
 
 
     @Override
@@ -219,6 +220,7 @@ public class OrderServiceImpl implements OrderService {
         ));
 
         if ("COD".equals(paymentMethod)) {
+            paymentService.createCodPayment(order.getId(), (double) amountVND);
             String successMessage = """
                 <p>Đơn hàng của bạn đã được đặt thành công!</p>
                 <p>Mã đơn hàng: <b>%s</b></p>
@@ -273,6 +275,9 @@ public class OrderServiceImpl implements OrderService {
 
         order.setStatus(s);
         orderRepo.save(order);
+        if ("COMPLETED".equals(s) && "COD".equals(order.getPaymentMethod())) {
+            paymentService.markCodAsPaid(order.getId());
+        }
         sendMail(order.getEmail(), order.getFullName(), orderCode, "Order status updated: <b>" + s + "</b>");
         publishOrderStatus(order);
         return toResponse(order, orderItemRepo.findByOrderId(order.getId()));
@@ -288,16 +293,9 @@ public class OrderServiceImpl implements OrderService {
             throw new RuntimeException("Only PENDING orders can be cancelled");
         }
 
-        order.setStatus("CANCELLED");
-        orderRepo.save(order);
-
-        List<OrderItem> items = orderItemRepo.findByOrderId(order.getId());
-        for (OrderItem item : items) {
-            variantRepo.findById(item.getVariant().getId()).ifPresent(variant -> {
-                variant.setStock(variant.getStock() + item.getQuantity());
-                variantRepo.save(variant);
-            });
-        }
+        cancellationService.cancelAndRestoreStock(
+                order.getId(), "CANCELLED", "Order cancelled"
+        );
         log.info("Đơn hàng {} đã bị hủy", orderCode);
     }
 
@@ -305,11 +303,24 @@ public class OrderServiceImpl implements OrderService {
     @Transactional
     public OrderResponse updateStatus(String orderCode, String status) {
         Order order = orderRepo.findByOrderCode(orderCode).orElseThrow(() -> new RuntimeException("Order not found"));
+        if ("CANCELLED".equalsIgnoreCase(status)) {
+            cancellationService.cancelAndRestoreStock(
+                    order.getId(), "CANCELLED", "Order cancelled by admin"
+            );
+            Order cancelled = orderRepo.findById(order.getId())
+                    .orElseThrow(() -> new RuntimeException("Order not found"));
+            publishOrderStatus(cancelled);
+            return toResponse(cancelled, orderItemRepo.findByOrderId(cancelled.getId()));
+        }
         order.setStatus(status);
         if ("DELIVERED".equalsIgnoreCase(status)) {
             order.setDeliveredAt(LocalDateTime.now());
         }
         orderRepo.save(order);
+        if ("COD".equals(order.getPaymentMethod())
+                && ("DELIVERED".equalsIgnoreCase(status) || "COMPLETED".equalsIgnoreCase(status))) {
+            paymentService.markCodAsPaid(order.getId());
+        }
         sendMail(order.getEmail(), order.getFullName(), orderCode, "Order status updated: <b>" + status + "</b>");
         publishOrderStatus(order);
         return toResponse(order, orderItemRepo.findByOrderId(order.getId()));

@@ -14,5 +14,6 @@ public class EmployeeResponse {
     private String fullName;
     private String email;
     private Double hourlyRate;
+    private Boolean isActive;
 }
 

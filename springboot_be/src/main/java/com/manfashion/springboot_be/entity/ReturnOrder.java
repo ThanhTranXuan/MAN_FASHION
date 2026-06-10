@@ -41,6 +41,16 @@ public class ReturnOrder {
     @Column(name = "refund_amount")
     private Double refundAmount;
 
+    @Column(name = "reject_reason", length = 500)
+    private String rejectReason;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "processed_by")
+    private User processedBy;
+
+    @Column(name = "processed_at")
+    private LocalDateTime processedAt;
+
     @CreationTimestamp
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;

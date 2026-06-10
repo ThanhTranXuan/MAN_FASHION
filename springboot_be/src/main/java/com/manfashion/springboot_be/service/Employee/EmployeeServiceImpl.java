@@ -9,15 +9,11 @@ import com.manfashion.springboot_be.entity.User;
 import com.manfashion.springboot_be.exception.AppException;
 import com.manfashion.springboot_be.exception.ErrorCode;
 import com.manfashion.springboot_be.mapper.EmployeeMapper;
-import com.manfashion.springboot_be.repository.Attendance.AttendanceRepository;
-import com.manfashion.springboot_be.repository.Chat.ChatConversationRepository;
-import com.manfashion.springboot_be.repository.Chat.ChatMessageRepository;
 import com.manfashion.springboot_be.repository.Role.RoleRepository;
 import com.manfashion.springboot_be.repository.User.UserRepository;
 import com.manfashion.springboot_be.service.Attendance.AttendanceService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -34,9 +30,6 @@ public class EmployeeServiceImpl implements EmployeeService{
     private final PasswordEncoder passwordEncoder;
     private final AttendanceService attendanceService;
     private final EmployeeMapper employeeMapper;
-    private final AttendanceRepository attendanceRepository;
-    private final ChatConversationRepository chatConversationRepository;
-    private final ChatMessageRepository chatMessageRepository;
     @Override
     public Page<EmployeeResponse> getAllEmployees(String keyword, Pageable pageable) {
         Role employeeRole = getEmployeeRole();
@@ -44,7 +37,7 @@ public class EmployeeServiceImpl implements EmployeeService{
 
         Page<User> employees = (keyword != null && !keyword.isEmpty())
                 ? userRepo.searchUsers(roleId, keyword, pageable)
-                : userRepo.findByRoleId(roleId, pageable);
+                : userRepo.findByRoleIdAndIsActiveTrue(roleId, pageable);
 
         return employees.map(employeeMapper::toResponse);
     }
@@ -92,22 +85,8 @@ public class EmployeeServiceImpl implements EmployeeService{
             throw new AppException(ErrorCode.EMPLOYEE_DELETE_NOT_ALLOWED);
         }
 
-        attendanceRepository.deleteByUserId(employeeId);
-
-        var assignedConversations = chatConversationRepository.findByAssignedEmployeeId(employeeId);
-        assignedConversations.forEach(conversation -> conversation.setAssignedEmployee(null));
-        chatConversationRepository.saveAll(assignedConversations);
-
-        var sentMessages = chatMessageRepository.findBySenderId(employeeId);
-        sentMessages.forEach(message -> message.setSender(null));
-        chatMessageRepository.saveAll(sentMessages);
-
-        try {
-            userRepo.delete(employee);
-            userRepo.flush();
-        } catch (DataIntegrityViolationException exception) {
-            throw new AppException(ErrorCode.EMPLOYEE_DELETE_HAS_RELATED_DATA);
-        }
+        employee.setIsActive(false);
+        userRepo.save(employee);
     }
 
     @Override

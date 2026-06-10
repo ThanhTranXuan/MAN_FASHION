@@ -43,6 +43,8 @@ public class AuthenticationServiceImpl implements AuthenticationService{
         User user = userRepository.findByEmail(request.getEmail())
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
 
+        ensureActive(user);
+
         if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
             throw new AppException(ErrorCode.INVALID_PASSWORD);
         }
@@ -79,6 +81,7 @@ public class AuthenticationServiceImpl implements AuthenticationService{
         String newRefresh = jwtUtils.generateRefreshToken(String.valueOf(userId), roleName);
 
         User user = userRepository.findById(userId).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
+        ensureActive(user);
 
         return AuthenticationResponse.builder().message("Token refreshed")
 
@@ -102,6 +105,7 @@ public class AuthenticationServiceImpl implements AuthenticationService{
 
         User user = userRepository.findBySocialProviderAndSocialId(GOOGLE_PROVIDER, token.getUid())
                 .orElseGet(() -> linkOrCreateGoogleUser(token));
+        ensureActive(user);
 
         Role role = roleRepository.findById(user.getRole().getId())
                 .orElseThrow(() -> new AppException(ErrorCode.ROLE_NOT_FOUND));
@@ -151,6 +155,12 @@ public class AuthenticationServiceImpl implements AuthenticationService{
                 .build();
 
         return userRepository.save(newUser);
+    }
+
+    private void ensureActive(User user) {
+        if (Boolean.FALSE.equals(user.getIsActive())) {
+            throw new AppException(ErrorCode.USER_INACTIVE);
+        }
     }
 
     @Override

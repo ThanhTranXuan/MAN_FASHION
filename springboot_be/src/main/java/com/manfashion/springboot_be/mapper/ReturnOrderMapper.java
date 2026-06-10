@@ -18,6 +18,8 @@ public interface ReturnOrderMapper {
     @Mapping(source = "order.id", target = "orderId")
     @Mapping(source = "order.orderCode", target = "orderCode")
     @Mapping(source = "user.id", target = "userId")
+    @Mapping(source = "processedBy.id", target = "processedById")
+    @Mapping(source = "processedBy.fullName", target = "processedByName")
     @Mapping(target = "items", ignore = true)
     ReturnOrderResponse toResponse(ReturnOrder returnOrder);
 

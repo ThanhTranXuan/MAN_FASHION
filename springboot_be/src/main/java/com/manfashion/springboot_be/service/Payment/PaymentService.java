@@ -12,6 +12,8 @@ public interface PaymentService {
                           String qrCodeUrl,
                           Double amountVND);
 
+    Payment createCodPayment(Integer orderId, Double amountVND);
+
     /**
      * Xử lý webhook: Đánh dấu thanh toán thành công và cập nhật đơn hàng
      */
@@ -22,4 +24,5 @@ public interface PaymentService {
      */
     void markAsFailed(Long paymentOrderCode, String reason);
 
+    void markCodAsPaid(Integer orderId);
 }

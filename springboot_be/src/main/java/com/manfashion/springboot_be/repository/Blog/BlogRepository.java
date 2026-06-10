@@ -8,11 +8,13 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.Optional;
 
 public interface BlogRepository extends JpaRepository<Blog,Integer> {
-    Page<Blog> findByTitleContainingIgnoreCaseOrderByCreatedAtDesc(String title, Pageable pageable);
+    Page<Blog> findByTitleContainingIgnoreCaseAndDeletedAtIsNullOrderByCreatedAtDesc(String title, Pageable pageable);
 
-    Page<Blog> findAllByOrderByCreatedAtDesc(Pageable pageable);
+    Page<Blog> findAllByDeletedAtIsNullOrderByCreatedAtDesc(Pageable pageable);
 
     boolean existsBySlug(String slug);
 
-    Optional<Blog> findBySlug(String slug);
+    Optional<Blog> findBySlugAndDeletedAtIsNull(String slug);
+
+    Optional<Blog> findByIdAndDeletedAtIsNull(Integer id);
 }

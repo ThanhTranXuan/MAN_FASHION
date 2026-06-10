@@ -46,6 +46,10 @@ public class User {
     @Column(columnDefinition = "TEXT")
     private String address;
 
+    @Builder.Default
+    @Column(name = "is_active", nullable = false)
+    private Boolean isActive = true;
+
     @CreationTimestamp
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;

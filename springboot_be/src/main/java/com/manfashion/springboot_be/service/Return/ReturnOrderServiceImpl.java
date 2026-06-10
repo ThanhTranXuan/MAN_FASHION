@@ -5,6 +5,8 @@ import com.manfashion.springboot_be.DTO.Return.ReturnOrderRequest;
 import com.manfashion.springboot_be.DTO.Return.ReturnOrderResponse;
 import com.manfashion.springboot_be.entity.*;
 import com.manfashion.springboot_be.mapper.ReturnOrderMapper;
+import com.manfashion.springboot_be.exception.AppException;
+import com.manfashion.springboot_be.exception.ErrorCode;
 import com.manfashion.springboot_be.repository.Order.OrderItemRepository;
 import com.manfashion.springboot_be.repository.Order.OrderRepository;
 import com.manfashion.springboot_be.repository.Product.ProductVariantRepository;
@@ -179,7 +181,12 @@ public class ReturnOrderServiceImpl implements ReturnOrderService {
     // =====================================================
     @Override
     @Transactional
-    public ReturnOrderResponse updateStatus(String returnCode, String status) {
+    public ReturnOrderResponse updateStatus(
+            String returnCode,
+            String status,
+            String rejectReason,
+            String processedById
+    ) {
         ReturnOrder ro = returnRepo.findByReturnCode(returnCode)
                 .orElseThrow(() -> new RuntimeException("Return not found"));
 
@@ -189,13 +196,21 @@ public class ReturnOrderServiceImpl implements ReturnOrderService {
         if (!allowed.contains(s)) {
             throw new RuntimeException("Invalid status: " + s);
         }
+        if ("REJECTED".equals(s) && (rejectReason == null || rejectReason.isBlank())) {
+            throw new AppException(ErrorCode.RETURN_REJECT_REASON_REQUIRED);
+        }
 
+        String previousStatus = ro.getStatus();
         ro.setStatus(s);
+        ro.setProcessedBy(userRepository.findById(Integer.valueOf(processedById))
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND)));
+        ro.setProcessedAt(LocalDateTime.now());
+        ro.setRejectReason("REJECTED".equals(s) ? rejectReason.trim() : null);
         ro.setUpdatedAt(LocalDateTime.now());
         returnRepo.save(ro);
 
         // Nếu trạng thái là COMPLETED => Hoàn trả lại số lượng tồn kho (Stock)
-        if (s.equals("COMPLETED")) {
+        if (s.equals("COMPLETED") && !"COMPLETED".equals(previousStatus)) {
             List<ReturnItem> items = returnItemRepo.findByReturnOrderId(ro.getId());
             for (ReturnItem i : items) {
                 orderItemRepo.findById(i.getOrderItem().getId()).ifPresent(oi ->

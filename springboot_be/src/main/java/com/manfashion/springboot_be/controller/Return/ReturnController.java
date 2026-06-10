@@ -72,8 +72,11 @@ public class ReturnController {
     @PatchMapping("/{orderCode}/status")
     @PreAuthorize("hasAnyAuthority('ADMIN','EMPLOYEE')")
     public ApiResponse<ReturnOrderResponse> updateReturnStatus(@PathVariable String orderCode,
-                                                               @RequestParam String status) {
-        ReturnOrderResponse updatedReturn = returnService.updateStatus(orderCode, status);
+                                                               @RequestParam String status,
+                                                               @RequestParam(required = false) String rejectReason) {
+        String processedById = getCurrentUserId();
+        ReturnOrderResponse updatedReturn =
+                returnService.updateStatus(orderCode, status, rejectReason, processedById);
 
         return ApiResponse.<ReturnOrderResponse>builder()
                 .message("return.update_status.success")

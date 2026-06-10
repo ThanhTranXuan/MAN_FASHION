@@ -24,6 +24,7 @@ public interface EmployeeMapper {
     @Mapping(target = "address", ignore = true)
     @Mapping(target = "createdAt", ignore = true)
     @Mapping(target = "updatedAt", ignore = true)
+    @Mapping(target = "isActive", ignore = true)
     User toEntity(EmployeeRequest request);
 
     @Mapping(target = "id", ignore = true)
@@ -37,5 +38,6 @@ public interface EmployeeMapper {
     @Mapping(target = "address", ignore = true)
     @Mapping(target = "createdAt", ignore = true)
     @Mapping(target = "updatedAt", ignore = true)
+    @Mapping(target = "isActive", ignore = true)
     void updateEmployee(EmployeeRequest request, @MappingTarget User user);
 }

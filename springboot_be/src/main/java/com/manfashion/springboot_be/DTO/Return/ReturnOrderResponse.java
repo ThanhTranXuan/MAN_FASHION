@@ -18,6 +18,10 @@ public class ReturnOrderResponse {
     private String note;
     private String status;
     private Double refundAmount;
+    private String rejectReason;
+    private String processedById;
+    private String processedByName;
+    private LocalDateTime processedAt;
     private List<ReturnItemResponse> items;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
