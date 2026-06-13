@@ -12,7 +12,7 @@ import {
 import { MdAdd, MdEdit, MdDelete } from 'react-icons/md';
 import { useAppToast } from 'utils/ToastHelper';
 import ProductService from 'services/ProductService';
-import { formatUSD } from 'utils/FormatHelper';
+import { formatCurrencyVND } from 'utils/FormatHelper';
 import { useUser } from 'contexts/UserContext';
 import { getColorLabel } from 'utils/ColorNameHelper';
 
@@ -84,7 +84,7 @@ export default function Row({
         </Td>
 
         {/* Price */}
-        <Td>{formatUSD(product.price)}</Td>
+        <Td>{formatCurrencyVND(product.price)}</Td>
 
         {/* Category */}
         <Td>
@@ -202,7 +202,7 @@ export default function Row({
               {/* Stock */}
               <Td>
                 <Text fontSize="sm" color="gray.600">
-                  Tồn: {v.stock ?? 0} | Giá: {formatUSD(v.price)}
+                  Tồn: {v.stock ?? 0} | Giá: {formatCurrencyVND(v.price)}
                 </Text>
               </Td>
 

@@ -2,7 +2,7 @@ import { createColumnHelper } from '@tanstack/react-table';
 import { Text } from '@chakra-ui/react';
 import CategoryFilter from 'views/admin/products/components/CategoryFilter';
 import ActiveFilter from 'views/admin/products/components/ActiveFilter';
-import { formatUSD } from 'utils/FormatHelper';
+import { formatCurrencyVND } from 'utils/FormatHelper';
 import { useUser } from 'contexts/UserContext';
 
 const columnHelper = createColumnHelper();
@@ -50,7 +50,7 @@ export default function Columns({
     columnHelper.accessor('price', {
       header: 'GIÁ',
       cell: (info) => (
-        <Text>{formatUSD(info.getValue())}</Text>
+        <Text>{formatCurrencyVND(info.getValue())}</Text>
       ),
     }),
 

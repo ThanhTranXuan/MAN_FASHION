@@ -21,7 +21,7 @@ import {
 } from '@chakra-ui/react';
 import { FaMoneyBillWave, FaQrcode } from 'react-icons/fa';
 import { useAppToast } from 'utils/ToastHelper';
-import { formatUSD } from 'utils/FormatHelper';
+import { formatCurrencyVND } from 'utils/FormatHelper';
 import { PRODUCT_PLACEHOLDER, resolveImageUrl } from 'utils/ImageHelper';
 import CouponService from 'services/CouponService';
 import OrderService from 'services/OrderService';
@@ -36,7 +36,7 @@ export default function Summary({
   hasProfileAddress,
   profileAddress,
 }) {
-  const sectionBg = useColorModeValue('gray.50', 'navy.700');
+  const sectionBg = useColorModeValue('white', 'navy.700');
   const textColor = useColorModeValue('secondaryGray.900', 'white');
   const borderColor = useColorModeValue('gray.200', 'gray.600');
   const couponBg = useColorModeValue('white', 'navy.800');
@@ -268,10 +268,12 @@ export default function Summary({
       flex="1"
       bg={sectionBg}
       p={{ base: 4, md: 6 }}
-      borderRadius="16px"
+      borderRadius="14px"
       border="1px solid"
       borderColor={borderColor}
-      boxShadow="sm"
+      boxShadow="0 6px 20px rgba(15, 23, 42, 0.05)"
+      position={{ lg: 'sticky' }}
+      top={{ lg: '96px' }}
     >
       <Heading size="md" mb={6} color={textColor}>
         Tóm Tắt Đơn Hàng
@@ -330,7 +332,7 @@ export default function Summary({
                 )}
               </Box>
               <Text fontWeight="semibold" color="brand.500">
-                {formatUSD(item.price * item.quantity)}
+                {formatCurrencyVND(item.price * item.quantity)}
               </Text>
             </Flex>
           ))}
@@ -424,18 +426,18 @@ export default function Summary({
       >
         <Flex justify="space-between">
           <Text>Tạm Tính</Text>
-          <Text>{formatUSD(subtotal)}</Text>
+          <Text>{formatCurrencyVND(subtotal)}</Text>
         </Flex>
         {applied && (
           <Flex justify="space-between" color="green.400" fontWeight="medium">
             <Text>Giảm Giá</Text>
-            <Text>-{formatUSD(discountValue)}</Text>
+            <Text>-{formatCurrencyVND(discountValue)}</Text>
           </Flex>
         )}
         <Divider />
         <Flex justify="space-between" fontSize="xl" fontWeight="bold">
           <Text>Tổng Cộng</Text>
-          <Text color="brand.500">{formatUSD(finalTotal)}</Text>
+          <Text color="brand.500">{formatCurrencyVND(finalTotal)}</Text>
         </Flex>
       </VStack>
 
@@ -468,7 +470,7 @@ export default function Summary({
 
       {/* Order button */}
       <Button
-        colorScheme="brand"
+        bg="navy.900"
         size="lg"
         w="full"
         h="56px"
@@ -480,6 +482,7 @@ export default function Summary({
         loadingText="Đang xử lý..."
         boxShadow="sm"
         color="white"
+        _hover={{ bg: 'navy.700' }}
       >
         {paymentMethod === 'COD'
           ? 'Đặt Hàng (Thanh Toán Khi Nhận Hàng)'

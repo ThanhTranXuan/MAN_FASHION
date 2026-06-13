@@ -12,7 +12,7 @@ import {
 import { createColumnHelper } from '@tanstack/react-table';
 import { ChevronDownIcon } from '@chakra-ui/icons';
 import StatusFilter from './StatusFilter';
-import { formatUSD } from 'utils/FormatHelper';
+import { formatCurrencyVND } from 'utils/FormatHelper';
 
 const columnHelper = createColumnHelper();
 
@@ -63,7 +63,7 @@ export default function Columns({
       header: 'SỐ TIỀN HOÀN',
       cell: (info) => (
         <Text color="green.500" fontWeight="bold">
-          {formatUSD(info.getValue())}
+          {formatCurrencyVND(info.getValue())}
         </Text>
       ),
     }),

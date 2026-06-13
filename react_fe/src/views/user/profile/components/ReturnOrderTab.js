@@ -7,14 +7,14 @@ import {
   Image,
   Text,
   Divider,
-  Badge,
   Spinner,
   Tag,
   TagLabel,
   useColorModeValue,
 } from '@chakra-ui/react';
-import { formatUSD } from 'utils/FormatHelper';
-import { translateReturnStatus } from 'utils/OrderDisplayHelper';
+import { formatCurrencyVND } from 'utils/FormatHelper';
+import StatusBadge from 'components/ui/StatusBadge';
+import EmptyState from 'components/ui/EmptyState';
 
 export default function ReturnOrderTab({
   returns,
@@ -26,23 +26,6 @@ export default function ReturnOrderTab({
   const cardBg = useColorModeValue('white', 'navy.800');
   const borderColor = useColorModeValue('gray.200', 'navy.700');
   const textColor = useColorModeValue('secondaryGray.900', 'white');
-
-  const getStatusColor = (status) => {
-    switch (status?.toUpperCase()) {
-      case 'REQUESTED':
-        return 'orange';
-      case 'APPROVED':
-        return 'green';
-      case 'REJECTED':
-        return 'red';
-      case 'RECEIVED':
-        return 'purple';
-      case 'COMPLETED':
-        return 'blue';
-      default:
-        return 'gray';
-    }
-  };
 
   const handleScroll = (e) => {
     if (!onLoadMore || !hasMore || loadingMore || isLoading) return;
@@ -63,11 +46,7 @@ export default function ReturnOrderTab({
 
   if (!returns.length) {
     return (
-      <Box textAlign="center" py={10}>
-        <Text fontSize="lg" color="gray.500">
-          Bạn chưa tạo yêu cầu hoàn trả nào.
-        </Text>
-      </Box>
+      <EmptyState title="Chưa có yêu cầu hoàn trả" description="Yêu cầu hoàn trả của bạn sẽ xuất hiện tại đây." />
     );
   }
 
@@ -92,7 +71,7 @@ export default function ReturnOrderTab({
               borderColor={borderColor}
               borderRadius="12px"
               p={5}
-              shadow="md"
+              boxShadow="0 6px 20px rgba(15, 23, 42, 0.05)"
             >
               {/* Header */}
               <Flex justify="space-between" align="center" mb={4}>
@@ -104,9 +83,7 @@ export default function ReturnOrderTab({
                     Đơn Hàng #{ro.orderCode}
                   </Text>
                 </Box>
-                <Badge colorScheme={getStatusColor(ro.status)} px={3} py={1}>
-                  {translateReturnStatus(ro.status)}
-                </Badge>
+                <StatusBadge status={ro.status} px={3} py={1} />
               </Flex>
 
               {/* Items */}
@@ -130,7 +107,7 @@ export default function ReturnOrderTab({
                       )}
                       <Box>
                         <Text fontWeight="semibold">
-                          {item.productName || 'Product'}
+                          {item.productName || 'Sản phẩm'}
                         </Text>
 
                         {(item.color || item.size) && (
@@ -153,7 +130,7 @@ export default function ReturnOrderTab({
 
                     <Box textAlign="right">
                       <Text fontWeight="semibold">
-                        {formatUSD(item.unitPrice * item.quantity)}
+                        {formatCurrencyVND(item.unitPrice * item.quantity)}
                       </Text>
                       <Text fontSize="sm" color="gray.500">
                         Số lượng: {item.quantity}

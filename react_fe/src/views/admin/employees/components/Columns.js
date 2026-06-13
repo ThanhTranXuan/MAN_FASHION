@@ -3,7 +3,7 @@ import { Text, Flex, IconButton } from '@chakra-ui/react';
 
 import { MdEdit, MdDelete } from 'react-icons/md';
 import { RiEyeFill } from 'react-icons/ri';
-import { formatUSD } from 'utils/FormatHelper';
+import { formatCurrencyVND } from 'utils/FormatHelper';
 
 const columnHelper = createColumnHelper();
 
@@ -23,7 +23,7 @@ export default function Columns({ onShow, onEdit, onDelete, textColor }) {
     }),
     columnHelper.accessor('hourlyRate', {
       header: 'Lương Giờ',
-      cell: (info) => <Text>{formatUSD(info.getValue()) || '-'}</Text>,
+      cell: (info) => <Text>{formatCurrencyVND(info.getValue()) || '-'}</Text>,
     }),
     columnHelper.display({
       id: 'actions',

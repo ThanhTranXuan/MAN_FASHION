@@ -14,7 +14,7 @@ import { FaQrcode, FaMoneyBillWave } from 'react-icons/fa';
 import { createColumnHelper } from '@tanstack/react-table';
 import { ChevronDownIcon } from '@chakra-ui/icons';
 import StatusFilter from './StatusFilter';
-import { formatUSD } from 'utils/FormatHelper';
+import { formatCurrencyVND } from 'utils/FormatHelper';
 import { translatePaymentMethod } from 'utils/OrderDisplayHelper';
 
 const columnHelper = createColumnHelper();
@@ -68,7 +68,7 @@ export default function Columns({
       header: 'TỔNG TIỀN',
       cell: (info) => (
         <Text color="brand.500" fontWeight="bold">
-          {formatUSD(info.getValue())}
+          {formatCurrencyVND(info.getValue())}
         </Text>
       ),
     }),

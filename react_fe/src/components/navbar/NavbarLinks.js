@@ -210,33 +210,24 @@ export default function NavbarLinks() {
         </>
       )}
 
-      {/* 🌗 Dark/Light toggle */}
-      <Button
-        variant="ghost"
-        p="0"
-        minW="unset"
-        onClick={toggleColorMode}
-        _hover={{ bg: 'transparent' }}
-      >
-        <Icon
-          h="24px"
-          w="24px"
-          color={navbarIcon}
-          as={colorMode === 'light' ? IoMdMoon : IoMdSunny}
-        />
-      </Button>
+      {isAdminRoute && (
+        <Button variant="ghost" p="0" minW="unset" onClick={toggleColorMode}>
+          <Icon h="24px" w="24px" color={navbarIcon} as={colorMode === 'light' ? IoMdMoon : IoMdSunny} />
+        </Button>
+      )}
 
       {/* 👤 User / Login */}
       {!user ? (
         <Button
           variant="ghost"
-          p="0"
+          px={{ base: 0, md: 3 }}
           me={2}
           minW="unset"
           onClick={() => goToSignIn(navigate, location)}
           _hover={{ backgroundColor: 'none' }}
         >
           <Icon h="24px" w="24px" color={navbarIcon} as={MdLogin} />
+          <Text display={{ base: 'none', md: 'block' }} ms={2}>Đăng nhập</Text>
         </Button>
       ) : (
         <Popover placement="bottom-end">
@@ -336,6 +327,15 @@ export default function NavbarLinks() {
                       right="10px"
                     />
                   )}
+                </Button>
+                <Button
+                  variant="ghost"
+                  justifyContent="flex-start"
+                  size="sm"
+                  onClick={toggleColorMode}
+                  leftIcon={<Icon as={colorMode === 'light' ? IoMdMoon : IoMdSunny} />}
+                >
+                  {colorMode === 'light' ? 'Giao diện tối' : 'Giao diện sáng'}
                 </Button>
                 <Button
                   variant="ghost"

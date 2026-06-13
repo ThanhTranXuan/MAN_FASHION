@@ -35,7 +35,7 @@ export default function AdminNavbar(props) {
   let navbarBackdrop = 'blur(20px)';
   let navbarShadow = 'none';
   let navbarBg = useColorModeValue(
-    'rgba(244, 247, 254, 0.2)',
+    'rgba(255, 255, 255, 0.92)',
     'rgba(11,20,55,0.5)',
   );
   let navbarBorder = 'transparent';

@@ -1,28 +1,17 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import {
-  Badge,
-  Box,
-  Button,
-  Flex,
-  Image,
-  Spinner,
-  Text,
-  useColorModeValue,
-} from '@chakra-ui/react';
+import { Badge, Box, Button, Flex, Image, Spinner, Text } from '@chakra-ui/react';
 import { Link as RouterLink } from 'react-router-dom';
 import { MdArrowForward, MdLocalOffer } from 'react-icons/md';
 import BlogService from 'services/BlogService';
+import AppContainer from 'components/ui/AppContainer';
 
 const promotionKeywords = ['sale', 'khuyen mai', 'uu dai'];
+
+const stripHtml = (html) => (html || '').replace(/<[^>]*>/g, '').replace(/\s+/g, ' ').trim();
 
 export default function PromotionalBlogBanner() {
   const [blog, setBlog] = useState(null);
   const [loading, setLoading] = useState(true);
-
-  const overlay = useColorModeValue(
-    'linear-gradient(110deg, rgba(17,24,39,0.88) 0%, rgba(49,46,129,0.72) 48%, rgba(234,88,12,0.62) 100%)',
-    'linear-gradient(110deg, rgba(9,9,11,0.92) 0%, rgba(49,46,129,0.78) 50%, rgba(194,65,12,0.66) 100%)',
-  );
 
   useEffect(() => {
     let isMounted = true;
@@ -60,14 +49,17 @@ export default function PromotionalBlogBanner() {
   }, []);
 
   const description = useMemo(() => {
-    const text = (blog?.content || '').replace(/<[^>]*>/g, '').trim();
-    return text || 'Khám phá chương trình ưu đãi mới nhất và các gợi ý phối đồ đáng chú ý trong tháng này.';
+    const text = stripHtml(blog?.content);
+    return (
+      text ||
+      'Khám phá ưu đãi mới nhất và những gợi ý phối đồ đáng chú ý trong tháng này.'
+    );
   }, [blog]);
 
   if (loading) {
     return (
       <Flex px={{ base: 4, md: 20 }} py={{ base: 6, md: 8 }} justify="center">
-        <Spinner />
+        <Spinner color="brand.500" />
       </Flex>
     );
   }
@@ -75,23 +67,24 @@ export default function PromotionalBlogBanner() {
   if (!blog?.slug) return null;
 
   return (
-    <Box px={{ base: 4, md: 20 }} py={{ base: 6, md: 8 }}>
+    <AppContainer py={{ base: 8, md: 12 }}>
       <Box
         as={RouterLink}
         to={`/user/blog/detail/${blog.slug}`}
         display="block"
         position="relative"
         overflow="hidden"
-        borderRadius={{ base: '18px', md: '24px' }}
-        minH={{ base: '280px', md: '260px' }}
-        boxShadow="lg"
-        bg="gray.900"
+        borderRadius={{ base: '22px', md: '30px' }}
+        minH={{ base: '360px', md: '340px' }}
+        bg="#111827"
+        color="white"
+        boxShadow="0 24px 70px rgba(15, 23, 42, 0.22)"
         _hover={{
           textDecoration: 'none',
-          transform: 'translateY(-3px)',
-          boxShadow: '2xl',
+          transform: 'translateY(-4px)',
+          '& img': { transform: 'scale(1.04)' },
         }}
-        transition="all 0.25s ease"
+        transition="transform 0.25s ease"
       >
         {blog.thumbnail && (
           <Image
@@ -102,24 +95,28 @@ export default function PromotionalBlogBanner() {
             w="100%"
             h="100%"
             objectFit="cover"
-            opacity={0.42}
+            opacity={0.52}
+            transition="transform 0.45s ease"
           />
         )}
-        <Box position="absolute" inset={0} bg={overlay} />
+        <Box
+          position="absolute"
+          inset={0}
+          bg="linear-gradient(110deg, rgba(3,7,18,0.94) 0%, rgba(17,24,39,0.78) 48%, rgba(249,115,22,0.58) 100%)"
+        />
 
         <Flex
           position="relative"
           zIndex={1}
-          minH={{ base: '280px', md: '260px' }}
+          minH={{ base: '360px', md: '340px' }}
           direction={{ base: 'column', md: 'row' }}
           align={{ base: 'flex-start', md: 'center' }}
           justify="space-between"
           gap={{ base: 7, md: 10 }}
-          px={{ base: 5, md: 10, xl: 14 }}
-          py={{ base: 7, md: 9 }}
-          color="white"
+          px={{ base: 6, md: 10, xl: 14 }}
+          py={{ base: 8, md: 10 }}
         >
-          <Box maxW={{ base: '100%', md: '640px' }}>
+          <Box maxW={{ base: '100%', md: '720px' }}>
             <Badge
               display="inline-flex"
               alignItems="center"
@@ -127,28 +124,28 @@ export default function PromotionalBlogBanner() {
               px={3}
               py={1}
               borderRadius="full"
-              bg="whiteAlpha.300"
+              bg="#F97316"
               color="white"
-              letterSpacing="0"
-              mb={4}
+              mb={5}
             >
               <MdLocalOffer />
-              SALE
+              Ưu đãi nổi bật
             </Badge>
             <Text
-              fontSize={{ base: '2xl', md: '4xl' }}
-              fontWeight="bold"
-              lineHeight="1.15"
-              mb={3}
+              fontSize={{ base: '3xl', md: '5xl' }}
+              fontWeight="900"
+              letterSpacing="-0.035em"
+              lineHeight="1"
+              mb={4}
             >
-              Ưu Đãi Tháng Này
+              Ưu đãi tháng này
             </Text>
             <Text
-              fontSize={{ base: 'sm', md: 'md' }}
-              lineHeight="1.7"
-              maxW="620px"
-              noOfLines={{ base: 3, md: 2 }}
-              opacity={0.94}
+              fontSize={{ base: 'sm', md: 'lg' }}
+              lineHeight="1.75"
+              maxW="680px"
+              noOfLines={{ base: 4, md: 3 }}
+              color="whiteAlpha.900"
             >
               {description}
             </Text>
@@ -158,17 +155,17 @@ export default function PromotionalBlogBanner() {
             as="span"
             rightIcon={<MdArrowForward />}
             bg="white"
-            color="gray.900"
+            color="#111827"
             borderRadius="full"
             px={7}
-            h="48px"
+            h="50px"
             flexShrink={0}
-            _hover={{ bg: 'orange.100' }}
+            _hover={{ bg: '#FED7AA' }}
           >
-            Khám phá ưu đãi
+            Khám phá ngay
           </Button>
         </Flex>
       </Box>
-    </Box>
+    </AppContainer>
   );
 }

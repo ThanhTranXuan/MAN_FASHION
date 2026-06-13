@@ -3,7 +3,8 @@ export const buttonStyles = {
   components: {
     Button: {
       baseStyle: {
-        borderRadius: "12px",
+        borderRadius: "10px",
+        fontWeight: "700",
         boxShadow: "none",
         transition: "background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease, transform 0.2s ease",
         boxSizing: "border-box",
@@ -16,7 +17,12 @@ export const buttonStyles = {
       },
       variants: {
         outline: () => ({
-          borderRadius: "12px",
+          borderRadius: "10px",
+          borderColor: "secondaryGray.400",
+          _hover: {
+            bg: "secondaryGray.100",
+            borderColor: "secondaryGray.600",
+          },
         }),
         brand: (props) => ({
           bg: mode("brand.500", "brand.400")(props),
@@ -45,7 +51,7 @@ export const buttonStyles = {
           },
         }),
         lightBrand: (props) => ({
-          bg: mode("#F2EFFF", "whiteAlpha.100")(props),
+          bg: mode("brand.50", "whiteAlpha.100")(props),
           color: mode("brand.500", "white")(props),
           _focus: {
             bg: mode("#F2EFFF", "whiteAlpha.100")(props),

@@ -1,26 +1,27 @@
 import React, { useEffect, useState } from 'react';
 import {
   Box,
-  Text,
-  Image,
   Flex,
+  Image,
+  SimpleGrid,
   Spinner,
+  Text,
   useColorModeValue,
-  Button,
 } from '@chakra-ui/react';
 import { Link as RouterLink } from 'react-router-dom';
 import BlogService from 'services/BlogService';
-import { Swiper, SwiperSlide } from 'swiper/react';
+import FashionSection from 'components/ui/FashionSection';
 
-// 🧠 Cache blog ở mức module – sống cùng vòng đời app, không mất khi đổi route
 let blogCache = null;
+
+const excerptFromHtml = (html) =>
+  (html || '').replace(/<[^>]*>/g, '').replace(/\s+/g, ' ').trim();
 
 export default function BlogSliderSection() {
   const [blogs, setBlogs] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  const bg = useColorModeValue('white', 'gray.800');
-  const textColor = useColorModeValue('gray.800', 'white');
+  const textColor = useColorModeValue('gray.900', 'white');
   const subTextColor = useColorModeValue('gray.600', 'gray.400');
 
   useEffect(() => {
@@ -28,7 +29,6 @@ export default function BlogSliderSection() {
 
     const fetchLatestBlogs = async () => {
       try {
-        // ✅ Nếu đã có cache → hiển thị ngay, không spinner trắng
         if (blogCache && isMounted) {
           setBlogs(blogCache);
           setLoading(false);
@@ -42,7 +42,7 @@ export default function BlogSliderSection() {
         if (!isMounted) return;
 
         setBlogs(data);
-        blogCache = data; // 🧠 cập nhật cache
+        blogCache = data;
         setLoading(false);
       } catch (err) {
         console.error('Lỗi load blog:', err);
@@ -58,11 +58,10 @@ export default function BlogSliderSection() {
     };
   }, []);
 
-  // ✅ Chỉ hiện spinner nếu đang loading và chưa có data
   if (loading && !blogs.length) {
     return (
       <Flex justify="center" py={20}>
-        <Spinner size="xl" />
+        <Spinner size="xl" color="brand.500" thickness="4px" />
       </Flex>
     );
   }
@@ -70,111 +69,74 @@ export default function BlogSliderSection() {
   if (!blogs.length) return null;
 
   return (
-    <Box py={10} px={{ base: 4, md: 20 }}>
-      <Flex justify="space-between" align="center" mb={8}>
-        <Text
-          fontSize={{ base: '2xl', md: '3xl' }}
-          fontWeight="bold"
-          color={textColor}
-        >
-          Xu hướng thời trang & Blog
-        </Text>
-        <Button
-          as={RouterLink}
-          to="/user/blog"
-          variant="outline"
-          colorScheme="purple"
-          size="sm"
-          borderRadius="full"
-          px={6}
-          _hover={{ bg: 'purple.500', color: 'white' }}
-        >
-          Xem tất cả
-        </Button>
-      </Flex>
-
-      <Swiper
-        spaceBetween={20}
-        slidesPerView={1.2}
-        breakpoints={{
-          640: { slidesPerView: 2 },
-          768: { slidesPerView: 3 },
-          1024: { slidesPerView: 4 },
-        }}
-        grabCursor
-        style={{ paddingBottom: '10px' }}
-      >
-        {blogs.map((blog) => (
-          <SwiperSlide key={blog.id}>
-            <Box
-              as={RouterLink}
-              to={`/user/blog/detail/${blog.slug}`}
-              display="block"
-              bg={bg}
-              borderRadius="xl"
-              overflow="hidden"
-              boxShadow="sm"
-              h="100%"
-              transition="transform 0.2s ease, box-shadow 0.2s ease"
-              _hover={{
-                transform: 'translateY(-3px)',
-                shadow: 'md',
-                '& img': { transform: 'scale(1.025)' }
-              }}
-            >
-              <Box overflow="hidden" h="200px">
-                {blog.thumbnail ? (
-                  <Image
-                    src={blog.thumbnail}
-                    alt={blog.title}
-                    h="100%"
-                    w="100%"
-                    objectFit="cover"
-                    transition="transform 0.25s ease"
-                  />
-                ) : (
-                  <Flex
-                    h="100%"
-                    w="100%"
-                    bg="gray.200"
-                    align="center"
-                    justify="center"
-                    color="gray.500"
-                    fontSize="xl"
-                    fontWeight="bold"
-                  >
-                    Trendify Blog
-                  </Flex>
-                )}
-              </Box>
-              <Box p={5}>
-                <Text
-                  fontWeight="bold"
-                  fontSize="lg"
-                  noOfLines={2}
-                  color={textColor}
-                  mb={2}
+    <FashionSection
+      eyebrow="Style journal"
+      title="Phong cách & câu chuyện mới"
+      description="Các bài viết giúp khách hàng ở lại lâu hơn thay vì chỉ lướt qua sản phẩm."
+      actionText="Xem tất cả"
+      actionTo="/user/blog"
+      py={{ base: 10, md: 16 }}
+    >
+      <SimpleGrid columns={{ base: 1, md: 3 }} spacing={6}>
+        {blogs.slice(0, 3).map((blog, index) => (
+          <Box
+            key={blog.id}
+            as={RouterLink}
+            to={`/user/blog/detail/${blog.slug}`}
+            display="block"
+            bg="white"
+            borderRadius="24px"
+            overflow="hidden"
+            h="100%"
+            border="1px solid"
+            borderColor="blackAlpha.100"
+            boxShadow={index === 0 ? '0 22px 54px rgba(15, 23, 42, 0.14)' : 'none'}
+            transition="transform 0.25s ease, box-shadow 0.25s ease"
+            _hover={{
+              transform: 'translateY(-5px)',
+              boxShadow: '0 22px 54px rgba(15, 23, 42, 0.16)',
+              '& img': { transform: 'scale(1.04)' },
+            }}
+          >
+            <Box overflow="hidden" h={{ base: '220px', md: index === 0 ? '280px' : '220px' }}>
+              {blog.thumbnail ? (
+                <Image
+                  src={blog.thumbnail}
+                  alt={blog.title}
+                  h="100%"
+                  w="100%"
+                  objectFit="cover"
+                  transition="transform 0.35s ease"
+                />
+              ) : (
+                <Flex
+                  h="100%"
+                  w="100%"
+                  bg="#111827"
+                  align="center"
+                  justify="center"
+                  color="white"
+                  fontSize="xl"
+                  fontWeight="900"
                 >
-                  {blog.title}
-                </Text>
-                <Text fontSize="sm" color={subTextColor} noOfLines={3}>
-                  <span
-                    dangerouslySetInnerHTML={{
-                      __html:
-                        (blog.content || '')
-                          .replace(/<[^>]*>/g, '')
-                          .slice(0, 120) + '...',
-                    }}
-                  />
-                </Text>
-                <Text fontSize="xs" color="gray.500" mt={4}>
-                  {new Date(blog.createdAt).toLocaleDateString('vi-VN')}
-                </Text>
-              </Box>
+                  Trendify Journal
+                </Flex>
+              )}
             </Box>
-          </SwiperSlide>
+            <Box p={{ base: 5, md: 6 }}>
+              <Text fontSize="xs" fontWeight="900" color="#F97316" mb={3}>
+                {new Date(blog.createdAt).toLocaleDateString('vi-VN')}
+              </Text>
+              <Text fontWeight="900" fontSize={{ base: 'xl', md: '2xl' }} noOfLines={2} color={textColor} mb={3}>
+                {blog.title}
+              </Text>
+              <Text fontSize="sm" color={subTextColor} noOfLines={3}>
+                {excerptFromHtml(blog.content).slice(0, 140)}...
+              </Text>
+            </Box>
+          </Box>
         ))}
-      </Swiper>
-    </Box>
+      </SimpleGrid>
+    </FashionSection>
   );
 }

@@ -27,7 +27,7 @@ import { useNavigate } from 'react-router-dom';
 import { useState } from 'react';
 import { useCart } from 'contexts/CartContext';
 import { useAppToast } from 'utils/ToastHelper';
-import { formatUSD } from 'utils/FormatHelper';
+import { formatCurrencyVND } from 'utils/FormatHelper';
 import { PRODUCT_PLACEHOLDER, resolveImageUrl } from 'utils/ImageHelper';
 import ProductService from 'services/ProductService';
 import CartVariantModal from './CartVariantModal';
@@ -103,7 +103,7 @@ export default function CartSidebar({ isOpen, onClose }) {
         <DrawerOverlay />
         <DrawerContent bg={bgColor} color={textColor}>
           <DrawerCloseButton />
-          <DrawerHeader borderBottomWidth="1px">🛒 Giỏ Hàng</DrawerHeader>
+          <DrawerHeader borderBottomWidth="1px" fontSize="xl" fontWeight="800">Giỏ hàng</DrawerHeader>
 
           <DrawerBody overflowY="auto" flex="1" py={4}>
             {loading ? (
@@ -120,7 +120,10 @@ export default function CartSidebar({ isOpen, onClose }) {
                 color="gray.500"
               >
                 <Icon as={IoMdCart} w={12} h={12} />
-                <Text>Giỏ hàng của bạn đang trống</Text>
+                <Text fontWeight="700">Giỏ hàng của bạn đang trống</Text>
+                <Text fontSize="sm" textAlign="center">
+                  Khám phá sản phẩm mới và chọn món đồ yêu thích.
+                </Text>
               </Flex>
             ) : (
               <Flex direction="column" gap={4}>
@@ -129,7 +132,7 @@ export default function CartSidebar({ isOpen, onClose }) {
                     key={item.id}
                     p={3}
                     borderWidth="1px"
-                    borderRadius="2xl"
+                    borderRadius="12px"
                   >
                     <Flex gap={3} align="flex-start">
                       <Image
@@ -217,7 +220,7 @@ export default function CartSidebar({ isOpen, onClose }) {
                           </HStack>
 
                           <Text fontWeight="semibold" color="brand.500">
-                            {formatUSD(item.price * item.quantity)}
+                            {formatCurrencyVND(item.price * item.quantity)}
                           </Text>
                         </Flex>
                       </Box>
@@ -238,15 +241,16 @@ export default function CartSidebar({ isOpen, onClose }) {
               <Flex justify="space-between" w="100%">
                 <Text fontWeight="bold">Tổng:</Text>
                 <Text fontWeight="bold" color="brand.500">
-                  {formatUSD(cart.totalPrice)}
+                  {formatCurrencyVND(cart.totalPrice)}
                 </Text>
               </Flex>
               <Button
-                colorScheme="brand"
+                bg="navy.900"
                 color="white"
                 size="lg"
                 w="full"
                 onClick={handleGoToPayment}
+                _hover={{ bg: 'navy.700' }}
               >
                 Đi Đến Thanh Toán
               </Button>

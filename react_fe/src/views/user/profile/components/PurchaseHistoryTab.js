@@ -31,9 +31,11 @@ import { useNavigate } from 'react-router-dom';
 import ReturnOrderService from 'services/ReturnOrderService';
 import OrderService from 'services/OrderService';
 import { useAppToast } from 'utils/ToastHelper';
-import { formatUSD } from 'utils/FormatHelper';
+import { formatCurrencyVND } from 'utils/FormatHelper';
 import { PRODUCT_PLACEHOLDER, resolveImageUrl } from 'utils/ImageHelper';
-import { translateOrderStatus, translatePaymentMethod } from 'utils/OrderDisplayHelper';
+import { translatePaymentMethod } from 'utils/OrderDisplayHelper';
+import StatusBadge from 'components/ui/StatusBadge';
+import EmptyState from 'components/ui/EmptyState';
 
 export default function PurchaseHistoryTab({
   orders,
@@ -66,27 +68,6 @@ export default function PurchaseHistoryTab({
     return true;
   });
 }, [orders]);
-
-  const getStatusColor = (status) => {
-    switch (status?.toUpperCase()) {
-      case 'PENDING':
-        return 'yellow';
-      case 'SHIPPED':
-        return 'purple';
-      case 'DELIVERED':
-        return 'green';
-      case 'COMPLETED':
-        return 'blue';
-      case 'PAID':
-        return 'teal';
-      case 'CANCELLED':
-        return 'red';
-      case 'RETURN':
-        return 'orange';
-      default:
-        return 'gray';
-    }
-  };
 
   const canReviewOrder = (status) =>
     ['COMPLETED', 'DELIVERED'].includes(String(status || '').toUpperCase());
@@ -175,11 +156,7 @@ export default function PurchaseHistoryTab({
 
   if (!orders.length) {
     return (
-      <Box textAlign="center" py={10}>
-        <Text fontSize="lg" color="gray.500">
-          Bạn chưa đặt đơn hàng nào.
-        </Text>
-      </Box>
+      <EmptyState title="Bạn chưa có đơn hàng" description="Các đơn hàng đã đặt sẽ xuất hiện tại đây." />
     );
   }
   
@@ -227,7 +204,7 @@ export default function PurchaseHistoryTab({
               borderColor={borderColor}
               borderRadius="12px"
               p={5}
-              shadow="md"
+              boxShadow="0 6px 20px rgba(15, 23, 42, 0.05)"
             >
               {/* Header */}
               <Flex justify="space-between" align="center" mb={4}>
@@ -239,9 +216,7 @@ export default function PurchaseHistoryTab({
                     {new Date(order.createdAt).toLocaleDateString()}
                   </Text>
                 </Box>
-                <Badge colorScheme={getStatusColor(order.status)} px={3} py={1}>
-                  {translateOrderStatus(order.status)}
-                </Badge>
+                <StatusBadge status={order.status} px={3} py={1} />
               </Flex>
 
               {/* Items */}
@@ -301,7 +276,7 @@ export default function PurchaseHistoryTab({
                       minW={{ base: '100%', md: '170px' }}
                     >
                       <Text fontWeight="semibold">
-                        {formatUSD(item.price * item.quantity)}
+                        {formatCurrencyVND(item.price * item.quantity)}
                       </Text>
                       {canReviewOrder(order.status) && (
                         item.reviewed ? (
@@ -336,7 +311,7 @@ export default function PurchaseHistoryTab({
               >
                 <Box>
                   <Text fontSize="sm" color="gray.500">
-                    Tạm tính: {formatUSD(subtotal)}
+                    Tạm tính: {formatCurrencyVND(subtotal)}
                   </Text>
                   {hasDiscount && (
                     <>
@@ -344,12 +319,12 @@ export default function PurchaseHistoryTab({
                         Mã giảm giá: {couponCode || '-'}
                       </Text>
                       <Text fontSize="sm" color="red.500">
-                        Giảm giá: -{formatUSD(discountAmount)}
+                        Giảm giá: -{formatCurrencyVND(discountAmount)}
                       </Text>
                     </>
                   )}
                   <Text fontWeight="bold" color={textColor}>
-                    Tổng thanh toán: {formatUSD(totalAmount)}
+                    Tổng thanh toán: {formatCurrencyVND(totalAmount)}
                   </Text>
                   <Text fontSize="sm" color="gray.500">
                     Thanh toán: {translatePaymentMethod(order.paymentMethod)} -{' '}

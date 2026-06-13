@@ -240,7 +240,7 @@ function CategoryItem({ cat, children, allCategories, onNavigate, colors }) {
 
 // ─── NavbarUser ───────────────────────────────────────────
 export default function NavbarUser() {
-  const navbarBg = useColorModeValue('white', 'navy.800');
+  const navbarBg = useColorModeValue('fashion.cream', 'navy.800');
   const navbarBorder = useColorModeValue('rgba(11,20,55,0.1)', 'navy.600');
   const textColor = useColorModeValue('gray.700', 'white');
   const activeColor = useColorModeValue('brand.500', 'brand.300');
@@ -294,13 +294,13 @@ export default function NavbarUser() {
         bg={navbarBg}
         borderBottom="1px solid"
         borderColor={navbarBorder}
-        boxShadow="0 1px 8px rgba(0,0,0,0.07)"
+        boxShadow="0 1px 0 rgba(15,23,42,0.04)"
       >
         <Flex
           w="100%"
-          h={{ base: '64px', md: '68px' }}
+          h={{ base: '64px', md: '72px' }}
           align="center"
-          px={{ base: 4, md: 8, lg: 16 }}
+          px={{ base: 4, md: 8, xl: 12 }}
           mx="auto"
           maxW="1440px"
         >
@@ -309,7 +309,7 @@ export default function NavbarUser() {
             <Image
               src={logo}
               alt="Trendify Logo"
-              h={{ base: '44px', md: '50px' }}
+              h={{ base: '38px', md: '44px' }}
               onClick={() => navigate('/user/home', { replace: false })}
               cursor="pointer"
               _hover={{ opacity: 0.82 }}
@@ -374,6 +374,7 @@ export default function NavbarUser() {
                 setMegaMenuOpen((prev) => !prev);
               }}
               size="md"
+              display={{ base: 'inline-flex', md: 'none' }}
             />
 
             {/* Cart + Dark mode + Avatar */}

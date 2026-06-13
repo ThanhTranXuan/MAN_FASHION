@@ -24,7 +24,7 @@ export default function Form({
   isAuthenticated,
   onAddressModeChange,
 }) {
-  const sectionBg = useColorModeValue('gray.50', 'navy.700');
+  const sectionBg = useColorModeValue('white', 'navy.700');
   const textColor = useColorModeValue('secondaryGray.900', 'white');
   const selectedBg = useColorModeValue('brand.50', 'whiteAlpha.100');
   const borderColor = useColorModeValue('gray.200', 'whiteAlpha.200');
@@ -40,10 +40,10 @@ export default function Form({
       flex="1"
       bg={sectionBg}
       p={{ base: 4, md: 6 }}
-      borderRadius="16px"
+      borderRadius="14px"
       border="1px solid"
       borderColor={borderColor}
-      boxShadow="sm"
+      boxShadow="0 6px 20px rgba(15, 23, 42, 0.05)"
     >
       <Heading size="md" mb={6} color={textColor}>
         Thông Tin Giao Hàng

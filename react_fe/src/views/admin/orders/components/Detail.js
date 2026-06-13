@@ -18,7 +18,7 @@ import {
   Spinner,
   Flex,
 } from '@chakra-ui/react';
-import { formatUSD } from 'utils/FormatHelper';
+import { formatCurrencyVND } from 'utils/FormatHelper';
 import ProductService from 'services/ProductService';
 import { translateOrderStatus, translatePaymentMethod } from 'utils/OrderDisplayHelper';
 
@@ -130,17 +130,17 @@ export default function Detail({ isOpen, onClose, order }) {
               <Text>Trạng thái đơn: {getStatusText(order.status)}</Text>
               <Text>Thanh toán: {getStatusText(order.paymentStatus)} ({translatePaymentMethod(order.paymentMethod)})</Text>
               <Text>Ngày đặt: {order.createdAt ? new Date(order.createdAt).toLocaleString('vi-VN') : '-'}</Text>
-              <Text>Tạm tính: {formatUSD(subtotal)}</Text>
+              <Text>Tạm tính: {formatCurrencyVND(subtotal)}</Text>
               {hasDiscount && (
                 <>
                   <Text>Mã giảm giá: {couponCode || '-'}</Text>
                   <Text color="red.500">
-                    Giảm giá: -{formatUSD(discountAmount)}
+                    Giảm giá: -{formatCurrencyVND(discountAmount)}
                   </Text>
                 </>
               )}
               <Text fontWeight="bold" color="brand.500">
-                Tổng thanh toán: {formatUSD(totalAmount)}
+                Tổng thanh toán: {formatCurrencyVND(totalAmount)}
               </Text>
             </Box>
           </Flex>
@@ -179,10 +179,10 @@ export default function Detail({ isOpen, onClose, order }) {
                     <Td borderColor={borderColor}>{item.size}</Td>
                     <Td borderColor={borderColor}>{item.quantity}</Td>
                     <Td borderColor={borderColor} color="brand.500">
-                      {formatUSD(item.price)}
+                      {formatCurrencyVND(item.price)}
                     </Td>
                     <Td borderColor={borderColor} color="brand.500" fontWeight="bold">
-                      {formatUSD((item.price || 0) * (item.quantity || 1))}
+                      {formatCurrencyVND((item.price || 0) * (item.quantity || 1))}
                     </Td>
                   </Tr>
                 ))}

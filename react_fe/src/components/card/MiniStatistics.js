@@ -19,7 +19,7 @@ export default function Default(props) {
   const textColorSecondary = "secondaryGray.600";
 
   return (
-    <Card py='15px'>
+    <Card py='18px' border='1px solid' borderColor='fashion.borderLight' boxShadow='none'>
       <Flex
         my='auto'
         h='100%'
@@ -39,7 +39,7 @@ export default function Default(props) {
           <StatNumber
             color={textColor}
             fontSize={{
-              base: "2xl",
+              base: "xl",
             }}>
             {value}
           </StatNumber>

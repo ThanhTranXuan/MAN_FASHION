@@ -65,7 +65,7 @@ export default function CategoryChips({ categories, activeSlug, onSelect }) {
           whiteSpace="nowrap"
           onClick={() => onSelect(current.parentSlug || '')}
         >
-          <TagLabel whiteSpace="nowrap">All</TagLabel>
+          <TagLabel whiteSpace="nowrap">Tất cả</TagLabel>
         </Tag>
       )}
 

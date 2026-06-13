@@ -1,233 +1,167 @@
-import React, { useMemo, useState, useEffect } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import {
+  Badge,
   Box,
-  VStack,
-  Image,
-  Text,
+  Button,
   HStack,
+  Text,
   Tooltip,
   useColorModeValue,
-  Flex,
+  VStack,
 } from '@chakra-ui/react';
-import { formatUSD } from 'utils/FormatHelper';
+import PriceText from 'components/ui/PriceText';
+import ProductImage, { getProductImage } from 'components/ui/ProductImage';
 
-export default function ProductCard({ product, onClick, activeColor, variant }) {
-  const borderColor = useColorModeValue('gray.200', 'gray.600');
-  const bgColor = useColorModeValue('white', 'navy.800');
-  const bgHover = useColorModeValue('gray.50', 'navy.700');
-  const textColor = useColorModeValue('secondaryGray.900', 'white');
-  const subTextColor = useColorModeValue('gray.600', 'gray.400');
-  const isHomeCard = variant === 'home';
-  const averageRating = Number(product.averageRating || 0);
-  const reviewCount = Number(product.reviewCount || 0);
-  const showRating = reviewCount > 0 && averageRating > 0;
-  const price = Number(product.price || 0);
-  const salePrice = Number(product.salePrice || 0);
-  const hasSale =
-    Boolean(product.isSale) && salePrice > 0 && price > 0 && salePrice < price;
+export default function ProductCard({
+  product,
+  onClick,
+  activeColor,
+  variant = 'grid',
+  showQuickAction = true,
+  showBadge = true,
+}) {
+  const textColor = useColorModeValue('fashion.textMain', 'white');
+  const mutedColor = useColorModeValue('fashion.textMuted', 'gray.400');
+  const price = Number(product?.price || 0);
+  const salePrice = Number(product?.salePrice || 0);
+  const hasSale = Boolean(product?.isSale) && salePrice > 0 && salePrice < price;
+  const rating = Number(product?.averageRating || 0);
+  const reviewCount = Number(product?.reviewCount || 0);
 
-  // ✅ Lấy danh sách màu duy nhất từ variants
-  const colors = useMemo(() => {
-    if (!Array.isArray(product.variants)) return [];
-    const colorSet = new Set();
-    product.variants.forEach((v) => {
-      if (v.color) colorSet.add(v.color.toLowerCase());
-    });
-    return Array.from(colorSet);
-  }, [product.variants]);
+  const colors = useMemo(
+    () => [
+      ...new Set(
+        (Array.isArray(product?.variants) ? product.variants : [])
+          .map((item) => item.color?.toLowerCase())
+          .filter(Boolean),
+      ),
+    ],
+    [product?.variants],
+  );
+  const [selectedColor, setSelectedColor] = useState(activeColor || colors[0] || '');
 
-  // ✅ State màu đang chọn (ưu tiên color filter từ list page)
-  const [selectedColor, setSelectedColor] = useState(activeColor || '');
-
-  // ✅ Ảnh hiển thị: ưu tiên theo selectedColor → thumbnail → ảnh đầu tiên
-  const displayImage = useMemo(() => {
-    if (selectedColor && Array.isArray(product.images)) {
-      const match = product.images.find(
-        (img) => img.color?.toLowerCase() === selectedColor.toLowerCase(),
-      );
-      if (match) return match.url;
-    }
-
-    return (
-      product.images?.find((i) => i.isThumbnail)?.url ||
-      product.images?.[0]?.url ||
-      null
-    );
-  }, [selectedColor, product.images]);
-
-  // ✅ Khi có activeColor mới (từ filter) → cập nhật màu hiển thị
   useEffect(() => {
-    if (activeColor) {
-      setSelectedColor(activeColor);
-    } else if (colors.length > 0 && !selectedColor) {
-      setSelectedColor(colors[0]);
-    }
-  }, [activeColor, colors, selectedColor]);
+    setSelectedColor(activeColor || colors[0] || '');
+  }, [activeColor, colors]);
+
+  const image = useMemo(
+    () => getProductImage(product, selectedColor),
+    [product, selectedColor],
+  );
+  const badge = hasSale
+    ? { label: 'Sale', bg: 'sale.500' }
+    : product?.isNew
+      ? { label: 'Mới', bg: '#050505' }
+      : product?.isBestSeller
+        ? { label: 'Bán chạy', bg: 'brand.500' }
+        : null;
 
   return (
     <VStack
       align="stretch"
-      spacing={3}
-      pb={4}
+      spacing={0}
       h="100%"
-      borderWidth="1px"
-      borderColor={borderColor}
-      borderRadius="xl"
-      bg={bgColor}
       cursor="pointer"
       onClick={onClick}
-      position="relative"
-      transition="transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease"
+      transition="transform 0.25s ease"
       _hover={{
-        boxShadow: '0 12px 28px rgba(15, 23, 42, 0.10)',
-        transform: 'translateY(-3px)',
-        borderColor: 'brand.100',
-        bg: bgHover,
-        '& .product-image': {
-          transform: 'scale(1.025)',
-        },
-        '& .home-product-image-overlay': { opacity: 1 },
+        transform: 'translateY(-4px)',
+        '& .product-image': { transform: 'scale(1.03)' },
+        '& .quick-action': { opacity: 1, transform: 'translateY(0)' },
       }}
-      color={textColor}
     >
-      {/* 🖼 Image */}
-      <Box
-        position="relative"
-        w="100%"
-        pb="130%"
-        overflow="hidden"
-        borderTopRadius="xl"
-        borderBottomRadius={isHomeCard ? 'lg' : '0'}
-      >
-        {displayImage ? (
-          <Image
-            className="product-image"
-            src={displayImage}
-            alt={product.name}
+      <Box position="relative" aspectRatio="3 / 4" overflow="hidden" borderRadius="16px" bg="fashion.softSurface">
+        <ProductImage
+          className="product-image"
+          product={product}
+          color={selectedColor}
+          src={image}
+          w="100%"
+          h="100%"
+          transition="transform 0.4s ease"
+        />
+        {showBadge && badge && (
+          <Badge
             position="absolute"
-            top={0}
-            left={0}
-            w="100%"
-            h="100%"
-            objectFit="cover"
-            transition="transform 0.35s ease"
-          />
-        ) : (
-          <Flex
-            position="absolute"
-            top={0}
-            left={0}
-            w="100%"
-            h="100%"
-            align="center"
-            justify="center"
-            color={subTextColor}
-            fontSize="sm"
+            top={3}
+            left={3}
+            bg={badge.bg}
+            color="white"
+            borderRadius="8px"
+            px={2.5}
+            py={1.5}
           >
-            No image
-          </Flex>
+            {badge.label}
+          </Badge>
         )}
-        {isHomeCard && (
-          <Box
-            className="home-product-image-overlay"
+        {showQuickAction && (
+          <Button
+            className="quick-action"
+            display={{ base: 'none', md: 'inline-flex' }}
             position="absolute"
-            inset={0}
-            borderRadius="inherit"
-            pointerEvents="none"
+            left={4}
+            right={4}
+            bottom={4}
+            bg="white"
+            color="fashion.textMain"
             opacity={0}
-            transition="opacity 0.25s ease"
-            bgGradient="linear(to-b, transparent 62%, rgba(0,0,0,0.10))"
-          />
+            transform="translateY(8px)"
+            transition="all 0.25s ease"
+            _hover={{ bg: '#050505', color: 'white' }}
+            onClick={(event) => {
+              event.stopPropagation();
+              onClick?.();
+            }}
+          >
+            Xem chi tiết
+          </Button>
         )}
       </Box>
 
-      {/* 🧾 Info */}
-      <VStack px={4} align="start" spacing={2} flex="1">
+      <VStack pt={3} align="start" spacing={1.5} flex="1">
         <Text
           noOfLines={2}
-          minH="48px"
-          fontWeight="semibold"
-          fontSize="md"
+          minH={variant === 'compact' ? 'auto' : '44px'}
+          fontWeight="700"
+          fontSize={{ base: 'sm', md: 'md' }}
           color={textColor}
         >
-          {product.name}
+          {product?.name}
         </Text>
+        <PriceText price={price} salePrice={salePrice} isSale={hasSale} size="md" />
 
-        <VStack align="start" spacing={0} minH="48px">
-          <Text fontWeight="bold" fontSize="lg" color="brand.500">
-            {formatUSD(hasSale ? salePrice : price)}
-          </Text>
-          {hasSale && (
-            <Text
-              fontSize="sm"
-              color={subTextColor}
-              textDecoration="line-through"
-            >
-              {formatUSD(price)}
-            </Text>
-          )}
-        </VStack>
+        {reviewCount > 0 && rating > 0 && (
+          <HStack spacing={1} fontSize="xs">
+            <Text color="brand.500">★</Text>
+            <Text fontWeight="700">{rating.toFixed(1)}</Text>
+            <Text color={mutedColor}>({reviewCount})</Text>
+          </HStack>
+        )}
 
-        <Box minH="20px">
-          {showRating && (
-            <HStack spacing={1} color={textColor} fontSize="sm" lineHeight="1">
-              <Text as="span" fontWeight="bold">
-                ★
-              </Text>
-              <Text as="span" fontWeight="semibold">
-                {averageRating.toFixed(1)}
-              </Text>
-              <Text as="span" color={subTextColor}>
-                ({reviewCount})
-              </Text>
-            </HStack>
-          )}
-        </Box>
-
-        {/* 🎨 Colors */}
-        <Box minH="32px">
-          {colors.length > 0 && (
-            <HStack spacing={2} pt={1} flexWrap="wrap">
-            {colors.slice(0, 6).map((c) => {
-              const isSelected =
-                selectedColor?.toLowerCase() === c.toLowerCase();
+        {colors.length > 0 && (
+          <HStack spacing={1.5} pt={1} flexWrap="wrap">
+            {colors.slice(0, 5).map((color) => {
+              const selected = selectedColor === color;
               return (
-                <Tooltip
-                  textTransform="capitalize"
-                  key={c}
-                  label={c}
-                  placement="top"
-                  hasArrow
-                >
+                <Tooltip key={color} label={color} textTransform="capitalize" hasArrow>
                   <Box
-                    w="24px"
-                    h="24px"
+                    w="18px"
+                    h="18px"
                     borderRadius="full"
-                    borderWidth="2px"
-                    borderColor={isSelected ? 'brand.400' : 'gray.300'}
-                    bg={c === 'navy' ? 'blue.900' : c}
-                    cursor="pointer"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      setSelectedColor(c);
-                    }}
-                    transition="all 0.2s ease"
-                    _hover={{
-                      transform: 'scale(1.1)',
-                      borderColor: 'brand.400',
+                    border="2px solid"
+                    borderColor={selected ? 'brand.500' : 'fashion.borderLight'}
+                    bg={color === 'navy' ? 'blue.900' : color}
+                    onClick={(event) => {
+                      event.stopPropagation();
+                      setSelectedColor(color);
                     }}
                   />
                 </Tooltip>
               );
             })}
-            {colors.length > 6 && (
-              <Text fontSize="sm" color={subTextColor}>
-                +{colors.length - 6}
-              </Text>
-            )}
-            </HStack>
-          )}
-        </Box>
+            {colors.length > 5 && <Text fontSize="xs" color={mutedColor}>+{colors.length - 5}</Text>}
+          </HStack>
+        )}
       </VStack>
     </VStack>
   );

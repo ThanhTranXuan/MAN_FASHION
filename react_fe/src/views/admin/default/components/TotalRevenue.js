@@ -17,7 +17,7 @@ export default function TotalRevenue({ summary, trend }) {
   const textColorSecondary = useColorModeValue('secondaryGray.600', 'white');
   const boxBg = useColorModeValue('secondaryGray.300', 'navy.800');
   const gridColor = useColorModeValue('#E2E8F0', '#2D3748');
-  const lineColor = useColorModeValue('#7551FF', '#422AFB');
+  const lineColor = useColorModeValue('#B45309', '#FB923C');
 
   // 👇 cho biết đang dark / light để truyền sang Apex
   const isDark = useColorModeValue(false, true);

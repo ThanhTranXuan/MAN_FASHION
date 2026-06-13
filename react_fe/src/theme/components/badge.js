@@ -26,6 +26,18 @@ export const badgeStyles = {
             bg: mode("brand.600", "brand.400")(props),
           },
         }),
+        sale: {
+          bg: "sale.500",
+          color: "white",
+        },
+        new: {
+          bg: "#050505",
+          color: "white",
+        },
+        bestseller: {
+          bg: "brand.100",
+          color: "brand.700",
+        },
       },
     },
   },

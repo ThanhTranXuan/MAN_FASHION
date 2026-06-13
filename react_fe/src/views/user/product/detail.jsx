@@ -15,9 +15,10 @@ import {
   SimpleGrid,
   Spinner,
   Divider,
+  Grid,
 } from '@chakra-ui/react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { formatUSD } from 'utils/FormatHelper';
+import PriceText from 'components/ui/PriceText';
 import { useAppToast } from 'utils/ToastHelper';
 import { MdLocalShipping, MdReplay, MdLock, MdChat } from 'react-icons/md';
 import ImageGallery from './components/ImageGallery';
@@ -89,7 +90,7 @@ export default function ProductDetail() {
   const brandColor = useColorModeValue('brand.500', 'brand.300');
   const borderColor = useColorModeValue('gray.200', 'gray.600');
   const breadcrumbColor = useColorModeValue('gray.500', 'gray.400');
-  const pageBg = useColorModeValue('gray.50', 'navy.900');
+  const pageBg = useColorModeValue('white', 'navy.900');
   const cardBg = useColorModeValue('white', 'navy.800');
   const dividerColor = useColorModeValue('gray.100', 'navy.700');
 
@@ -164,6 +165,10 @@ export default function ProductDetail() {
     });
     return map;
   }, [variants]);
+  const selectedVariant = useMemo(
+    () => variants.find((variant) => variant.color === selectedColor && variant.size === selectedSize),
+    [variants, selectedColor, selectedSize],
+  );
 
   useEffect(() => {
     if (!selectedColor || !images?.length) return;
@@ -233,8 +238,7 @@ export default function ProductDetail() {
 
   return (
     <Box bg={pageBg} minH="100vh">
-      {/* ── Container ── */}
-      <Box maxW="1280px" mx="auto" px={{ base: 4, md: 8 }} py={{ base: 6, md: 10 }}>
+      <Box maxW="1600px" mx="auto" px={{ base: 4, md: 6, xl: 10 }} py={{ base: 4, md: 8 }}>
 
         {/* ── Breadcrumb ── */}
         <Breadcrumb
@@ -266,108 +270,111 @@ export default function ProductDetail() {
         </Breadcrumb>
 
         {/* ── Main: Gallery + Info ── */}
-        <Box
-          bg={cardBg}
-          borderRadius="2xl"
-          boxShadow="sm"
-          overflow="hidden"
+        <Grid
+          templateColumns={{ base: '1fr', xl: '1.15fr 0.85fr' }}
+          gap={{ base: 8, xl: 12 }}
+          alignItems="start"
         >
-          <Flex direction={{ base: 'column', md: 'row' }}>
-            {/* 🖼 Gallery */}
-            <Box flex={{ base: '1', md: '1.1' }} p={{ base: 4, md: 8 }}>
-              <ImageGallery
-                images={images}
-                fallback={activeImage}
-                activeImage={activeImage}
-                onImageChange={(url) => setActiveImage(url)}
+          <Box
+            bg={cardBg}
+            borderRadius="16px"
+            border="1px solid"
+            borderColor={borderColor}
+            boxShadow="0 8px 28px rgba(15, 23, 42, 0.06)"
+            p={{ base: 4, md: 6 }}
+          >
+            <ImageGallery
+              images={images}
+              fallback={activeImage}
+              activeImage={activeImage}
+              onImageChange={(url) => setActiveImage(url)}
+            />
+          </Box>
+
+          <VStack
+            align="start"
+            spacing={5}
+            p={{ base: 4, md: 8 }}
+            bg={cardBg}
+            borderRadius="16px"
+            border="1px solid"
+            borderColor={borderColor}
+            boxShadow="0 8px 28px rgba(15, 23, 42, 0.06)"
+            position={{ xl: 'sticky' }}
+            top={{ xl: '96px' }}
+            alignSelf={{ xl: 'flex-start' }}
+          >
+            <Box>
+              <Text fontSize={{ base: '2xl', md: '3xl' }} fontWeight="bold" color={textColor} lineHeight="1.15" mb={3}>
+                {product.name}
+              </Text>
+              <PriceText
+                price={product.price}
+                salePrice={product.salePrice}
+                isSale={product.isSale}
+                size="lg"
               />
+              {reviewSummary && reviewSummary.totalReviews > 0 && (
+                <HStack spacing={2} mt={2}>
+                  <StarRating rating={reviewSummary.averageRating} size={4} />
+                  <Text fontSize="sm" fontWeight="bold">{reviewSummary.averageRating.toFixed(1)}</Text>
+                  <Text fontSize="sm" color="gray.500">({reviewSummary.totalReviews})</Text>
+                </HStack>
+              )}
+              {reviewSummary && reviewSummary.totalReviews === 0 && (
+                <Text fontSize="xs" color="gray.400" mt={2}>Chưa có đánh giá</Text>
+              )}
             </Box>
 
-            {/* Divider dọc (desktop) */}
-            <Divider
-              orientation="vertical"
-              display={{ base: 'none', md: 'block' }}
-              borderColor={dividerColor}
-              h="auto"
-              alignSelf="stretch"
-            />
-
-            {/* 🧾 Info Panel */}
-            <VStack
-              align="start"
-              flex="1"
-              spacing={5}
-              p={{ base: 4, md: 8 }}
-            >
-              {/* Tên + Giá */}
-              <Box>
-                <Text fontSize={{ base: '2xl', md: '3xl' }} fontWeight="bold" color={textColor} lineHeight="1.2" mb={3}>
-                  {product.name}
-                </Text>
-                <Text fontSize={{ base: 'xl', md: '2xl' }} color={brandColor} fontWeight="bold">
-                  {formatUSD(product.price)}
-                </Text>
-                {reviewSummary && reviewSummary.totalReviews > 0 && (
-                  <HStack spacing={2} mt={2}>
-                    <StarRating rating={reviewSummary.averageRating} size={4} />
-                    <Text fontSize="sm" fontWeight="bold">{reviewSummary.averageRating.toFixed(1)}</Text>
-                    <Text fontSize="sm" color="gray.500">({reviewSummary.totalReviews})</Text>
-                  </HStack>
-                )}
-                {reviewSummary && reviewSummary.totalReviews === 0 && (
-                  <Text fontSize="xs" color="gray.400" mt={2}>Chưa có đánh giá</Text>
-                )}
-              </Box>
-
-              <Divider borderColor={dividerColor} />
+            <Divider borderColor={dividerColor} />
 
               {/* Mô tả */}
-              {product.description && (
-                <Text color={descColor} fontSize="sm" lineHeight="1.75">
-                  {product.description}
-                </Text>
-              )}
+            {product.description && (
+              <Text color={descColor} fontSize="sm" lineHeight="1.75">
+                {product.description}
+              </Text>
+            )}
 
               {/* 🎨 Colors */}
-              {colors.length > 0 && (
-                <Box w="100%">
-                  <Text fontWeight="semibold" fontSize="sm" mb={2} color={textColor}>
-                    Màu Sắc:{' '}
-                    <Text as="span" fontWeight="normal" textTransform="capitalize" color={descColor}>
-                      {selectedColor || '—'}
-                    </Text>
+            {colors.length > 0 && (
+              <Box w="100%">
+                <Text fontWeight="semibold" fontSize="sm" mb={2} color={textColor}>
+                  Màu Sắc:{' '}
+                  <Text as="span" fontWeight="normal" textTransform="capitalize" color={descColor}>
+                    {selectedColor || '—'}
                   </Text>
-                  <HStack spacing={2} flexWrap="wrap">
-                    {colors.map((c) => (
-                      <Tooltip key={c} label={c} textTransform="capitalize" hasArrow>
-                        <Box
-                          w="28px"
-                          h="28px"
-                          borderRadius="full"
-                          borderWidth="2px"
-                          borderColor={selectedColor === c ? brandColor : 'transparent'}
-                          boxShadow={selectedColor === c ? `0 0 0 1px` : '0 0 0 1px rgba(0,0,0,0.15)'}
-                          bg={c.toLowerCase()}
-                          cursor="pointer"
-                          onClick={() => setSelectedColor(c)}
-                          transition="all 0.2s"
-                          _hover={{ transform: 'scale(1.15)' }}
-                        />
-                      </Tooltip>
-                    ))}
-                  </HStack>
-                </Box>
-              )}
+                </Text>
+                <HStack spacing={2} flexWrap="wrap">
+                  {colors.map((c) => (
+                    <Tooltip key={c} label={c} textTransform="capitalize" hasArrow>
+                      <Box
+                        w="28px"
+                        h="28px"
+                        borderRadius="full"
+                        borderWidth="2px"
+                        borderColor={selectedColor === c ? brandColor : 'transparent'}
+                        boxShadow={selectedColor === c ? `0 0 0 1px` : '0 0 0 1px rgba(0,0,0,0.15)'}
+                        bg={c.toLowerCase()}
+                        cursor="pointer"
+                        onClick={() => setSelectedColor(c)}
+                        transition="all 0.2s"
+                        _hover={{ transform: 'scale(1.15)' }}
+                      />
+                    </Tooltip>
+                  ))}
+                </HStack>
+              </Box>
+            )}
 
               {/* 📏 Sizes */}
-              {allSizes.length > 0 && (
-                <Box w="100%">
-                  <Text fontWeight="semibold" fontSize="sm" mb={2} color={textColor}>
-                    Kích Cỡ:{' '}
-                    <Text as="span" fontWeight="normal" color={descColor}>{selectedSize || '—'}</Text>
-                  </Text>
-                  <HStack spacing={2} flexWrap="wrap">
-                    {allSizes.map((s) => {
+            {allSizes.length > 0 && (
+              <Box w="100%">
+                <Text fontWeight="semibold" fontSize="sm" mb={2} color={textColor}>
+                  Kích Cỡ:{' '}
+                  <Text as="span" fontWeight="normal" color={descColor}>{selectedSize || '—'}</Text>
+                </Text>
+                <HStack spacing={2} flexWrap="wrap">
+                  {allSizes.map((s) => {
                       const key = `${selectedColor}_${s}`;
                       const stock = stockMap[key];
                       const isInvalid =
@@ -398,18 +405,23 @@ export default function ProductDetail() {
                         </Tooltip>
                       );
                     })}
-                  </HStack>
-                </Box>
-              )}
+                </HStack>
+              </Box>
+            )}
+            {selectedVariant && (
+              <Text fontSize="sm" color={selectedVariant.stock > 0 ? 'green.600' : 'sale.500'} fontWeight="700">
+                {selectedVariant.stock > 0 ? `Còn ${selectedVariant.stock} sản phẩm` : 'Tạm hết hàng'}
+              </Text>
+            )}
 
               {/* 🛒 Quantity + Add to cart */}
-              <Box w="100%">
-                <HStack spacing={3} mt={2}>
+            <Box w="100%">
+              <HStack spacing={3} mt={2}>
                   <HStack
                     spacing={0}
                     borderWidth="1px"
                     borderColor={borderColor}
-                    borderRadius="full"
+                    borderRadius="10px"
                     overflow="hidden"
                   >
                     <Button
@@ -434,27 +446,27 @@ export default function ProductDetail() {
                   </HStack>
 
                   <Button
-                    colorScheme="brand"
+                    bg="navy.900"
                     color="white"
                     flex="1"
                     h="44px"
-                    borderRadius="full"
+                    borderRadius="10px"
                     fontWeight="700"
                     fontSize="sm"
                     letterSpacing="wide"
                     onClick={handleAddToCart}
-                    _hover={{ opacity: 0.9, transform: 'translateY(-1px)' }}
+                    _hover={{ bg: 'navy.700', transform: 'translateY(-1px)' }}
                     transition="all 0.2s"
                   >
                     THÊM VÀO GIỎ HÀNG
                   </Button>
                 </HStack>
-              </Box>
+            </Box>
 
-              <Divider borderColor={dividerColor} />
+            <Divider borderColor={dividerColor} />
 
               {/* 🛡️ Commitments */}
-              <SimpleGrid columns={2} spacing={3} w="100%">
+            <SimpleGrid columns={2} spacing={3} w="100%">
                 <Flex align="center" gap={2}>
                   <Icon as={MdLocalShipping} boxSize={5} color={brandColor} flexShrink={0} />
                   <Text fontSize="xs" color={descColor}>
@@ -487,9 +499,8 @@ export default function ProductDetail() {
                   </Text>
                 </Flex>
               </SimpleGrid>
-            </VStack>
-          </Flex>
-        </Box>
+          </VStack>
+        </Grid>
 
         {/* ── Related products ── */}
         <RelatedProducts

@@ -27,7 +27,7 @@ import { useAppToast } from 'utils/ToastHelper';
 
 import EmployeeService from 'services/EmployeeService';
 import { MdArrowDropDown } from 'react-icons/md';
-import { formatUSD } from 'utils/FormatHelper';
+import { formatCurrencyVND } from 'utils/FormatHelper';
 
 export default function Detail({ isOpen, onClose, employee }) {
   const [month, setMonth] = useState(new Date().getMonth() + 1);
@@ -121,7 +121,7 @@ export default function Detail({ isOpen, onClose, employee }) {
                 Tổng Giờ Làm: {totalHours.toFixed(2)} giờ
               </Text>
               <Text fontWeight="bold">
-                Tổng Lương: {formatUSD(salary || 0)}
+                Tổng Lương: {formatCurrencyVND(salary || 0)}
               </Text>
             </HStack>
           </Flex>
@@ -145,7 +145,7 @@ export default function Detail({ isOpen, onClose, employee }) {
                       : '-'}
                   </Td>
                   <Td>{r.workingHours?.toFixed(2) || 0}</Td>
-                  <Td>{formatUSD(r.salary || 0)}</Td>
+                  <Td>{formatCurrencyVND(r.salary || 0)}</Td>
                 </Tr>
               ))}
             </Tbody>

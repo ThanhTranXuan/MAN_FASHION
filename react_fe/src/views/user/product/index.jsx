@@ -18,9 +18,9 @@ import {
   TagCloseButton,
   useDisclosure,
   useColorModeValue,
-  Spinner,
   SimpleGrid,
   Text,
+  Heading,
 } from '@chakra-ui/react';
 import { SearchBar } from 'components/navbar/searchBar/SearchBar';
 import { MdTune } from 'react-icons/md';
@@ -32,6 +32,10 @@ import CategoryChips from './components/CategoryChips';
 import SortMenu from './components/SortMenu';
 import Pagination from 'components/pagination/Pagination';
 import { useCategories } from 'contexts/CategoryContext';
+import AppContainer from 'components/ui/AppContainer';
+import EmptyState from 'components/ui/EmptyState';
+import SkeletonProductCard from 'components/ui/SkeletonProductCard';
+import ProductFilterSidebar from './components/ProductFilterSidebar';
 
 export default function ProductListPage() {
   const navigate = useNavigate();
@@ -235,7 +239,7 @@ export default function ProductListPage() {
   // 🧩 RENDER
   // ==========================================
   return (
-    <Box px={{ base: 4, md: 20 }} py={{ base: 5, md: 10 }}>
+    <AppContainer py={{ base: 6, md: 10 }}>
       {/* 🔗 Breadcrumb + Search */}
       <Flex
         mt={3}
@@ -292,6 +296,16 @@ export default function ProductListPage() {
           />
         </Box>
       </Flex>
+      <Flex mt={7} align={{ base: 'flex-start', md: 'flex-end' }} justify="space-between" gap={3}>
+        <Box>
+          <Heading size="lg">
+            {breadcrumbTrail[breadcrumbTrail.length - 1]?.name || 'Sản phẩm'}
+          </Heading>
+          <Text mt={1} color="fashion.textMuted">
+            {pageData.totalElements || 0} sản phẩm
+          </Text>
+        </Box>
+      </Flex>
 
       {/* 🧩 Category chips */}
       {loadingCats ? (
@@ -316,8 +330,19 @@ export default function ProductListPage() {
         </Box>
       )}
 
+      <Flex gap={8} mt={6} align="flex-start">
+        <ProductFilterSidebar
+          categories={categories}
+          categorySlug={categorySlug}
+          color={color}
+          sizes={size}
+          onCategory={(slug) => navigate(slug ? `/user/product/${slug}` : '/user/product')}
+          onColor={(value) => { setColor(value); setPage(0); }}
+          onSizes={(value) => { setSize(value); setPage(0); }}
+        />
+        <Box flex="1" minW={0}>
       {/* 🔽 Filters */}
-      <Flex justify="space-between" align="center" mt={3}>
+      <Flex justify="space-between" align="center">
         <Flex align="center">
           <SortMenu sort={sort} setSort={setSort} setPage={setPage} />
 
@@ -347,7 +372,7 @@ export default function ProductListPage() {
             ))}
           </HStack>
         </Flex>
-        <Button leftIcon={<MdTune />} onClick={onOpen} variant="outline">
+        <Button display={{ base: 'inline-flex', lg: 'none' }} leftIcon={<MdTune />} onClick={onOpen} variant="outline">
           Bộ Lọc
         </Button>
       </Flex>
@@ -355,40 +380,28 @@ export default function ProductListPage() {
       {/* 🧾 Product grid + EMPTY STATE */}
       <Box mt={4} borderRadius="xl" bg={bg}>
         {loading ? (
-          <Flex align="center" justify="center" py={16}>
-            <Spinner />
-          </Flex>
+          <SimpleGrid columns={{ base: 2, md: 3, xl: 4 }} spacing={{ base: 3, md: 5 }} py={5}>
+            {Array.from({ length: 8 }).map((_, index) => <SkeletonProductCard key={index} />)}
+          </SimpleGrid>
         ) : pageData.content.length === 0 ? (
-          // 🔴 EMPTY STATE
-          <Flex
-            direction="column"
-            align="center"
-            justify="center"
-            py={16}
-            textAlign="center"
-            px={4}
-          >
-            <Text fontSize="lg" fontWeight="semibold" mb={2}>
-              Không tìm thấy sản phẩm
-            </Text>
-            <Text fontSize="sm" color="gray.500" maxW="360px">
-              Chúng tôi không tìm thấy sản phẩm nào phù hợp với tìm kiếm hoặc bộ lọc của bạn. Vui lòng điều chỉnh bộ lọc hoặc tìm kiếm với từ khóa khác.
-            </Text>
-            <HStack spacing={3} mt={6}>
+          <EmptyState
+            title="Không tìm thấy sản phẩm phù hợp"
+            description="Thử đổi bộ lọc hoặc xem toàn bộ sản phẩm."
+            action={<HStack spacing={3} mt={6}>
               {(keyword || color || size.length > 0) && (
                 <Button variant="outline" onClick={handleClearFilters}>
                   Xóa Bộ Lọc
                 </Button>
               )}
               <Button onClick={() => setPage(0)}>Tải Lại</Button>
-            </HStack>
-          </Flex>
+            </HStack>}
+          />
         ) : (
           <>
             <SimpleGrid
-              columns={{ base: 2, md: 4 }}
+              columns={{ base: 2, md: 3, xl: 4 }}
               spacing={{ base: 3, md: 5 }}
-              p={{ base: 3, md: 5 }}
+              py={{ base: 3, md: 5 }}
             >
               {pageData.content.map((p) => (
                 <ProductCard
@@ -413,6 +426,8 @@ export default function ProductListPage() {
           </>
         )}
       </Box>
+        </Box>
+      </Flex>
 
       <FiltersDrawer
         isOpen={isOpen}
@@ -431,6 +446,6 @@ export default function ProductListPage() {
           setPage(0);
         }}
       />
-    </Box>
+    </AppContainer>
   );
 }

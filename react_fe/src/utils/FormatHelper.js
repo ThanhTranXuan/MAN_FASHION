@@ -9,7 +9,6 @@ export const formatCurrencyVND = (value) => {
 };
 
 export const formatCurrency = formatCurrencyVND;
-export const formatUSD = formatCurrencyVND; // Added for backwards compatibility with files still using formatUSD
 
 export const formatCompact = (value) => {
   const numberValue = Number(value || 0);
