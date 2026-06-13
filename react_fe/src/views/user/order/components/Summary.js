@@ -44,7 +44,7 @@ export default function Summary({
   const couponSelectedBg = useColorModeValue('green.50', 'whiteAlpha.200');
   const toast = useAppToast();
   const navigate = useNavigate();
-  const { clearCart } = useCart();
+  const { clearCart, refreshCart } = useCart();
 
   const [couponCode, setCouponCode] = useState('');
   const [selectedCouponId, setSelectedCouponId] = useState(null);
@@ -245,6 +245,16 @@ export default function Summary({
       }
     } catch (err) {
       console.error(err);
+      const errorCode = Number(err.response?.data?.code);
+      if (errorCode === 4001) {
+        await refreshCart();
+        toast.show(
+          'Sản phẩm vừa được khách hàng khác mua hoặc giữ chỗ hết. Vui lòng kiểm tra lại giỏ hàng và chọn sản phẩm khác.',
+          'error',
+          6000,
+        );
+        return;
+      }
       toast.error(
         err.response?.data?.message || 'Đặt hàng thất bại, vui lòng thử lại!',
       );

@@ -26,6 +26,8 @@ const MotionBox = motion(Box);
 export default function ChatWidget({ hidden = false }) {
   const { isAuthenticated, user } = useUser();
   const toast = useAppToast();
+  const isStaff =
+    isAuthenticated && ['ADMIN', 'EMPLOYEE'].includes(user?.roleName);
 
   const {
     userConversation,
@@ -72,6 +74,9 @@ export default function ChatWidget({ hidden = false }) {
 
   const messagesContainerRef = useRef(null);
   const chatUserKey = user?.id || user?.email || user?.username || null;
+  const authenticatedBotConversationId = chatUserKey
+    ? `account-${chatUserKey}`
+    : null;
   const chatLastReadKey = chatUserKey ? `chat:lastReadAt:${chatUserKey}` : null;
 
   const scrollMessagesToBottom = (behavior = 'smooth') => {
@@ -142,7 +147,7 @@ export default function ChatWidget({ hidden = false }) {
   }, [setIsChatOpen]);
 
   useEffect(() => {
-    if (!isOpen || !isAuthenticated) return;
+    if (!isOpen || !isAuthenticated || isStaff || chatMode !== 'SHOP') return;
     const initChat = async () => {
       try {
         const convRes = await ChatService.start();
@@ -156,7 +161,20 @@ export default function ChatWidget({ hidden = false }) {
     };
     initChat();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isOpen, isAuthenticated, setUserConversation, setUserMessages]);
+  }, [
+    isOpen,
+    isAuthenticated,
+    isStaff,
+    chatMode,
+    setUserConversation,
+    setUserMessages,
+  ]);
+
+  useEffect(() => {
+    if (isStaff && chatMode === 'SHOP') {
+      setChatMode('BOT');
+    }
+  }, [isStaff, chatMode]);
 
   // Cho phép mở ChatWidget từ bên ngoài (VD: nút "Chat now" ở ProductDetail)
   useEffect(() => {
@@ -176,6 +194,12 @@ export default function ChatWidget({ hidden = false }) {
   const handleSend = () => {
     if (!input.trim()) return;
 
+    if (chatMode === 'SHOP' && isStaff) {
+      toast.warning('Tài khoản quản trị chỉ chat với khách hàng trong trang Hỗ trợ Chat.');
+      setChatMode('BOT');
+      return;
+    }
+
     if (chatMode === 'SHOP' && !isAuthenticated) {
       toast.warning('Vui lòng đăng nhập để chat với nhân viên hỗ trợ.');
       return;
@@ -184,7 +208,7 @@ export default function ChatWidget({ hidden = false }) {
     const conversationId =
       chatMode === 'BOT'
         ? isAuthenticated
-          ? userConversation?.id || guestBotConversationId
+          ? userConversation?.id || authenticatedBotConversationId
           : guestBotConversationId
         : userConversation?.id;
 
@@ -199,6 +223,10 @@ export default function ChatWidget({ hidden = false }) {
   };
 
   const selectChatMode = (mode) => {
+    if (mode === 'SHOP' && isStaff) {
+      toast.info('Vui lòng dùng trang Hỗ trợ Chat để trả lời khách hàng.');
+      return;
+    }
     if (mode === 'SHOP' && !isAuthenticated) {
       toast.warning('Bạn cần đăng nhập để chat với nhân viên hỗ trợ.');
       return;
@@ -370,7 +398,7 @@ export default function ChatWidget({ hidden = false }) {
 
             <Flex align="center" gap={2}>
               {/* Toggle BOT / SHOP */}
-              <Box
+              {!isStaff && <Box
                 bg="whiteAlpha.200"
                 borderRadius="full"
                 p="2px"
@@ -404,7 +432,7 @@ export default function ChatWidget({ hidden = false }) {
                     Cửa hàng
                   </Box>
                 </Flex>
-              </Box>
+              </Box>}
 
               <IconButton
                 aria-label="Close"

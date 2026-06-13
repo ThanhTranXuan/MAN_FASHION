@@ -12,8 +12,8 @@ import ChatService from 'services/ChatService';
 import { useUser } from './UserContext';
 
 const ChatContext = createContext();
-const BOT_HISTORY_KEY_PREFIX = 'trendify:botMessages';
-const BOT_SUGGESTIONS_KEY_PREFIX = 'trendify:latestProductSuggestions';
+const BOT_HISTORY_KEY_PREFIX = 'trendify:botMessages:v2';
+const BOT_SUGGESTIONS_KEY_PREFIX = 'trendify:latestProductSuggestions:v2';
 const CHAT_LAST_READ_KEY_PREFIX = 'chat:lastReadAt';
 const GUEST_BOT_STORAGE_SCOPE = 'guest';
 
@@ -82,11 +82,12 @@ export function ChatProvider({ children }) {
   const isChatOpenRef = useRef(false);
   const subscribedConvIdsRef = useRef(new Set());
   const lastUserConvIdRef = useRef(null);
-  const currentChatUserKeyRef = useRef(null);
+  const skipNextBotHistoryPersistRef = useRef(false);
+  const skipNextBotSuggestionsPersistRef = useRef(false);
 
   const isStaff =
     isAuthenticated && ['ADMIN', 'EMPLOYEE'].includes(user?.roleName);
-  const chatUserKey = isAuthenticated && !isStaff ? getChatUserKey(user) : null;
+  const chatUserKey = isAuthenticated ? getChatUserKey(user) : null;
   const botStorageScope = chatUserKey || GUEST_BOT_STORAGE_SCOPE;
   const botHistoryKey = getScopedStorageKey(BOT_HISTORY_KEY_PREFIX, botStorageScope);
   const botSuggestionsKey = getScopedStorageKey(BOT_SUGGESTIONS_KEY_PREFIX, botStorageScope);
@@ -101,7 +102,8 @@ export function ChatProvider({ children }) {
   }, [isChatOpen]);
 
   useEffect(() => {
-    currentChatUserKeyRef.current = chatUserKey;
+    skipNextBotHistoryPersistRef.current = true;
+    skipNextBotSuggestionsPersistRef.current = true;
     setUserConversation(null);
     setUserMessages([]);
     setUserHasUnread(false);
@@ -114,14 +116,22 @@ export function ChatProvider({ children }) {
   }, [chatUserKey, botHistoryKey, botSuggestionsKey]);
 
   useEffect(() => {
-    if (!botHistoryKey || currentChatUserKeyRef.current !== chatUserKey) return;
+    if (!botHistoryKey) return;
+    if (skipNextBotHistoryPersistRef.current) {
+      skipNextBotHistoryPersistRef.current = false;
+      return;
+    }
     localStorage.setItem(botHistoryKey, JSON.stringify(botMessages.slice(0, 50)));
-  }, [botMessages, botHistoryKey, chatUserKey]);
+  }, [botMessages, botHistoryKey]);
 
   useEffect(() => {
-    if (!botSuggestionsKey || currentChatUserKeyRef.current !== chatUserKey) return;
+    if (!botSuggestionsKey) return;
+    if (skipNextBotSuggestionsPersistRef.current) {
+      skipNextBotSuggestionsPersistRef.current = false;
+      return;
+    }
     localStorage.setItem(botSuggestionsKey, JSON.stringify(latestProductSuggestions));
-  }, [latestProductSuggestions, botSuggestionsKey, chatUserKey]);
+  }, [latestProductSuggestions, botSuggestionsKey]);
 
   // ====== CONNECT WS ======
   useEffect(() => {
@@ -266,18 +276,21 @@ useEffect(() => {
  const sendMessage = async (conversationId, content, chatMode) => {
     if (!content.trim()) return;
 
-    const finalMode = isStaff ? 'SHOP' : (chatMode || 'BOT');
+    const finalMode = chatMode || 'BOT';
+    const isShopMessage = finalMode === 'SHOP';
 
     const tempMsg = {
       id: `temp-${Date.now()}`,
       content: content,
-      senderType: isStaff ? (user?.roleName || 'EMPLOYEE') : 'USER',
+      senderType: isShopMessage && isStaff
+        ? (user?.roleName || 'EMPLOYEE')
+        : 'USER',
       senderName: user?.username || 'You',
       createdAt: new Date().toISOString(),
       chatChannel: finalMode,
     };
 
-    if (finalMode === 'SHOP') {
+    if (isShopMessage) {
       if (!isStaff) {
         setUserMessages((prev) =>
           mergeMessagesById(prev, [

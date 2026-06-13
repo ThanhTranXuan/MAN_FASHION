@@ -151,7 +151,10 @@ export default function OrderPage() {
         toast.success('Cập nhật trạng thái đơn hàng thành công');
       } catch (err) {
         console.error(err);
-        toast.error('Cập nhật trạng thái thất bại');
+        toast.error(
+          err.response?.data?.message ||
+            'Cập nhật trạng thái đơn hàng thất bại',
+        );
       }
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps

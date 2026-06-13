@@ -93,7 +93,7 @@ export default function NavbarLinks() {
   const isPaymentRoute = location.pathname.startsWith('/user/payment');
 
   // ✅ Guest hoặc USER mới được dùng cart
-  const canUseCart = !isAuthenticated || user?.roleName === 'USER';
+  const canUseCart = true;
 
   // ✅ Chỉ hiển thị cart khi:
   // - Không ở admin

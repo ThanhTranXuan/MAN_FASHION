@@ -40,11 +40,10 @@ export function CartProvider({ children }) {
     console.log('Giỏ hàng thay đổi → Đã xóa checkoutSessionId cũ');
   };
 
-  const isUserRole = isAuthenticated && user?.roleName === 'USER';
+  const usesServerCart = isAuthenticated && Boolean(user?.id);
 
-  // ✅ Cho phép: guest + USER
-  // ❌ Không cho: ADMIN / EMPLOYEE
-  const canUseCart = !isAuthenticated || isUserRole;
+  // Guest dùng localStorage; mọi tài khoản đăng nhập dùng giỏ hàng trong DB.
+  const canUseCart = true;
 
   const [cart, setCart] = useState({
     items: [],
@@ -54,17 +53,10 @@ export function CartProvider({ children }) {
   const [loading, setLoading] = useState(true);
 
   const loadCart = useCallback(async () => {
-    if (!canUseCart) {
-      // ADMIN / EMPLOYEE → không dùng giỏ hàng
-      setCart({ items: [], totalPrice: 0, totalQuantity: 0 });
-      setLoading(false);
-      return;
-    }
-
     try {
       let data;
-      if (isUserRole) {
-        // 🧾 USER: giỏ ở DB
+      if (usesServerCart) {
+        // Tài khoản đăng nhập: giỏ ở DB
         const res = await CartService.getAll();
         const items = Array.isArray(res.data.items ?? res.data)
           ? res.data.items ?? res.data
@@ -89,17 +81,15 @@ export function CartProvider({ children }) {
     } finally {
       setLoading(false);
     }
-  }, [canUseCart, isUserRole]);
+  }, [usesServerCart]);
 
   useEffect(() => {
     loadCart();
-  }, [loadCart, canUseCart, location.pathname, location.search]);
+  }, [loadCart, location.pathname, location.search]);
 
   const refreshCart = loadCart;
 
   const addItem = async (item, toast) => {
-    if (!canUseCart) return;
-
     // Optimistic update
     setCart((prev) => {
       const exists = prev.items.find(
@@ -130,7 +120,7 @@ export function CartProvider({ children }) {
 
     // Gọi API / local tuỳ role
     try {
-      if (isUserRole) {
+      if (usesServerCart) {
         await CartService.addItem({
           productId: item.productId,
           quantity: item.quantity || 1,
@@ -148,8 +138,6 @@ export function CartProvider({ children }) {
 
   // Giữ signature cũ: (id, color, size, qty, toast) để không vỡ chỗ khác
   const updateQuantity = async (id, _color, _size, qty, toast) => {
-    if (!canUseCart) return;
-
     setCart((prev) => {
       const items = prev.items.map((i) =>
         i.id === id ? { ...i, quantity: qty } : i,
@@ -161,7 +149,7 @@ export function CartProvider({ children }) {
     });
 
     try {
-      if (isUserRole) {
+      if (usesServerCart) {
         await CartService.updateItem(id, { quantity: qty });
       } else {
         await CartHelper.updateQuantity(id, qty, toast);
@@ -176,8 +164,6 @@ export function CartProvider({ children }) {
 
   // 🎨 Đổi variant cho item (dùng trong CartSidebar + CartVariantModal)
   const updateVariant = async (item, newVariant, toast) => {
-    if (!canUseCart) return;
-
     // Optimistic update
     setCart((prev) => {
       const items = prev.items.map((i) =>
@@ -197,7 +183,7 @@ export function CartProvider({ children }) {
     });
 
     try {
-      if (isUserRole) {
+      if (usesServerCart) {
         // BE cần support update variant cho cart item
         await CartService.updateItem(item.id, {
           variantId: newVariant.id,
@@ -218,15 +204,13 @@ export function CartProvider({ children }) {
   };
 
   const removeItem = async (id, _color, _size, toast) => {
-    if (!canUseCart) return;
-
     setCart((prev) => ({
       ...prev,
       items: prev.items.filter((i) => i.id !== id),
     }));
 
     try {
-      if (isUserRole) {
+      if (usesServerCart) {
         await CartService.removeItem(id);
       } else {
         await CartHelper.removeItem(id);
@@ -238,10 +222,8 @@ export function CartProvider({ children }) {
   };
 
   const clearCart = async () => {
-    if (!canUseCart) return;
-
     try {
-      if (isUserRole) {
+      if (usesServerCart) {
         await CartService.clear();
       } else {
         CartHelper.clearGuest();

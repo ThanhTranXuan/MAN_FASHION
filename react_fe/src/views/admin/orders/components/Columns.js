@@ -43,7 +43,7 @@ export default function Columns({
       case 'PENDING':
         return ['PAID', 'SHIPPED', 'CANCELLED'];
       case 'PAID':
-        return ['SHIPPED', 'CANCELLED'];
+        return ['SHIPPED'];
       case 'SHIPPED':
         return ['DELIVERED', 'CANCELLED'];
       case 'RETURN':
@@ -126,6 +126,10 @@ export default function Columns({
           (st) => st.label === info.getValue(),
         );
         const allowed = getAllowedTransitions(info.getValue());
+        const safeAllowed =
+          order.paymentMethod === 'VIETQR' && order.paymentStatus === 'PAID'
+            ? allowed.filter((status) => status !== 'CANCELLED')
+            : allowed;
         const isLoading = loadingRow === order.orderCode;
 
         const handleChangeStatus = async (newStatus) => {
@@ -142,7 +146,7 @@ export default function Columns({
             <MenuButton
               as={Button}
               size="sm"
-              rightIcon={allowed.length > 0 ? <ChevronDownIcon /> : undefined}
+              rightIcon={safeAllowed.length > 0 ? <ChevronDownIcon /> : undefined}
               fontWeight="600"
               colorScheme={
                 current?.label === 'PENDING'
@@ -164,7 +168,7 @@ export default function Columns({
               variant="outline"
               borderRadius="md"
               isLoading={isLoading}
-              isDisabled={allowed.length === 0}
+              isDisabled={safeAllowed.length === 0 || isLoading}
             >
               <Flex align="center" gap={2}>
                 <Text fontSize="lg">{current?.emoji}</Text>
@@ -172,9 +176,9 @@ export default function Columns({
               </Flex>
             </MenuButton>
 
-            {allowed.length > 0 && (
+            {safeAllowed.length > 0 && (
               <MenuList minW="160px">
-                {STATUS_OPTIONS.filter((st) => allowed.includes(st.label)).map(
+                {STATUS_OPTIONS.filter((st) => safeAllowed.includes(st.label)).map(
                   (st) => (
                     <MenuItem
                       key={st.label}

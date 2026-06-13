@@ -254,11 +254,6 @@ export default function ProfilePage() {
       return;
     }
 
-    const roleName = user.roleName || 'GUEST';
-    const isAdminOrEmployee = roleName === 'ADMIN' || roleName === 'EMPLOYEE';
-
-    if (isAdminOrEmployee) return;
-
     const init = async () => {
       try {
         const firstOrders = await fetchOrders(0, false);
@@ -272,11 +267,7 @@ export default function ProfilePage() {
   }, [loadingUser, isAuthenticated, user, fetchOrders, fetchReturns, logout]);
 
   useEffect(() => {
-    if (
-      !refreshOrderSignal ||
-      !isAuthenticated ||
-      ["ADMIN", "EMPLOYEE"].includes(user?.roleName)
-    ) {
+    if (!refreshOrderSignal || !isAuthenticated) {
       return;
     }
 
@@ -284,11 +275,7 @@ export default function ProfilePage() {
   }, [refreshOrderSignal, isAuthenticated, user?.roleName, fetchOrders]);
 
   useEffect(() => {
-    if (
-      !refreshReturnSignal ||
-      !isAuthenticated ||
-      ["ADMIN", "EMPLOYEE"].includes(user?.roleName)
-    ) {
+    if (!refreshReturnSignal || !isAuthenticated) {
       return;
     }
 
@@ -326,7 +313,7 @@ export default function ProfilePage() {
   // Tabs hiển thị theo role
   // -------------------------------
   const tabs = [
-    !isAdminOrEmployee && {
+    {
       label: 'Lịch Sử Mua Hàng',
       component: (
         <PurchaseHistoryTab
@@ -340,7 +327,7 @@ export default function ProfilePage() {
         />
       ),
     },
-    !isAdminOrEmployee && {
+    {
       label: 'Đơn Hoàn Trả',
       component: (
         <ReturnOrderTab
