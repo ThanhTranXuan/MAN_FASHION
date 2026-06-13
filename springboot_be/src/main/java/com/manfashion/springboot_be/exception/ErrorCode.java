@@ -65,7 +65,11 @@ public enum ErrorCode {
     // 4000-4999: PRODUCT ERRORS
     // ========================
     PRODUCT_NOT_FOUND(4000, "error.product.not-found", HttpStatus.NOT_FOUND),
-    PRODUCT_OUT_OF_STOCK(4001, "error.product.out-of-stock", HttpStatus.BAD_REQUEST),
+    PRODUCT_OUT_OF_STOCK(
+            4001,
+            "Sản phẩm vừa được khách hàng khác mua hoặc giữ chỗ hết. Vui lòng kiểm tra lại giỏ hàng và chọn sản phẩm khác.",
+            HttpStatus.CONFLICT
+    ),
     PRODUCT_NAME_ALREADY_EXISTS(4002, "error.product.name.exists", HttpStatus.CONFLICT),
     PRODUCT_SLUG_ALREADY_EXISTS(4003, "error.product.slug.exists", HttpStatus.CONFLICT),
     PRODUCT_SKU_ALREADY_EXISTS(4004, "error.product.sku.exists", HttpStatus.CONFLICT),
@@ -109,6 +113,16 @@ public enum ErrorCode {
     ORDER_USER_NOT_BELONG(7007, "error.order.user.not-belong", HttpStatus.BAD_REQUEST),
     POINT_REDEEM_LOG_NOT_FOUND(7008, "error.order.point-redeem.not-found", HttpStatus.NOT_FOUND),
     POINT_ALREADY_REFUNDED(7009, "error.order.point.already-refunded", HttpStatus.BAD_REQUEST),
+    ORDER_PAID_CANNOT_CANCEL_DIRECTLY(
+            7010,
+            "Đơn hàng đã thanh toán qua PayOS. Không thể hủy trực tiếp, vui lòng xử lý hoàn tiền/hoàn trả.",
+            HttpStatus.CONFLICT
+    ),
+    ORDER_CANNOT_CANCEL(
+            7011,
+            "Đơn hàng ở trạng thái hiện tại không thể hủy.",
+            HttpStatus.BAD_REQUEST
+    ),
 
     // ========================
     // 8000-8999: CART ERRORS

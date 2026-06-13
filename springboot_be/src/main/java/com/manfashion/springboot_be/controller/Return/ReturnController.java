@@ -86,7 +86,7 @@ public class ReturnController {
 
     // 🔄 REQUEST a return (USER only)
     @PostMapping
-    @PreAuthorize("hasAuthority('USER')")
+    @PreAuthorize("hasAnyAuthority('USER','ADMIN','EMPLOYEE')")
     @ResponseStatus(HttpStatus.CREATED) // Trả về HTTP Status 201 Created
     public ApiResponse<ReturnOrderResponse> requestReturn(@RequestBody ReturnOrderRequest req) {
         String userId = getCurrentUserId();
@@ -104,7 +104,7 @@ public class ReturnController {
 
     // 📄 GET my return orders (USER only)
     @GetMapping("/me")
-    @PreAuthorize("hasAuthority('USER')")
+    @PreAuthorize("hasAnyAuthority('USER','ADMIN','EMPLOYEE')")
     public ApiResponse<Page<ReturnOrderResponse>> getMyReturns(Pageable pageable) {
         String userId = getCurrentUserId();
         if (userId == null) {

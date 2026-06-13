@@ -16,7 +16,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/cart")
 @RequiredArgsConstructor
-@PreAuthorize("hasAuthority('USER')")
+@PreAuthorize("hasAnyAuthority('USER','ADMIN','EMPLOYEE')")
 public class CartController {
 
     private final CartService cartService;

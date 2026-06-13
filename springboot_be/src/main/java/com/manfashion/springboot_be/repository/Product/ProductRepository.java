@@ -10,6 +10,7 @@ import java.util.Optional;
 
 public interface ProductRepository extends JpaRepository<Product,Integer> ,ProductRepositoryCustom{
     boolean existsBySlug(String slug);
+    long countByDeletedAtIsNull();
     Optional<Product> findBySlugAndDeletedAtIsNull(String slug);
     long countByCategoryIdInAndDeletedAtIsNull(List<Integer> categoryIds);
     // API 1: Tìm kiếm theo từ khóa

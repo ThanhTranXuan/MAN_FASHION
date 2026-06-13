@@ -17,6 +17,7 @@ public interface ReturnOrderRepository extends JpaRepository<ReturnOrder,Integer
 
     Optional<ReturnOrder> findByReturnCode(String returnCode);
     boolean existsByCreatedAtAfter(LocalDateTime date);
+    long countByStatus(String status);
     @Query("SELECT SUM(ro.refundAmount) FROM ReturnOrder ro WHERE ro.status = :status AND ro.createdAt >= :start AND ro.createdAt < :end")
     Double sumRefundAmountInRange(@Param("status") String status, @Param("start") LocalDateTime start, @Param("end") LocalDateTime end);
 }

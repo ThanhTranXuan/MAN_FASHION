@@ -4,6 +4,8 @@ import com.manfashion.springboot_be.entity.Order;
 import com.manfashion.springboot_be.entity.OrderItem;
 import com.manfashion.springboot_be.entity.Payment;
 import com.manfashion.springboot_be.entity.ProductVariant;
+import com.manfashion.springboot_be.exception.AppException;
+import com.manfashion.springboot_be.exception.ErrorCode;
 import com.manfashion.springboot_be.repository.Order.OrderItemRepository;
 import com.manfashion.springboot_be.repository.Order.OrderRepository;
 import com.manfashion.springboot_be.repository.Payment.PaymentRepository;
@@ -20,6 +22,7 @@ import java.util.Optional;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -97,8 +100,12 @@ class OrderCancellationServiceTest {
         when(orderRepository.findByIdForUpdate(10)).thenReturn(Optional.of(order));
         when(paymentRepository.findByOrderIdForUpdate(10)).thenReturn(Optional.of(payment));
 
-        assertFalse(service.cancelAndRestoreStock(10, "FAILED", "late failure"));
+        AppException exception = assertThrows(
+                AppException.class,
+                () -> service.cancelAndRestoreStock(10, "FAILED", "late failure")
+        );
 
+        assertEquals(ErrorCode.ORDER_PAID_CANNOT_CANCEL_DIRECTLY, exception.getErrorCode());
         verify(orderItemRepository, never()).findByOrderId(10);
     }
 }

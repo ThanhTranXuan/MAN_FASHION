@@ -12,6 +12,10 @@ public interface ProductVariantRepository extends JpaRepository<ProductVariant, 
     List<ProductVariant> findByProductIdAndDeletedAtIsNull(Integer productId);
     List<ProductVariant> findByStockLessThanAndDeletedAtIsNull(Integer stockThreshold);
     boolean existsByProductIdAndColorIgnoreCaseAndDeletedAtIsNull(Integer productId, String color);
+    long countByDeletedAtIsNull();
+
+    @Query("SELECT COALESCE(SUM(v.stock), 0) FROM ProductVariant v WHERE v.deletedAt IS NULL")
+    Long sumAvailableStock();
 
     @Modifying(clearAutomatically = true, flushAutomatically = true)
     @Query("""

@@ -1,7 +1,8 @@
 package com.manfashion.springboot_be.controller.Chat;
 
 import com.manfashion.springboot_be.config.JwtUtils;
-import com.manfashion.springboot_be.service.Chat.DifyBotService;
+import com.manfashion.springboot_be.repository.User.UserRepository;
+import com.manfashion.springboot_be.service.Chat.GeminiChatService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -18,12 +19,17 @@ import java.util.UUID;
 @Slf4j
 public class BotController {
 
-    private final DifyBotService botService;
+    private final GeminiChatService botService;
     private final JwtUtils jwtUtils;
+    private final UserRepository userRepository;
 
-    public BotController(DifyBotService botService, JwtUtils jwtUtils) {
+    public BotController(
+            GeminiChatService botService,
+            JwtUtils jwtUtils,
+            UserRepository userRepository) {
         this.botService = botService;
         this.jwtUtils = jwtUtils;
+        this.userRepository = userRepository;
     }
 
     private Integer getCurrentUserIdOrNull(String authorizationHeader) {
@@ -59,6 +65,40 @@ public class BotController {
         return null;
     }
 
+    private String resolveRole(Integer currentUserId, String authorizationHeader) {
+        if (currentUserId != null) {
+            String databaseRole = userRepository.findById(currentUserId)
+                    .map(user -> user.getRole() == null ? null : user.getRole().getName())
+                    .orElse(null);
+            if (databaseRole != null && !databaseRole.isBlank()) {
+                return databaseRole;
+            }
+        }
+
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String securityRole = authentication == null
+                ? null
+                : authentication.getAuthorities().stream()
+                .findFirst()
+                .map(authority -> authority.getAuthority())
+                .orElse(null);
+        if (securityRole != null && !"GUEST".equalsIgnoreCase(securityRole)) {
+            return securityRole;
+        }
+
+        if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
+            try {
+                String token = authorizationHeader.substring(7);
+                if (jwtUtils.validateJwtToken(token)) {
+                    return jwtUtils.getRoleFromJwtToken(token);
+                }
+            } catch (Exception ex) {
+                log.debug("Could not resolve bot role from bearer token", ex);
+            }
+        }
+        return "GUEST";
+    }
+
     @PostMapping("/chat/{conversationId}")
     public ResponseEntity<?> chatWithBot(
             @PathVariable String conversationId,
@@ -70,10 +110,11 @@ public class BotController {
             String userMessage = request.get("message");
 
             Integer currentUserId = getCurrentUserIdOrNull(authorizationHeader);
+            String role = resolveRole(currentUserId, authorizationHeader);
             String botSessionId = currentUserId == null
                     ? "guest:" + conversationId
                     : "user:" + currentUserId + ":" + conversationId;
-            String botReply = botService.askBot(botSessionId, userMessage, currentUserId);
+            String botReply = botService.askBot(botSessionId, userMessage, currentUserId, role);
 
             // Đóng gói DTO khớp với Frontend ReactJS
             Map<String, Object> response = Map.of(
@@ -107,7 +148,11 @@ public class BotController {
     }
 
     @GetMapping("/order-status")
-    public String orderStatus(@RequestParam String orderCode) {
-        return botService.getOrderStatusForBot(orderCode);
+    public String orderStatus(
+            @RequestParam String orderCode,
+            @RequestHeader(value = "Authorization", required = false) String authorizationHeader) {
+        Integer currentUserId = getCurrentUserIdOrNull(authorizationHeader);
+        String role = resolveRole(currentUserId, authorizationHeader);
+        return botService.getOrderStatusForBot(orderCode, currentUserId, role);
     }
 }

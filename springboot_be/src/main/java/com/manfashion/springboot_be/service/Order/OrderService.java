@@ -15,6 +15,7 @@ public interface OrderService {
     OrderResponse updateStatusByUser(Integer userId, String orderCode, String status);
 
     void cancelPendingOrder(String orderCode);
+    void cancelPendingOrderByUser(Integer userId, String orderCode);
 
     // ================== NGHIỆP VỤ ADMIN ==================
 

@@ -28,6 +28,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
@@ -50,6 +52,8 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 @Slf4j
 public class OrderServiceImpl implements OrderService {
+    private static final Set<String> FINAL_ORDER_STATUSES =
+            Set.of("COMPLETED", "CANCELLED", "RETURN", "RETURNED", "REFUNDED");
 
     private final OrderRepository orderRepo;
     private final OrderItemRepository orderItemRepo;
@@ -183,7 +187,7 @@ public class OrderServiceImpl implements OrderService {
         // SỬA Ở ĐÂY: Truyền Object User và Coupon vào
         Order order = Order.builder()
                 .orderCode(orderCode)
-                .user(User.builder().id(userId).build())
+                .user(userId == null ? null : User.builder().id(userId).build())
                 .fullName(req.getFullName())
                 .email(req.getEmail())
                 .phone(req.getPhone())
@@ -301,9 +305,26 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     @Transactional
+    public void cancelPendingOrderByUser(Integer userId, String orderCode) {
+        Order order = orderRepo.findByOrderCodeAndUserId(orderCode, userId)
+                .orElseThrow(() -> new AppException(ErrorCode.ORDER_USER_NOT_BELONG));
+        if (!"PENDING".equals(order.getStatus())) {
+            throw new AppException(ErrorCode.ORDER_CANNOT_CANCEL);
+        }
+        cancellationService.cancelAndRestoreStock(
+                order.getId(), "CANCELLED", "Order cancelled by customer"
+        );
+    }
+
+    @Override
+    @Transactional
     public OrderResponse updateStatus(String orderCode, String status) {
         Order order = orderRepo.findByOrderCode(orderCode).orElseThrow(() -> new RuntimeException("Order not found"));
-        if ("CANCELLED".equalsIgnoreCase(status)) {
+        String normalizedStatus = status == null ? "" : status.trim().toUpperCase();
+        if (FINAL_ORDER_STATUSES.contains(order.getStatus())) {
+            throw new AppException(ErrorCode.ORDER_STATUS_FINAL);
+        }
+        if ("CANCELLED".equals(normalizedStatus)) {
             cancellationService.cancelAndRestoreStock(
                     order.getId(), "CANCELLED", "Order cancelled by admin"
             );
@@ -312,22 +333,25 @@ public class OrderServiceImpl implements OrderService {
             publishOrderStatus(cancelled);
             return toResponse(cancelled, orderItemRepo.findByOrderId(cancelled.getId()));
         }
-        order.setStatus(status);
-        if ("DELIVERED".equalsIgnoreCase(status)) {
+        order.setStatus(normalizedStatus);
+        if ("DELIVERED".equals(normalizedStatus)) {
             order.setDeliveredAt(LocalDateTime.now());
         }
         orderRepo.save(order);
         if ("COD".equals(order.getPaymentMethod())
-                && ("DELIVERED".equalsIgnoreCase(status) || "COMPLETED".equalsIgnoreCase(status))) {
+                && ("DELIVERED".equals(normalizedStatus) || "COMPLETED".equals(normalizedStatus))) {
             paymentService.markCodAsPaid(order.getId());
         }
-        sendMail(order.getEmail(), order.getFullName(), orderCode, "Order status updated: <b>" + status + "</b>");
+        sendMail(order.getEmail(), order.getFullName(), orderCode, "Order status updated: <b>" + normalizedStatus + "</b>");
         publishOrderStatus(order);
         return toResponse(order, orderItemRepo.findByOrderId(order.getId()));
     }
 
     @Override
     public Page<OrderResponse> getAllOrders(String code, String status, Pageable pageable) {
+        Pageable effectivePageable = pageable.getSort().isSorted()
+                ? pageable
+                : PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), Sort.by(Sort.Direction.DESC, "createdAt"));
         Specification<Order> spec = (root, query, cb) -> {
             List<Predicate> predicates = new ArrayList<>();
 
@@ -336,7 +360,12 @@ public class OrderServiceImpl implements OrderService {
             predicates.add(cb.or(notPending, isCod));
 
             if (code != null && !code.isBlank()) {
-                predicates.add(cb.like(root.get("orderCode"), "%" + code + "%"));
+                String pattern = "%" + code.toLowerCase() + "%";
+                predicates.add(cb.or(
+                        cb.like(cb.lower(root.get("orderCode")), pattern),
+                        cb.like(cb.lower(root.get("fullName")), pattern),
+                        cb.like(cb.lower(root.get("phone")), pattern)
+                ));
             }
             if (status != null && !status.isBlank()) {
                 predicates.add(cb.equal(root.get("status"), status));
@@ -345,8 +374,8 @@ public class OrderServiceImpl implements OrderService {
             return cb.and(predicates.toArray(new Predicate[0]));
         };
 
-        Page<Order> page = orderRepo.findAll(spec, pageable);
-        return mapOrderPage(page, pageable);
+        Page<Order> page = orderRepo.findAll(spec, effectivePageable);
+        return mapOrderPage(page, effectivePageable);
     }
 
     @Override
@@ -363,21 +392,25 @@ public class OrderServiceImpl implements OrderService {
     // ================== HELPER METHODS ==================
 
     private void publishOrderStatus(Order order) {
-        Map<String, Object> event = Map.of(
-                "type", "ORDER_STATUS_UPDATED",
-                "orderId", order.getId(),
-                "orderCode", order.getOrderCode(),
-                "status", order.getStatus(),
-                "userId", order.getUser().getId(),
-                "message", "Đơn hàng " + order.getOrderCode() + " đã được cập nhật trạng thái",
-                "timestamp", System.currentTimeMillis()
-        );
+        Map<String, Object> event = new java.util.HashMap<>();
+        event.put("type", "ORDER_STATUS_UPDATED");
+        event.put("orderId", order.getId());
+        event.put("orderCode", order.getOrderCode());
+        event.put("status", order.getStatus());
+        event.put("message", "Đơn hàng " + order.getOrderCode() + " đã được cập nhật trạng thái");
+        event.put("timestamp", System.currentTimeMillis());
+        Integer userId = order.getUser() == null ? null : order.getUser().getId();
+        if (userId != null) {
+            event.put("userId", userId);
+        }
 
         messaging.convertAndSend("/topic/order-status", (Object) event);
-        messaging.convertAndSend(
-                "/topic/users/" + order.getUser().getId() + "/notifications",
-                (Object) event
-        );
+        if (userId != null) {
+            messaging.convertAndSend(
+                    "/topic/users/" + userId + "/notifications",
+                    (Object) event
+            );
+        }
         publishAdminNotification(event);
     }
 

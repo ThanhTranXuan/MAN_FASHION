@@ -2,6 +2,8 @@ package com.manfashion.springboot_be.service.Order;
 
 import com.manfashion.springboot_be.entity.Order;
 import com.manfashion.springboot_be.entity.Payment;
+import com.manfashion.springboot_be.exception.AppException;
+import com.manfashion.springboot_be.exception.ErrorCode;
 import com.manfashion.springboot_be.repository.Order.OrderItemRepository;
 import com.manfashion.springboot_be.repository.Order.OrderRepository;
 import com.manfashion.springboot_be.repository.Payment.PaymentRepository;
@@ -34,15 +36,14 @@ public class OrderCancellationService {
             log.info("Order {} was already cancelled, skip duplicate stock restore", order.getOrderCode());
             return false;
         }
-        if (PROTECTED_STATUSES.contains(order.getStatus())) {
-            log.warn("Skip cancellation for protected order status: orderId={}, status={}", orderId, order.getStatus());
-            return false;
-        }
-
         Payment payment = paymentRepository.findByOrderIdForUpdate(orderId).orElse(null);
         if (payment != null && "PAID".equals(payment.getPaymentStatus())) {
             log.warn("Skip cancellation because payment is already PAID: orderId={}", orderId);
-            return false;
+            throw new AppException(ErrorCode.ORDER_PAID_CANNOT_CANCEL_DIRECTLY);
+        }
+        if (PROTECTED_STATUSES.contains(order.getStatus())) {
+            log.warn("Skip cancellation for protected order status: orderId={}, status={}", orderId, order.getStatus());
+            throw new AppException(ErrorCode.ORDER_CANNOT_CANCEL);
         }
 
         if (!Boolean.TRUE.equals(order.getStockRestored())) {

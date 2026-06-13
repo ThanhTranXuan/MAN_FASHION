@@ -50,6 +50,8 @@ public interface OrderRepository extends JpaRepository<Order,Integer>, OrderRepo
             LocalDateTime createdAt
     );
     boolean existsByCreatedAtAfter(LocalDateTime createdAt);
+    long countByStatus(String status);
+    Optional<Order> findTopByOrderByCreatedAtDesc();
     // Tổng doanh thu (All time)
     @Query("SELECT SUM(o.finalTotal) FROM Order o WHERE o.status = :status")
     Double sumTotalRevenueByStatus(@Param("status") String status);

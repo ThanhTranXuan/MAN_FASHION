@@ -8,6 +8,8 @@ import jakarta.persistence.criteria.CriteriaBuilder;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -33,7 +35,7 @@ public class OrderController {
     public ApiResponse<Page<OrderResponse>> getAllOrders(
             @RequestParam(required = false) String code,
             @RequestParam(required = false) String status,
-            Pageable pageable) {
+            @PageableDefault(sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
 
         Page<OrderResponse> orders = orderService.getAllOrders(code, status, pageable);
 
@@ -58,10 +60,13 @@ public class OrderController {
 
     // 🛒 CREATE order
     @PostMapping
-    @PreAuthorize("hasAnyAuthority('GUEST','USER')")
+    @PreAuthorize("hasAnyAuthority('GUEST','USER','ADMIN','EMPLOYEE')")
     public ApiResponse<OrderResponse> createOrder(@RequestBody OrderRequest req) {
 
-        Integer userId = Integer.valueOf(getCurrentUserId());
+        String currentUserId = getCurrentUserId();
+        Integer userId = currentUserId == null || "guest".equalsIgnoreCase(currentUserId)
+                ? null
+                : Integer.valueOf(currentUserId);
         OrderResponse response = orderService.createFromCart(userId, req);
 
         return ApiResponse.<OrderResponse>builder()
@@ -72,8 +77,9 @@ public class OrderController {
 
     // 📄 GET my orders
     @GetMapping("/me")
-    @PreAuthorize("hasAuthority('USER')")
-    public ApiResponse<Page<OrderResponse>> getMyOrders(Pageable pageable) {
+    @PreAuthorize("hasAnyAuthority('USER','ADMIN','EMPLOYEE')")
+    public ApiResponse<Page<OrderResponse>> getMyOrders(
+            @PageableDefault(sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
 
         Integer userId = Integer.valueOf(getCurrentUserId());
         Page<OrderResponse> orders = orderService.getOrdersByUserId(userId, pageable);
@@ -94,12 +100,12 @@ public class OrderController {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         String userId = getCurrentUserId();
 
-        boolean isUser = auth.getAuthorities().stream()
+        boolean isSelfServiceUpdate = auth.getAuthorities().stream()
                 .anyMatch(a -> a.getAuthority().equals("USER"));
 
         OrderResponse updated;
 
-        if (isUser) {
+        if (isSelfServiceUpdate) {
             updated = orderService.updateStatusByUser(Integer.valueOf(userId), orderCode, status);
         } else {
             updated = orderService.updateStatus(orderCode, status);
@@ -113,9 +119,17 @@ public class OrderController {
 
     // ❌ Cancel order
     @PatchMapping("/cancel/{orderCode}")
+    @PreAuthorize("hasAnyAuthority('USER','ADMIN','EMPLOYEE')")
     public ApiResponse<String> cancelOrder(@PathVariable String orderCode) {
 
-        orderService.cancelPendingOrder(orderCode);
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        boolean isCustomer = auth.getAuthorities().stream()
+                .anyMatch(authority -> authority.getAuthority().equals("USER"));
+        if (isCustomer) {
+            orderService.cancelPendingOrderByUser(Integer.valueOf(getCurrentUserId()), orderCode);
+        } else {
+            orderService.cancelPendingOrder(orderCode);
+        }
 
         return ApiResponse.<String>builder()
                 .message("order.cancel.success")

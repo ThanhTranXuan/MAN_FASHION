@@ -18,5 +18,6 @@ public interface UserRepository extends JpaRepository<User, Integer> , UserRepos
 
 
     long countByRole_Id(Integer roleId);
+    long countByRole_Name(String roleName);
     Page<User> findByRole_IdOrderByCreatedAtDesc(Integer roleId, Pageable pageable);
 }

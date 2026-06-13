@@ -14,8 +14,8 @@ public class RestClientConfig {
 
     @Bean
     public RestClient restClient(
-            @Value("${dify.connect-timeout-seconds:10}") long connectTimeoutSeconds,
-            @Value("${dify.request-timeout-seconds:60}") long requestTimeoutSeconds) {
+            @Value("${gemini.connect-timeout-seconds:10}") long connectTimeoutSeconds,
+            @Value("${gemini.request-timeout-seconds:60}") long requestTimeoutSeconds) {
         HttpClient httpClient = HttpClient.newBuilder()
                 .connectTimeout(Duration.ofSeconds(connectTimeoutSeconds))
                 .build();
