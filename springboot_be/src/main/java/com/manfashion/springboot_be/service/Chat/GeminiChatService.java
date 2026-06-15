@@ -267,9 +267,11 @@ public class GeminiChatService {
     private String classifyIntent(String sessionId, String message) {
         String value = normalize(message);
         boolean productIntent = containsAnyProductTerm(value,
+                "san pham", "danh muc", "mau ma", "tim hang", "con hang",
                 "phoi", "set", "chon", "goi y", "tu van", "size", "mac gi",
                 "ao", "quan", "giay", "phu kien", "mua he", "he nay", "ca tinh",
-                "bui bam", "oversize", "jean", "cargo", "kaki", "so mi", "ao thun");
+                "bui bam", "oversize", "jean", "cargo", "kaki", "so mi", "ao thun",
+                "polo", "hoodie", "blazer", "sneaker", "dep", "tui", "that lung");
         boolean followUpStyle = lastProductQueryBySession.containsKey(sessionId)
                 && containsAnyProductTerm(value, "ca tinh", "bui bam", "lich su", "tre trung", "re hon", "them giay", "doi style");
         return productIntent || followUpStyle ? "PRODUCT_RECOMMENDATION" : "GENERAL";
@@ -510,28 +512,42 @@ public class GeminiChatService {
                 Không được tự bịa tên sản phẩm, giá, màu, size, tồn kho hoặc link.
                 Nếu không đủ sản phẩm để tạo full set, phải nói rõ hiện chưa đủ sản phẩm phù hợp trong cửa hàng.
                 Trả lời bằng tiếng Việt, ngắn gọn, rõ ràng.
-                Nêu tên sản phẩm thật, size gợi ý, lý do chọn.
+                Nêu tên sản phẩm thật và lý do chọn.
+                Chỉ gợi ý size khi người dùng hỏi về size hoặc cung cấp chiều cao/cân nặng.
                 Với người cao khoảng 1m70 nặng 70kg: áo thường gợi ý size L nếu form bình thường; quần thường gợi ý size 31-32 hoặc L nếu bảng size dùng chữ.
-                Luôn nhắc khách kiểm tra bảng size từng sản phẩm nếu có.
+                Khi có tư vấn size, nhắc khách kiểm tra bảng size từng sản phẩm nếu có.
                 Không thêm bullet trống ở cuối câu trả lời.
                 """.formatted(role);
     }
 
     private String deterministicProductAnswer(String query, List<BotProductSuggestion> selectedProducts) {
+        boolean wantsSizeAdvice = wantsSizeAdvice(query);
         StringBuilder answer = new StringBuilder();
-        answer.append("Gợi ý phù hợp:\n");
+        answer.append("Các sản phẩm phù hợp:\n");
         for (BotProductSuggestion product : selectedProducts) {
             answer.append("- ").append(product.getName())
                     .append(" (").append(formatMoney(product.getPrice())).append(")");
-            String suggestedSize = suggestedSize(product);
-            if (!suggestedSize.isBlank()) answer.append(" - gợi ý size ").append(suggestedSize);
+            if (wantsSizeAdvice) {
+                String suggestedSize = suggestedSize(product);
+                if (!suggestedSize.isBlank()) answer.append(" - gợi ý size ").append(suggestedSize);
+            }
             if (product.getColors() != null && !product.getColors().isEmpty()) {
                 answer.append(", màu ").append(String.join("/", product.getColors().stream().limit(2).toList()));
             }
             answer.append("\n");
         }
-        answer.append("Với 1m70, 70kg: áo thường nên thử size L; quần thử 31-32 hoặc L nếu dùng bảng size chữ. Bạn vẫn nên kiểm tra bảng size từng sản phẩm trước khi đặt.");
+        if (wantsSizeAdvice) {
+            answer.append("Bạn nên kiểm tra bảng size của từng sản phẩm trước khi đặt.");
+        }
         return answer.toString();
+    }
+
+    private boolean wantsSizeAdvice(String query) {
+        String value = normalizeForTermMatch(query);
+        return containsAnyProductTerm(value, "size", "kich co", "can nang", "chieu cao", "cao", "nang", "kg")
+                || value.matches(".*\\b\\d{2,3}\\s*(cm|kg)\\b.*")
+                || value.matches(".*\\b\\d+m\\d{1,2}\\b.*")
+                || value.matches(".*\\bm\\d{1,2}\\b.*");
     }
 
     private boolean mentionsSelectedProducts(String answer, List<BotProductSuggestion> selectedProducts) {
@@ -949,11 +965,24 @@ public class GeminiChatService {
         }
 
         private static boolean containsAnyStatic(String value, String... needles) {
-            String normalizedValue = normalizeStatic(value);
+            String normalizedValue = normalizeForTermMatchStatic(value);
             for (String needle : needles) {
-                if (normalizedValue.contains(normalizeStatic(needle))) return true;
+                String normalizedNeedle = normalizeForTermMatchStatic(needle);
+                if (normalizedValue.equals(normalizedNeedle)
+                        || normalizedValue.startsWith(normalizedNeedle + " ")
+                        || normalizedValue.endsWith(" " + normalizedNeedle)
+                        || normalizedValue.contains(" " + normalizedNeedle + " ")) {
+                    return true;
+                }
             }
             return false;
+        }
+
+        private static String normalizeForTermMatchStatic(String value) {
+            return normalizeStatic(value)
+                    .replaceAll("[^a-z0-9 ]", " ")
+                    .replaceAll("\\s+", " ")
+                    .trim();
         }
 
         private static String normalizeStatic(String value) {

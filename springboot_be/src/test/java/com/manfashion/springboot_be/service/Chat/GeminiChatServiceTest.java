@@ -161,6 +161,99 @@ class GeminiChatServiceTest {
         assertThat(greeting.getMessage()).contains("Ch");
     }
 
+    @Test
+    void genericCatalogQuestionReturnsProductsWithoutCallingGeneralChat() {
+        Product jacket = product(
+                12,
+                "Áo khoác bomber",
+                "ao-khoac-bomber",
+                "Áo khoác",
+                "black",
+                "L"
+        );
+        Product jeans = product(
+                14,
+                "Quần jeans ống suông",
+                "quan-jeans-ong-suong",
+                "Quần jeans",
+                "blue",
+                "32"
+        );
+        when(productRepository.findActiveBotCandidates(PageRequest.of(0, 200))).thenReturn(List.of(jacket, jeans));
+
+        BotChatResponse answer = service.askBot(
+                "catalog-session",
+                "Shop có sản phẩm nào?",
+                null,
+                "GUEST"
+        );
+
+        assertThat(answer.getProducts())
+                .extracting("name")
+                .contains("Áo khoác bomber", "Quần jeans ống suông");
+        assertThat(answer.getMessage())
+                .contains("Áo khoác bomber")
+                .contains("Quần jeans ống suông")
+                .doesNotContain("1m70")
+                .doesNotContain("lỗi cấu hình");
+    }
+
+    @Test
+    void unaccentedGenericProductSearchDoesNotTreatNaoAsAo() {
+        Product jacket = product(
+                12,
+                "Áo khoác bomber",
+                "ao-khoac-bomber",
+                "Áo khoác",
+                "black",
+                "L"
+        );
+        Product jeans = product(
+                14,
+                "Quần jeans ống suông",
+                "quan-jeans-ong-suong",
+                "Quần jeans",
+                "blue",
+                "32"
+        );
+        when(productRepository.findActiveBotCandidates(PageRequest.of(0, 200))).thenReturn(List.of(jacket, jeans));
+
+        BotChatResponse answer = service.askBot(
+                "plain-catalog-session",
+                "co san pham nao khong",
+                null,
+                "GUEST"
+        );
+
+        assertThat(answer.getProducts())
+                .extracting("name")
+                .contains("Áo khoác bomber", "Quần jeans ống suông");
+    }
+
+    @Test
+    void sizeAdviceIsIncludedWhenCustomerProvidesMeasurements() {
+        Product jacket = product(
+                12,
+                "Áo khoác bomber",
+                "ao-khoac-bomber",
+                "Áo khoác",
+                "black",
+                "L"
+        );
+        when(productRepository.findActiveBotCandidates(PageRequest.of(0, 200))).thenReturn(List.of(jacket));
+
+        BotChatResponse answer = service.askBot(
+                "size-session",
+                "Tôi cao 170cm nặng 70kg, tìm áo khoác màu đen",
+                null,
+                "GUEST"
+        );
+
+        assertThat(answer.getMessage())
+                .contains("gợi ý size L")
+                .contains("bảng size");
+    }
+
     private Product product(Integer id, String name, String slug, String categoryName, String color, String size) {
         Category category = Category.builder()
                 .name(categoryName)
