@@ -161,26 +161,4 @@ public class ReportServiceImpl implements ReportService {
                 .collect(Collectors.toList());
     }
 
-    @Override
-    public MonthlyRevenueReportResponse getMonthlyRevenueReport(Integer month, Integer year) {
-        int m = (month != null) ? month : LocalDate.now().getMonthValue();
-        int y = (year != null) ? year : LocalDate.now().getYear();
-        LocalDateTime start = LocalDate.of(y, m, 1).atStartOfDay();
-        LocalDateTime end = start.plusMonths(1);
-
-        double rev = getRev(start, end);
-        long orders = orderRepo.countByStatusAndCreatedAtBetween("COMPLETED", start, end);
-        Double refund = returnOrderRepo.sumRefundAmountInRange("COMPLETED", start, end);
-
-        var products = orderItemRepo.getMonthlyProductSales("COMPLETED", start, end).stream()
-                .map(r -> new MonthlyProductSalesRow(Integer.valueOf(String.valueOf(r[0])), (String)r[1], (String)r[2], ((Number)r[3]).longValue(), ((Number)r[4]).doubleValue()))
-                .collect(Collectors.toList());
-
-        return MonthlyRevenueReportResponse.builder()
-                .month(m).year(y).totalRevenue(rev).totalOrders(orders)
-                .distinctCustomers(orderRepo.countNewCustomersInRange("CANCELLED", start, end))
-                .averageOrderValue(orders > 0 ? rev / orders : 0.0)
-                .totalRefund(refund != null ? refund : 0.0)
-                .products(products).build();
-    }
 }

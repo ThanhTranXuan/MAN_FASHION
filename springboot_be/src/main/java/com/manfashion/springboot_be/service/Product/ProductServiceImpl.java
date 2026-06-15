@@ -358,4 +358,12 @@ public class ProductServiceImpl implements ProductService{
 
         return addRatings(similar);
     }
+
+    @Override
+    public ProductFilterOptionsResponse getFilterOptions() {
+        return ProductFilterOptionsResponse.builder()
+                .colors(variantRepository.findAvailableColors())
+                .sizes(variantRepository.findAvailableSizes())
+                .build();
+    }
 }

@@ -57,6 +57,14 @@ public class ProductController {
     }
 
     // 🔍 GET product by slug (public)
+    @GetMapping("/filter-options")
+    public ApiResponse<ProductFilterOptionsResponse> getFilterOptions() {
+        return ApiResponse.<ProductFilterOptionsResponse>builder()
+                .message("product.filter_options.success")
+                .data(productService.getFilterOptions())
+                .build();
+    }
+
     @GetMapping("/detail/{slug}")
     public ApiResponse<ProductResponse> getProductBySlug(@PathVariable String slug) {
         return ApiResponse.<ProductResponse>builder()

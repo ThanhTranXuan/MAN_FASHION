@@ -17,6 +17,30 @@ public interface ProductVariantRepository extends JpaRepository<ProductVariant, 
     @Query("SELECT COALESCE(SUM(v.stock), 0) FROM ProductVariant v WHERE v.deletedAt IS NULL")
     Long sumAvailableStock();
 
+    @Query("""
+            SELECT DISTINCT v.color FROM ProductVariant v
+            JOIN v.product p
+            WHERE v.deletedAt IS NULL
+              AND p.deletedAt IS NULL
+              AND p.isActive = true
+              AND v.color IS NOT NULL
+              AND TRIM(v.color) <> ''
+            ORDER BY v.color
+            """)
+    List<String> findAvailableColors();
+
+    @Query("""
+            SELECT DISTINCT v.size FROM ProductVariant v
+            JOIN v.product p
+            WHERE v.deletedAt IS NULL
+              AND p.deletedAt IS NULL
+              AND p.isActive = true
+              AND v.size IS NOT NULL
+              AND TRIM(v.size) <> ''
+            ORDER BY v.size
+            """)
+    List<String> findAvailableSizes();
+
     @Modifying(clearAutomatically = true, flushAutomatically = true)
     @Query("""
             UPDATE ProductVariant v

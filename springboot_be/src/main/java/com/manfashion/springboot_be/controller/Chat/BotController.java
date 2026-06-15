@@ -1,5 +1,6 @@
 package com.manfashion.springboot_be.controller.Chat;
 
+import com.manfashion.springboot_be.DTO.Chat.BotChatResponse;
 import com.manfashion.springboot_be.config.JwtUtils;
 import com.manfashion.springboot_be.repository.User.UserRepository;
 import com.manfashion.springboot_be.service.Chat.GeminiChatService;
@@ -114,12 +115,16 @@ public class BotController {
             String botSessionId = currentUserId == null
                     ? "guest:" + conversationId
                     : "user:" + currentUserId + ":" + conversationId;
-            String botReply = botService.askBot(botSessionId, userMessage, currentUserId, role);
+            log.info("Bot request received. conversationId={}, userId={}, role={}, message={}",
+                    conversationId, currentUserId, role, userMessage);
+            BotChatResponse botReply = botService.askBot(botSessionId, userMessage, currentUserId, role);
 
             // Đóng gói DTO khớp với Frontend ReactJS
             Map<String, Object> response = Map.of(
                     "id", UUID.randomUUID().toString(),
-                    "content", botReply,
+                    "content", botReply.getMessage(),
+                    "products", botReply.getProducts(),
+                    "suggestedQuestions", botReply.getSuggestedQuestions(),
                     "senderType", "BOT",
                     "senderName", "Trendify Bot",
                     "createdAt", Instant.now().toString(),

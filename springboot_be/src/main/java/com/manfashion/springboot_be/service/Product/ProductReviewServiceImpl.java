@@ -6,6 +6,7 @@ import com.manfashion.springboot_be.DTO.Review.ReviewSummaryResponse;
 import com.manfashion.springboot_be.entity.Product;
 import com.manfashion.springboot_be.entity.ProductReview;
 import com.manfashion.springboot_be.entity.ReviewStatus;
+import com.manfashion.springboot_be.entity.OrderItem;
 import com.manfashion.springboot_be.entity.User;
 import com.manfashion.springboot_be.exception.AppException;
 import com.manfashion.springboot_be.exception.ErrorCode;
@@ -99,17 +100,25 @@ public class ProductReviewServiceImpl implements ProductReviewService {
             throw new AppException(ErrorCode.PRODUCT_REVIEW_ALREADY_EXISTS);
         }
 
+        OrderItem purchasedItem = orderItemRepository.findById(request.getOrderItemId())
+                .filter(item -> item.getOrder() != null
+                        && item.getOrder().getUser() != null
+                        && item.getOrder().getUser().getId().equals(userId)
+                        && item.getProduct() != null
+                        && item.getProduct().getId().equals(productId)
+                        && Arrays.asList("COMPLETED", "DELIVERED").contains(
+                                String.valueOf(item.getOrder().getStatus()).toUpperCase()))
+                .orElseThrow(() -> new AppException(ErrorCode.PRODUCT_NOT_DELIVERED));
+
         ProductReview review = ProductReview.builder()
                 .product(product)
                 .user(user)
                 .rating(request.getRating())
                 .title(request.getTitle())
                 .comment(request.getComment())
-                .purchasedSize(request.getPurchasedSize())
-                .purchasedColor(request.getPurchasedColor())
-                .nickname(request.getNickname())
-                .gender(request.getGender())
-                .location(request.getLocation())
+                .purchasedSize(purchasedItem.getVariant() != null ? purchasedItem.getVariant().getSize() : null)
+                .purchasedColor(purchasedItem.getVariant() != null ? purchasedItem.getVariant().getColor() : null)
+                .nickname(user != null ? user.getFullName() : null)
                 .status(ReviewStatus.PENDING)
                 .verifiedPurchase(isVerifiedPurchase(productId, userId))
                 .build();

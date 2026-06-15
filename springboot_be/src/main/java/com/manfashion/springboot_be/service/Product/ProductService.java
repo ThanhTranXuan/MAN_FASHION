@@ -19,6 +19,7 @@ public interface ProductService {
     void softDelete(String idHex);
     List<ProductResponse> searchForChatBot(String keyword, String gender, String categorySlug, String color, List<String> sizes, int limit);
     List<ProductResponse> getSimilarProducts(String id, int limit);
+    ProductFilterOptionsResponse getFilterOptions();
 
 
 }

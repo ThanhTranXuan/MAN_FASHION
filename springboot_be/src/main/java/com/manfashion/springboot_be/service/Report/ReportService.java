@@ -12,5 +12,4 @@ public interface ReportService {
     List<TrendResponse> getCustomerTrend();
     List<TopProductResponse> getTopProductsMonthly();
     List<TopEmployeeResponse> getTopEmployeesMonthly(Integer month, Integer year);
-    MonthlyRevenueReportResponse getMonthlyRevenueReport(Integer month, Integer year);
 }

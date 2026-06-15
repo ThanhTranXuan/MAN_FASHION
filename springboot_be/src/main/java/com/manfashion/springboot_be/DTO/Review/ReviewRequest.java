@@ -29,6 +29,8 @@ public class ReviewRequest {
 
     private String purchasedSize;
     private String purchasedColor;
+    @NotNull
+    private Integer orderItemId;
     private String nickname;
     private String gender;
     private String location;
