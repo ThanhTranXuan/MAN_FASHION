@@ -24,10 +24,10 @@ export default function Form({
   isAuthenticated,
   onAddressModeChange,
 }) {
-  const sectionBg = useColorModeValue('white', 'navy.700');
+  const sectionBg = useColorModeValue('fashion.softSurface', 'navy.700');
   const textColor = useColorModeValue('secondaryGray.900', 'white');
   const selectedBg = useColorModeValue('brand.50', 'whiteAlpha.100');
-  const borderColor = useColorModeValue('gray.200', 'whiteAlpha.200');
+  const borderColor = useColorModeValue('fashion.stone', 'whiteAlpha.200');
   const formDisabled = addressMode === 'profile';
 
   const handleChange = (event) => {

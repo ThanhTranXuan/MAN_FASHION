@@ -26,8 +26,8 @@ export default function CartVariantModal({
   onSave,
   productVariants = [],
 }) {
-  const bgColor = useColorModeValue('white', 'navy.800');
-  const borderColor = useColorModeValue('gray.200', 'gray.600');
+  const bgColor = useColorModeValue('fashion.softSurface', 'navy.800');
+  const borderColor = useColorModeValue('fashion.stone', 'gray.600');
   const brandColor = useColorModeValue('brand.500', 'brand.300');
   const textColor = useColorModeValue('gray.800', 'whiteAlpha.900');
   const subTextColor = useColorModeValue('gray.600', 'gray.400');
@@ -143,7 +143,7 @@ export default function CartVariantModal({
               boxSize="90px"
               borderRadius="md"
               objectFit="cover"
-              bg="#f8fafc"
+              bg="fashion.pageBg"
               fallbackSrc={PRODUCT_PLACEHOLDER}
             />
             <Box flex="1">
@@ -155,7 +155,7 @@ export default function CartVariantModal({
                 variant="subtle"
                 borderRadius="full"
                 mt={2}
-                bg={useColorModeValue('gray.100', 'gray.700')}
+                bg={useColorModeValue('fashion.pageBg', 'gray.700')}
               >
                 <TagLabel>{currentVariantLabel}</TagLabel>
               </Tag>

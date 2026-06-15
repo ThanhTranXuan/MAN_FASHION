@@ -70,9 +70,9 @@ export default function BlogSliderSection() {
 
   return (
     <FashionSection
-      eyebrow="Style journal"
+      eyebrow="Nhật ký phong cách"
       title="Phong cách & câu chuyện mới"
-      description="Các bài viết giúp khách hàng ở lại lâu hơn thay vì chỉ lướt qua sản phẩm."
+      description="Các bài viết gợi ý xu hướng, cách phối đồ và mẹo chăm sóc trang phục để bạn mặc đẹp hơn mỗi ngày."
       actionText="Xem tất cả"
       actionTo="/user/blog"
       py={{ base: 10, md: 16 }}
@@ -119,7 +119,7 @@ export default function BlogSliderSection() {
                   fontSize="xl"
                   fontWeight="900"
                 >
-                  Trendify Journal
+                  Nhật ký Trendify
                 </Flex>
               )}
             </Box>

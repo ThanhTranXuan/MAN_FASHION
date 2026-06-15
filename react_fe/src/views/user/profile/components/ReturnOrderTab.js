@@ -23,8 +23,8 @@ export default function ReturnOrderTab({
   hasMore = false,
   loadingMore = false,
 }) {
-  const cardBg = useColorModeValue('white', 'navy.800');
-  const borderColor = useColorModeValue('gray.200', 'navy.700');
+  const cardBg = useColorModeValue('fashion.softSurface', 'navy.800');
+  const borderColor = useColorModeValue('fashion.stone', 'navy.700');
   const textColor = useColorModeValue('secondaryGray.900', 'white');
 
   const handleScroll = (e) => {
@@ -116,7 +116,7 @@ export default function ReturnOrderTab({
                             variant="subtle"
                             borderRadius="full"
                             mt={1}
-                            bg="gray.200"
+                            bg="fashion.pageBg"
                           >
                             <TagLabel textTransform="capitalize">
                               {`${item.color || ''}${

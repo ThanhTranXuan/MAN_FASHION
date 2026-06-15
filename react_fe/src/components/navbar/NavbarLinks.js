@@ -9,18 +9,13 @@ import {
   PopoverBody,
   PopoverHeader,
   Text,
-  useColorMode,
   useColorModeValue,
   Box,
   Badge,
   Circle,
 } from '@chakra-ui/react';
 import { useAppToast } from 'utils/ToastHelper';
-import {
-  IoMdMoon,
-  IoMdSunny,
-  IoMdCart,
-} from 'react-icons/io';
+import { IoMdCart } from 'react-icons/io';
 import React, { useState } from 'react';
 import ConfirmDialog from 'components/dialog/ConfirmDialog';
 import { useNavigate, useLocation } from 'react-router-dom';
@@ -62,7 +57,6 @@ const resolveAvatarUrl = (...candidates) => {
 };
 
 export default function NavbarLinks() {
-  const { colorMode, toggleColorMode } = useColorMode();
   const navbarIcon = useColorModeValue('gray.600', 'white');
   const menuBg = useColorModeValue('white', 'navy.800');
   const textColor = useColorModeValue('secondaryGray.900', 'white');
@@ -210,12 +204,6 @@ export default function NavbarLinks() {
         </>
       )}
 
-      {isAdminRoute && (
-        <Button variant="ghost" p="0" minW="unset" onClick={toggleColorMode}>
-          <Icon h="24px" w="24px" color={navbarIcon} as={colorMode === 'light' ? IoMdMoon : IoMdSunny} />
-        </Button>
-      )}
-
       {/* 👤 User / Login */}
       {!user ? (
         <Button
@@ -327,15 +315,6 @@ export default function NavbarLinks() {
                       right="10px"
                     />
                   )}
-                </Button>
-                <Button
-                  variant="ghost"
-                  justifyContent="flex-start"
-                  size="sm"
-                  onClick={toggleColorMode}
-                  leftIcon={<Icon as={colorMode === 'light' ? IoMdMoon : IoMdSunny} />}
-                >
-                  {colorMode === 'light' ? 'Giao diện tối' : 'Giao diện sáng'}
                 </Button>
                 <Button
                   variant="ghost"

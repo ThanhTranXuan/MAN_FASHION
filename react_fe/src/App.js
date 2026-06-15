@@ -1,7 +1,6 @@
 import './assets/css/App.css';
 import { Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { Box, ChakraProvider } from '@chakra-ui/react';
-import { useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 // Thêm dòng này vào đầu file src/App.js
 import ResultPage from 'views/user/order/ResultPage';
@@ -22,14 +21,18 @@ import { ChatProvider } from 'contexts/ChatContext';
 import ScrollToTop from 'components/scroll/ScrollToTop';
 
 const MotionBox = motion(Box);
+const lightModeManager = {
+  type: 'localStorage',
+  get: () => 'light',
+  set: () => {},
+};
 
 export default function Main() {
-  const [currentTheme, setCurrentTheme] = useState(initialTheme);
   const location = useLocation();
   const layoutKey = location.pathname.split('/')[1] || 'user';
 
   return (
-    <ChakraProvider theme={currentTheme}>
+    <ChakraProvider theme={initialTheme} colorModeManager={lightModeManager} resetCSS>
       <UserProvider>
         <CartProvider>
           <CategoryProvider>
@@ -55,10 +58,7 @@ export default function Main() {
                   <Route
                     path="admin/*"
                     element={
-                      <AdminLayout
-                        theme={currentTheme}
-                        setTheme={setCurrentTheme}
-                      />
+                      <AdminLayout />
                     }
                   />
 

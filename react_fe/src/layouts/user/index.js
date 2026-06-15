@@ -23,10 +23,11 @@ const shouldHideChatbot = (pathname) =>
   pathname.startsWith('/menu');
 
 export default function UserLayout() {
-  const bgColor = useColorModeValue('white', 'navy.800');
+  const bgColor = useColorModeValue('fashion.pageBg', 'navy.900');
   const { isOpen, onToggle } = useDisclosure();
   const location = useLocation();
   const hideChatbot = shouldHideChatbot(location.pathname) || isOpen;
+  const isProductDetail = location.pathname.includes('/product/detail/');
 
   const getRoutesComponents = (routes) =>
     routes.map((route, key) => {
@@ -61,10 +62,10 @@ export default function UserLayout() {
         <AnimatePresence mode="wait" initial={false}>
           <MotionBox
             key={location.pathname}
-            initial={{ opacity: 0, y: 12 }}
+            initial={isProductDetail ? { opacity: 1, y: 0 } : { opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -8 }}
-            transition={{ duration: 0.22, ease: [0.22, 1, 0.36, 1] }}
+            exit={isProductDetail ? { opacity: 1, y: 0 } : { opacity: 0, y: -8 }}
+            transition={{ duration: isProductDetail ? 0 : 0.22, ease: [0.22, 1, 0.36, 1] }}
           >
             <Routes location={location}>
               {getRoutesComponents(routes)}

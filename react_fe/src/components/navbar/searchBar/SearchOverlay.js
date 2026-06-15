@@ -24,8 +24,10 @@ export default function SearchOverlay({ isOpen, onClose }) {
   const toast = useAppToast();
   const recognitionRef = useRef(null);
 
-  const bg = useColorModeValue('white', 'navy.900');
-  const overlayBg = useColorModeValue('rgba(255,255,255,0.95)', 'rgba(11,20,55,0.95)');
+  const bg = useColorModeValue('fashion.softSurface', 'navy.900');
+  const overlayBg = useColorModeValue('rgba(246,240,232,0.95)', 'rgba(11,20,55,0.95)');
+  const borderColor = useColorModeValue('fashion.stone', 'navy.700');
+  const chipBg = useColorModeValue('fashion.softSurface', 'whiteAlpha.200');
 
   // Lịch sử tìm kiếm mẫu
   const searchHistory = ['Áo thun polo', 'Quần tây công sở', 'Giày sneaker nam'];
@@ -155,7 +157,7 @@ export default function SearchOverlay({ isOpen, onClose }) {
           px={{ base: 3, md: 4 }}
           py={2}
           border="1px solid"
-          borderColor="gray.200"
+          borderColor={borderColor}
         >
           <MdSearch size={28} color="gray.400" />
           <Input
@@ -212,8 +214,9 @@ export default function SearchOverlay({ isOpen, onClose }) {
                   key={i}
                   px={4}
                   py={2}
-                  bg="gray.100"
-                  _dark={{ bg: 'whiteAlpha.200' }}
+                  bg={chipBg}
+                  border="1px solid"
+                  borderColor={borderColor}
                   borderRadius="full"
                   fontSize="sm"
                   cursor="pointer"

@@ -64,10 +64,14 @@ export default function ProductListPage() {
     totalElements: 0,
     totalPages: 0,
   });
+  const [filterOptions, setFilterOptions] = useState({ colors: [], sizes: [] });
 
   const { isOpen, onOpen, onClose } = useDisclosure();
-  const bg = useColorModeValue('white', 'navy.800');
-  const border = useColorModeValue('gray.200', 'gray.700');
+  const pageBg = useColorModeValue('fashion.pageBg', 'navy.900');
+  const bg = useColorModeValue('#F2EAE0', 'navy.800');
+  const border = useColorModeValue('fashion.stone', 'gray.700');
+  const searchBg = useColorModeValue('#FFFDF8', 'navy.800');
+  const searchBorder = useColorModeValue('#D8C7B3', 'gray.600');
 
   // 🆕 Dùng để chống “chèn data” từ request cũ
   const latestRequestId = useRef(0);
@@ -189,6 +193,24 @@ export default function ProductListPage() {
   }, [fetchData, categorySlug]);
 
   useEffect(() => {
+    let mounted = true;
+    ProductService.getFilterOptions()
+      .then(({ data }) => {
+        if (!mounted) return;
+        setFilterOptions({
+          colors: Array.isArray(data?.colors) ? data.colors : [],
+          sizes: Array.isArray(data?.sizes) ? data.sizes : [],
+        });
+      })
+      .catch((err) => {
+        console.error('Failed to load product filter options:', err);
+      });
+    return () => {
+      mounted = false;
+    };
+  }, []);
+
+  useEffect(() => {
     window.scrollTo({ top: 0, behavior: "smooth" });
   }, [page]);
 
@@ -239,6 +261,7 @@ export default function ProductListPage() {
   // 🧩 RENDER
   // ==========================================
   return (
+    <Box bg={pageBg} minH="100vh">
     <AppContainer py={{ base: 6, md: 10 }}>
       {/* 🔗 Breadcrumb + Search */}
       <Flex
@@ -284,13 +307,16 @@ export default function ProductListPage() {
         {/* 🔍 Search */}
         <Box
           borderWidth="1px"
-          borderColor={border}
+          borderColor={searchBorder}
           borderRadius="30px"
           w={{ base: '100%', md: '300px' }}
+          bg={searchBg}
+          boxShadow="0 10px 26px rgba(120, 53, 15, 0.08)"
         >
           <SearchBar
             placeholder="Tìm kiếm sản phẩm..."
             borderRadius="30px"
+            background={searchBg}
             value={keyword}
             onChange={(e) => setKeyword(e.target.value)}
           />
@@ -334,6 +360,7 @@ export default function ProductListPage() {
         <ProductFilterSidebar
           categories={categories}
           categorySlug={categorySlug}
+          filterOptions={filterOptions}
           color={color}
           sizes={size}
           onCategory={(slug) => navigate(slug ? `/user/product/${slug}` : '/user/product')}
@@ -378,7 +405,7 @@ export default function ProductListPage() {
       </Flex>
 
       {/* 🧾 Product grid + EMPTY STATE */}
-      <Box mt={4} borderRadius="xl" bg={bg}>
+      <Box mt={4} borderRadius="xl" bg={bg} border="1px solid" borderColor={border} px={{ base: 3, md: 5 }}>
         {loading ? (
           <SimpleGrid columns={{ base: 2, md: 3, xl: 4 }} spacing={{ base: 3, md: 5 }} py={5}>
             {Array.from({ length: 8 }).map((_, index) => <SkeletonProductCard key={index} />)}
@@ -445,7 +472,9 @@ export default function ProductListPage() {
           navigate(slug ? `/user/product/${slug}` : '/user/product');
           setPage(0);
         }}
+        filterOptions={filterOptions}
       />
     </AppContainer>
+    </Box>
   );
 }

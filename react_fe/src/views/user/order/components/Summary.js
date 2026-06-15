@@ -36,11 +36,11 @@ export default function Summary({
   hasProfileAddress,
   profileAddress,
 }) {
-  const sectionBg = useColorModeValue('white', 'navy.700');
+  const sectionBg = useColorModeValue('fashion.softSurface', 'navy.700');
   const textColor = useColorModeValue('secondaryGray.900', 'white');
-  const borderColor = useColorModeValue('gray.200', 'gray.600');
-  const couponBg = useColorModeValue('white', 'navy.800');
-  const couponHoverBg = useColorModeValue('gray.100', 'whiteAlpha.100');
+  const borderColor = useColorModeValue('fashion.stone', 'gray.600');
+  const couponBg = useColorModeValue('fashion.pageBg', 'navy.800');
+  const couponHoverBg = useColorModeValue('brand.50', 'whiteAlpha.100');
   const couponSelectedBg = useColorModeValue('green.50', 'whiteAlpha.200');
   const toast = useAppToast();
   const navigate = useNavigate();
@@ -303,7 +303,7 @@ export default function Summary({
                   boxSize="64px"
                   borderRadius="12px"
                   objectFit="cover"
-                  bg="#f8fafc"
+                  bg="fashion.pageBg"
                   fallbackSrc={PRODUCT_PLACEHOLDER}
                 />
                 <Badge

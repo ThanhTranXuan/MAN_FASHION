@@ -44,7 +44,9 @@ export default function CartSidebar({ isOpen, onClose }) {
   const toast = useAppToast();
 
   const textColor = useColorModeValue('secondaryGray.900', 'white');
-  const bgColor = useColorModeValue('white', 'navy.800');
+  const bgColor = useColorModeValue('fashion.pageBg', 'navy.800');
+  const itemBg = useColorModeValue('fashion.softSurface', 'navy.700');
+  const borderColor = useColorModeValue('fashion.stone', 'navy.600');
 
   const {
     isOpen: isVariantOpen,
@@ -103,7 +105,7 @@ export default function CartSidebar({ isOpen, onClose }) {
         <DrawerOverlay />
         <DrawerContent bg={bgColor} color={textColor}>
           <DrawerCloseButton />
-          <DrawerHeader borderBottomWidth="1px" fontSize="xl" fontWeight="800">Giỏ hàng</DrawerHeader>
+          <DrawerHeader borderBottomWidth="1px" borderColor={borderColor} fontSize="xl" fontWeight="800">Giỏ hàng</DrawerHeader>
 
           <DrawerBody overflowY="auto" flex="1" py={4}>
             {loading ? (
@@ -132,7 +134,9 @@ export default function CartSidebar({ isOpen, onClose }) {
                     key={item.id}
                     p={3}
                     borderWidth="1px"
+                    borderColor={borderColor}
                     borderRadius="12px"
+                    bg={itemBg}
                   >
                     <Flex gap={3} align="flex-start">
                       <Image
@@ -143,7 +147,7 @@ export default function CartSidebar({ isOpen, onClose }) {
                         minW="96px"
                         borderRadius="12px"
                         objectFit="cover"
-                        bg="#f8fafc"
+                        bg="fashion.pageBg"
                         fallbackSrc={PRODUCT_PLACEHOLDER}
                       />
                       <Box flex="1">
@@ -187,6 +191,7 @@ export default function CartSidebar({ isOpen, onClose }) {
                           <HStack
                             spacing={0}
                             borderWidth="1px"
+                            borderColor={borderColor}
                             borderRadius="full"
                             overflow="hidden"
                           >
@@ -234,6 +239,8 @@ export default function CartSidebar({ isOpen, onClose }) {
           {!loading && cart?.items?.length > 0 && (
             <DrawerFooter
               borderTopWidth="1px"
+              borderColor={borderColor}
+              bg={itemBg}
               flexDirection="column"
               alignItems="stretch"
               gap={3}

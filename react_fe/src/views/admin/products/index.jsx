@@ -9,10 +9,9 @@ import {
   Skeleton,
   Text,
   Flex,
-  Button, // ✅ thêm
 } from '@chakra-ui/react';
 import { getCoreRowModel, useReactTable } from '@tanstack/react-table';
-import { MdCategory, MdDownload } from 'react-icons/md'; // ✅ thêm MdDownload
+import { MdCategory } from 'react-icons/md';
 import { useAppToast } from 'utils/ToastHelper';
 
 import { useCategories } from 'contexts/CategoryContext';
@@ -30,7 +29,6 @@ import ProductForm from './components/ProductForm';
 import VariantForm from './components/VariantForm';
 
 import ProductService from 'services/ProductService';
-import ReportService from 'services/ReportService'; // ✅ thêm
 
 export default function ProductPage() {
   const toast = useAppToast();
@@ -79,9 +77,6 @@ export default function ProductPage() {
   // FILTERS
   const [categoryFilter, setCategoryFilter] = useState(null);
   const [activeFilter, setActiveFilter] = useState(null);
-
-  // 🔥 loading state cho export product PDF
-  const [exportingProduct, setExportingProduct] = useState(false);
 
   // ---------------------------
   // LOAD STATS
@@ -185,40 +180,6 @@ export default function ProductPage() {
   };
 
   // ---------------------------
-  // EXPORT PRODUCT PDF
-  // ---------------------------
-  const handleExportProductPdf = async () => {
-    try {
-      setExportingProduct(true);
-
-      // Nếu sau này muốn chọn month/year thì truyền param vào
-      const res = await ReportService.exportProductMonthlyPdf();
-
-      const blob = new Blob([res.data], { type: 'application/pdf' });
-      const url = window.URL.createObjectURL(blob);
-
-      const link = document.createElement('a');
-      const now = new Date();
-      const month = String(now.getMonth() + 1).padStart(2, '0');
-      const year = now.getFullYear();
-      link.href = url;
-      link.download = `product-inventory-${month}-${year}.pdf`;
-
-      document.body.appendChild(link);
-      link.click();
-      link.remove();
-      window.URL.revokeObjectURL(url);
-
-      toast.success('Báo cáo tồn kho sản phẩm đã được tải xuống.');
-    } catch (err) {
-      console.error('❌ Failed to export product PDF:', err);
-      toast.error('Xuất báo cáo thất bại. Vui lòng thử lại.');
-    } finally {
-      setExportingProduct(false);
-    }
-  };
-
-  // ---------------------------
   // COLUMNS
   // ---------------------------
   const columns = useMemo(
@@ -259,22 +220,6 @@ export default function ProductPage() {
 
   return (
     <Box>
-      {/* 🔽 Nút export PDF giống dashboard */}
-      <Flex justify="flex-end" mb="10px">
-        <Button
-          leftIcon={<MdDownload />}
-          colorScheme="brand"
-          variant="solid"
-          size="sm"
-          onClick={handleExportProductPdf}
-          isLoading={exportingProduct}
-          loadingText="Đang xuất..."
-          color="white"
-        >
-          Xuất PDF Sản Phẩm
-        </Button>
-      </Flex>
-
       {/* Stats */}
       <SimpleGrid columns={{ base: 1, md: 3 }} gap="20px" mb="20px">
         {isLoadingStats

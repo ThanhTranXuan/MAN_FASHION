@@ -33,6 +33,7 @@ export default function FiltersDrawer({
   categorySlug,
   categories,
   onChangeCategory,
+  filterOptions,
 }) {
   const [local, setLocal] = useState(values);
   const [currentParent, setCurrentParent] = useState(null);
@@ -58,22 +59,8 @@ export default function FiltersDrawer({
   );
   const findCategoryName = (id) => categories.find((c) => c.id === id)?.name;
 
-  // 🎨 Filter options
-  const colors = [
-    'black',
-    'white',
-    'red',
-    'blue',
-    'green',
-    'beige',
-    'brown',
-    'gray',
-    'pink',
-    'yellow',
-  ];
-
-  const sizeNumbers = ['28', '29', '30', '31', '32', '33', '34', '35'];
-  const sizeLetters = ['XS', 'S', 'M', 'L', 'XL', '2XL', '3XL'];
+  const colors = filterOptions?.colors || [];
+  const availableSizes = filterOptions?.sizes || [];
 
   return (
     <Drawer isOpen={isOpen} placement="right" onClose={onClose} size="md">
@@ -337,41 +324,13 @@ export default function FiltersDrawer({
 
                 <AccordionPanel px={0} pt={3}>
                   <VStack align="stretch" spacing={4}>
-                    <Text
-                      fontWeight="semibold"
-                      fontSize="sm"
-                      color={subTextColor}
-                    >
-                      Số
-                    </Text>
                     <CheckboxGroup
                       colorScheme="brand"
                       value={local.size || []}
                       onChange={(val) => setLocal((p) => ({ ...p, size: val }))}
                     >
                       <Flex wrap="wrap" gap={2}>
-                        {sizeNumbers.map((s) => (
-                          <Checkbox key={s} value={s}>
-                            {s}
-                          </Checkbox>
-                        ))}
-                      </Flex>
-                    </CheckboxGroup>
-
-                    <Text
-                      fontWeight="semibold"
-                      fontSize="sm"
-                      color={subTextColor}
-                    >
-                      Chữ
-                    </Text>
-                    <CheckboxGroup
-                      colorScheme="brand"
-                      value={local.size || []}
-                      onChange={(val) => setLocal((p) => ({ ...p, size: val }))}
-                    >
-                      <Flex wrap="wrap" gap={2}>
-                        {sizeLetters.map((s) => (
+                        {availableSizes.map((s) => (
                           <Checkbox key={s} value={s}>
                             {s}
                           </Checkbox>

@@ -57,7 +57,7 @@ export const globalStyles = {
       600: "#B91C1C",
     },
     fashion: {
-      pageBg: "#FAF7F2",
+      pageBg: "#F6F0E8",
       surface: "#FFFFFF",
       softSurface: "#F8F5EF",
       textMain: "#111827",
@@ -66,7 +66,7 @@ export const globalStyles = {
       borderLight: "#E5E7EB",
       borderSoft: "#F3F4F6",
       charcoal: "#1F2937",
-      cream: "#FAF7F2",
+      cream: "#F6F0E8",
       stone: "#E7E1D8",
     },
     blue: {
@@ -99,6 +99,15 @@ export const globalStyles = {
   },
   styles: {
     global: (props) => ({
+      ":root": {
+        "--trendify-bg-app": mode("#F6F0E8", "#0B1437")(props),
+        "--trendify-bg-surface": mode("#FFFFFF", "#111C44")(props),
+        "--trendify-bg-muted": mode("#F8F5EF", "#1B254B")(props),
+        "--trendify-text-main": mode("#111827", "#FFFFFF")(props),
+        "--trendify-text-muted": mode("#6B7280", "#CBD5E1")(props),
+        "--trendify-border": mode("#E5E7EB", "#24388A")(props),
+        "--trendify-primary": mode("#B45309", "#FDBA74")(props),
+      },
       body: {
         overflowX: "hidden",
         bg: mode("fashion.pageBg", "navy.900")(props),
@@ -112,7 +121,7 @@ export const globalStyles = {
       },
       html: {
         fontFamily: "'Inter', 'TT Commons Pro', 'Helvetica Neue', Arial, sans-serif",
-        scrollBehavior: "smooth",
+        scrollBehavior: "auto",
       },
       "::selection": {
         bg: mode("brand.100", "brand.700")(props),

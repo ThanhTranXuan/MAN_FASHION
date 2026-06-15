@@ -4,8 +4,6 @@ import {
   Icon,
   SimpleGrid,
   useColorModeValue,
-  Button,
-  Flex,
 } from '@chakra-ui/react';
 import {
   MdAccountBalanceWallet,
@@ -14,7 +12,6 @@ import {
   MdWork,
   MdInventory,
   MdCategory,
-  MdDownload, // icon export
 } from 'react-icons/md';
 import IconBox from 'components/icons/IconBox';
 import MiniStatistics from 'components/card/MiniStatistics';
@@ -42,9 +39,6 @@ export default function UserReports() {
 
   const [topProducts, setTopProducts] = useState([]);
   const [topEmployees, setTopEmployees] = useState([]);
-
-  // 🔥 loading state cho export
-  const [exporting, setExporting] = useState(false);
 
   // ⚙️ Load Data
   useEffect(() => {
@@ -85,56 +79,8 @@ export default function UserReports() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // 🧾 Handler export PDF
-  const handleExportPdf = async () => {
-    try {
-      setExporting(true);
-
-      // Nếu muốn chọn tháng/năm riêng, truyền { month, year } vào đây
-      const res = await ReportService.exportMonthlyRevenuePdf();
-
-      const blob = new Blob([res.data], { type: 'application/pdf' });
-      const url = window.URL.createObjectURL(blob);
-
-      const link = document.createElement('a');
-      const now = new Date();
-      const month = String(now.getMonth() + 1).padStart(2, '0');
-      const year = now.getFullYear();
-      link.href = url;
-      link.download = `monthly-revenue-${month}-${year}.pdf`;
-
-      document.body.appendChild(link);
-      link.click();
-      link.remove();
-      window.URL.revokeObjectURL(url);
-
-      toast.success('Báo cáo doanh thu đã được tải xuống.');
-    } catch (err) {
-      console.error('❌ Failed to export PDF:', err);
-      toast.error('Xuất báo cáo thất bại. Vui lòng thử lại.');
-    } finally {
-      setExporting(false);
-    }
-  };
-
   return (
     <Box>
-      {/* Header + nút export */}
-      <Flex justify="flex-end" mb="10px">
-        <Button
-          leftIcon={<MdDownload />}
-          colorScheme="brand"
-          variant="solid"
-          size="sm"
-          onClick={handleExportPdf}
-          isLoading={exporting}
-          loadingText="Đang xuất..."
-          color="white"
-        >
-          Xuất PDF Doanh Thu
-        </Button>
-      </Flex>
-
       {/* 🧭 1️⃣ Tổng quan */}
       <SimpleGrid
         columns={{ base: 1, md: 2, lg: 3, '2xl': 6 }}

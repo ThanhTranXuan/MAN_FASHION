@@ -61,16 +61,23 @@ export default function ProductCard({
       align="stretch"
       spacing={0}
       h="100%"
+      bg="#FFFDF8"
+      border="1px solid"
+      borderColor="#E1D5C7"
+      borderRadius="12px"
+      p={{ base: 2, md: 2.5 }}
+      boxShadow="0 10px 28px rgba(56, 39, 22, 0.08)"
       cursor="pointer"
       onClick={onClick}
-      transition="transform 0.25s ease"
+      transition="transform 0.25s ease, box-shadow 0.25s ease"
       _hover={{
         transform: 'translateY(-4px)',
+        boxShadow: '0 16px 34px rgba(56, 39, 22, 0.14)',
         '& .product-image': { transform: 'scale(1.03)' },
         '& .quick-action': { opacity: 1, transform: 'translateY(0)' },
       }}
     >
-      <Box position="relative" aspectRatio="3 / 4" overflow="hidden" borderRadius="16px" bg="fashion.softSurface">
+      <Box position="relative" aspectRatio="3 / 4" overflow="hidden" borderRadius="8px" bg="#F1ECE5">
         <ProductImage
           className="product-image"
           product={product}
@@ -118,7 +125,7 @@ export default function ProductCard({
         )}
       </Box>
 
-      <VStack pt={3} align="start" spacing={1.5} flex="1">
+      <VStack px={1} pt={3} pb={1} align="start" spacing={1.5} flex="1">
         <Text
           noOfLines={2}
           minH={variant === 'compact' ? 'auto' : '44px'}

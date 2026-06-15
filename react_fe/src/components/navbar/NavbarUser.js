@@ -64,7 +64,7 @@ function CategoryThumbnail({ category, fallbackCategory }) {
         w="100%"
         h="100%"
         align="flex-end"
-        bg="linear-gradient(135deg, #f4f1ea 0%, #d7dce5 48%, #111827 100%)"
+        bg="linear-gradient(135deg, #F6F0E8 0%, #E7E1D8 48%, #111827 100%)"
         p={4}
       >
         <Text
@@ -87,8 +87,9 @@ function CategoryThumbnail({ category, fallbackCategory }) {
       w="100%"
       h="100%"
       objectFit="contain"
-      bg="gray.50"
-      p={{ base: 2, md: 3 }}
+      objectPosition="center"
+      bg="fashion.softSurface"
+      p={{ base: 1, md: 2 }}
       transition="transform 0.3s ease"
       onError={() => setFailed(true)}
     />
@@ -154,7 +155,7 @@ function CategoryItem({ cat, children, allCategories, onNavigate, colors }) {
           left={0}
           w="100vw"
           bg={colors.dropdownBg}
-          boxShadow="0 10px 30px rgba(0,0,0,0.08)"
+          boxShadow="0 18px 44px rgba(15,23,42,0.12)"
           borderTop="1px solid"
           borderColor={colors.borderColor}
           zIndex={2000}
@@ -167,24 +168,24 @@ function CategoryItem({ cat, children, allCategories, onNavigate, colors }) {
           transition="opacity 240ms cubic-bezier(0.22, 1, 0.36, 1), transform 240ms cubic-bezier(0.22, 1, 0.36, 1), visibility 240ms"
           willChange="opacity, transform"
         >
-          <Box maxW="1200px" mx="auto" px={8} py={8}>
-            <Grid templateColumns="repeat(auto-fill, minmax(200px, 1fr))" gap={8}>
+          <Box maxW="1280px" mx="auto" px={{ md: 8, xl: 10 }} py={{ md: 6, xl: 8 }} maxH="calc(100vh - 88px)" overflowY="auto">
+            <Grid templateColumns="repeat(auto-fill, minmax(220px, 1fr))" gap={{ md: 6, xl: 8 }}>
               {children.map((child) => {
                 const grandchildren = allCategories.filter((c) => c.parentId === child.id);
                 return (
                   <Box key={child.id}>
                     <Box
                       w="100%"
-                      h="120px"
+                      h={{ md: '180px', xl: '220px' }}
                       borderRadius="12px"
                       overflow="hidden"
-                      mb={4}
+                      mb={3}
                       cursor="pointer"
                       onClick={() => {
                         onNavigate(child);
                         setOpen(false);
                       }}
-                      bg="gray.50"
+                      bg="fashion.softSurface"
                       border="1px solid"
                       borderColor={colors.borderColor}
                       _hover={{ '& img': { transform: 'scale(1.01)' } }}
@@ -244,8 +245,8 @@ export default function NavbarUser() {
   const navbarBorder = useColorModeValue('rgba(11,20,55,0.1)', 'navy.600');
   const textColor = useColorModeValue('gray.700', 'white');
   const activeColor = useColorModeValue('brand.500', 'brand.300');
-  const dropdownBg = useColorModeValue('white', 'navy.800');
-  const borderColor = useColorModeValue('gray.200', 'navy.600');
+  const dropdownBg = useColorModeValue('fashion.pageBg', 'navy.800');
+  const borderColor = useColorModeValue('fashion.stone', 'navy.600');
   const hoverBg = useColorModeValue('gray.50', 'navy.700');
   const menuIconHoverBg = useColorModeValue('gray.100', 'navy.700');
 

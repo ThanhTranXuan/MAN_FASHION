@@ -1,5 +1,5 @@
 import React from 'react';
-import { Box, Flex, Text, HStack, Icon, Avatar, VStack, Badge } from '@chakra-ui/react';
+import { Box, Flex, Text, HStack, Icon, Avatar, VStack, Badge, useColorModeValue } from '@chakra-ui/react';
 import { MdStar, MdStarHalf, MdStarOutline } from 'react-icons/md';
 
 export const StarRating = ({ rating, size = 4 }) => {
@@ -15,6 +15,8 @@ export const StarRating = ({ rating, size = 4 }) => {
 };
 
 export default function ReviewItem({ review }) {
+  const textMuted = useColorModeValue('gray.600', 'gray.300');
+  const replyBg = useColorModeValue('fashion.pageBg', 'whiteAlpha.100');
   return (
     <Box py={5}>
       <Flex direction={{ base: 'column', md: 'row' }} gap={4}>
@@ -44,7 +46,7 @@ export default function ReviewItem({ review }) {
             )}
           </HStack>
 
-          <Text fontSize="sm" color="gray.600" mb={3} lineHeight="tall">
+          <Text fontSize="sm" color={textMuted} mb={3} lineHeight="tall">
             {review.comment}
           </Text>
 
@@ -60,11 +62,11 @@ export default function ReviewItem({ review }) {
           )}
 
           {review.adminReply && (
-            <Box mt={4} p={4} bg="gray.50" borderRadius="lg" _dark={{ bg: 'whiteAlpha.100' }}>
+            <Box mt={4} p={4} bg={replyBg} borderRadius="lg">
               <Text fontSize="xs" fontWeight="bold" color="brand.500" mb={1}>
                 Phản hồi từ shop
               </Text>
-              <Text fontSize="sm" color="gray.600">
+              <Text fontSize="sm" color={textMuted}>
                 {review.adminReply}
               </Text>
             </Box>
@@ -74,4 +76,3 @@ export default function ReviewItem({ review }) {
     </Box>
   );
 }
-

@@ -13,7 +13,8 @@ import ProfileService from 'services/ProfileService';
 
 export default function PasswordTab() {
   const toast = useAppToast();
-  const bgColor = useColorModeValue('white', 'navy.800');
+  const bgColor = useColorModeValue('fashion.softSurface', 'navy.800');
+  const borderColor = useColorModeValue('fashion.stone', 'gray.700');
   const textColor = useColorModeValue('secondaryGray.900', 'white');
   const [formData, setFormData] = useState({
     currentPassword: '',
@@ -53,6 +54,8 @@ export default function PasswordTab() {
       bg={bgColor}
       p={{ base: 4, md: 6 }}
       borderRadius="16px"
+      border="1px solid"
+      borderColor={borderColor}
       w={{ base: '100%', md: '60%', lg: '50%' }}
       mx="auto"
     >

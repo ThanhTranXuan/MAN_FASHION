@@ -45,6 +45,8 @@ const ProductService = {
       // => Cần gọi .data 2 lần để lấy đúng lõi, hoặc dùng || để an toàn nếu ApiClient đã có cấu hình sẵn
       return response.data.data || response.data; 
   }),
+  getFilterOptions: () =>
+    ApiClient.get(ApiUrl.PRODUCT_FILTER_OPTIONS).then(res => ({ data: res.data.data })),
 
   create: (data) => ApiClient.post(ApiUrl.CREATE_PRODUCT, data),
   update: (id, data) => ApiClient.put(ApiUrl.UPDATE_PRODUCT(id), data),

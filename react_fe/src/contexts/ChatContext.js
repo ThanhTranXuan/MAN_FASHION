@@ -306,20 +306,22 @@ useEffect(() => {
       // WebSocket server sẽ echo lại message (cùng ID thật).
       // Khi nhận được message từ WS, state messages/userMessages sẽ tự động được append.
     } else {
-      const contextHint = latestProductSuggestions.length
-        ? `\n\nNgữ cảnh sản phẩm đã gợi ý gần nhất: ${JSON.stringify(latestProductSuggestions)}`
-        : '';
-      const messageWithContext = `${content}${contextHint}`;
       // LUỒNG BOT: Lưu vào ngăn kéo botMessages
       setBotMessages((prev) => [tempMsg, ...prev]);
       setIsBotLoading(true);
 
       try {
         const currentUserIdHex = user?.id ? user.id.toString(16) : "UNKNOWN";
-        const res = await ChatService.botChat(conversationId, messageWithContext, currentUserIdHex);
+        const res = await ChatService.botChat(conversationId, content, currentUserIdHex);
         
         const botReply = res.data?.data || res.data;
-        const suggestions = extractProductSuggestions(botReply?.content || '');
+        const suggestions = Array.isArray(botReply?.products) && botReply.products.length
+          ? botReply.products.map((product, index) => ({
+              productName: product.name,
+              slug: product.slug,
+              order: index + 1,
+            }))
+          : extractProductSuggestions(botReply?.content || '');
         if (suggestions.length > 0) {
           setLatestProductSuggestions(suggestions);
         }

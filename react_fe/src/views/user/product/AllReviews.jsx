@@ -82,7 +82,8 @@ export default function AllReviews() {
       return;
     }
 
-    navigate(`/user/product/${productId}/reviews/new`);
+    toast.info('Vui lòng mở lịch sử mua hàng và chọn đúng sản phẩm cần đánh giá.');
+    navigate('/user/profile');
   };
 
   if (loading && page === 0) return (

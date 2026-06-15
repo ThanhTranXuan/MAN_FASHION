@@ -13,12 +13,9 @@ import {
   FormLabel,
   Input,
   Textarea,
-  Select,
-  Checkbox,
   Icon,
   IconButton,
   Spinner,
-  Divider,
   SimpleGrid,
 } from '@chakra-ui/react';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
@@ -34,7 +31,7 @@ export default function WriteReview() {
   const navigate = useNavigate();
   const location = useLocation();
   const toast = useAppToast();
-  const { user, isAuthenticated, loadingUser } = useUser();
+  const { isAuthenticated, loadingUser } = useUser();
 
   const [product, setProduct] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -46,46 +43,16 @@ export default function WriteReview() {
     comment: '',
     purchasedSize: '',
     purchasedColor: '',
-    nickname: user?.fullName || '',
-    gender: 'Khác',
-    location: '',
+    orderItemId: null,
   });
 
-  const bgColor = useColorModeValue('gray.50', 'navy.900');
-  const cardBg = useColorModeValue('white', 'navy.800');
-  const variants = useMemo(() => product?.variants || [], [product]);
+  const bgColor = useColorModeValue('fashion.pageBg', 'navy.900');
+  const cardBg = useColorModeValue('fashion.softSurface', 'navy.800');
+  const borderColor = useColorModeValue('fashion.stone', 'navy.700');
   const queryParams = useMemo(
     () => new URLSearchParams(location.search),
     [location.search],
   );
-  const colors = useMemo(() => {
-    return Array.from(
-      new Set(variants.map((variant) => variant.color).filter(Boolean)),
-    ).sort((a, b) => a.localeCompare(b));
-  }, [variants]);
-  const sizes = useMemo(() => {
-    const source = formData.purchasedColor
-      ? variants.filter((variant) => variant.color === formData.purchasedColor)
-      : variants;
-    const unique = Array.from(
-      new Set(source.map((variant) => variant.size).filter(Boolean)),
-    );
-    const numeric = unique.every((size) => !Number.isNaN(parseFloat(size)));
-
-    if (numeric) {
-      return unique.sort((a, b) => parseFloat(a) - parseFloat(b));
-    }
-
-    const order = ['XS', 'S', 'M', 'L', 'XL', '2XL', '3XL'];
-    return unique.sort((a, b) => {
-      const ia = order.indexOf(a.toUpperCase());
-      const ib = order.indexOf(b.toUpperCase());
-      if (ia !== -1 && ib !== -1) return ia - ib;
-      if (ia !== -1) return -1;
-      if (ib !== -1) return 1;
-      return a.localeCompare(b);
-    });
-  }, [formData.purchasedColor, variants]);
 
   useEffect(() => {
     if (loadingUser || isAuthenticated) return;
@@ -120,36 +87,19 @@ export default function WriteReview() {
   useEffect(() => {
     const purchasedSize = queryParams.get('size') || '';
     const purchasedColor = queryParams.get('color') || '';
-    if (!purchasedSize && !purchasedColor) return;
+    const orderItemId = Number(queryParams.get('orderItemId'));
 
     setFormData((prev) => ({
       ...prev,
-      purchasedSize: purchasedSize || prev.purchasedSize,
-      purchasedColor: purchasedColor || prev.purchasedColor,
+      purchasedSize,
+      purchasedColor,
+      orderItemId: Number.isInteger(orderItemId) && orderItemId > 0 ? orderItemId : null,
     }));
   }, [queryParams]);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
-  };
-
-  const handleColorChange = (e) => {
-    const color = e.target.value;
-    const nextSizes = color
-      ? variants
-          .filter((variant) => variant.color === color)
-          .map((variant) => variant.size)
-          .filter(Boolean)
-      : variants.map((variant) => variant.size).filter(Boolean);
-
-    setFormData((prev) => ({
-      ...prev,
-      purchasedColor: color,
-      purchasedSize: nextSizes.includes(prev.purchasedSize)
-        ? prev.purchasedSize
-        : '',
-    }));
   };
 
   const setRating = (r) => {
@@ -165,10 +115,18 @@ export default function WriteReview() {
     if (!formData.title) {
       return toast.warning('Vui lòng nhập tiêu đề bài đánh giá.');
     }
+    if (!formData.orderItemId) {
+      return toast.warning('Không xác định được sản phẩm trong đơn hàng đã mua.');
+    }
 
     setSubmitting(true);
     try {
-      await ReviewService.createReview(productId, formData);
+      await ReviewService.createReview(productId, {
+        rating: formData.rating,
+        title: formData.title,
+        comment: formData.comment,
+        orderItemId: formData.orderItemId,
+      });
       toast.success('Đánh giá của bạn đã được gửi và đang chờ duyệt.');
       navigate(`/user/product/${productId}/reviews`);
     } catch (err) {
@@ -203,7 +161,14 @@ export default function WriteReview() {
           </VStack>
         </Flex>
 
-        <Box bg={cardBg} borderRadius="2xl" p={8} boxShadow="sm">
+        <Box
+          bg={cardBg}
+          borderRadius="2xl"
+          p={8}
+          boxShadow="0 18px 42px rgba(120, 53, 15, 0.10)"
+          border="1px solid"
+          borderColor={borderColor}
+        >
           <form onSubmit={handleSubmit}>
             <VStack spacing={6} align="stretch">
               {/* Rating */}
@@ -256,102 +221,28 @@ export default function WriteReview() {
               </FormControl>
 
               <SimpleGrid columns={{ base: 1, md: 2 }} spacing={6}>
-                {/* Size */}
                 <FormControl>
                   <FormLabel fontWeight="bold">Kích cỡ đã mua</FormLabel>
-                  <Select
-                    name="purchasedSize"
+                  <Input
                     value={formData.purchasedSize}
-                    onChange={handleInputChange}
-                    placeholder={
-                      sizes.length > 0
-                        ? 'Chọn kích cỡ'
-                        : 'Sản phẩm chưa có kích cỡ'
-                    }
+                    placeholder="Không có thông tin kích cỡ"
                     borderRadius="lg"
-                    isDisabled={sizes.length === 0}
-                  >
-                    {sizes.map((size) => (
-                      <option key={size} value={size}>
-                        {size}
-                      </option>
-                    ))}
-                  </Select>
+                    isReadOnly
+                    bg="gray.50"
+                  />
                 </FormControl>
 
-                {/* Color */}
                 <FormControl>
                   <FormLabel fontWeight="bold">Màu sắc đã mua</FormLabel>
-                  <Select
-                    name="purchasedColor"
+                  <Input
                     value={formData.purchasedColor}
-                    onChange={handleColorChange}
-                    placeholder={
-                      colors.length > 0
-                        ? 'Chọn màu sắc'
-                        : 'Sản phẩm chưa có màu sắc'
-                    }
+                    placeholder="Không có thông tin màu sắc"
                     borderRadius="lg"
-                    isDisabled={colors.length === 0}
-                  >
-                    {colors.map((color) => (
-                      <option key={color} value={color}>
-                        {color}
-                      </option>
-                    ))}
-                  </Select>
-                </FormControl>
-              </SimpleGrid>
-
-              <Divider />
-
-              <Heading size="md" pt={2}>Thông tin cá nhân</Heading>
-              
-              <SimpleGrid columns={{ base: 1, md: 2 }} spacing={6}>
-                {/* Nickname */}
-                <FormControl isRequired>
-                  <FormLabel fontWeight="bold">Biệt danh</FormLabel>
-                  <Input
-                    name="nickname"
-                    value={formData.nickname}
-                    onChange={handleInputChange}
-                    placeholder="Nhập tên hiển thị"
-                    borderRadius="lg"
-                  />
-                  <Text fontSize="xs" color="gray.500" mt={1}>Tên này sẽ hiển thị công khai</Text>
-                </FormControl>
-
-                {/* Gender */}
-                <FormControl>
-                  <FormLabel fontWeight="bold">Giới tính</FormLabel>
-                  <Select
-                    name="gender"
-                    value={formData.gender}
-                    onChange={handleInputChange}
-                    borderRadius="lg"
-                  >
-                    <option value="Nam">Nam</option>
-                    <option value="Nữ">Nữ</option>
-                    <option value="Khác">Khác</option>
-                  </Select>
-                </FormControl>
-
-                {/* Location */}
-                <FormControl>
-                  <FormLabel fontWeight="bold">Vị trí (Thành phố/Tỉnh)</FormLabel>
-                  <Input
-                    name="location"
-                    value={formData.location}
-                    onChange={handleInputChange}
-                    placeholder="Ví dụ: Hà Nội"
-                    borderRadius="lg"
+                    isReadOnly
+                    bg="gray.50"
                   />
                 </FormControl>
               </SimpleGrid>
-
-              <Checkbox isRequired colorScheme="brand" pt={4}>
-                Tôi đồng ý với các hướng dẫn về đánh giá sản phẩm.
-              </Checkbox>
 
               <Button
                 type="submit"

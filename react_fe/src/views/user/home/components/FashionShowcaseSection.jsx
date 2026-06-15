@@ -6,21 +6,21 @@ import AppContainer from 'components/ui/AppContainer';
 
 const looks = [
   {
-    title: 'Office clean',
-    meta: '01 / weekday',
-    desc: 'Sơ mi sáng màu, quần đứng phom, sneaker tối giản.',
+    title: 'Đi làm gọn gàng',
+    meta: '01 / ngày thường',
+    desc: 'Sơ mi sáng màu, quần đứng phom và sneaker tối giản cho lịch trình bận rộn.',
     imageUrl: 'https://res.cloudinary.com/dltg0f2qf/image/upload/v1779597882/KV-02-pc-summer_qvkhzw.webp',
   },
   {
-    title: 'Weekend light',
-    meta: '02 / off duty',
-    desc: 'Chất liệu thoáng, màu trung tính, đủ thoải mái cả ngày.',
+    title: 'Cuối tuần thoải mái',
+    meta: '02 / thư giãn',
+    desc: 'Chất liệu thoáng, màu trung tính và phom rộng vừa đủ để di chuyển cả ngày.',
     imageUrl: 'https://res.cloudinary.com/dltg0f2qf/image/upload/v1779597882/KV-03-pc-summer_mu3rov.webp',
   },
   {
-    title: 'Night accent',
-    meta: '03 / after dark',
-    desc: 'Layer tối màu và phụ kiện để outfit có điểm rơi.',
+    title: 'Điểm nhấn buổi tối',
+    meta: '03 / sau giờ làm',
+    desc: 'Layer tối màu cùng phụ kiện nổi bật để tổng thể có chiều sâu hơn.',
     imageUrl: 'https://res.cloudinary.com/dltg0f2qf/image/upload/v1779597882/KV-06-pc-summer_xffzsn.webp',
   },
 ];
@@ -39,7 +39,7 @@ export default function FashionShowcaseSection() {
               textTransform="uppercase"
               mb={5}
             >
-              Styling manifesto
+              Gợi ý phối đồ
             </Text>
             <Heading
               fontSize={{ base: '4xl', md: '7xl' }}
@@ -50,8 +50,8 @@ export default function FashionShowcaseSection() {
               Ít món hơn. Nhiều khí chất hơn.
             </Heading>
             <Text mt={6} color="#4B5563" fontSize={{ base: 'md', md: 'lg' }} lineHeight="1.8">
-              Section này không dùng lưới đều. Mỗi look có tỷ lệ, hướng đọc và
-              vị trí khác nhau để tạo cảm giác như đang lật một editorial.
+              Ba hướng phối đồ giúp bạn bắt đầu nhanh: đi làm, đi chơi cuối
+              tuần và những buổi hẹn sau giờ làm.
             </Text>
             <Button
               as={RouterLink}

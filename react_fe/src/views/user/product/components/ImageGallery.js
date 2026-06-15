@@ -4,6 +4,11 @@ import {
   Image,
   HStack,
   IconButton,
+  Modal,
+  ModalBody,
+  ModalCloseButton,
+  ModalContent,
+  ModalOverlay,
   useBreakpointValue,
 } from '@chakra-ui/react';
 import { ChevronLeftIcon, ChevronRightIcon } from '@chakra-ui/icons';
@@ -27,6 +32,7 @@ export default function ImageGallery({
   }, [items, activeImage]);
 
   const [active, setActive] = useState(initialIndex);
+  const [isPreviewOpen, setIsPreviewOpen] = useState(false);
   const listRef = useRef(null);
   const isMobile = useBreakpointValue({ base: true, md: false });
 
@@ -70,6 +76,10 @@ export default function ImageGallery({
     const newIdx = active === items.length - 1 ? 0 : active + 1;
     setActive(newIdx);
     onImageChange?.(items[newIdx].url);
+  };
+
+  const openPreview = () => {
+    if (items[active]) setIsPreviewOpen(true);
   };
 
   // ===== Thumbnail size config =====
@@ -148,8 +158,10 @@ export default function ImageGallery({
         overflow="hidden"
         position="relative"
         aspectRatio="3 / 4"
-        bg="gray.50"
+        bg="fashion.pageBg"
         flex="1"
+        cursor={items[active] ? 'zoom-in' : 'default'}
+        onClick={openPreview}
       >
         {items[active] && (
           <Image
@@ -178,7 +190,10 @@ export default function ImageGallery({
               bg="rgba(0,0,0,0.4)"
               color="white"
               _hover={{ bg: 'rgba(0,0,0,0.6)' }}
-              onClick={handlePrev}
+              onClick={(event) => {
+                event.stopPropagation();
+                handlePrev();
+              }}
             />
             <IconButton
               aria-label="Next image"
@@ -191,7 +206,10 @@ export default function ImageGallery({
               bg="rgba(0,0,0,0.4)"
               color="white"
               _hover={{ bg: 'rgba(0,0,0,0.6)' }}
-              onClick={handleNext}
+              onClick={(event) => {
+                event.stopPropagation();
+                handleNext();
+              }}
             />
           </>
         )}
@@ -214,6 +232,79 @@ export default function ImageGallery({
           {ThumbList}
         </HStack>
       )}
+
+      <Modal
+        isOpen={isPreviewOpen}
+        onClose={() => setIsPreviewOpen(false)}
+        size="full"
+        isCentered
+        motionPreset="scale"
+      >
+        <ModalOverlay bg="rgba(0,0,0,0.88)" />
+        <ModalContent bg="transparent" boxShadow="none" m={0}>
+          <ModalCloseButton
+            aria-label="Đóng ảnh"
+            color="white"
+            bg="rgba(255,255,255,0.16)"
+            borderRadius="full"
+            top={{ base: 4, md: 6 }}
+            right={{ base: 4, md: 6 }}
+            _hover={{ bg: 'rgba(255,255,255,0.28)' }}
+          />
+          <ModalBody
+            minH="100vh"
+            display="flex"
+            alignItems="center"
+            justifyContent="center"
+            px={{ base: 3, md: 12 }}
+            py={{ base: 14, md: 10 }}
+          >
+            {items[active] && (
+              <Image
+                src={items[active].url}
+                alt={`Ảnh sản phẩm ${active + 1}`}
+                maxW="100%"
+                maxH={{ base: '82vh', md: '90vh' }}
+                objectFit="contain"
+                draggable={false}
+              />
+            )}
+
+            {items.length > 1 && (
+              <>
+                <IconButton
+                  aria-label="Ảnh trước"
+                  icon={<ChevronLeftIcon boxSize={8} />}
+                  position="fixed"
+                  top="50%"
+                  left={{ base: 3, md: 8 }}
+                  transform="translateY(-50%)"
+                  borderRadius="full"
+                  bg="rgba(255,255,255,0.18)"
+                  color="white"
+                  size={{ base: 'md', md: 'lg' }}
+                  _hover={{ bg: 'rgba(255,255,255,0.3)' }}
+                  onClick={handlePrev}
+                />
+                <IconButton
+                  aria-label="Ảnh tiếp theo"
+                  icon={<ChevronRightIcon boxSize={8} />}
+                  position="fixed"
+                  top="50%"
+                  right={{ base: 3, md: 8 }}
+                  transform="translateY(-50%)"
+                  borderRadius="full"
+                  bg="rgba(255,255,255,0.18)"
+                  color="white"
+                  size={{ base: 'md', md: 'lg' }}
+                  _hover={{ bg: 'rgba(255,255,255,0.3)' }}
+                  onClick={handleNext}
+                />
+              </>
+            )}
+          </ModalBody>
+        </ModalContent>
+      </Modal>
     </Box>
   );
 }

@@ -40,7 +40,7 @@ export default function OrderPage() {
   const { cart, loading } = useCart();
   const navigate = useNavigate();
 
-  const bgColor = useColorModeValue('white', 'navy.800');
+  const bgColor = useColorModeValue('fashion.pageBg', 'navy.900');
   const textColor = useColorModeValue('gray.800', 'white');
   const breadcrumbColor = useColorModeValue('gray.500', 'gray.400');
   const brandColor = useColorModeValue('brand.500', 'brand.400');

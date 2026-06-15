@@ -43,6 +43,7 @@ export default function HeroSection() {
             flex="1"
             direction="column"
             justify="space-between"
+            minW={0}
             initial={{ opacity: 0, y: 28 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.7 }}
@@ -56,33 +57,35 @@ export default function HeroSection() {
                 color="#F97316"
                 mb={{ base: 5, md: 7 }}
               >
-                Trendify / Summer 2026
+                Trendify / Hè 2026
               </Text>
               <Heading
                 as="h1"
-                fontSize={{ base: '58px', md: '104px', xl: '138px' }}
-                lineHeight="0.82"
+                fontSize={{ base: '50px', sm: '60px', md: '82px', lg: '102px', xl: '118px', '2xl': '130px' }}
+                lineHeight={{ base: '1.12', md: '1.08', xl: '1.06' }}
                 fontWeight="950"
-                letterSpacing="-0.07em"
+                letterSpacing={{ base: '-0.015em', md: '-0.025em', xl: '-0.035em' }}
                 color="#0B0B0B"
                 textTransform="uppercase"
+                maxW={{ base: '100%', lg: '620px', xl: '720px' }}
+                mb={{ base: 2, md: 3 }}
+                sx={{ textWrap: 'balance' }}
               >
-                Wear
+                Mặc
                 <br />
-                the
+                chất
                 <br />
-                city
+                phố
               </Heading>
               <Text
-                mt={{ base: 6, md: 8 }}
+                mt={{ base: 7, md: 9 }}
                 maxW="560px"
                 fontSize={{ base: 'md', md: 'xl' }}
                 color="#374151"
                 lineHeight="1.75"
               >
-                Trang chủ mới đi theo hướng tạp chí thời trang: chữ lớn, nhịp
-                ảnh lệch, khoảng trắng rõ và các điểm nhấn đủ mạnh để người xem
-                dừng lại.
+                Chọn nhanh những thiết kế gọn phom, dễ phối và đủ thoải mái
+                cho nhịp sống mỗi ngày.
               </Text>
             </Box>
 
@@ -98,7 +101,7 @@ export default function HeroSection() {
                 _hover={{ bg: '#F97316' }}
                 onClick={() => navigate('/user/product')}
               >
-                Mua ngay
+                Khám phá ngay
               </Button>
               <Button
                 size="lg"
@@ -130,7 +133,7 @@ export default function HeroSection() {
               overflow="hidden"
               bg="#111827"
             >
-              <Image src={heroImages[0]} alt="Trendify hero" w="100%" h="100%" objectFit="cover" />
+              <Image src={heroImages[0]} alt="Bộ sưu tập Trendify hè 2026" w="100%" h="100%" objectFit="cover" />
             </Box>
             <Box
               position="absolute"
@@ -142,7 +145,7 @@ export default function HeroSection() {
               border="10px solid #F6F0E8"
               bg="#111827"
             >
-              <Image src={heroImages[1]} alt="Summer outfit" w="100%" h="100%" objectFit="cover" />
+              <Image src={heroImages[1]} alt="Trang phục mùa hè" w="100%" h="100%" objectFit="cover" />
             </Box>
             <Flex
               position="absolute"
@@ -160,9 +163,9 @@ export default function HeroSection() {
               transform="rotate(-9deg)"
             >
               <Text fontSize={{ base: 'xl', md: '2xl' }} fontWeight="950" lineHeight="1">
-                500+ items
+                500+ mẫu
                 <br />
-                easy to style
+                dễ phối
               </Text>
             </Flex>
             <Box
@@ -176,7 +179,7 @@ export default function HeroSection() {
               border="8px solid #F6F0E8"
               transform="rotate(4deg)"
             >
-              <Image src={heroImages[2]} alt="Detail outfit" w="100%" h="100%" objectFit="cover" />
+              <Image src={heroImages[2]} alt="Chi tiết trang phục" w="100%" h="100%" objectFit="cover" />
             </Box>
           </Box>
         </Flex>

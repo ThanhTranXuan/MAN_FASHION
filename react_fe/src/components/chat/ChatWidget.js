@@ -9,6 +9,7 @@ import {
   useColorModeValue,
   Image,
   Link,
+  Button,
 } from '@chakra-ui/react';
 import { ChatIcon, CloseIcon } from '@chakra-ui/icons';
 import { MdSend } from 'react-icons/md';
@@ -20,12 +21,143 @@ import logo from 'assets/img/auth/auth.png';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { AnimatePresence, motion } from 'framer-motion';
+import { useNavigate } from 'react-router-dom';
 
 const MotionBox = motion(Box);
+
+const formatProductPrice = (value) =>
+  new Intl.NumberFormat('vi-VN', {
+    style: 'currency',
+    currency: 'VND',
+    maximumFractionDigits: 0,
+  }).format(Number(value || 0));
+
+const StableProductCards = React.memo(function StableProductCards({
+  products = [],
+  borderColor,
+  bg,
+  navigate,
+}) {
+  if (!Array.isArray(products) || products.length === 0) return null;
+
+  return (
+    <VStack align="stretch" spacing={2} mt={3}>
+      {products.map((product) => (
+        <Flex
+          key={product.id || product.slug}
+          gap={3}
+          p={2}
+          borderWidth="1px"
+          borderColor={borderColor}
+            borderRadius="8px"
+            bg={bg}
+            align="center"
+        >
+          <Image
+            src={product.imageUrl}
+            alt={product.name}
+            boxSize="56px"
+            objectFit="cover"
+            borderRadius="6px"
+            fallbackSrc={logo}
+          />
+          <Box flex="1" minW={0}>
+            <Text fontSize="sm" fontWeight="700" noOfLines={2}>
+              {product.name}
+            </Text>
+            <Text fontSize="xs" color="gray.500" noOfLines={1}>
+              {product.categoryName}
+            </Text>
+            <Text fontSize="sm" fontWeight="700" color="brand.500">
+              {formatProductPrice(product.price)}
+            </Text>
+          </Box>
+          <Button
+            size="xs"
+            bg="#111827"
+            color="white"
+            borderRadius="4px"
+            _hover={{ bg: '#F97316' }}
+            flexShrink={0}
+            onClick={() => product.slug && navigate(`/user/product/detail/${product.slug}`)}
+          >
+            Xem sản phẩm
+          </Button>
+        </Flex>
+      ))}
+    </VStack>
+  );
+});
+
+const StableMessageContent = React.memo(function StableMessageContent({ content }) {
+  const safeContent = content || "";
+  const processedContent = safeContent
+    .replace(
+      /https?:\/\/res\.cloudinary\.com\/[^\s]+/g,
+      (url) => `![](${url})`,
+    )
+    .replace(
+      /http:\/\/localhost:3000\/user\/product\/detail\/[^\s]+/g,
+      (url) => {
+        const slug = url.split('/').pop();
+        const name = slug
+          .split('-')
+          .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
+          .join(' ');
+        return `**[${name}](${url})**`;
+      },
+    );
+
+  return (
+    <ReactMarkdown
+      remarkPlugins={[remarkGfm]}
+      components={{
+        p: ({ children }) => (
+          <Text mb={2} fontSize="sm" lineHeight="1.65" whiteSpace="pre-wrap" overflowWrap="break-word">
+            {children}
+          </Text>
+        ),
+        strong: ({ children }) => (
+          <Text as="span" fontWeight="bold" color="blue.300">
+            {children}
+          </Text>
+        ),
+        a: ({ href, children }) => (
+          <Link
+            href={href}
+            color="#4F46E5"
+            fontWeight="600"
+            isExternal
+            _hover={{ textDecoration: 'underline' }}
+          >
+            {children}
+          </Link>
+        ),
+        img: ({ src }) => (
+          <Image
+            src={src}
+            alt="Product"
+            maxW="100%"
+            maxH="180px"
+            objectFit="contain"
+            borderRadius="6px"
+            my={2}
+            cursor="pointer"
+            onClick={() => window.open(src, '_blank')}
+            _hover={{ transform: 'scale(1.05)', transition: '0.2s' }}
+          />
+        ),
+      }}
+    >
+      {processedContent}
+    </ReactMarkdown>
+  );
+});
 
 export default function ChatWidget({ hidden = false }) {
   const { isAuthenticated, user } = useUser();
   const toast = useAppToast();
+  const navigate = useNavigate();
   const isStaff =
     isAuthenticated && ['ADMIN', 'EMPLOYEE'].includes(user?.roleName);
 
@@ -71,6 +203,7 @@ export default function ChatWidget({ hidden = false }) {
   const botBgColor = useColorModeValue('gray.50', 'navy.700');
   const botTextColor = useColorModeValue('gray.900', 'white');
   const botBorderColor = useColorModeValue('gray.200', 'navy.600');
+  const productCardBg = useColorModeValue('white', 'navy.800');
 
   const messagesContainerRef = useRef(null);
   const chatUserKey = user?.id || user?.email || user?.username || null;
@@ -234,7 +367,65 @@ export default function ChatWidget({ hidden = false }) {
     setChatMode(mode);
   };
 
+  const formatPrice = (value) =>
+    new Intl.NumberFormat('vi-VN', {
+      style: 'currency',
+      currency: 'VND',
+      maximumFractionDigits: 0,
+    }).format(Number(value || 0));
+
+  // eslint-disable-next-line no-unused-vars
+  const ProductCards = ({ products = [] }) => {
+    if (!Array.isArray(products) || products.length === 0) return null;
+
+    return (
+      <VStack align="stretch" spacing={2} mt={3}>
+        {products.map((product) => (
+          <Flex
+            key={product.id || product.slug}
+            gap={3}
+            p={2}
+            borderWidth="1px"
+            borderColor={botBorderColor}
+            borderRadius="md"
+            bg={productCardBg}
+            align="center"
+          >
+            <Image
+              src={product.imageUrl}
+              alt={product.name}
+              boxSize="64px"
+              objectFit="cover"
+              borderRadius="md"
+              fallbackSrc={logo}
+            />
+            <Box flex="1" minW={0}>
+              <Text fontSize="sm" fontWeight="700" noOfLines={2}>
+                {product.name}
+              </Text>
+              <Text fontSize="xs" color="gray.500" noOfLines={1}>
+                {product.categoryName}
+              </Text>
+              <Text fontSize="sm" fontWeight="700" color="brand.500">
+                {formatPrice(product.price)}
+              </Text>
+            </Box>
+            <Button
+              size="xs"
+              colorScheme="orange"
+              flexShrink={0}
+              onClick={() => product.slug && navigate(`/user/product/detail/${product.slug}`)}
+            >
+              Xem sản phẩm
+            </Button>
+          </Flex>
+        ))}
+      </VStack>
+    );
+  };
+
   // MARKDOWN MESSAGE RENDERER
+  // eslint-disable-next-line no-unused-vars
   const MessageContent = ({ content }) => {
     const safeContent = content || "";
     const processedContent = safeContent
@@ -259,7 +450,7 @@ export default function ChatWidget({ hidden = false }) {
         remarkPlugins={[remarkGfm]}
         components={{
           p: ({ children }) => (
-            <Text mb={2} fontSize="sm" lineHeight="1.5">
+            <Text mb={2} fontSize="sm" lineHeight="1.5" whiteSpace="pre-wrap" overflowWrap="break-word">
               {children}
             </Text>
           ),
@@ -347,17 +538,17 @@ export default function ChatWidget({ hidden = false }) {
             bottom={{ base: '78px', sm: '90px' }}
             right={{ base: '12px', sm: '24px' }}
             left={{ base: '12px', sm: 'auto' }}
-            w={{ base: 'auto', sm: '380px' }}
+            w={{ base: 'auto', sm: '390px' }}
             h={{ base: 'min(560px, calc(100dvh - 104px))', sm: '560px' }}
             maxH="calc(100dvh - 104px)"
             bg={bg}
-            borderRadius={{ base: 'lg', sm: 'xl' }}
+            borderRadius="10px"
             boxShadow="0 18px 48px rgba(15, 23, 42, 0.18)"
             zIndex="2100"
             display="flex"
             flexDir="column"
             overflow="hidden"
-            fontFamily="inherit"
+            fontFamily="'TT Commons Pro', Inter, system-ui, sans-serif"
             initial={{ opacity: 0, y: 18 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 14 }}
@@ -370,25 +561,30 @@ export default function ChatWidget({ hidden = false }) {
             px={{ base: 3, sm: 4 }}
             py={3}
             bg="brand.500"
-            borderTopRadius="xl"
+            borderTopRadius="10px"
           >
             <Flex align="center" gap={3}>
-              <Image
-                src={logo}
-                boxSize="36px"
-                borderRadius="full"
-                border="2px solid white"
-              />
+              <Flex
+                boxSize="32px"
+                borderRadius="8px"
+                bg="white"
+                color="brand.500"
+                align="center"
+                justify="center"
+                flexShrink={0}
+              >
+                <ChatIcon boxSize="16px" />
+              </Flex>
               <Box>
                 <Text
-                  fontWeight="bold"
+                  fontWeight="800"
                   color="white"
-                  fontSize={{ base: 'md', sm: 'lg' }}
+                  fontSize="md"
                   noOfLines={1}
                 >
                   {chatMode === 'BOT' ? 'Trendify Trợ lý' : 'Trendify Hỗ trợ khách hàng'}
                 </Text>
-                <Text fontSize="xs" color="whiteAlpha.800">
+                <Text fontSize="xs" color="whiteAlpha.800" lineHeight="1.4">
                   {chatMode === 'BOT'
                     ? 'Đang hoạt động • Trợ lý ảo 24/7'
                     : 'Đang hoạt động • Cửa hàng sẽ phản hồi sớm nhất'}
@@ -453,8 +649,8 @@ export default function ChatWidget({ hidden = false }) {
             py={4}
             overflowY="auto"
             direction="column"
-            gap={4}
-            fontFamily="inherit"
+            gap={3}
+            fontFamily="'TT Commons Pro', Inter, system-ui, sans-serif"
           >
             <VStack spacing={4} align="stretch">
               {[...(chatMode === 'BOT' ? botMessages : userMessages)].reverse().map((m) => {
@@ -484,9 +680,9 @@ export default function ChatWidget({ hidden = false }) {
                   <Flex key={m.id} justify={isMine ? 'flex-end' : 'flex-start'}>
                     <Box
                       maxW="88%"
-                      px={4}
-                      py={3}
-                      borderRadius="xl"
+                      px={3}
+                      py={2.5}
+                      borderRadius="8px"
                       bg={bgColor}
                       color={textColor}
                       boxShadow="sm"
@@ -494,7 +690,10 @@ export default function ChatWidget({ hidden = false }) {
                       borderColor={borderColor}
                       fontFamily="inherit"
                       fontSize="14px"
-                      lineHeight="1.55"
+                      lineHeight="1.65"
+                      whiteSpace="pre-wrap"
+                      overflowWrap="break-word"
+                      overflow="visible"
                     >
                       {!isMine && (
                         <Text
@@ -508,7 +707,15 @@ export default function ChatWidget({ hidden = false }) {
                           {isBot && ' (Trợ lý)'}
                         </Text>
                       )}
-                      <MessageContent content={m.content} />
+                      <StableMessageContent content={m.content} />
+                      {isBot && (
+                        <StableProductCards
+                          products={m.products}
+                          borderColor={botBorderColor}
+                          bg={productCardBg}
+                          navigate={navigate}
+                        />
+                      )}
                     </Box>
                   </Flex>
                 );
@@ -519,7 +726,7 @@ export default function ChatWidget({ hidden = false }) {
                     maxW="88%"
                     px={4}
                     py={3}
-                    borderRadius="xl"
+                    borderRadius="8px"
                     bg={botBgColor}
                     color={botTextColor}
                     boxShadow="sm"
@@ -527,7 +734,7 @@ export default function ChatWidget({ hidden = false }) {
                     borderColor={botBorderColor}
                     fontFamily="inherit"
                     fontSize="14px"
-                    lineHeight="1.55"
+                    lineHeight="1.65"
                   >
                     <Text fontSize="xs" opacity={0.9} mb={1} fontWeight="bold">
                       Trendify Bot (Trợ lý)

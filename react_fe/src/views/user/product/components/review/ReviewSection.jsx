@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Box, Text, Flex, Button, Divider, Spinner, VStack } from '@chakra-ui/react';
+import { Box, Text, Flex, Button, Divider, Spinner, VStack, useColorModeValue } from '@chakra-ui/react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import ReviewService from 'services/ReviewService';
 import ReviewItem from './ReviewItem';
@@ -15,6 +15,9 @@ export default function ReviewSection({ productId, slug }) {
   const [reviews, setReviews] = useState([]);
   const [totalReviews, setTotalReviews] = useState(0);
   const [loading, setLoading] = useState(true);
+  const surfaceBg = useColorModeValue('fashion.softSurface', 'navy.800');
+  const emptyBg = useColorModeValue('fashion.softSurface', 'whiteAlpha.50');
+  const borderColor = useColorModeValue('fashion.stone', 'navy.700');
 
   useEffect(() => {
     if (!productId) return;
@@ -48,7 +51,8 @@ export default function ReviewSection({ productId, slug }) {
       return;
     }
 
-    navigate(`/user/product/${productId}/reviews/new`);
+    toast.info('Vui lòng mở lịch sử mua hàng và chọn đúng sản phẩm cần đánh giá.');
+    navigate('/user/profile');
   };
 
   if (loading) return (
@@ -74,7 +78,7 @@ export default function ReviewSection({ productId, slug }) {
       </Flex>
 
       {reviews.length === 0 ? (
-        <Box py={10} textAlign="center" bg="gray.50" borderRadius="lg" _dark={{ bg: 'whiteAlpha.50' }}>
+        <Box py={10} textAlign="center" bg={emptyBg} border="1px solid" borderColor={borderColor} borderRadius="lg">
           <Text color="gray.500">Chưa có đánh giá nào cho sản phẩm này.</Text>
           <Button 
             mt={4} 
@@ -87,8 +91,8 @@ export default function ReviewSection({ productId, slug }) {
           </Button>
         </Box>
       ) : (
-        <Box bg="white" borderRadius="2xl" p={6} boxShadow="sm" _dark={{ bg: 'navy.800' }}>
-          <VStack align="stretch" divider={<Divider />}>
+        <Box bg={surfaceBg} border="1px solid" borderColor={borderColor} borderRadius="2xl" p={6} boxShadow="sm">
+          <VStack align="stretch" divider={<Divider borderColor={borderColor} />}>
             {reviews.map((review) => (
               <ReviewItem key={review.id} review={review} />
             ))}

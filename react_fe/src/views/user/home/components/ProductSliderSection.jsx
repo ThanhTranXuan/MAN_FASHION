@@ -96,20 +96,20 @@ export default function ProductSliderSection({
                 textTransform="uppercase"
                 mb={4}
               >
-                Best value edit
+                Đáng chú ý
               </Text>
               <Heading
-                fontSize={{ base: '4xl', md: '7xl' }}
-                lineHeight="0.9"
-                letterSpacing="-0.06em"
+                fontSize={{ base: '4xl', md: '6xl', xl: '7xl' }}
+                lineHeight={{ base: '1.14', md: '1.08' }}
+                letterSpacing={{ base: '-0.02em', md: '-0.035em' }}
                 color="#0B0B0B"
-                mb={6}
+                mb={{ base: 7, md: 8 }}
               >
                 Một món chủ lực, nhiều cách mặc.
               </Heading>
               <Text maxW="520px" color="#4B5563" fontSize={{ base: 'md', md: 'lg' }} lineHeight="1.8">
-                Section này tạo một điểm neo thị giác lớn trước khi người dùng
-                xem các lựa chọn nhanh ở bên cạnh.
+                Từ áo thun, sơ mi đến quần ống rộng, những item dễ phối giúp
+                bạn đổi vibe mà không cần nghĩ quá nhiều.
               </Text>
               <Button
                 as={Link}
@@ -182,12 +182,13 @@ export default function ProductSliderSection({
   }
 
   return (
+    <Box bg="#F2EAE0">
     <AppContainer py={{ base: 10, md: 16 }}>
       <SectionHeader
         mb={7}
-        eyebrow="Fresh drop"
+        eyebrow="Mới lên kệ"
         title={title}
-        description="Rail ngang dành riêng cho các mẫu mới, tạo nhịp khác với khối sản phẩm nổi bật phía trên."
+        description="Cập nhật những mẫu mới nhất vừa lên kệ tại Trendify."
         action={
           <Button
             as={Link}
@@ -219,7 +220,7 @@ export default function ProductSliderSection({
       >
         {products.map((product, index) => (
           <SwiperSlide key={product.id}>
-            <Box h="full" pt={index % 2 ? 8 : 0}>
+            <Box h="full">
               <ProductCard
                 product={product}
                 variant="home"
@@ -230,5 +231,6 @@ export default function ProductSliderSection({
         ))}
       </Swiper>
     </AppContainer>
+    </Box>
   );
 }

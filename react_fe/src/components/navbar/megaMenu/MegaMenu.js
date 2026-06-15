@@ -31,11 +31,11 @@ const MotionIconButton = motion(IconButton);
 const MotionBox = motion(Box);
 
 export default function MegaMenu({ categories, onClose }) {
-  const navbarBg = useColorModeValue('white', 'navy.800');
-  const navbarBorder = useColorModeValue('rgba(11,20,55,0.1)', 'navy.600');
-  const itemBg = useColorModeValue('gray.50', 'navy.700');
-  const hoverBg = useColorModeValue('gray.100', 'navy.600');
-  const overlayBg = useColorModeValue('rgba(255,255,255,0.95)', 'rgba(11,20,55,0.95)');
+  const navbarBg = useColorModeValue('fashion.pageBg', 'navy.800');
+  const navbarBorder = useColorModeValue('fashion.stone', 'navy.600');
+  const itemBg = useColorModeValue('fashion.softSurface', 'navy.700');
+  const hoverBg = useColorModeValue('brand.50', 'navy.600');
+  const overlayBg = useColorModeValue('rgba(246,240,232,0.95)', 'rgba(11,20,55,0.95)');
   const isMobile = useBreakpointValue({ base: true, md: false });
   const navigate = useNavigate();
 
@@ -60,6 +60,7 @@ export default function MegaMenu({ categories, onClose }) {
   }, []);
 
   const parents = categories.filter((c) => !c.parentId);
+  const desktopParentColumns = Math.max(parents.length, 1);
   const getChildren = (parentId) =>
     categories.filter((c) => c.parentId === parentId);
 
@@ -107,7 +108,7 @@ export default function MegaMenu({ categories, onClose }) {
           exit={{ opacity: 0, y: -12 }}
           transition={{ duration: 0.26, ease: [0.22, 1, 0.36, 1] }}
         >
-          <Box maxW="1200px" mx="auto" px={{ base: 4, md: 6 }} py={{ base: 4, md: 6 }}>
+          <Box maxW="1440px" mx="auto" px={{ base: 4, md: 8, xl: 10 }} py={{ base: 4, md: 7 }}>
             <Flex
               align="center"
               justify="space-between"
@@ -116,7 +117,7 @@ export default function MegaMenu({ categories, onClose }) {
               borderBottom="1px solid"
               borderColor={navbarBorder}
             >
-              <Text fontSize={{ base: 'lg', md: 'xl' }} fontWeight="bold">
+              <Text fontSize={{ base: 'lg', md: '2xl' }} fontWeight="bold">
                 Menu
               </Text>
               <IconButton
@@ -173,7 +174,7 @@ export default function MegaMenu({ categories, onClose }) {
                       >
                         <HStack spacing={3}>
                           <MdArticle size={22} />
-                          <Text fontWeight="semibold">Blogs</Text>
+                          <Text fontWeight="semibold">Bài viết</Text>
                         </HStack>
                         <MdChevronRight size={22} />
                       </Flex>
@@ -311,22 +312,22 @@ export default function MegaMenu({ categories, onClose }) {
             ) : (
               // 🖥️ Desktop giữ nguyên
               <Grid
-                templateColumns={`repeat(${parents.length + 1}, 1fr)`}
-                gap={8}
+                templateColumns={{ md: 'repeat(3, minmax(0, 1fr)) 1.35fr', xl: `repeat(${desktopParentColumns}, minmax(0, 1fr)) 1.45fr` }}
+                gap={{ md: 7, xl: 9 }}
               >
                 {parents.map((p, idx) => (
                   <VStack
                     key={p.id}
                     align="start"
-                    spacing={3}
-                    pr={4}
+                    spacing={4}
+                    pr={{ md: 5, xl: 6 }}
                     borderRight={
                       idx !== parents.length - 1 ? '1px solid' : 'none'
                     }
                     borderColor={navbarBorder}
                   >
                     <Text
-                      fontSize="lg"
+                      fontSize={{ md: 'xl', xl: '2xl' }}
                       fontWeight="bold"
                       textTransform="uppercase"
                       cursor="pointer"
@@ -344,7 +345,7 @@ export default function MegaMenu({ categories, onClose }) {
                           cursor="pointer"
                           onClick={() => toggleExpand(c2.id)}
                         >
-                          <Text>{c2.name}</Text>
+                          <Text fontSize={{ md: 'md', xl: 'lg' }} fontWeight="600">{c2.name}</Text>
                           {getChildren(c2.id).length > 0 && (
                             <MotionIconButton
                               aria-label="expand"
@@ -361,7 +362,7 @@ export default function MegaMenu({ categories, onClose }) {
                           <VStack align="start" pl={4} spacing={1} mt={1}>
                             <Text
                               key={`${c2.id}-all`}
-                              fontSize="sm"
+                              fontSize="md"
                               cursor="pointer"
                               _hover={{ color: 'brand.500' }}
                               onClick={() => handleNavigate(c2.id)}
@@ -373,7 +374,7 @@ export default function MegaMenu({ categories, onClose }) {
                             {getChildren(c2.id).map((c3) => (
                               <Text
                                 key={c3.id}
-                                fontSize="sm"
+                                fontSize="md"
                                 cursor="pointer"
                                 _hover={{ color: 'brand.500' }}
                                 onClick={() => handleNavigate(c3.id)}
@@ -389,11 +390,11 @@ export default function MegaMenu({ categories, onClose }) {
                 ))}
 
                 {/* Extra column */}
-                <VStack align="stretch" spacing={4} pl={4}>
+                <VStack align="stretch" spacing={4} pl={{ md: 3, xl: 5 }}>
                   <Box
-                    borderRadius="lg"
+                    borderRadius="20px"
                     shadow="md"
-                    bg="white"
+                    bg="fashion.softSurface"
                     _dark={{ bg: 'navy.700' }}
                     cursor="pointer"
                     overflow="hidden"
@@ -406,27 +407,28 @@ export default function MegaMenu({ categories, onClose }) {
                   >
                     <Image
                       src={Clothe}
-                      alt="Products"
+                      alt="Danh mục sản phẩm"
                       w="100%"
-                      h="120px"
+                      h={{ md: '240px', xl: '300px' }}
                       objectFit="contain"
-                      bg="gray.50"
-                      p={2}
+                      objectPosition="center"
+                      bg="fashion.pageBg"
+                      p={{ md: 1, xl: 2 }}
                     />
-                    <Box p={4}>
-                      <Text fontSize="lg" fontWeight="bold" mb={2}>
-                        Khám Phá Sản Phẩm
+                    <Box p={{ md: 4, xl: 5 }}>
+                      <Text fontSize={{ md: 'xl', xl: '2xl' }} fontWeight="bold" mb={2}>
+                        Khám phá sản phẩm
                       </Text>
-                      <Text fontSize="sm" color="gray.500">
-                        Xem tất cả danh mục, hàng mới về và bán chạy nhất.
+                      <Text fontSize={{ md: 'sm', xl: 'md' }} color="gray.500">
+                        Xem tất cả danh mục, hàng mới về và những mẫu đang được quan tâm.
                       </Text>
                     </Box>
                   </Box>
 
                   <Box
-                    borderRadius="lg"
+                    borderRadius="20px"
                     shadow="md"
-                    bg="white"
+                    bg="fashion.softSurface"
                     _dark={{ bg: 'navy.700' }}
                     cursor="pointer"
                     overflow="hidden"
@@ -439,19 +441,20 @@ export default function MegaMenu({ categories, onClose }) {
                   >
                     <Image
                       src={Blog}
-                      alt="Blog"
+                      alt="Bài viết phong cách"
                       w="100%"
-                      h="120px"
+                      h={{ md: '210px', xl: '250px' }}
                       objectFit="contain"
-                      bg="gray.50"
-                      p={2}
+                      objectPosition="center"
+                      bg="fashion.pageBg"
+                      p={{ md: 1, xl: 2 }}
                     />
-                    <Box p={4}>
-                      <Text fontSize="lg" fontWeight="bold" mb={2}>
-                        Xem Blog
+                    <Box p={{ md: 4, xl: 5 }}>
+                      <Text fontSize={{ md: 'xl', xl: '2xl' }} fontWeight="bold" mb={2}>
+                        Xem bài viết
                       </Text>
-                      <Text fontSize="sm" color="gray.500">
-                        Mẹo phối đồ, xu hướng và tin tức thời trang.
+                      <Text fontSize={{ md: 'sm', xl: 'md' }} color="gray.500">
+                        Mẹo phối đồ, xu hướng và câu chuyện thời trang từ Trendify.
                       </Text>
                     </Box>
                   </Box>

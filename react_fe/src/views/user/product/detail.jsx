@@ -88,11 +88,11 @@ export default function ProductDetail() {
   const textColor = useColorModeValue('gray.800', 'white');
   const descColor = useColorModeValue('gray.600', 'gray.300');
   const brandColor = useColorModeValue('brand.500', 'brand.300');
-  const borderColor = useColorModeValue('gray.200', 'gray.600');
+  const borderColor = useColorModeValue('fashion.stone', 'gray.600');
   const breadcrumbColor = useColorModeValue('gray.500', 'gray.400');
-  const pageBg = useColorModeValue('white', 'navy.900');
-  const cardBg = useColorModeValue('white', 'navy.800');
-  const dividerColor = useColorModeValue('gray.100', 'navy.700');
+  const pageBg = useColorModeValue('fashion.pageBg', 'navy.900');
+  const cardBg = useColorModeValue('fashion.softSurface', 'navy.800');
+  const dividerColor = useColorModeValue('fashion.stone', 'navy.700');
 
   const [product, setProduct] = useState(null);
   const [loading, setLoading] = useState(true);

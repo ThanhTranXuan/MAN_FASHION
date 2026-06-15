@@ -18,7 +18,7 @@ export function SearchBar({
   ...rest
 }) {
   const searchIconColor = useColorModeValue('gray.700', 'white');
-  const inputBg = useColorModeValue('secondaryGray.300', 'navy.900');
+  const inputBg = useColorModeValue('fashion.softSurface', 'navy.900');
   const inputText = useColorModeValue('gray.700', 'gray.100');
 
   const handleKeyDown = (e) => {

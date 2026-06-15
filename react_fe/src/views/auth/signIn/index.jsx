@@ -1,4 +1,3 @@
-// src/views/auth/SignIn.jsx
 import React, { useState } from 'react';
 import { NavLink, useLocation, useNavigate } from 'react-router-dom';
 import {
@@ -10,44 +9,42 @@ import {
   FormLabel,
   Heading,
   Icon,
+  Image,
   Input,
   InputGroup,
   InputRightElement,
+  Spinner,
   Text,
   useColorModeValue,
-  Spinner,
 } from '@chakra-ui/react';
-import { useAppToast } from 'utils/ToastHelper';
-import { HSeparator } from 'components/separator/Separator';
-import DefaultAuth from 'layouts/auth/Default';
-import illustration from 'assets/img/auth/auth.png';
 import { FcGoogle } from 'react-icons/fc';
 import { MdOutlineRemoveRedEye } from 'react-icons/md';
 import { RiEyeCloseLine } from 'react-icons/ri';
+import DefaultAuth from 'layouts/auth/Default';
 import AuthService from 'services/AuthService';
 import EmployeeService from 'services/EmployeeService';
 import ProfileService from 'services/ProfileService';
 import { useUser } from 'contexts/UserContext';
+import { useAppToast } from 'utils/ToastHelper';
 import { signInWithPopup } from 'firebase/auth';
 import { auth, firebaseDebugConfig, googleProvider } from 'config/firebaseConfig';
 
-function SignIn() {
-  const textColor = useColorModeValue('navy.700', 'white');
-  const textColorSecondary = 'gray.400';
-  const textColorDetails = useColorModeValue('navy.700', 'secondaryGray.600');
-  const textColorBrand = useColorModeValue('brand.500', 'white');
-  const brandStars = useColorModeValue('red.500', 'red.400');
+const authHeroImage =
+  'https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?auto=format&fit=crop&w=1200&q=80';
 
-  const googleBg = useColorModeValue('secondaryGray.300', 'whiteAlpha.200');
-  const googleText = useColorModeValue('navy.700', 'white');
-  const googleHover = useColorModeValue(
-    { bg: 'gray.200' },
-    { bg: 'whiteAlpha.300' },
-  );
-  const googleActive = useColorModeValue(
-    { bg: 'secondaryGray.300' },
-    { bg: 'whiteAlpha.200' },
-  );
+function SignIn() {
+  const textColor = useColorModeValue('#0B0B0B', 'white');
+  const textColorSecondary = useColorModeValue('#4B5563', 'gray.300');
+  const textColorDetails = useColorModeValue('#374151', 'gray.300');
+  const textColorBrand = useColorModeValue('#F97316', '#FDBA74');
+  const brandStars = useColorModeValue('red.500', 'red.400');
+  const panelBg = useColorModeValue('fashion.pageBg', 'navy.800');
+  const inputBg = useColorModeValue('white', 'navy.700');
+  const borderColor = useColorModeValue('blackAlpha.200', 'whiteAlpha.200');
+  const googleBg = useColorModeValue('white', 'whiteAlpha.200');
+  const googleText = useColorModeValue('#111827', 'white');
+  const googleHover = useColorModeValue({ bg: '#FFF7ED' }, { bg: 'whiteAlpha.300' });
+  const googleActive = useColorModeValue({ bg: '#FED7AA' }, { bg: 'whiteAlpha.200' });
 
   const navigate = useNavigate();
   const location = useLocation();
@@ -64,58 +61,54 @@ function SignIn() {
 
   const validateCredentials = () => {
     if (!email.trim() || !password.trim()) {
-      toast.error('Xác nhận email thất bại. Vui lòng thử lại.');
+      toast.error('Vui lòng nhập email và mật khẩu.');
       return false;
     }
 
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email)) {
-      toast.error('Gmail chưa được liên kết với tài khoản nào.');
+      toast.error('Email không hợp lệ.');
       return false;
     }
 
     if (password.length < 8) {
-      toast.error('Mật khẩu phải có ít nhất 8 ký tự');
+      toast.error('Mật khẩu phải có ít nhất 8 ký tự.');
       return false;
     }
     if (!/[A-Z]/.test(password)) {
-      toast.error('Mật khẩu phải chứa ít nhất 1 ký tự in hoa');
+      toast.error('Mật khẩu phải chứa ít nhất 1 ký tự in hoa.');
       return false;
     }
     if (!/[a-z]/.test(password)) {
-      toast.error('Mật khẩu phải chứa ít nhất 1 ký tự thường');
+      toast.error('Mật khẩu phải chứa ít nhất 1 ký tự thường.');
       return false;
     }
     if (!/[^A-Za-z0-9]/.test(password)) {
-      toast.error('Mật khẩu phải chứa ít nhất 1 ký tự đặc biệt');
+      toast.error('Mật khẩu phải chứa ít nhất 1 ký tự đặc biệt.');
       return false;
     }
     return true;
   };
 
   const afterLoginCommon = async () => {
-    // 🔐 Lấy info nhanh từ token (id, role, exp…)
     const tokenUser = AuthService.getUserFromToken();
 
-    // 🧑‍💻 Luôn gọi /me để lấy full profile
     try {
       const resProfile = await ProfileService.getProfile();
       setUser(resProfile.data.data);
     } catch (e) {
-      console.error('❌ Failed to load profile after login:', e);
-      // vẫn tiếp tục điều hướng theo role decode được nếu có
+      console.error('Failed to load profile after login:', e);
     }
 
     const role = tokenUser?.roleName;
     const redirectTo = location.state?.from || '/';
 
     if (role === 'EMPLOYEE') {
-      // check-in cho nhân viên
       try {
         await EmployeeService.checkIn();
         toast.success('Đăng nhập thành công! Check-in đã được ghi nhận.');
       } catch (e) {
-        console.error('❌ Check-in failed:', e);
+        console.error('Check-in failed:', e);
         toast.error('Chưa có dữ liệu người dùng. Vui lòng thử lại.');
       }
       navigate('/admin');
@@ -133,9 +126,7 @@ function SignIn() {
 
     try {
       setLoading(true);
-      // BE giờ chỉ trả token, không trả user
       await AuthService.login({ email, password, keepLoggedIn });
-
       await afterLoginCommon();
     } catch (error) {
       console.error(error);
@@ -162,11 +153,7 @@ function SignIn() {
         uid: result.user?.uid,
       });
 
-      await AuthService.socialLogin({
-        idToken,
-        keepLoggedIn,
-      });
-
+      await AuthService.socialLogin({ idToken, keepLoggedIn });
       await afterLoginCommon();
     } catch (error) {
       console.error('Google login failed:', {
@@ -184,201 +171,224 @@ function SignIn() {
   };
 
   return (
-    <DefaultAuth illustrationBackground={illustration} image={illustration}>
+    <DefaultAuth illustrationBackground={authHeroImage} image={authHeroImage}>
       <Flex
-        maxW={{ base: '100%', md: 'max-content' }}
+        maxW={{ base: '100%', lg: '1040px' }}
         w="100%"
-        mx={{ base: 'auto', lg: '0px' }}
-        me="auto"
+        mx="auto"
         h="100%"
-        alignItems="start"
+        alignItems="center"
         justifyContent="center"
-        mb={{ base: '30px', md: '60px' }}
-        px={{ base: '25px', md: '0px' }}
-        mt={{ base: '40px', md: '5vh' }}
-        flexDirection="column"
+        mb={{ base: 8, md: 12 }}
+        px={{ base: 4, md: 0 }}
+        mt={{ base: 6, md: 8 }}
       >
-        <Box me="auto">
-          <Heading color={textColor} fontSize="36px" mb="10px">
-            Trendify | Đăng Nhập
-          </Heading>
-          <Text
-            mb="36px"
-            ms="4px"
-            color={textColorSecondary}
-            fontWeight="400"
-            fontSize="md"
-          >
-            {/* Vui lòng nhập địa chỉ email của bạn */}
-          </Text>
-        </Box>
-
         <Flex
           zIndex="2"
-          direction="column"
-          w={{ base: '100%', md: '420px' }}
+          direction={{ base: 'column', lg: 'row' }}
+          w="100%"
           maxW="100%"
-          background="transparent"
-          borderRadius="15px"
-          mx={{ base: 'auto', lg: 'unset' }}
-          me="auto"
-          mb={{ base: '20px', md: 'auto' }}
+          bg={panelBg}
+          border="1px solid"
+          borderColor={borderColor}
+          boxShadow="0 22px 60px rgba(15, 23, 42, 0.14)"
+          overflow="hidden"
+          mx="auto"
+          mb={0}
+          minH={{ base: 'auto', lg: '620px' }}
         >
-          <Button
-            fontSize="sm"
-            me="0px"
-            mb="26px"
-            py="15px"
-            h="50px"
-            borderRadius="16px"
-            bg={googleBg}
-            color={googleText}
-            fontWeight="500"
-            _hover={googleHover}
-            _active={googleActive}
-            _focus={googleActive}
-            onClick={handleGoogleLogin}
-            isLoading={loading}
-            loadingText="Đang xử lý..."
-            spinner={<Spinner size="sm" />}
+          <Box
+            display={{ base: 'none', lg: 'block' }}
+            flex="0 0 42%"
+            position="relative"
+            minH={{ lg: '620px' }}
+            bg="#0B0B0B"
+            overflow="hidden"
           >
-            <Icon as={FcGoogle} w="20px" h="20px" me="10px" />
-            Đăng nhập với Google
-          </Button>
-
-          <Flex align="center" mb="25px">
-            <HSeparator />
-            <Text color="gray.400" mx="14px">
-              hoặc
-            </Text>
-            <HSeparator />
-          </Flex>
-
-          <FormControl>
-            <FormLabel
-              display="flex"
-              ms="4px"
-              fontSize="sm"
-              fontWeight="500"
-              color={textColor}
-              mb="8px"
-            >
-              Email<Text color={brandStars}>*</Text>
-            </FormLabel>
-            <Input
-              isRequired
-              variant="auth"
-              fontSize="sm"
-              type="email"
-              placeholder="Nhập email của bạn"
-              mb="24px"
-              size="lg"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              isDisabled={loading}
+            <Image
+              src={authHeroImage}
+              alt="Thời trang Trendify"
+              position="absolute"
+              inset={0}
+              w="100%"
+              h="100%"
+              objectFit="cover"
+              opacity={0.76}
             />
+            <Box position="absolute" inset={0} bg="linear-gradient(180deg, rgba(0,0,0,0.08), rgba(0,0,0,0.82))" />
+            <Box position="absolute" left={8} right={8} bottom={8} color="white">
+              <Text
+                fontSize="xs"
+                fontWeight="950"
+                letterSpacing="0.18em"
+                textTransform="uppercase"
+                color="#FDBA74"
+                mb={4}
+              >
+                Trendify
+              </Text>
+              <Heading fontSize={{ lg: '4xl', xl: '5xl' }} lineHeight="1" letterSpacing="-0.04em" mb={4}>
+                Mặc đẹp bắt đầu từ tài khoản của bạn.
+              </Heading>
+              <Text color="whiteAlpha.800" lineHeight="1.8">
+                Đăng nhập để theo dõi đơn hàng, lưu giỏ hàng và nhận gợi ý phù hợp với phong cách của bạn.
+              </Text>
+            </Box>
+          </Box>
 
-            <FormLabel
-              ms="4px"
-              fontSize="sm"
-              fontWeight="500"
-              color={textColor}
-              display="flex"
-            >
-              Mật khẩu<Text color={brandStars}>*</Text>
-            </FormLabel>
-            <InputGroup size="md">
-              <Input
-                isRequired
-                fontSize="sm"
-                placeholder="Mật khẩu của bạn"
-                mb="24px"
-                size="lg"
-                type={show ? 'text' : 'password'}
-                variant="auth"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                isDisabled={loading}
-              />
-              <InputRightElement display="flex" alignItems="center" mt="4px">
-                <Icon
-                  color={textColorSecondary}
-                  _hover={{ cursor: 'pointer' }}
-                  as={show ? RiEyeCloseLine : MdOutlineRemoveRedEye}
-                  onClick={handleClick}
-                />
-              </InputRightElement>
-            </InputGroup>
-
-            <Flex justifyContent="space-between" align="center" mb="24px">
-              <FormControl display="flex" alignItems="center">
-                <Checkbox
-                  id="remember-login"
-                  colorScheme="brandScheme"
-                  me="10px"
-                  isChecked={keepLoggedIn}
-                  onChange={(e) => setKeepLoggedIn(e.target.checked)}
-                  isDisabled={loading}
-                />
-                <FormLabel
-                  htmlFor="remember-login"
-                  mb="0"
-                  fontWeight="normal"
-                  color={textColor}
-                  fontSize="sm"
-                >
-                  Ghi nhớ đăng nhập
-                </FormLabel>
-              </FormControl>
-              <NavLink to="/auth/forgot-password">
-                <Text
-                  color={textColorBrand}
-                  fontSize="sm"
-                  w="124px"
-                  fontWeight="500"
-                >
-                  Quên mật khẩu?
-                </Text>
-              </NavLink>
-            </Flex>
+          <Box flex="1" p={{ base: 5, sm: 6, md: 8, xl: 10 }} bg={panelBg}>
+            <Box mb={{ base: 6, md: 7 }}>
+              <Text
+                fontSize="xs"
+                fontWeight="950"
+                letterSpacing="0.18em"
+                textTransform="uppercase"
+                color="#F97316"
+                mb={4}
+              >
+                Tài khoản Trendify
+              </Text>
+              <Heading color={textColor} fontSize={{ base: '3xl', md: '4xl' }} lineHeight="1" letterSpacing="-0.035em" mb={4}>
+                Đăng nhập
+              </Heading>
+              <Text color={textColorSecondary} fontSize="md" lineHeight="1.7">
+                Tiếp tục mua sắm, kiểm tra đơn hàng và nhận ưu đãi dành riêng cho bạn.
+              </Text>
+            </Box>
 
             <Button
               fontSize="sm"
-              variant="brand"
-              fontWeight="500"
-              w="100%"
-              h="50"
+              me="0px"
               mb="24px"
-              onClick={handleEmailPasswordLogin}
+              py="15px"
+              h="52px"
+              borderRadius="0"
+              bg={googleBg}
+              color={googleText}
+              border="1px solid"
+              borderColor={borderColor}
+              fontWeight="800"
+              _hover={googleHover}
+              _active={googleActive}
+              _focus={googleActive}
+              onClick={handleGoogleLogin}
               isLoading={loading}
               loadingText="Đang xử lý..."
               spinner={<Spinner size="sm" />}
+              w="100%"
             >
-              Đăng Nhập
+              <Icon as={FcGoogle} w="20px" h="20px" me="10px" />
+              Đăng nhập với Google
             </Button>
-          </FormControl>
 
-          <Flex
-            flexDirection="column"
-            justifyContent="center"
-            alignItems="start"
-            maxW="100%"
-            mt="0px"
-          >
-            <Text color={textColorDetails} fontWeight="400" fontSize="14px">
-              Chưa có tài khoản?
-              <NavLink to="/auth/sign-up">
-                <Text
-                  color={textColorBrand}
-                  as="span"
-                  ms="5px"
-                  fontWeight="500"
-                >
-                  Tạo Tài Khoản
-                </Text>
-              </NavLink>
-            </Text>
-          </Flex>
+            <Flex align="center" mb="24px" gap={4}>
+              <Box h="1px" flex="1" bg="blackAlpha.200" />
+              <Text color={textColorSecondary} fontSize="sm" fontWeight="700">
+                hoặc đăng nhập bằng email
+              </Text>
+              <Box h="1px" flex="1" bg="blackAlpha.200" />
+            </Flex>
+
+            <FormControl>
+              <FormLabel display="flex" ms="4px" fontSize="sm" fontWeight="800" color={textColor} mb="8px">
+                Email<Text color={brandStars}>*</Text>
+              </FormLabel>
+              <Input
+                isRequired
+                variant="auth"
+                fontSize="sm"
+                type="email"
+                placeholder="Nhập email của bạn"
+                mb="24px"
+                size="lg"
+                borderRadius="0"
+                bg={inputBg}
+                borderColor={borderColor}
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                isDisabled={loading}
+              />
+
+              <FormLabel ms="4px" fontSize="sm" fontWeight="800" color={textColor} display="flex">
+                Mật khẩu<Text color={brandStars}>*</Text>
+              </FormLabel>
+              <InputGroup size="md">
+                <Input
+                  isRequired
+                  fontSize="sm"
+                  placeholder="Nhập mật khẩu"
+                  mb="24px"
+                  size="lg"
+                  type={show ? 'text' : 'password'}
+                  variant="auth"
+                  borderRadius="0"
+                  bg={inputBg}
+                  borderColor={borderColor}
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  isDisabled={loading}
+                />
+                <InputRightElement display="flex" alignItems="center" mt="4px">
+                  <Icon
+                    color={textColorSecondary}
+                    _hover={{ cursor: 'pointer' }}
+                    as={show ? RiEyeCloseLine : MdOutlineRemoveRedEye}
+                    onClick={handleClick}
+                  />
+                </InputRightElement>
+              </InputGroup>
+
+              <Flex justifyContent="space-between" align="center" mb="24px" gap={4}>
+                <FormControl display="flex" alignItems="center">
+                  <Checkbox
+                    id="remember-login"
+                    colorScheme="orange"
+                    me="10px"
+                    isChecked={keepLoggedIn}
+                    onChange={(e) => setKeepLoggedIn(e.target.checked)}
+                    isDisabled={loading}
+                  />
+                  <FormLabel htmlFor="remember-login" mb="0" fontWeight="normal" color={textColor} fontSize="sm">
+                    Ghi nhớ đăng nhập
+                  </FormLabel>
+                </FormControl>
+                <NavLink to="/auth/forgot-password">
+                  <Text color={textColorBrand} fontSize="sm" w="124px" fontWeight="800">
+                    Quên mật khẩu?
+                  </Text>
+                </NavLink>
+              </Flex>
+
+              <Button
+                fontSize="sm"
+                bg="#0B0B0B"
+                color="white"
+                fontWeight="900"
+                w="100%"
+                h="52px"
+                borderRadius="0"
+                mb="24px"
+                onClick={handleEmailPasswordLogin}
+                isLoading={loading}
+                loadingText="Đang xử lý..."
+                spinner={<Spinner size="sm" />}
+                _hover={{ bg: '#F97316' }}
+              >
+                Đăng nhập
+              </Button>
+            </FormControl>
+
+            <Flex flexDirection="column" justifyContent="center" alignItems="start" maxW="100%" mt="0px">
+              <Text color={textColorDetails} fontWeight="400" fontSize="14px">
+                Chưa có tài khoản?
+                <NavLink to="/auth/sign-up">
+                  <Text color={textColorBrand} as="span" ms="5px" fontWeight="800">
+                    Tạo tài khoản
+                  </Text>
+                </NavLink>
+              </Text>
+            </Flex>
+          </Box>
         </Flex>
       </Flex>
     </DefaultAuth>

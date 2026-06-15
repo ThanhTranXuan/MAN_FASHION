@@ -9,13 +9,17 @@ import {
   Wrap,
   WrapItem,
   Stack,
+  useColorModeValue,
 } from '@chakra-ui/react';
 
-const colors = ['black', 'white', 'beige', 'brown', 'gray', 'blue', 'red', 'green'];
-const sizes = ['XS', 'S', 'M', 'L', 'XL', '2XL'];
-
-export default function ProductFilterSidebar({ categories, categorySlug, color, sizes: selectedSizes, onCategory, onColor, onSizes }) {
+export default function ProductFilterSidebar({ categories, categorySlug, filterOptions, color, sizes: selectedSizes, onCategory, onColor, onSizes }) {
   const parents = categories.filter((category) => !category.parentId);
+  const availableColors = filterOptions?.colors?.length ? filterOptions.colors : [];
+  const availableSizes = filterOptions?.sizes?.length ? filterOptions.sizes : [];
+  const bg = useColorModeValue('#FFFDF8', 'navy.800');
+  const borderColor = useColorModeValue('#D8C7B3', 'navy.700');
+  const headingColor = useColorModeValue('fashion.textMain', 'white');
+  const mutedColor = useColorModeValue('#5F5142', 'gray.300');
   return (
     <Box
       display={{ base: 'none', lg: 'block' }}
@@ -24,27 +28,37 @@ export default function ProductFilterSidebar({ categories, categorySlug, color, 
       position="sticky"
       top="96px"
       alignSelf="flex-start"
-      bg="white"
+      bg={bg}
       border="1px solid"
-      borderColor="fashion.borderLight"
+      borderColor={borderColor}
       borderRadius="16px"
       p={5}
+      boxShadow="0 18px 42px rgba(120, 53, 15, 0.10)"
+      maxH="calc(100vh - 120px)"
+      overflowY="auto"
+      sx={{
+        '&::-webkit-scrollbar': { width: '6px' },
+        '&::-webkit-scrollbar-thumb': {
+          background: 'rgba(180, 83, 9, 0.35)',
+          borderRadius: '999px',
+        },
+      }}
     >
-      <Text fontWeight="800" fontSize="lg">Bộ lọc</Text>
-      <Divider my={4} />
+      <Text fontWeight="800" fontSize="lg" color={headingColor}>Bộ lọc</Text>
+      <Divider my={4} borderColor={borderColor} />
       <VStack align="stretch" spacing={2}>
-        <Text fontWeight="700" mb={1}>Danh mục</Text>
-        <Text cursor="pointer" color={!categorySlug ? 'brand.500' : 'fashion.textMuted'} onClick={() => onCategory('')}>Tất cả sản phẩm</Text>
+        <Text fontWeight="700" mb={1} color={headingColor}>Danh mục</Text>
+        <Text cursor="pointer" color={!categorySlug ? 'brand.500' : mutedColor} onClick={() => onCategory('')}>Tất cả sản phẩm</Text>
         {parents.map((category) => (
-          <Text key={category.id} cursor="pointer" color={category.slug === categorySlug ? 'brand.500' : 'fashion.textMuted'} onClick={() => onCategory(category.slug)}>
+          <Text key={category.id} cursor="pointer" color={category.slug === categorySlug ? 'brand.500' : mutedColor} onClick={() => onCategory(category.slug)}>
             {category.name}
           </Text>
         ))}
       </VStack>
-      <Divider my={5} />
-      <Text fontWeight="700" mb={3}>Màu sắc</Text>
+      <Divider my={5} borderColor={borderColor} />
+      <Text fontWeight="700" mb={3} color={headingColor}>Màu sắc</Text>
       <Wrap spacing={2}>
-        {colors.map((item) => (
+        {availableColors.map((item) => (
           <WrapItem key={item}>
             <Box
               w="26px"
@@ -52,18 +66,18 @@ export default function ProductFilterSidebar({ categories, categorySlug, color, 
               borderRadius="full"
               bg={item}
               border="2px solid"
-              borderColor={color === item ? 'brand.500' : 'fashion.borderLight'}
+              borderColor={color === item ? 'brand.500' : borderColor}
               cursor="pointer"
               onClick={() => onColor(color === item ? '' : item)}
             />
           </WrapItem>
         ))}
       </Wrap>
-      <Divider my={5} />
-      <Text fontWeight="700" mb={3}>Kích cỡ</Text>
+      <Divider my={5} borderColor={borderColor} />
+      <Text fontWeight="700" mb={3} color={headingColor}>Kích cỡ</Text>
       <CheckboxGroup value={selectedSizes} onChange={onSizes}>
         <Stack spacing={2}>
-          {sizes.map((size) => <Checkbox key={size} value={size}>{size}</Checkbox>)}
+          {availableSizes.map((size) => <Checkbox key={size} value={size}>{size}</Checkbox>)}
         </Stack>
       </CheckboxGroup>
     </Box>

@@ -55,8 +55,8 @@ export default function PurchaseHistoryTab({
 
   const { isOpen, onOpen, onClose } = useDisclosure();
   const textColor = useColorModeValue('secondaryGray.900', 'white');
-  const cardBg = useColorModeValue('white', 'navy.800');
-  const borderColor = useColorModeValue('gray.200', 'navy.700');
+  const cardBg = useColorModeValue('fashion.softSurface', 'navy.800');
+  const borderColor = useColorModeValue('fashion.stone', 'navy.700');
 
   const filteredOrders = useMemo(() => {
   return orders.filter(order => {
@@ -75,7 +75,7 @@ export default function PurchaseHistoryTab({
   const goToReview = (order, item) => {
     const params = new URLSearchParams({
       orderCode: order.orderCode || '',
-      orderItemId: item.id || '',
+      orderItemId: item.orderItemId || item.id || '',
     });
     if (item.size) params.set('size', item.size);
     if (item.color) params.set('color', item.color);
@@ -258,7 +258,7 @@ export default function PurchaseHistoryTab({
                           variant="subtle"
                           borderRadius="full"
                           mt={2}
-                          bg="gray.200"
+                          bg="fashion.pageBg"
                         >
                           <TagLabel textTransform="capitalize">
                             {`${item.color || ''}${

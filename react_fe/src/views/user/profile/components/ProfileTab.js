@@ -21,9 +21,10 @@ import ProfileService from 'services/ProfileService';
 export default function ProfileTab({ user }) {
   const toast = useAppToast();
   const { refreshUser } = useUser();
-  const bgColor = useColorModeValue('white', 'navy.800');
+  const bgColor = useColorModeValue('fashion.softSurface', 'navy.800');
   const textColor = useColorModeValue('secondaryGray.900', 'white');
-  const sectionBg = useColorModeValue('gray.50', 'navy.700');
+  const sectionBg = useColorModeValue('fashion.pageBg', 'navy.700');
+  const borderColor = useColorModeValue('fashion.stone', 'gray.700');
 
   const [formData, setFormData] = useState({
     avatarUrl: '',
@@ -131,6 +132,8 @@ export default function ProfileTab({ user }) {
       p={{ base: 0, md: 8 }}
       borderRadius="16px"
       shadow="md"
+      border="1px solid"
+      borderColor={borderColor}
       w="100%"
     >
       {/* Avatar + Basic Info */}
@@ -143,7 +146,7 @@ export default function ProfileTab({ user }) {
             w="140px"
             h="140px"
             border="4px solid"
-            borderColor={useColorModeValue('gray.100', 'gray.700')}
+            borderColor={borderColor}
           />
           {!isGoogleAvatar && (
             <Flex
@@ -181,10 +184,10 @@ export default function ProfileTab({ user }) {
         </Text>
       </Flex>
 
-      <Divider my={6} />
+      <Divider my={6} borderColor={borderColor} />
 
       {/* Personal Information */}
-      <Box p={4} bg={sectionBg} borderRadius="12px" mb={6}>
+      <Box p={4} bg={sectionBg} borderRadius="12px" mb={6} border="1px solid" borderColor={borderColor}>
         <Text fontSize="lg" fontWeight="bold" mb={4}>
           Thông Tin Cá Nhân
         </Text>
@@ -234,7 +237,7 @@ export default function ProfileTab({ user }) {
       </Box>
 
       {/* Address Information */}
-      <Box p={4} bg={sectionBg} borderRadius="12px">
+      <Box p={4} bg={sectionBg} borderRadius="12px" border="1px solid" borderColor={borderColor}>
         <Text fontSize="lg" fontWeight="bold" mb={4}>
           Địa Chỉ
         </Text>

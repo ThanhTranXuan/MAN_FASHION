@@ -72,7 +72,7 @@ export default function CollectionGridSection() {
               textTransform="uppercase"
               mb={4}
             >
-              Category bento
+              Danh mục nổi bật
             </Text>
             <Heading
               fontSize={{ base: '4xl', md: '7xl' }}
@@ -80,12 +80,12 @@ export default function CollectionGridSection() {
               letterSpacing="-0.055em"
               maxW="820px"
             >
-              Không cần xem hết, chỉ cần chọn đúng mood.
+              Chọn theo phong cách của bạn.
             </Heading>
           </Box>
           <Text maxW="360px" color="whiteAlpha.700">
-            Mỗi nhóm sản phẩm có nhịp riêng: ô lớn để tạo lực thị giác, ô nhỏ
-            để lướt nhanh, không còn cảm giác copy cùng một card.
+            Tìm nhanh nhóm sản phẩm bạn cần: áo, quần, phụ kiện và các thiết
+            kế mặc hằng ngày.
           </Text>
         </Flex>
 

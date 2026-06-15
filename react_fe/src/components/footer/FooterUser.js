@@ -65,17 +65,17 @@ export default function FooterUser() {
   const [newsletterEmail, setNewsletterEmail] = useState('');
   const [newsletterLoading, setNewsletterLoading] = useState(false);
 
-  const bg = useColorModeValue('gray.50', 'navy.900');
-  const borderTop = useColorModeValue('gray.200', 'navy.700');
-  const shippingBg = useColorModeValue('red.50', 'red.900');
-  const shippingColor = useColorModeValue('red.600', 'red.300');
+  const bg = useColorModeValue('fashion.pageBg', 'navy.900');
+  const borderTop = useColorModeValue('fashion.stone', 'navy.700');
+  const shippingBg = useColorModeValue('fashion.softSurface', 'red.900');
+  const shippingColor = useColorModeValue('brand.600', 'red.300');
   const textColor = useColorModeValue('gray.700', 'gray.300');
   const mutedColor = useColorModeValue('gray.500', 'gray.500');
   const copyColor = useColorModeValue('gray.500', 'gray.400');
   const iconHover = useColorModeValue('brand.500', 'brand.300');
-  const inputBg = useColorModeValue('white', 'navy.800');
-  const inputBorder = useColorModeValue('gray.300', 'navy.600');
-  const divider = useColorModeValue('gray.200', 'navy.700');
+  const inputBg = useColorModeValue('fashion.softSurface', 'navy.800');
+  const inputBorder = useColorModeValue('fashion.stone', 'navy.600');
+  const divider = useColorModeValue('fashion.stone', 'navy.700');
 
   const groups = [
     {
@@ -210,6 +210,8 @@ export default function FooterUser() {
           align="center"
           gap={3}
           bg={shippingBg}
+          border="1px solid"
+          borderColor={divider}
           borderRadius="lg"
           px={5}
           py={3}

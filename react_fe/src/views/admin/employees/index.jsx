@@ -4,11 +4,7 @@ import {
   Card,
   useColorModeValue,
   useDisclosure,
-  Flex,
-  Button,
-  Icon,
 } from '@chakra-ui/react';
-import { MdDownload } from 'react-icons/md';
 import { useAppToast } from 'utils/ToastHelper';
 import { getCoreRowModel, useReactTable } from '@tanstack/react-table';
 
@@ -20,7 +16,6 @@ import EmployeeService from 'services/EmployeeService';
 import Header from './components/Header';
 import List from './components/List';
 import Columns from './components/Columns';
-import ReportService from 'services/ReportService';
 
 export default function EmployeePage() {
   // 🎨 UI
@@ -41,9 +36,6 @@ export default function EmployeePage() {
   const [selectedEmployee, setSelectedEmployee] = useState(null);
   const [isConfirmOpen, setIsConfirmOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-
-  // 🔥 loading state cho export payroll PDF
-  const [exportingPayroll, setExportingPayroll] = useState(false);
 
   // 📦 Disclosure
   const { isOpen, onOpen, onClose } = useDisclosure();
@@ -116,37 +108,6 @@ export default function EmployeePage() {
     }
   };
 
-  // 🧾 Export Employee Payroll PDF
-  const handleExportPayrollPdf = async () => {
-    try {
-      setExportingPayroll(true);
-
-      const res = await ReportService.exportEmployeePayrollPdf();
-
-      const blob = new Blob([res.data], { type: 'application/pdf' });
-      const url = window.URL.createObjectURL(blob);
-
-      const link = document.createElement('a');
-      const now = new Date();
-      const month = String(now.getMonth() + 1).padStart(2, '0');
-      const year = now.getFullYear();
-      link.href = url;
-      link.download = `employee-payroll-${month}-${year}.pdf`;
-
-      document.body.appendChild(link);
-      link.click();
-      link.remove();
-      window.URL.revokeObjectURL(url);
-
-      toast.success('Bảng lương nhân viên đã được tải xuống.');
-    } catch (err) {
-      console.error('❌ Failed to export employee payroll PDF:', err);
-      toast.error('Xuất bảng lương thất bại. Vui lòng thử lại.');
-    } finally {
-      setExportingPayroll(false);
-    }
-  };
-
   // 📊 Table columns
   const columns = useMemo(
     () =>
@@ -178,22 +139,6 @@ export default function EmployeePage() {
   // 🖼️ Render
   return (
     <Box>
-      {/* 🔽 Nút export Payroll PDF giống dashboard */}
-      <Flex justify="flex-end" mb="10px">
-        <Button
-          leftIcon={<Icon as={MdDownload} />}
-          colorScheme="brand"
-          variant="solid"
-          size="sm"
-          onClick={handleExportPayrollPdf}
-          isLoading={exportingPayroll}
-          loadingText="Đang xuất..."
-          color="white"
-        >
-          Xuất Bảng Lương PDF
-        </Button>
-      </Flex>
-
       {/* 🧩 Form (Add/Edit) */}
       <Form
         isOpen={isOpen}

@@ -30,7 +30,7 @@ export default function SubscribeSection() {
     setLoading(true);
     try {
       const res = await NewsletterService.subscribe(trimmedEmail);
-      toast.success(res?.message || 'Email ưu đãi đã được gửi');
+      toast.success(res?.message || 'Bạn đã đăng ký nhận tin thành công');
       setEmail('');
     } catch (err) {
       const message = err.response?.data?.message;
@@ -78,7 +78,7 @@ export default function SubscribeSection() {
             color="#FDBA74"
             mb={4}
           >
-            Trendify private list
+            Bản tin Trendify
           </Text>
           <Heading
             fontSize={{ base: '3xl', md: '5xl' }}
@@ -86,11 +86,11 @@ export default function SubscribeSection() {
             letterSpacing="-0.035em"
             mb={4}
           >
-            Nhận drop mới và ưu đãi trước mọi người.
+            Tham gia cộng đồng Trendify.
           </Heading>
           <Text color="whiteAlpha.800" fontSize={{ base: 'md', md: 'lg' }}>
-            Đăng ký để nhận mã giảm giá, lookbook theo mùa và gợi ý phối đồ
-            được chọn lọc từ Trendify.
+            Đăng ký để nhận ưu đãi, gợi ý phối đồ và thông tin bộ sưu tập mới
+            từ Trendify.
           </Text>
         </Box>
 

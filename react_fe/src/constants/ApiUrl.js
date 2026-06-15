@@ -27,6 +27,7 @@ const ApiUrl = {
 
   // ==== PRODUCTS ====
   PRODUCTS: withBase('/api/products'),
+  PRODUCT_FILTER_OPTIONS: withBase('/api/products/filter-options'),
   PRODUCT_DETAIL: (slug) => withBase(`/api/products/detail/${slug}`),
   PRODUCT_BY_ID: (id) => withBase(`/api/products/${id}`),
   PRODUCT_SIMILAR: (id) => withBase(`/api/products/${id}/similar`),
@@ -128,12 +129,6 @@ const ApiUrl = {
     }
     return withBase(url);
   },
-
-  // 🔽 Export PDF
-  REPORT_MONTHLY_REVENUE_PDF: '/api/reports/monthly-revenue/pdf',
-  REPORT_PRODUCT_MONTHLY_PDF: '/api/reports/products/monthly/pdf',
-  REPORT_EMPLOYEE_PAYROLL_MONTHLY_PDF:
-    '/api/reports/employees/payroll/monthly/pdf',
 };
 
 export default ApiUrl;

@@ -1,7 +1,7 @@
 import React from 'react';
 import { Box, Text } from '@chakra-ui/react';
 
-const line = 'NEW FITS / CLEAN LINES / CITY READY / SUMMER TEXTURE / ';
+const line = 'PHOM MỚI / ĐƯỜNG NÉT GỌN / SẴN SÀNG XUỐNG PHỐ / CHẤT LIỆU MÙA HÈ / ';
 
 export default function MarqueeStatement() {
   return (

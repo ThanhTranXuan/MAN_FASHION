@@ -55,9 +55,10 @@ export default function ProfilePage() {
   const [tabIndex, setTabIndex] = useState(0);
 
   const toast = useAppToast();
-  const bgColor = useColorModeValue('white', 'navy.800');
+  const pageBg = useColorModeValue('fashion.pageBg', 'navy.900');
+  const bgColor = useColorModeValue('fashion.softSurface', 'navy.800');
   const brandColor = useColorModeValue('brand.500', 'brand.400');
-  const borderColor = useColorModeValue('rgba(11,20,55,0.1)', 'navy.600');
+  const borderColor = useColorModeValue('fashion.stone', 'navy.600');
 
   // Cache sản phẩm dùng useRef để không reset mỗi lần render
   const productCacheRef = useRef({});
@@ -348,11 +349,8 @@ export default function ProfilePage() {
   ].filter(Boolean);
 
   return (
-    <Box
-      py={10}
-      w={{ base: '100%', md: '80%' }}
-      mx="auto"
-    >
+    <Box bg={pageBg} minH="100vh" py={10}>
+    <Box w={{ base: '100%', md: '80%' }} mx="auto">
       <Tabs
         index={tabIndex}
         onChange={(index) => {
@@ -429,6 +427,7 @@ export default function ProfilePage() {
           </TabPanels>
         </Flex>
       </Tabs>
+    </Box>
     </Box>
   );
 }
