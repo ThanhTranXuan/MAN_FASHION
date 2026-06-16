@@ -6,8 +6,10 @@ import com.manfashion.springboot_be.entity.Category;
 import com.manfashion.springboot_be.entity.Product;
 import com.manfashion.springboot_be.entity.ProductImage;
 import com.manfashion.springboot_be.entity.ProductVariant;
+import com.manfashion.springboot_be.repository.Category.CategoryRepository;
 import com.manfashion.springboot_be.repository.Order.OrderRepository;
 import com.manfashion.springboot_be.repository.Product.ProductRepository;
+import com.manfashion.springboot_be.repository.Return.ReturnOrderRepository;
 import com.manfashion.springboot_be.service.Order.OrderService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -32,7 +34,9 @@ class GeminiChatServiceTest {
         service = new GeminiChatService(
                 mock(RestClient.class),
                 productRepository,
+                mock(CategoryRepository.class),
                 mock(OrderRepository.class),
+                mock(ReturnOrderRepository.class),
                 mock(OrderService.class),
                 statsService
         );

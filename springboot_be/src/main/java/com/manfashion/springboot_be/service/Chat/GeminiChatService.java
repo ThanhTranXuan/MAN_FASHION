@@ -1,14 +1,22 @@
 package com.manfashion.springboot_be.service.Chat;
 
 import com.manfashion.springboot_be.DTO.Chat.AdminChatbotStatsResponse;
+import com.manfashion.springboot_be.DTO.Chat.BotCategorySuggestion;
 import com.manfashion.springboot_be.DTO.Chat.BotChatResponse;
+import com.manfashion.springboot_be.DTO.Chat.BotOrderSummary;
+import com.manfashion.springboot_be.DTO.Chat.BotOutfitRecommendation;
 import com.manfashion.springboot_be.DTO.Chat.BotProductSuggestion;
 import com.manfashion.springboot_be.DTO.Order.OrderResponse;
+import com.manfashion.springboot_be.entity.Category;
+import com.manfashion.springboot_be.entity.Order;
 import com.manfashion.springboot_be.entity.Product;
 import com.manfashion.springboot_be.entity.ProductImage;
 import com.manfashion.springboot_be.entity.ProductVariant;
+import com.manfashion.springboot_be.entity.ReturnOrder;
+import com.manfashion.springboot_be.repository.Category.CategoryRepository;
 import com.manfashion.springboot_be.repository.Order.OrderRepository;
 import com.manfashion.springboot_be.repository.Product.ProductRepository;
+import com.manfashion.springboot_be.repository.Return.ReturnOrderRepository;
 import com.manfashion.springboot_be.service.Order.OrderService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -59,7 +67,9 @@ public class GeminiChatService {
 
     private final RestClient restClient;
     private final ProductRepository productRepository;
+    private final CategoryRepository categoryRepository;
     private final OrderRepository orderRepository;
+    private final ReturnOrderRepository returnOrderRepository;
     private final OrderService orderService;
     private final AdminChatbotStatsService statsService;
 
@@ -89,12 +99,15 @@ public class GeminiChatService {
             lastProductQueryBySession.remove(sessionId);
             return textOnly("Chào bạn! Bạn muốn mình hỗ trợ tìm sản phẩm, phối đồ, chọn size hay kiểm tra đơn hàng?");
         }
-        if (isAdminStatsIntent(message)) return textOnly(answerStatsIntent(message, normalizedRole));
+        if (isAdminStatsIntent(message)) return textOnly("STATS_SUMMARY", answerStatsIntent(message, normalizedRole));
         if (isPersonalIntent(message)) {
-            if (currentUserId == null) return textOnly(LOGIN_REQUIRED_MESSAGE);
-            return textOnly(formatRecentOrders(currentUserId));
+            if (currentUserId == null) return textOnly("LOGIN_REQUIRED", LOGIN_REQUIRED_MESSAGE);
+            if (isReturnOrderIntent(message)) return answerReturnOrders(currentUserId);
+            return answerRecentOrders(currentUserId);
         }
-        if (isOutOfScope(message)) return textOnly(OUT_OF_SCOPE_MESSAGE);
+        if (isOutOfScope(message)) return textOnly("OUT_OF_SCOPE", OUT_OF_SCOPE_MESSAGE);
+        if (isCategoryOverviewIntent(message)) return answerCategoryOverview(message);
+        if (isOutfitRecommendationIntent(message)) return answerOutfitRecommendation(sessionId, message);
         if ("PRODUCT_RECOMMENDATION".equals(intent)) {
             return answerProductRecommendation(sessionId, message, normalizedRole);
         }
@@ -188,6 +201,7 @@ public class GeminiChatService {
         if (!hasEnoughProductsForRequest(selectedProducts, effectiveQuery)) {
             log.info("Bot final response. intent=PRODUCT_RECOMMENDATION, fallback=no_enough_products");
             return BotChatResponse.builder()
+                    .type("PRODUCT_LIST")
                     .message(productFallbackMessage(criteria, effectiveQuery))
                     .products(List.of())
                     .suggestedQuestions(defaultSuggestedQuestions())
@@ -209,6 +223,7 @@ public class GeminiChatService {
         log.info("Bot final response. intent=PRODUCT_RECOMMENDATION, response={}, products={}",
                 answer, selectedProducts.stream().map(BotProductSuggestion::getName).toList());
         return BotChatResponse.builder()
+                .type("PRODUCT_LIST")
                 .message(answer)
                 .products(selectedProducts)
                 .suggestedQuestions(defaultSuggestedQuestions())
@@ -568,12 +583,241 @@ public class GeminiChatService {
     }
 
     private BotChatResponse textOnly(String message) {
+        return textOnly("TEXT", message);
+    }
+
+    private BotChatResponse textOnly(String type, String message) {
         log.info("Bot final response. response={}", message);
         return BotChatResponse.builder()
+                .type(type)
                 .message(message)
                 .products(List.of())
+                .categories(List.of())
+                .orders(List.of())
                 .suggestedQuestions(defaultSuggestedQuestions())
                 .build();
+    }
+
+    private BotChatResponse answerCategoryOverview(String message) {
+        String parentName = requestedParentCategory(message);
+        List<Category> categories = findChildCategories(parentName);
+        String answer = categories.isEmpty()
+                ? "Trendify chua co nhom " + parentName.toLowerCase(Locale.ROOT) + " nao dang hien thi."
+                : "Trendify hien co cac nhom " + parentName.toLowerCase(Locale.ROOT) + " sau:";
+
+        return BotChatResponse.builder()
+                .type("CATEGORY_LIST")
+                .message(answer)
+                .categories(categories.stream()
+                        .map(category -> BotCategorySuggestion.builder()
+                                .id(category.getId())
+                                .name(category.getName())
+                                .slug(category.getSlug())
+                                .thumbnail(category.getThumbnailUrl())
+                                .description(null)
+                                .build())
+                        .toList())
+                .products(List.of())
+                .orders(List.of())
+                .suggestedQuestions(defaultSuggestedQuestions())
+                .build();
+    }
+
+    private List<Category> findChildCategories(String parentName) {
+        String normalizedParent = normalize(parentName);
+        List<Category> roots = categoryRepository.findByParentIdIsNullAndDeletedAtIsNull();
+        Optional<Category> parent = roots.stream()
+                .filter(category -> normalize(category.getName()).contains(normalizedParent)
+                        || normalizedParent.contains(normalize(category.getName())))
+                .findFirst();
+        if (parent.isPresent()) {
+            return categoryRepository.findByParentIdAndDeletedAtIsNull(parent.get().getId());
+        }
+        return categoryRepository.findByDeletedAtIsNull(PageRequest.of(0, 100)).getContent().stream()
+                .filter(category -> category.getParent() != null)
+                .filter(category -> normalize(category.getName()).contains(normalizedParent))
+                .toList();
+    }
+
+    private BotChatResponse answerOutfitRecommendation(String sessionId, String message) {
+        String effectiveQuery = buildEffectiveProductQuery(sessionId, message);
+        lastProductQueryBySession.put(sessionId, effectiveQuery);
+
+        List<Product> pool = productRepository.findActiveBotCandidates(PageRequest.of(0, BOT_PRODUCT_POOL_SIZE));
+        ProductRequestCriteria criteria = ProductRequestCriteria.from(effectiveQuery + " set phoi");
+        String searchQuery = outfitSearchQuery(effectiveQuery);
+        Set<String> keywords = productQueryKeywords(searchQuery);
+        List<ProductMatch> matches = rankProducts(pool, searchQuery, criteria, keywords);
+
+        BotProductSuggestion top = matches.stream().map(ProductMatch::suggestion).filter(this::isTop).findFirst().orElse(null);
+        BotProductSuggestion bottom = matches.stream().map(ProductMatch::suggestion).filter(this::isBottom).findFirst().orElse(null);
+        BotProductSuggestion shoes = matches.stream().map(ProductMatch::suggestion).filter(this::isShoe).findFirst().orElse(null);
+        BotProductSuggestion accessory = matches.stream().map(ProductMatch::suggestion).filter(this::isAccessory).findFirst().orElse(null);
+
+        List<BotProductSuggestion> products = new ArrayList<>();
+        if (top != null) products.add(top);
+        if (bottom != null) addIfMissing(products, bottom);
+        if (shoes != null) addIfMissing(products, shoes);
+        if (accessory != null) addIfMissing(products, accessory);
+
+        if (top == null || bottom == null) {
+            return BotChatResponse.builder()
+                    .type("OUTFIT_RECOMMENDATION")
+                    .message(PRODUCT_FALLBACK_MESSAGE)
+                    .products(List.of())
+                    .categories(List.of())
+                    .orders(List.of())
+                    .suggestedQuestions(defaultSuggestedQuestions())
+                    .build();
+        }
+
+        String sizeSuggestion = wantsSizeAdvice(message) ? suggestBodySize(message) : null;
+        String reason = outfitReason(message);
+        StringBuilder answer = new StringBuilder("Voi nhu cau cua ban, minh goi y set nay tu san pham dang co tai Trendify.");
+        if (sizeSuggestion != null) {
+            answer.append(" Goi y size: ").append(sizeSuggestion)
+                    .append(". Ban nen kiem tra bang size cua tung san pham truoc khi dat.");
+        }
+
+        return BotChatResponse.builder()
+                .type("OUTFIT_RECOMMENDATION")
+                .message(answer.toString())
+                .products(products)
+                .outfit(BotOutfitRecommendation.builder()
+                        .top(top)
+                        .bottom(bottom)
+                        .shoes(shoes)
+                        .accessory(accessory)
+                        .sizeSuggestion(sizeSuggestion)
+                        .reason(reason)
+                        .build())
+                .categories(List.of())
+                .orders(List.of())
+                .suggestedQuestions(defaultSuggestedQuestions())
+                .build();
+    }
+
+    private BotChatResponse answerRecentOrders(Integer userId) {
+        var orders = orderRepository.findByUserIdOrderByCreatedAtDesc(userId, PageRequest.of(0, 5)).getContent();
+        if (orders.isEmpty()) return textOnly("ORDER_LIST", "Ban chua co don hang nao.");
+        return BotChatResponse.builder()
+                .type("ORDER_LIST")
+                .message("Minh tim thay cac don hang gan day cua ban:")
+                .orders(orders.stream().map(this::toOrderSummary).toList())
+                .products(List.of())
+                .categories(List.of())
+                .suggestedQuestions(defaultSuggestedQuestions())
+                .build();
+    }
+
+    private BotChatResponse answerReturnOrders(Integer userId) {
+        var returns = returnOrderRepository.findByUserIdOrderByCreatedAtDesc(userId, PageRequest.of(0, 5)).getContent();
+        if (returns.isEmpty()) return textOnly("RETURN_ORDER_LIST", "Ban chua co don tra lai nao.");
+        return BotChatResponse.builder()
+                .type("RETURN_ORDER_LIST")
+                .message("Minh tim thay cac don da tra lai cua ban:")
+                .orders(returns.stream().map(this::toReturnOrderSummary).toList())
+                .products(List.of())
+                .categories(List.of())
+                .suggestedQuestions(defaultSuggestedQuestions())
+                .build();
+    }
+
+    private BotOrderSummary toOrderSummary(Order order) {
+        return BotOrderSummary.builder()
+                .code(order.getOrderCode())
+                .status(order.getStatus())
+                .statusLabel(statusLabel(order.getStatus()))
+                .total(order.getFinalTotal())
+                .createdAt(order.getCreatedAt())
+                .build();
+    }
+
+    private BotOrderSummary toReturnOrderSummary(ReturnOrder returnOrder) {
+        return BotOrderSummary.builder()
+                .code(returnOrder.getReturnCode())
+                .status(returnOrder.getStatus())
+                .statusLabel(statusLabel(returnOrder.getStatus()))
+                .total(returnOrder.getRefundAmount())
+                .createdAt(returnOrder.getCreatedAt())
+                .build();
+    }
+
+    private String requestedParentCategory(String message) {
+        String value = normalize(message);
+        if (containsAny(value, "quan")) return "Quan";
+        if (containsAny(value, "phu kien", "accessory")) return "Phu kien";
+        return "Ao";
+    }
+
+    private boolean isCategoryOverviewIntent(String message) {
+        String value = normalizeForTermMatch(message);
+        boolean overviewWords = containsAnyProductTerm(value, "nhung mau", "nhung loai", "loai nao", "mau nao", "co gi", "danh muc");
+        boolean broadCategory = containsAnyProductTerm(value, "ao", "quan", "phu kien");
+        boolean specificProduct = containsAnyProductTerm(value, "so mi trang", "ao thun den", "quan linen", "ao khoac", "sneaker");
+        return overviewWords && broadCategory && !specificProduct;
+    }
+
+    private boolean isOutfitRecommendationIntent(String message) {
+        String value = normalizeForTermMatch(message);
+        boolean wantsOutfit = containsAnyProductTerm(value, "set", "phoi", "bo do", "mac gi", "di lam", "di tiec", "di an cuoi", "di choi", "mua he");
+        boolean bodyInfo = wantsSizeAdvice(message);
+        return wantsOutfit && (bodyInfo || containsAnyProductTerm(value, "set", "bo do", "phoi", "mac gi"));
+    }
+
+    private boolean isReturnOrderIntent(String message) {
+        String value = normalizeForTermMatch(message);
+        return containsAnyProductTerm(value, "tra lai", "hoan hang", "hoan tra", "return", "doi tra");
+    }
+
+    private String outfitSearchQuery(String message) {
+        String value = normalizeForTermMatch(message);
+        if (containsAnyProductTerm(value, "di lam")) {
+            return message + " so mi polo quan dai quan tay linen sneaker";
+        }
+        if (containsAnyProductTerm(value, "mua he", "nong")) {
+            return message + " ao thun so mi thoang quan short linen rong cotton phu kien";
+        }
+        if (containsAnyProductTerm(value, "an cuoi", "di tiec", "tiec toi")) {
+            return message + " so mi blazer ao khoac quan toi mau phu kien";
+        }
+        if (containsAnyProductTerm(value, "di choi", "cuoi tuan")) {
+            return message + " ao thun polo quan short quan rong sneaker phu kien";
+        }
+        return message + " ao quan sneaker phu kien";
+    }
+
+    private String outfitReason(String message) {
+        String value = normalizeForTermMatch(message);
+        if (containsAnyProductTerm(value, "di lam")) return "Set uu tien ao gon gang, quan dung phom va giay toi gian de hop moi ngay di lam.";
+        if (containsAnyProductTerm(value, "mua he", "nong")) return "Set uu tien chat lieu thoang va form de di chuyen trong ngay nong.";
+        if (containsAnyProductTerm(value, "an cuoi", "di tiec", "tiec toi")) return "Set uu tien tong lich su, toi mau va co diem nhan vua du.";
+        return "Set can bang giua de mac, de phoi va dung voi tinh huong ban mo ta.";
+    }
+
+    private String suggestBodySize(String message) {
+        String value = normalizeForTermMatch(message);
+        if (value.matches(".*(80\\s*kg|8\\d\\s*kg).*") || value.matches(".*(1m80|180\\s*cm|m80).*")) {
+            return "L hoac XL tuy form";
+        }
+        if (value.matches(".*(7\\d\\s*kg|1m7\\d|17\\d\\s*cm|m7\\d).*")) {
+            return "L tuy form, quan khoang 31-32 neu co size so";
+        }
+        return "M hoac L tuy form";
+    }
+
+    private String statusLabel(String status) {
+        return switch (normalize(status)) {
+            case "completed" -> "Hoan thanh";
+            case "return", "returned", "approved" -> "Da tra lai";
+            case "cancelled" -> "Da huy";
+            case "pending" -> "Cho xac nhan";
+            case "processing" -> "Dang xu ly";
+            case "shipping" -> "Dang giao";
+            case "delivered" -> "Da giao";
+            case "paid" -> "Da thanh toan";
+            default -> status == null ? "" : status;
+        };
     }
 
     public String searchProductsForBot(String keyword) {
@@ -775,7 +1019,8 @@ public class GeminiChatService {
     private boolean isPersonalIntent(String message) {
         String value = normalize(message);
         return containsAny(value, "don hang cua toi", "don hang gan day", "don moi nhat cua toi",
-                "toi da dat", "trang thai don cua toi", "don hoan tra cua toi");
+                "toi da dat", "trang thai don cua toi", "don hoan tra cua toi",
+                "don da tra lai", "don tra lai", "don hoan hang", "don bi return", "don doi tra cua toi");
     }
 
     private boolean isAdminStatsIntent(String message) {

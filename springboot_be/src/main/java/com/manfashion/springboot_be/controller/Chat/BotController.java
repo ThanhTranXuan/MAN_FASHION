@@ -12,6 +12,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.Instant;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
@@ -120,16 +121,19 @@ public class BotController {
             BotChatResponse botReply = botService.askBot(botSessionId, userMessage, currentUserId, role);
 
             // Đóng gói DTO khớp với Frontend ReactJS
-            Map<String, Object> response = Map.of(
-                    "id", UUID.randomUUID().toString(),
-                    "content", botReply.getMessage(),
-                    "products", botReply.getProducts(),
-                    "suggestedQuestions", botReply.getSuggestedQuestions(),
-                    "senderType", "BOT",
-                    "senderName", "Trendify Bot",
-                    "createdAt", Instant.now().toString(),
-                    "chatChannel", "BOT"
-            );
+            Map<String, Object> response = new HashMap<>();
+            response.put("id", UUID.randomUUID().toString());
+            response.put("type", botReply.getType());
+            response.put("content", botReply.getMessage());
+            response.put("products", botReply.getProducts());
+            response.put("categories", botReply.getCategories());
+            response.put("orders", botReply.getOrders());
+            response.put("outfit", botReply.getOutfit());
+            response.put("suggestedQuestions", botReply.getSuggestedQuestions());
+            response.put("senderType", "BOT");
+            response.put("senderName", "Trendify Bot");
+            response.put("createdAt", Instant.now().toString());
+            response.put("chatChannel", "BOT");
 
             return ResponseEntity.ok(response);
 
