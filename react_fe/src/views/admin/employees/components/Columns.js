@@ -1,9 +1,7 @@
 import { createColumnHelper } from '@tanstack/react-table';
 import { Text, Flex, IconButton } from '@chakra-ui/react';
-
 import { MdEdit, MdDelete } from 'react-icons/md';
 import { RiEyeFill } from 'react-icons/ri';
-import { formatCurrencyVND } from 'utils/FormatHelper';
 
 const columnHelper = createColumnHelper();
 
@@ -18,16 +16,12 @@ export default function Columns({ onShow, onEdit, onDelete, textColor }) {
       ),
     }),
     columnHelper.accessor('fullName', {
-      header: 'Họ Tên',
+      header: 'Ho Ten',
       cell: (info) => <Text>{info.getValue() || '-'}</Text>,
-    }),
-    columnHelper.accessor('hourlyRate', {
-      header: 'Lương Giờ',
-      cell: (info) => <Text>{formatCurrencyVND(info.getValue()) || '-'}</Text>,
     }),
     columnHelper.display({
       id: 'actions',
-      header: <Text align="right">THAO TÁC</Text>,
+      header: <Text align="right">THAO TAC</Text>,
       cell: (info) => {
         const row = info.row.original;
         return (
@@ -36,7 +30,7 @@ export default function Columns({ onShow, onEdit, onDelete, textColor }) {
               aria-label="View"
               icon={<RiEyeFill style={{ fontSize: '20px' }} />}
               size="sm"
-              borderRadius="xl" 
+              borderRadius="xl"
               colorScheme="purple"
               onClick={() => onShow(row)}
             />
@@ -44,7 +38,7 @@ export default function Columns({ onShow, onEdit, onDelete, textColor }) {
               aria-label="Edit"
               icon={<MdEdit style={{ fontSize: '20px' }} />}
               size="sm"
-              borderRadius="xl" 
+              borderRadius="xl"
               colorScheme="blue"
               onClick={() => onEdit(row)}
             />
@@ -52,7 +46,7 @@ export default function Columns({ onShow, onEdit, onDelete, textColor }) {
               aria-label="Delete"
               icon={<MdDelete style={{ fontSize: '20px' }} />}
               size="sm"
-              borderRadius="xl" 
+              borderRadius="xl"
               colorScheme="red"
               onClick={() => onDelete(row)}
             />

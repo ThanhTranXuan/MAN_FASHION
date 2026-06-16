@@ -26,6 +26,7 @@ import { SearchBar } from 'components/navbar/searchBar/SearchBar';
 import { MdTune } from 'react-icons/md';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import ProductService from 'services/ProductService';
+import HomeService from 'services/HomeService';
 import ProductCard from './components/ProductCard';
 import FiltersDrawer from './components/FiltersDrawer';
 import CategoryChips from './components/CategoryChips';
@@ -48,6 +49,7 @@ export default function ProductListPage() {
   const { categories, loading: loadingCats } = useCategories();
 
   const [keyword, setKeyword] = useState(searchParams.get('q') || '');
+  const outfitKey = searchParams.get('outfit') || '';
 
   const [debouncedKeyword, setDebouncedKeyword] = useState(keyword);
   const [sort, setSort] = useState(searchParams.get('sort') || 'newest');
@@ -141,6 +143,40 @@ export default function ProductListPage() {
     ],
   );
 
+  const shouldUseOutfitProducts =
+    Boolean(outfitKey) &&
+    !debouncedKeyword &&
+    !categorySlug &&
+    !color &&
+    size.length === 0;
+
+  const mapOutfitProduct = (product) => ({
+    ...product,
+    id: String(product.id),
+    images: product.thumbnail
+      ? [{ url: product.thumbnail, isThumbnail: true }]
+      : [],
+    variants: [
+      ...(Array.isArray(product.colors) ? product.colors : []).map((item) => ({
+        color: item,
+        size: '',
+        stock: 1,
+      })),
+      ...(Array.isArray(product.sizes) ? product.sizes : []).map((item) => ({
+        color: '',
+        size: item,
+        stock: 1,
+      })),
+    ],
+  });
+
+  const fetchOutfitProducts = async (key) => {
+    if (key === 'daily') return HomeService.getDailyOutfit();
+    if (key === 'relax') return HomeService.getRelaxOutfit();
+    if (key === 'after-work') return HomeService.getAfterWorkOutfit();
+    return null;
+  };
+
   // ==========================================
   // 🌐 Update URL params (slug nằm ở useParams)
   // ==========================================
@@ -149,6 +185,7 @@ export default function ProductListPage() {
     if (keyword) params.set('q', keyword);
     if (color) params.set('color', color);
     if (size.length > 0) size.forEach((s) => params.append('size', s));
+    if (outfitKey) params.set('outfit', outfitKey);
     if (sort) params.set('sort', sort);
     params.set('page', String(page));
 
@@ -162,7 +199,7 @@ export default function ProductListPage() {
       lastSyncedSearchRef.current = nextSearch;
       setSearchParams(params, { replace: true });
     }
-  }, [keyword, color, size, sort, page, setSearchParams]);
+  }, [keyword, color, size, outfitKey, sort, page, setSearchParams]);
 
   // ==========================================
   // 📦 Fetch products – ĐÃ CHẶN REQUEST CŨ
@@ -172,6 +209,22 @@ export default function ProductListPage() {
     setLoading(true);
 
     try {
+      if (shouldUseOutfitProducts) {
+        const response = await fetchOutfitProducts(outfitKey);
+
+        if (currentId !== latestRequestId.current) {
+          return;
+        }
+
+        const products = (response?.data?.products || []).map(mapOutfitProduct);
+        setPageData({
+          content: products,
+          totalElements: products.length,
+          totalPages: products.length > 0 ? 1 : 0,
+        });
+        return;
+      }
+
       const response = await ProductService.getAll(query);
 
       // ❗ Nếu đã có request mới hơn → bỏ qua result này
@@ -186,7 +239,7 @@ export default function ProductListPage() {
         setLoading(false);
       }
     }
-  }, [query]);
+  }, [query, shouldUseOutfitProducts, outfitKey]);
 
   useEffect(() => {
     fetchData();

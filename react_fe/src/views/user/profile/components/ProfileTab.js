@@ -222,17 +222,6 @@ export default function ProfileTab({ user }) {
               onChange={handleChange}
             />
           </FormControl>
-
-          {user?.roleName === 'EMPLOYEE' && (
-            <FormControl>
-              <FormLabel>Mức Lương Giờ</FormLabel>
-              <Input
-                color={textColor}
-                value={user.hourlyRate || ''}
-                isReadOnly
-              />
-            </FormControl>
-          )}
         </SimpleGrid>
       </Box>
 

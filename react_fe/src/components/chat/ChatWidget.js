@@ -54,7 +54,7 @@ const StableProductCards = React.memo(function StableProductCards({
             align="center"
         >
           <Image
-            src={product.imageUrl}
+            src={product.imageUrl || product.thumbnail}
             alt={product.name}
             boxSize="56px"
             objectFit="cover"
@@ -85,6 +85,175 @@ const StableProductCards = React.memo(function StableProductCards({
           </Button>
         </Flex>
       ))}
+    </VStack>
+  );
+});
+
+const StableCategoryCards = React.memo(function StableCategoryCards({
+  categories = [],
+  borderColor,
+  bg,
+  navigate,
+}) {
+  if (!Array.isArray(categories) || categories.length === 0) return null;
+
+  return (
+    <VStack align="stretch" spacing={2} mt={3}>
+      {categories.map((category) => (
+        <Flex
+          key={category.id || category.slug}
+          gap={3}
+          p={2}
+          borderWidth="1px"
+          borderColor={borderColor}
+          borderRadius="8px"
+          bg={bg}
+          align="center"
+        >
+          <Image
+            src={category.thumbnail}
+            alt={category.name}
+            boxSize="48px"
+            objectFit="cover"
+            borderRadius="6px"
+            fallbackSrc={logo}
+          />
+          <Box flex="1" minW={0}>
+            <Text fontSize="sm" fontWeight="700" noOfLines={2}>
+              {category.name}
+            </Text>
+            {category.description && (
+              <Text fontSize="xs" color="gray.500" noOfLines={1}>
+                {category.description}
+              </Text>
+            )}
+          </Box>
+          <Button
+            size="xs"
+            bg="#111827"
+            color="white"
+            borderRadius="4px"
+            _hover={{ bg: '#F97316' }}
+            flexShrink={0}
+            onClick={() => category.slug && navigate(`/user/product/${category.slug}`)}
+          >
+            Xem
+          </Button>
+        </Flex>
+      ))}
+    </VStack>
+  );
+});
+
+const StableOrderCards = React.memo(function StableOrderCards({
+  orders = [],
+  borderColor,
+  bg,
+}) {
+  if (!Array.isArray(orders) || orders.length === 0) return null;
+
+  return (
+    <VStack align="stretch" spacing={2} mt={3}>
+      {orders.map((order) => (
+        <Box
+          key={order.code}
+          p={2.5}
+          borderWidth="1px"
+          borderColor={borderColor}
+          borderRadius="8px"
+          bg={bg}
+        >
+          <Flex justify="space-between" gap={3}>
+            <Text fontSize="sm" fontWeight="800" noOfLines={1}>
+              {order.code}
+            </Text>
+            <Text fontSize="xs" fontWeight="700" color="#F97316" flexShrink={0}>
+              {order.statusLabel || order.status}
+            </Text>
+          </Flex>
+          <Text fontSize="sm" fontWeight="700" mt={1}>
+            {formatProductPrice(order.total)}
+          </Text>
+          {order.createdAt && (
+            <Text fontSize="xs" color="gray.500">
+              {new Date(order.createdAt).toLocaleString('vi-VN')}
+            </Text>
+          )}
+        </Box>
+      ))}
+    </VStack>
+  );
+});
+
+const StableOutfitCards = React.memo(function StableOutfitCards({
+  outfit,
+  borderColor,
+  bg,
+  navigate,
+}) {
+  if (!outfit) return null;
+  const items = [
+    ['Ao', outfit.top],
+    ['Quan', outfit.bottom],
+    ['Giay', outfit.shoes],
+    ['Phu kien', outfit.accessory],
+  ].filter(([, product]) => product);
+
+  return (
+    <VStack align="stretch" spacing={2} mt={3}>
+      {outfit.reason && (
+        <Text fontSize="xs" color="gray.600">
+          {outfit.reason}
+        </Text>
+      )}
+      {items.map(([label, product]) => (
+        <Flex
+          key={`${label}-${product.id || product.slug}`}
+          gap={3}
+          p={2}
+          borderWidth="1px"
+          borderColor={borderColor}
+          borderRadius="8px"
+          bg={bg}
+          align="center"
+        >
+          <Image
+            src={product.imageUrl || product.thumbnail}
+            alt={product.name}
+            boxSize="54px"
+            objectFit="cover"
+            borderRadius="6px"
+            fallbackSrc={logo}
+          />
+          <Box flex="1" minW={0}>
+            <Text fontSize="xs" color="gray.500" fontWeight="700">
+              {label}
+            </Text>
+            <Text fontSize="sm" fontWeight="700" noOfLines={2}>
+              {product.name}
+            </Text>
+            <Text fontSize="sm" fontWeight="700" color="brand.500">
+              {formatProductPrice(product.price)}
+            </Text>
+          </Box>
+          <Button
+            size="xs"
+            bg="#111827"
+            color="white"
+            borderRadius="4px"
+            _hover={{ bg: '#F97316' }}
+            flexShrink={0}
+            onClick={() => product.slug && navigate(`/user/product/detail/${product.slug}`)}
+          >
+            Xem
+          </Button>
+        </Flex>
+      ))}
+      {outfit.sizeSuggestion && (
+        <Text fontSize="xs" color="gray.600">
+          Goi y size: {outfit.sizeSuggestion}. Ban nen kiem tra bang size cua tung san pham truoc khi dat.
+        </Text>
+      )}
     </VStack>
   );
 });
@@ -709,12 +878,31 @@ export default function ChatWidget({ hidden = false }) {
                       )}
                       <StableMessageContent content={m.content} />
                       {isBot && (
-                        <StableProductCards
-                          products={m.products}
-                          borderColor={botBorderColor}
-                          bg={productCardBg}
-                          navigate={navigate}
-                        />
+                        <>
+                          <StableProductCards
+                            products={m.products}
+                            borderColor={botBorderColor}
+                            bg={productCardBg}
+                            navigate={navigate}
+                          />
+                          <StableCategoryCards
+                            categories={m.categories}
+                            borderColor={botBorderColor}
+                            bg={productCardBg}
+                            navigate={navigate}
+                          />
+                          <StableOutfitCards
+                            outfit={m.outfit}
+                            borderColor={botBorderColor}
+                            bg={productCardBg}
+                            navigate={navigate}
+                          />
+                          <StableOrderCards
+                            orders={m.orders}
+                            borderColor={botBorderColor}
+                            bg={productCardBg}
+                          />
+                        </>
                       )}
                     </Box>
                   </Flex>

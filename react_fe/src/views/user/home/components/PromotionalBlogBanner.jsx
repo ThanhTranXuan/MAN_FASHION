@@ -31,11 +31,9 @@ export default function PromotionalBlogBanner() {
           selectedBlog = latestRes.data.content?.[0];
         }
 
-        if (isMounted) {
-          setBlog(selectedBlog || null);
-        }
+        if (isMounted) setBlog(selectedBlog || null);
       } catch (err) {
-        console.error('Lỗi load banner khuyến mãi:', err);
+        console.error('Failed to load promotion blog:', err);
       } finally {
         if (isMounted) setLoading(false);
       }
@@ -49,10 +47,10 @@ export default function PromotionalBlogBanner() {
   }, []);
 
   const description = useMemo(() => {
-    const text = stripHtml(blog?.content);
+    const text = stripHtml(blog?.excerpt || blog?.summary || blog?.content);
     return (
       text ||
-      'Khám phá ưu đãi mới nhất và những gợi ý phối đồ đáng chú ý trong tháng này.'
+      'Tong hop ma giam gia, chuong trinh sale va cac uu dai moi nhat dang ap dung tai Trendify.'
     );
   }, [blog]);
 
@@ -129,7 +127,7 @@ export default function PromotionalBlogBanner() {
               mb={5}
             >
               <MdLocalOffer />
-              Ưu đãi nổi bật
+              Uu dai noi bat
             </Badge>
             <Text
               fontSize={{ base: '3xl', md: '5xl' }}
@@ -138,7 +136,7 @@ export default function PromotionalBlogBanner() {
               lineHeight="1"
               mb={4}
             >
-              Ưu đãi tháng này
+              {blog.title || 'Uu dai thang nay'}
             </Text>
             <Text
               fontSize={{ base: 'sm', md: 'lg' }}
@@ -162,7 +160,7 @@ export default function PromotionalBlogBanner() {
             flexShrink={0}
             _hover={{ bg: '#FED7AA' }}
           >
-            Khám phá ngay
+            Kham pha ngay
           </Button>
         </Flex>
       </Box>

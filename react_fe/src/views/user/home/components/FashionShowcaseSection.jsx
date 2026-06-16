@@ -10,22 +10,29 @@ const looks = [
     meta: '01 / ngày thường',
     desc: 'Sơ mi sáng màu, quần đứng phom và sneaker tối giản cho lịch trình bận rộn.',
     imageUrl: 'https://res.cloudinary.com/dltg0f2qf/image/upload/v1779597882/KV-02-pc-summer_qvkhzw.webp',
+    sectionKey: 'daily',
   },
   {
     title: 'Cuối tuần thoải mái',
     meta: '02 / thư giãn',
     desc: 'Chất liệu thoáng, màu trung tính và phom rộng vừa đủ để di chuyển cả ngày.',
     imageUrl: 'https://res.cloudinary.com/dltg0f2qf/image/upload/v1779597882/KV-03-pc-summer_mu3rov.webp',
+    sectionKey: 'relax',
   },
   {
     title: 'Điểm nhấn buổi tối',
     meta: '03 / sau giờ làm',
     desc: 'Layer tối màu cùng phụ kiện nổi bật để tổng thể có chiều sâu hơn.',
     imageUrl: 'https://res.cloudinary.com/dltg0f2qf/image/upload/v1779597882/KV-06-pc-summer_xffzsn.webp',
+    sectionKey: 'after-work',
   },
 ];
 
 export default function FashionShowcaseSection() {
+  const buildProductLink = (look) => {
+    return `/user/product?outfit=${encodeURIComponent(look.sectionKey)}`;
+  };
+
   return (
     <Box bg="#F6F0E8" py={{ base: 12, md: 22 }}>
       <AppContainer>
@@ -74,7 +81,7 @@ export default function FashionShowcaseSection() {
               <Flex
                 key={look.title}
                 as={RouterLink}
-                to="/user/product"
+                to={buildProductLink(look)}
                 direction={{
                   base: 'column',
                   md: index % 2 === 0 ? 'row' : 'row-reverse',
