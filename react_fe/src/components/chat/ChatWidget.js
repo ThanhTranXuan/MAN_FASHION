@@ -259,7 +259,12 @@ const StableOutfitCards = React.memo(function StableOutfitCards({
 });
 
 const StableMessageContent = React.memo(function StableMessageContent({ content }) {
-  const safeContent = content || "";
+  const safeContent = String(content || "")
+    .replace(/\r\n/g, '\n')
+    .replace(/\r/g, '\n')
+    .replace(/[ \t]{2,}/g, ' ')
+    .replace(/\n{3,}/g, '\n\n')
+    .trim();
   const processedContent = safeContent
     .replace(
       /https?:\/\/res\.cloudinary\.com\/[^\s]+/g,
@@ -282,7 +287,7 @@ const StableMessageContent = React.memo(function StableMessageContent({ content 
       remarkPlugins={[remarkGfm]}
       components={{
         p: ({ children }) => (
-          <Text mb={2} fontSize="sm" lineHeight="1.65" whiteSpace="pre-wrap" overflowWrap="break-word">
+          <Text mb={1.5} fontSize="sm" lineHeight="1.55" whiteSpace="normal" overflowWrap="break-word">
             {children}
           </Text>
         ),
@@ -861,6 +866,7 @@ export default function ChatWidget({ hidden = false }) {
                       fontSize="14px"
                       lineHeight="1.65"
                       whiteSpace="pre-wrap"
+                      sx={{ '& p:last-child': { marginBottom: 0 } }}
                       overflowWrap="break-word"
                       overflow="visible"
                     >

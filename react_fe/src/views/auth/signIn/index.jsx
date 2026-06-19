@@ -22,7 +22,6 @@ import { MdOutlineRemoveRedEye } from 'react-icons/md';
 import { RiEyeCloseLine } from 'react-icons/ri';
 import DefaultAuth from 'layouts/auth/Default';
 import AuthService from 'services/AuthService';
-import EmployeeService from 'services/EmployeeService';
 import ProfileService from 'services/ProfileService';
 import { useUser } from 'contexts/UserContext';
 import { useAppToast } from 'utils/ToastHelper';
@@ -104,13 +103,7 @@ function SignIn() {
     const redirectTo = location.state?.from || '/';
 
     if (role === 'EMPLOYEE') {
-      try {
-        await EmployeeService.checkIn();
-        toast.success('Đăng nhập thành công! Check-in đã được ghi nhận.');
-      } catch (e) {
-        console.error('Check-in failed:', e);
-        toast.error('Chưa có dữ liệu người dùng. Vui lòng thử lại.');
-      }
+      toast.success('Đăng nhập thành công!');
       navigate('/admin');
     } else if (role === 'ADMIN') {
       toast.success('Chào mừng quay trở lại, Quản trị viên!');

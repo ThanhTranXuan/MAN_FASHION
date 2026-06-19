@@ -18,7 +18,7 @@ import MiniStatistics from 'components/card/MiniStatistics';
 import TotalRevenue from 'views/admin/default/components/TotalRevenue';
 import TotalCustomers from 'views/admin/default/components/TotalCustomers';
 import TopProductsTable from 'views/admin/default/components/TopProductsTable';
-import EmployeeStanding from 'views/admin/default/components/EmployeeStanding';
+import ProductCategorySummaryChart from 'views/admin/default/components/ProductCategorySummaryChart';
 import ReportService from 'services/ReportService';
 import { formatCurrencyVND } from 'utils/FormatHelper';
 import { useAppToast } from 'utils/ToastHelper'; // 🔥 dùng ToastHelper
@@ -38,7 +38,7 @@ export default function UserReports() {
   const [customerTrend, setCustomerTrend] = useState([]);
 
   const [topProducts, setTopProducts] = useState([]);
-  const [topEmployees, setTopEmployees] = useState([]);
+  const [productCategorySummary, setProductCategorySummary] = useState([]);
 
   // ⚙️ Load Data
   useEffect(() => {
@@ -51,7 +51,7 @@ export default function UserReports() {
           revenueTrendRes,
           customerTrendRes,
           topProductsRes,
-          topEmployeesRes,
+          productCategorySummaryRes,
         ] = await Promise.all([
           ReportService.getOverview(),
           ReportService.getRevenueSummary(),
@@ -59,7 +59,7 @@ export default function UserReports() {
           ReportService.getRevenueTrend(),
           ReportService.getCustomerTrend(),
           ReportService.getTopProductsMonthly(),
-          ReportService.getTopEmployeesMonthly(),
+          ReportService.getProductCategorySummary(),
         ]);
 
         setOverview(overviewRes.data);
@@ -68,7 +68,7 @@ export default function UserReports() {
         setRevenueTrend(revenueTrendRes.data);
         setCustomerTrend(customerTrendRes.data);
         setTopProducts(topProductsRes.data);
-        setTopEmployees(topEmployeesRes.data);
+        setProductCategorySummary(productCategorySummaryRes.data);
       } catch (err) {
         console.error('❌ Failed to load dashboard data:', err);
         toast.error('Tải bảng điều khiển thất bại. Vui lòng thử lại sau.');
@@ -185,7 +185,7 @@ export default function UserReports() {
         <TotalCustomers summary={customerSummary} trend={customerTrend} />
       </SimpleGrid>
 
-      {/* 📊 3️⃣ Top Products + Top Employees */}
+      {/* 📊 3️⃣ Product performance */}
       <SimpleGrid
         columns={{ base: 1, md: 5 }}
         gap="20px"
@@ -197,9 +197,8 @@ export default function UserReports() {
           <TopProductsTable products={topProducts} />
         </Box>
 
-        {/* 👷 TOP EMPLOYEES - chiếm 1/3 */}
         <Box h="100%" gridColumn={{ base: 'span 1', md: 'span 2' }}>
-          <EmployeeStanding employees={topEmployees} />
+          <ProductCategorySummaryChart categories={productCategorySummary} />
         </Box>
       </SimpleGrid>
     </Box>

@@ -112,12 +112,9 @@ const ApiUrl = {
 
   // ==== EMPLOYEES ====
   EMPLOYEES: withBase('/api/employees'),
-  EMPLOYEE_DETAIL: (id, month, year) =>
-    withBase(`/api/employees/${id}?month=${month}&year=${year}`),
+  EMPLOYEE_DETAIL: (id) => withBase(`/api/employees/${id}`),
   UPDATE_EMPLOYEE: (id) => withBase(`/api/employees/${id}`),
   DELETE_EMPLOYEE: (id) => withBase(`/api/employees/${id}`),
-  CHECK_IN: withBase('/api/employees/check-in'),
-  CHECK_OUT: withBase('/api/employees/check-out'),
 
   // ==== REPORTS ====
   REPORT_OVERVIEW: withBase('/api/reports/overview'),
@@ -127,13 +124,7 @@ const ApiUrl = {
   REPORT_CUSTOMER_TREND: withBase('/api/reports/customers/trend'),
   REPORT_TOP_CATEGORIES_WEEKLY: withBase('/api/reports/categories/top-weekly'),
   REPORT_TOP_PRODUCTS_MONTHLY: withBase('/api/reports/products/top-monthly'),
-  REPORT_TOP_EMPLOYEES_MONTHLY: (month, year) => {
-    let url = '/api/reports/employees/top-monthly';
-    if (month !== undefined && year !== undefined) {
-      url += `?month=${month}&year=${year}`;
-    }
-    return withBase(url);
-  },
+  REPORT_PRODUCT_CATEGORY_SUMMARY: withBase('/api/reports/products/category-summary'),
 };
 
 export default ApiUrl;

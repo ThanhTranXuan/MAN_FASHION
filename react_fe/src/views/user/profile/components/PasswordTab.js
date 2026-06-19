@@ -5,14 +5,17 @@ import {
   FormControl,
   FormLabel,
   Input,
+  Text,
   VStack,
   useColorModeValue,
 } from '@chakra-ui/react';
 import { useAppToast } from 'utils/ToastHelper';
 import ProfileService from 'services/ProfileService';
+import { useUser } from 'contexts/UserContext';
 
 export default function PasswordTab() {
   const toast = useAppToast();
+  const { user } = useUser();
   const bgColor = useColorModeValue('fashion.softSurface', 'navy.800');
   const borderColor = useColorModeValue('fashion.stone', 'gray.700');
   const textColor = useColorModeValue('secondaryGray.900', 'white');
@@ -21,6 +24,7 @@ export default function PasswordTab() {
     newPassword: '',
     confirmPassword: '',
   });
+  const isGoogleOnlyAccount = user?.socialProvider?.toUpperCase() === 'GOOGLE';
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -45,9 +49,27 @@ export default function PasswordTab() {
       });
     } catch (err) {
       console.error(err);
-      toast.error('Đổi mật khẩu thất bại');
+      toast.error(err.response?.data?.message || 'Đổi mật khẩu thất bại');
     }
   };
+
+  if (isGoogleOnlyAccount) {
+    return (
+      <Box
+        bg={bgColor}
+        p={{ base: 4, md: 6 }}
+        borderRadius="16px"
+        border="1px solid"
+        borderColor={borderColor}
+        w={{ base: '100%', md: '60%', lg: '50%' }}
+        mx="auto"
+      >
+        <Text color={textColor}>
+          Tài khoản này đăng nhập bằng Google nên mật khẩu được quản lý bởi Google.
+        </Text>
+      </Box>
+    );
+  }
 
   return (
     <Box

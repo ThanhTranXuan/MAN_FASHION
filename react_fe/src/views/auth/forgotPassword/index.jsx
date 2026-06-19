@@ -45,7 +45,7 @@ function ForgotPassword() {
       navigate('/auth/check-email');
     } catch (error) {
       console.error(error);
-      toast.error('Không tìm thấy tài khoản với email này.');
+      toast.error(error.response?.data?.message || 'Không tìm thấy tài khoản với email này.');
     } finally {
       setLoading(false);
     }

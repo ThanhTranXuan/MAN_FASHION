@@ -22,7 +22,7 @@ export default function TotalCustomers({ summary, trend }) {
   const { series, options } = useMemo(() => {
     if (!trend || trend.length === 0) {
       return {
-        series: [{ name: 'Khach hang moi', data: [] }],
+        series: [{ name: 'Khách hàng mới', data: [] }],
         options: { xaxis: { categories: [] } },
       };
     }
@@ -31,7 +31,7 @@ export default function TotalCustomers({ summary, trend }) {
     const customers = trend.map((d) => d.value);
 
     return {
-      series: [{ name: 'Khach hang moi', data: customers }],
+      series: [{ name: 'Khách hàng mới', data: customers }],
       options: {
         chart: {
           type: 'bar',
@@ -67,7 +67,7 @@ export default function TotalCustomers({ summary, trend }) {
           theme: isDark ? 'dark' : 'light',
           y: {
             formatter: (val) =>
-              `${Math.round(Number(val || 0)).toLocaleString('vi-VN')} khach hang`,
+              `${Math.round(Number(val || 0)).toLocaleString('vi-VN')} khách hàng`,
           },
         },
       },
@@ -77,7 +77,7 @@ export default function TotalCustomers({ summary, trend }) {
   if (!summary || !trend || trend.length === 0) {
     return (
       <Card justify="center" align="center" h="260px">
-        <Text color="gray.500">Khong co du lieu</Text>
+        <Text color="gray.500">Không có dữ liệu</Text>
       </Card>
     );
   }
@@ -93,7 +93,7 @@ export default function TotalCustomers({ summary, trend }) {
           borderRadius="7px"
           leftIcon={<MdOutlineCalendarToday />}
         >
-          6 thang gan day
+          6 tháng gần đây
         </Button>
         <Badge
           colorScheme={summary.growthCount >= 0 ? 'green' : 'red'}
@@ -102,7 +102,7 @@ export default function TotalCustomers({ summary, trend }) {
           py="1"
         >
           {summary.growthCount >= 0 ? '+' : ''}
-          {summary.growthCount} moi
+          {summary.growthCount} mới
         </Badge>
       </Flex>
 
@@ -110,7 +110,7 @@ export default function TotalCustomers({ summary, trend }) {
         {summary.currentNewCustomers?.toLocaleString('vi-VN') || 0}
       </Text>
       <Text color={textColorSecondary} fontSize="sm" mb="20px">
-        Khach hang moi trong thang
+        Khách hàng mới trong tháng
       </Text>
 
       <Box minH="220px" w="full">

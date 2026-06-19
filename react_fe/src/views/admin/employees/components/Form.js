@@ -48,18 +48,18 @@ export default function Form({ isOpen, onClose, reloadEmployees, editingEmployee
     const emailTrimmed = email.trim();
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-    if (!nameTrimmed) newErrors.fullName = 'Ho ten la bat buoc';
-    if (!emailTrimmed) newErrors.email = 'Email la bat buoc';
-    else if (!emailRegex.test(emailTrimmed)) newErrors.email = 'Email khong hop le';
+    if (!nameTrimmed) newErrors.fullName = 'Họ tên là bắt buộc';
+    if (!emailTrimmed) newErrors.email = 'Email là bắt buộc';
+    else if (!emailRegex.test(emailTrimmed)) newErrors.email = 'Email không hợp lệ';
 
     if (!editingEmployee) {
-      if (!password) newErrors.password = 'Mat khau la bat buoc';
-      else if (password.length < 6) newErrors.password = 'Mat khau phai co it nhat 6 ky tu';
+      if (!password) newErrors.password = 'Mật khẩu là bắt buộc';
+      else if (password.length < 6) newErrors.password = 'Mật khẩu phải có ít nhất 6 ký tự';
     }
 
     setErrors(newErrors);
     if (Object.keys(newErrors).length > 0) {
-      toast.error('Vui long sua cac loi xac thuc');
+      toast.error('Vui lòng sửa các lỗi xác thực');
       return false;
     }
     return true;
@@ -79,20 +79,20 @@ export default function Form({ isOpen, onClose, reloadEmployees, editingEmployee
         await EmployeeService.update(editingEmployee.id, {
           fullName: payloadBase.fullName,
         });
-        toast.success('Da cap nhat nhan vien thanh cong!');
+        toast.success('Đã cập nhật nhân viên thành công!');
       } else {
         await EmployeeService.create({
           ...payloadBase,
           password,
         });
-        toast.success('Da tao nhan vien thanh cong!');
+        toast.success('Đã tạo nhân viên thành công!');
       }
 
       reloadEmployees?.();
       onClose();
     } catch (error) {
       console.error('Employee save error:', error.response?.data || error);
-      toast.error(error.response?.data?.message || 'Luu thong tin nhan vien that bai');
+      toast.error(error.response?.data?.message || 'Lưu thông tin nhân viên thất bại');
     } finally {
       setLoading(false);
     }
@@ -103,15 +103,15 @@ export default function Form({ isOpen, onClose, reloadEmployees, editingEmployee
       <ModalOverlay />
       <ModalContent borderRadius="16px" bg={bgColor} color={textColor} maxH="calc(100vh - 32px)">
         <ModalHeader bg={headerBg} borderTopRadius="20px">
-          {editingEmployee ? 'Chinh Sua Nhan Vien' : 'Them Nhan Vien'}
+          {editingEmployee ? 'Chỉnh sửa nhân viên' : 'Thêm nhân viên'}
         </ModalHeader>
         <ModalCloseButton />
         <ModalBody pb={6}>
           <FormControl mb={3} isRequired isInvalid={!!errors.fullName}>
-            <FormLabel>Ho Ten</FormLabel>
+            <FormLabel>Họ tên</FormLabel>
             <Input
               color={textColor}
-              placeholder="Nhap ho ten"
+              placeholder="Nhập họ tên"
               value={fullName}
               onChange={(e) => setFullName(e.target.value)}
             />
@@ -122,7 +122,7 @@ export default function Form({ isOpen, onClose, reloadEmployees, editingEmployee
             <FormLabel>Email</FormLabel>
             <Input
               color={textColor}
-              placeholder="Nhap email"
+              placeholder="Nhập email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               disabled={!!editingEmployee}
@@ -132,11 +132,11 @@ export default function Form({ isOpen, onClose, reloadEmployees, editingEmployee
 
           {!editingEmployee && (
             <FormControl mb={3} isRequired isInvalid={!!errors.password}>
-              <FormLabel>Mat Khau</FormLabel>
+              <FormLabel>Mật khẩu</FormLabel>
               <Input
                 color={textColor}
                 type="password"
-                placeholder="Nhap mat khau"
+                placeholder="Nhập mật khẩu"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
               />
@@ -152,7 +152,7 @@ export default function Form({ isOpen, onClose, reloadEmployees, editingEmployee
             mr={3}
             isLoading={loading}
           >
-            {editingEmployee ? 'Cap Nhat' : 'Tao Moi'}
+            {editingEmployee ? 'Cập nhật' : 'Tạo mới'}
           </Button>
         </ModalFooter>
       </ModalContent>

@@ -1,5 +1,11 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import {
+  Badge,
+  Box,
+  Button,
+  Divider,
+  Grid,
+  GridItem,
   Modal,
   ModalOverlay,
   ModalContent,
@@ -7,122 +13,90 @@ import {
   ModalCloseButton,
   ModalBody,
   ModalFooter,
-  Button,
   Text,
-  HStack,
-  Menu,
-  MenuButton,
-  MenuList,
-  MenuItem,
-  Table,
-  Thead,
-  Tbody,
-  Tr,
-  Th,
-  Td,
-  Flex,
   useColorModeValue,
 } from '@chakra-ui/react';
-import { MdArrowDropDown } from 'react-icons/md';
 import { useAppToast } from 'utils/ToastHelper';
 import EmployeeService from 'services/EmployeeService';
 
-export default function Detail({ isOpen, onClose, employee }) {
-  const [month, setMonth] = useState(new Date().getMonth() + 1);
-  const [year, setYear] = useState(new Date().getFullYear());
-  const [attendances, setAttendances] = useState([]);
-  const [totalHours, setTotalHours] = useState(0);
+const InfoItem = ({ label, value }) => (
+  <Box>
+    <Text fontSize="xs" color="gray.500" fontWeight="700" textTransform="uppercase">
+      {label}
+    </Text>
+    <Text fontSize="sm" fontWeight="600" mt={1} wordBreak="break-word">
+      {value || 'Chưa cập nhật'}
+    </Text>
+  </Box>
+);
 
+export default function Detail({ isOpen, onClose, employee }) {
+  const [detail, setDetail] = useState(null);
   const toast = useAppToast();
   const textColor = useColorModeValue('secondaryGray.900', 'white');
   const bgColor = useColorModeValue('white', 'navy.800');
   const headerBg = useColorModeValue('gray.100', 'navy.800');
-  const rowBg = useColorModeValue('yellow.100', 'yellow.900');
 
   const fetchData = useCallback(async () => {
     if (!employee) return;
     try {
-      const { data } = await EmployeeService.getById(employee.id, { month, year });
-      setAttendances(data.attendances || []);
-      setTotalHours(data.totalHours || 0);
+      const { data } = await EmployeeService.getById(employee.id);
+      setDetail(data);
     } catch (err) {
-      toast.error('Error loading data');
+      toast.error('Không thể tải thông tin nhân viên');
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [employee, month, year]);
+  }, [employee, toast]);
 
   useEffect(() => {
-    if (employee) fetchData();
-  }, [employee, month, year, fetchData]);
+    if (isOpen && employee) fetchData();
+  }, [isOpen, employee, fetchData]);
+
+  const current = detail || employee || {};
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} size="3xl" isCentered>
+    <Modal isOpen={isOpen} onClose={onClose} size="2xl" isCentered>
       <ModalOverlay />
-      <ModalContent borderRadius="20px" bg={bgColor} color={textColor}>
-        <ModalHeader bg={headerBg} borderTopRadius="20px">
-          Chi Tiet Nhan Vien - {employee?.fullName}
+      <ModalContent borderRadius="16px" bg={bgColor} color={textColor}>
+        <ModalHeader bg={headerBg} borderTopRadius="16px">
+          Chi tiết nhân viên - {current.fullName || ''}
         </ModalHeader>
         <ModalCloseButton />
-        <ModalBody>
-          <Flex justify="space-between" align="center" mb={4} px={2}>
-            <HStack spacing={4}>
-              <Menu>
-                <MenuButton as={Button} rightIcon={<MdArrowDropDown />} variant="outline">
-                  Thang {month}
-                </MenuButton>
-                <MenuList>
-                  {Array.from({ length: 12 }, (_, i) => (
-                    <MenuItem key={i + 1} onClick={() => setMonth(i + 1)}>
-                      Thang {i + 1}
-                    </MenuItem>
-                  ))}
-                </MenuList>
-              </Menu>
+        <ModalBody py={6}>
+          <Grid templateColumns={{ base: '1fr', md: '1fr 1fr' }} gap={5}>
+            <GridItem>
+              <InfoItem label="Họ tên" value={current.fullName} />
+            </GridItem>
+            <GridItem>
+              <InfoItem label="Email" value={current.email} />
+            </GridItem>
+            <GridItem>
+              <InfoItem label="Số điện thoại" value={current.phone} />
+            </GridItem>
+            <GridItem>
+              <InfoItem label="Vai trò" value={current.roleName || 'EMPLOYEE'} />
+            </GridItem>
+            <GridItem>
+              <Text fontSize="xs" color="gray.500" fontWeight="700" textTransform="uppercase">
+                Trạng thái
+              </Text>
+              <Badge mt={1} colorScheme={current.isActive === false ? 'red' : 'green'}>
+                {current.isActive === false ? 'Đã khóa' : 'Đang hoạt động'}
+              </Badge>
+            </GridItem>
+            <GridItem>
+              <InfoItem
+                label="Ngày tạo"
+                value={current.createdAt ? new Date(current.createdAt).toLocaleString('vi-VN') : null}
+              />
+            </GridItem>
+          </Grid>
 
-              <Menu>
-                <MenuButton as={Button} rightIcon={<MdArrowDropDown />} variant="outline">
-                  Nam {year}
-                </MenuButton>
-                <MenuList>
-                  {Array.from({ length: 5 }, (_, i) => {
-                    const y = new Date().getFullYear() - i;
-                    return (
-                      <MenuItem key={y} onClick={() => setYear(y)}>
-                        Nam {y}
-                      </MenuItem>
-                    );
-                  })}
-                </MenuList>
-              </Menu>
-            </HStack>
-
-            <Text fontWeight="bold">
-              Tong Gio Lam: {totalHours.toFixed(2)} gio
-            </Text>
-          </Flex>
-
-          <Table size="sm" variant="simple">
-            <Thead bg={headerBg}>
-              <Tr>
-                <Th>Gio Vao</Th>
-                <Th>Gio Ra</Th>
-                <Th>So Gio</Th>
-              </Tr>
-            </Thead>
-            <Tbody>
-              {attendances.map((r, idx) => (
-                <Tr key={idx} bg={idx % 2 === 0 ? 'transparent' : rowBg}>
-                  <Td>{new Date(r.checkInTime).toLocaleString()}</Td>
-                  <Td>{r.checkOutTime ? new Date(r.checkOutTime).toLocaleString() : '-'}</Td>
-                  <Td>{r.workingHours?.toFixed(2) || 0}</Td>
-                </Tr>
-              ))}
-            </Tbody>
-          </Table>
+          <Divider my={5} />
+          <InfoItem label="Địa chỉ" value={current.address} />
         </ModalBody>
 
-        <ModalFooter bg={headerBg} borderBottomRadius="20px">
-          <Button onClick={onClose}>Close</Button>
+        <ModalFooter bg={headerBg} borderBottomRadius="16px">
+          <Button onClick={onClose}>Đóng</Button>
         </ModalFooter>
       </ModalContent>
     </Modal>

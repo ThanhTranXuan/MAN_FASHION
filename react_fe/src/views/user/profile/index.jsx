@@ -309,6 +309,7 @@ export default function ProfilePage() {
   // -------------------------------
   const roleName = user?.roleName || 'GUEST';
   const isAdminOrEmployee = roleName === 'ADMIN' || roleName === 'EMPLOYEE';
+  const isGoogleOnlyAccount = user?.socialProvider?.toUpperCase() === 'GOOGLE';
 
   // -------------------------------
   // Tabs hiển thị theo role
@@ -341,7 +342,7 @@ export default function ProfilePage() {
       ),
     },
     { label: 'Hồ Sơ', component: user && <ProfileTab user={user} /> },
-    { label: 'Đổi Mật Khẩu', component: <PasswordTab /> },
+    !isGoogleOnlyAccount && { label: 'Đổi Mật Khẩu', component: <PasswordTab /> },
     !isAdminOrEmployee && {
       label: 'Xóa Tài Khoản',
       component: <DeleteAccountTab />,

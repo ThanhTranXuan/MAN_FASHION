@@ -19,7 +19,6 @@ import { IoMdCart } from 'react-icons/io';
 import React, { useState } from 'react';
 import ConfirmDialog from 'components/dialog/ConfirmDialog';
 import { useNavigate, useLocation } from 'react-router-dom';
-import EmployeeService from 'services/EmployeeService';
 import { useUser } from 'contexts/UserContext';
 import { useCart } from 'contexts/CartContext';
 import CartSidebar from 'components/cart/CartSidebar';
@@ -121,23 +120,12 @@ export default function NavbarLinks() {
   };
 
   const handleLogout = async () => {
-    try {
-      if (user?.roleName === 'EMPLOYEE') {
-        await EmployeeService.checkOut();
-        toast.success('Đăng xuất thành công! Đã ghi nhận check-out.');
-      } else {
-        toast.success('Đăng xuất thành công!');
-      }
-    } catch (e) {
-      console.error(e);
-      toast.error('Không thể ghi nhận check-out.');
-    } finally {
-      logout();
-      setTimeout(() => {
-        navigate('/user');
-        window.location.reload();
-      }, 100);
-    }
+    toast.success('Đăng xuất thành công!');
+    logout();
+    setTimeout(() => {
+      navigate('/user');
+      window.location.reload();
+    }, 100);
   };
 
   const filteredRoutes = routes.filter((route) => !route.hideInSidebar);
