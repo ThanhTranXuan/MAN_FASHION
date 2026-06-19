@@ -166,6 +166,9 @@ public class AuthenticationServiceImpl implements AuthenticationService{
     @Override
     public String forgotPassword(String email) {
         User user = userRepository.findByEmail(email).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
+        if (isGoogleAccount(user)) {
+            throw new AppException(ErrorCode.GOOGLE_ACCOUNT_PASSWORD_MANAGED);
+        }
 
         String token = UUID.randomUUID().toString();
         PasswordResetToken reset = PasswordResetToken.builder().token(token).userId(user.getId()).expiryDate(LocalDateTime.now().plusMinutes(10)).build();
@@ -197,10 +200,17 @@ public class AuthenticationServiceImpl implements AuthenticationService{
         }
 
         User user = userRepository.findById(reset.getUserId()).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
+        if (isGoogleAccount(user)) {
+            throw new AppException(ErrorCode.GOOGLE_ACCOUNT_PASSWORD_MANAGED);
+        }
         user.setPassword(passwordEncoder.encode(newPassword));
         userRepository.save(user);
         passwordResetTokenRepository.delete(reset);
         return "Password reset successful";
+    }
+
+    private boolean isGoogleAccount(User user) {
+        return user.getSocialProvider() != null && GOOGLE_PROVIDER.equalsIgnoreCase(user.getSocialProvider());
     }
 }
 

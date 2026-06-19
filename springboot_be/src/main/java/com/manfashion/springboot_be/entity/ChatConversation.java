@@ -22,16 +22,6 @@ public class ChatConversation {
     @JoinColumn(name = "user_id")
     private User user;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "assigned_employee_id")
-    private User assignedEmployee;
-
-    @Column(name = "user_name")
-    private String userName;
-
-    @Column(name = "assigned_employee_name")
-    private String assignedEmployeeName;
-
     private String status;
 
     @Column(columnDefinition = "TEXT", name = "last_message_text")

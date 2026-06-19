@@ -13,7 +13,8 @@ public class EmployeeResponse {
     private String id;
     private String fullName;
     private String email;
-    private Double hourlyRate;
+    private String phone;
+    private String roleName;
     private Boolean isActive;
 }
 

@@ -1,7 +1,5 @@
 package com.manfashion.springboot_be.service.Employee;
 
-
-import com.manfashion.springboot_be.DTO.Employee.AttendanceResponse;
 import com.manfashion.springboot_be.DTO.Employee.EmployeeDetailResponse;
 import com.manfashion.springboot_be.DTO.Employee.EmployeeRequest;
 import com.manfashion.springboot_be.DTO.Employee.EmployeeResponse;
@@ -13,7 +11,5 @@ public interface EmployeeService {
     EmployeeResponse createEmployee(EmployeeRequest req);
     EmployeeResponse updateEmployee(String id, EmployeeRequest req);
     void deleteEmployee(String id);
-    AttendanceResponse checkIn(String userId);
-    AttendanceResponse checkOut(String userId);
-    EmployeeDetailResponse getWorkDetail(String userId, int month, int year);
+    EmployeeDetailResponse getEmployeeDetail(String userId);
 }

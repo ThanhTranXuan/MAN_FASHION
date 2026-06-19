@@ -45,6 +45,25 @@ public interface ProductRepository extends JpaRepository<Product,Integer> ,Produ
             """)
     List<Product> findActiveBotCandidates(Pageable pageable);
 
+    @Query(value = """
+            SELECT
+                c.id AS category_id,
+                c.name AS category_name,
+                COUNT(DISTINCT p.id) AS product_count,
+                COALESCE(SUM(CASE WHEN v.deleted_at IS NULL THEN v.stock ELSE 0 END), 0) AS total_stock
+            FROM categories c
+            LEFT JOIN products p
+                ON p.category_id = c.id
+                AND p.deleted_at IS NULL
+                AND p.is_active = true
+            LEFT JOIN product_variants v
+                ON v.product_id = p.id
+                AND v.deleted_at IS NULL
+            GROUP BY c.id, c.name
+            ORDER BY product_count DESC, total_stock DESC, c.name ASC
+            """, nativeQuery = true)
+    List<Object[]> getProductCategorySummary();
+
     // API 3: Sản phẩm tương tự
     @Query("SELECT p FROM Product p WHERE p.category.id = :categoryId AND p.id != :productId " +
            "AND p.isActive = true AND p.deletedAt IS NULL ORDER BY p.createdAt DESC")

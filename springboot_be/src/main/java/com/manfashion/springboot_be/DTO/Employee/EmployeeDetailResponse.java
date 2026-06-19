@@ -5,17 +5,20 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.List;
+import java.time.LocalDateTime;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
 public class EmployeeDetailResponse {
-    private String employeeId;
-    private int month;
-    private int year;
-    private Double totalHours;
-    private Double totalSalary;
-    private List<AttendanceResponse> attendances;
+    private String id;
+    private String fullName;
+    private String email;
+    private String phone;
+    private String roleName;
+    private Boolean isActive;
+    private String avatarUrl;
+    private String address;
+    private LocalDateTime createdAt;
 }

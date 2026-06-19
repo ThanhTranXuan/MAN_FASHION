@@ -1,7 +1,11 @@
 package com.manfashion.springboot_be.service.Report;
 
-
-import com.manfashion.springboot_be.DTO.Report.*;
+import com.manfashion.springboot_be.DTO.Report.CustomerSummaryResponse;
+import com.manfashion.springboot_be.DTO.Report.OverviewResponse;
+import com.manfashion.springboot_be.DTO.Report.ProductCategorySummaryResponse;
+import com.manfashion.springboot_be.DTO.Report.RevenueSummaryResponse;
+import com.manfashion.springboot_be.DTO.Report.TopProductResponse;
+import com.manfashion.springboot_be.DTO.Report.TrendResponse;
 import com.manfashion.springboot_be.repository.Category.CategoryRepository;
 import com.manfashion.springboot_be.repository.Order.OrderItemRepository;
 import com.manfashion.springboot_be.repository.Order.OrderRepository;
@@ -9,7 +13,6 @@ import com.manfashion.springboot_be.repository.Product.ProductRepository;
 import com.manfashion.springboot_be.repository.Return.ReturnOrderRepository;
 import com.manfashion.springboot_be.repository.Role.RoleRepository;
 import com.manfashion.springboot_be.repository.User.UserRepository;
-import com.manfashion.springboot_be.service.Attendance.AttendanceService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
@@ -17,7 +20,6 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.YearMonth;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -34,7 +36,6 @@ public class ReportServiceImpl implements ReportService {
     private final RoleRepository roleRepo;
     private final CategoryRepository categoryRepo;
     private final ProductRepository productRepo;
-    private final AttendanceService attendanceService;
 
     @Override
     public OverviewResponse getOverview() {
@@ -98,7 +99,7 @@ public class ReportServiceImpl implements ReportService {
         YearMonth firstMonth = YearMonth.now().minusMonths(5);
         LocalDateTime start = firstMonth.atDay(1).atStartOfDay();
         Map<String, Double> values = orderRepo.getRevenueTrend("COMPLETED", start).stream()
-                .map(r -> new TrendResponse(((Number)r[0]).intValue(), ((Number)r[1]).intValue(), ((Number)r[2]).doubleValue()))
+                .map(r -> new TrendResponse(((Number) r[0]).intValue(), ((Number) r[1]).intValue(), ((Number) r[2]).doubleValue()))
                 .collect(Collectors.toMap(r -> r.getYear() + "-" + r.getMonth(), TrendResponse::getValue));
 
         List<TrendResponse> result = new ArrayList<>();
@@ -118,7 +119,7 @@ public class ReportServiceImpl implements ReportService {
         YearMonth firstMonth = YearMonth.now().minusMonths(5);
         LocalDateTime start = firstMonth.atDay(1).atStartOfDay();
         Map<String, Double> values = orderRepo.getCustomerTrend("CANCELLED", start).stream()
-                .map(r -> new TrendResponse(((Number)r[0]).intValue(), ((Number)r[1]).intValue(), ((Number)r[2]).doubleValue()))
+                .map(r -> new TrendResponse(((Number) r[0]).intValue(), ((Number) r[1]).intValue(), ((Number) r[2]).doubleValue()))
                 .collect(Collectors.toMap(r -> r.getYear() + "-" + r.getMonth(), TrendResponse::getValue));
 
         List<TrendResponse> result = new ArrayList<>();
@@ -138,27 +139,21 @@ public class ReportServiceImpl implements ReportService {
         LocalDateTime start = LocalDate.now().withDayOfMonth(1).atStartOfDay();
         return orderItemRepo.findTopProducts("COMPLETED", start, start.plusMonths(1), PageRequest.of(0, 4)).stream()
                 .map(r -> TopProductResponse.builder()
-                        .productId(Integer.valueOf(String.valueOf(r[0]))).productName((String)r[1])
-                        .thumbnailUrl((String)r[2]).sold(((Number)r[3]).longValue())
-                        .revenue(((Number)r[4]).doubleValue()).build())
+                        .productId(Integer.valueOf(String.valueOf(r[0]))).productName((String) r[1])
+                        .thumbnailUrl((String) r[2]).sold(((Number) r[3]).longValue())
+                        .revenue(((Number) r[4]).doubleValue()).build())
                 .collect(Collectors.toList());
     }
 
     @Override
-    public List<TopEmployeeResponse> getTopEmployeesMonthly(Integer month, Integer year) {
-        int m = (month != null) ? month : LocalDate.now().getMonthValue();
-        int y = (year != null) ? year : LocalDate.now().getYear();
-        var empRole = roleRepo.findByName("EMPLOYEE").orElseThrow();
-
-        return userRepo.findByRole_IdOrderByCreatedAtDesc(empRole.getId(), PageRequest.of(0, 100)).stream()
-                .map(u -> {
-                    var att = attendanceService.getAttendance(String.valueOf(u.getId()), m, y);
-                    double hrs = att.stream().mapToDouble(a -> a.getWorkingHours() != null ? a.getWorkingHours() : 0.0).sum();
-                    double sal = att.stream().mapToDouble(a -> a.getSalary() != null ? a.getSalary() : 0.0).sum();
-                    return new TopEmployeeResponse(Integer.valueOf(String.valueOf(u.getId())), u.getFullName(), u.getEmail(), u.getHourlyRate(), hrs, sal, m, y);
-                })
-                .sorted((a, b) -> Double.compare(b.getTotalHours(), a.getTotalHours()))
+    public List<ProductCategorySummaryResponse> getProductCategorySummary() {
+        return productRepo.getProductCategorySummary().stream()
+                .map(row -> ProductCategorySummaryResponse.builder()
+                        .categoryId(((Number) row[0]).intValue())
+                        .categoryName((String) row[1])
+                        .productCount(((Number) row[2]).longValue())
+                        .totalStock(((Number) row[3]).longValue())
+                        .build())
                 .collect(Collectors.toList());
     }
-
 }

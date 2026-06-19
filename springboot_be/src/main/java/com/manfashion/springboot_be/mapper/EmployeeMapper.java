@@ -11,6 +11,7 @@ import org.mapstruct.MappingTarget;
 public interface EmployeeMapper {
 
     @Mapping(target = "id", source = "id")
+    @Mapping(target = "roleName", expression = "java(user.getRole() != null ? user.getRole().getName() : null)")
     EmployeeResponse toResponse(User user);
 
     // Không map trường password từ Request vào Entity tại đây để xử lý mã hóa riêng

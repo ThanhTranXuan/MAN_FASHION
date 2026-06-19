@@ -1,6 +1,11 @@
 package com.manfashion.springboot_be.service.Report;
 
-import com.manfashion.springboot_be.DTO.Report.*;
+import com.manfashion.springboot_be.DTO.Report.CustomerSummaryResponse;
+import com.manfashion.springboot_be.DTO.Report.OverviewResponse;
+import com.manfashion.springboot_be.DTO.Report.ProductCategorySummaryResponse;
+import com.manfashion.springboot_be.DTO.Report.RevenueSummaryResponse;
+import com.manfashion.springboot_be.DTO.Report.TopProductResponse;
+import com.manfashion.springboot_be.DTO.Report.TrendResponse;
 
 import java.util.List;
 
@@ -11,5 +16,5 @@ public interface ReportService {
     List<TrendResponse> getRevenueTrend();
     List<TrendResponse> getCustomerTrend();
     List<TopProductResponse> getTopProductsMonthly();
-    List<TopEmployeeResponse> getTopEmployeesMonthly(Integer month, Integer year);
+    List<ProductCategorySummaryResponse> getProductCategorySummary();
 }

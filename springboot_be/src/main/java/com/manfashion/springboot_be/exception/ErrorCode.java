@@ -60,6 +60,7 @@ public enum ErrorCode {
     EMPLOYEE_DELETE_HAS_RELATED_DATA(3008, "error.employee.delete.related-data", HttpStatus.CONFLICT),
     USER_INACTIVE(3009, "Tài khoản đã ngừng hoạt động.", HttpStatus.FORBIDDEN),
     RETURN_REJECT_REASON_REQUIRED(3010, "Vui lòng nhập lý do từ chối hoàn trả.", HttpStatus.BAD_REQUEST),
+    GOOGLE_ACCOUNT_PASSWORD_MANAGED(3011, "Tài khoản này đang đăng nhập bằng Google. Vui lòng sử dụng Google để đăng nhập hoặc quản lý mật khẩu trong tài khoản Google.", HttpStatus.BAD_REQUEST),
 
     // ========================
     // 4000-4999: PRODUCT ERRORS
@@ -245,7 +246,6 @@ public enum ErrorCode {
     OLD_PASSWORD_IS_INCORECT(9843, "error.field.old.password.is.incorect", HttpStatus.BAD_REQUEST),
     INVALID_REFRESH_TOKEN(9844, "error.invalid.refresh.token", HttpStatus.BAD_REQUEST),
     INVALID_TOKEN(9845, "error.invalid.token", HttpStatus.BAD_REQUEST),
-    NO_CHECKIN_FOUND(9846,"No check-in found",HttpStatus.BAD_REQUEST),
     CART_ITEM_NOT_FOUND(4042, "Cart item not found", HttpStatus.NOT_FOUND),
     ITEM_NOT_IN_CART(4003, "Item does not belong to the user's cart", HttpStatus.BAD_REQUEST),
     COUPON_ALREADY_EXISTS(4091, "Coupon code already exists", HttpStatus.CONFLICT),

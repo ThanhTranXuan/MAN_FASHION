@@ -93,12 +93,20 @@ public class UserServiceImpl implements UserService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
 
+        if (isGoogleAccount(user)) {
+            throw new AppException(ErrorCode.GOOGLE_ACCOUNT_PASSWORD_MANAGED);
+        }
+
         if (!passwordEncoder.matches(req.getOldPassword(), user.getPassword())) {
             throw new AppException(ErrorCode.OLD_PASSWORD_IS_INCORECT);
         }
 
         user.setPassword(passwordEncoder.encode(req.getNewPassword()));
         userRepository.save(user);
+    }
+
+    private boolean isGoogleAccount(User user) {
+        return user.getSocialProvider() != null && "GOOGLE".equalsIgnoreCase(user.getSocialProvider());
     }
 }
 

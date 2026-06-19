@@ -12,6 +12,5 @@ import lombok.NoArgsConstructor;
 public class EmployeeRequest {
     private String fullName;
     private String email;
-    private Double hourlyRate;
     private String password;
 }

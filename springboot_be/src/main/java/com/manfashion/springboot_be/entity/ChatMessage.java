@@ -28,9 +28,6 @@ public class ChatMessage {
     @Column(name = "sender_type")
     private String senderType;
 
-    @Column(name = "sender_name")
-    private String senderName;
-
     @Column(columnDefinition = "TEXT")
     private String content;
 
