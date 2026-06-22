@@ -9,8 +9,6 @@ import com.manfashion.springboot_be.mapper.UserMapper;
 import com.manfashion.springboot_be.repository.Role.RoleRepository;
 import com.manfashion.springboot_be.repository.User.UserRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -24,15 +22,6 @@ public class UserServiceImpl implements UserService {
     private final RoleRepository roleRepository;
     private final PasswordEncoder passwordEncoder;
     private final UserMapper userMapper;
-    //getAll
-    @Override
-    public Page<UserResponse> getAllUsers(String keyword, String roleIdHex, Pageable pageable) {
-        Integer roleId = (roleIdHex != null && !roleIdHex.isEmpty())
-                ? Integer.parseInt(roleIdHex)
-                : null;
-       Page<User> users= userRepository.searchUsers(roleId,keyword,pageable);
-        return users.map(userMapper::toResponseDTO);
-    }
     //create
     @Override
     public UserResponse createUser(UserCreateRequest request) {

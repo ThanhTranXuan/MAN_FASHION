@@ -174,12 +174,6 @@ public enum ErrorCode {
     PRODUCT_NOT_IN_ORDER(9404, "error.review.product.not-in-order", HttpStatus.BAD_REQUEST),
 
     // ========================
-    // 9500-9599: BLOG ERRORS
-    // ========================
-    BLOG_NOT_FOUND(9500, "error.blog.not-found", HttpStatus.NOT_FOUND),
-    BLOG_SLUG_ALREADY_EXISTS(9501, "error.blog.slug.exists", HttpStatus.CONFLICT),
-
-    // ========================
     // 9600-9699: OPTION ERRORS
     // ========================
     OPTION_NOT_FOUND(9600, "error.option.not-found", HttpStatus.NOT_FOUND),
@@ -234,7 +228,6 @@ public enum ErrorCode {
     BANNER_TITLE_REQUIRED(9833, "error.field.banner.title.required", HttpStatus.BAD_REQUEST),
     BANNER_IMAGE_URL_REQUIRED(9834, "error.field.banner.image-url.required", HttpStatus.BAD_REQUEST),
     BANNER_POSITION_REQUIRED(9835, "error.field.banner.position.required", HttpStatus.BAD_REQUEST),
-    BLOG_SLUG_REQUIRED(9836, "error.field.blog.slug.required", HttpStatus.BAD_REQUEST),
     RATING_REQUIRED(9837, "error.field.rating.required", HttpStatus.BAD_REQUEST),
     PRICE_REQUIRED(9838, "error.field.price.required", HttpStatus.BAD_REQUEST),
     STOCK_REQUIRED(9839, "error.field.stock.required", HttpStatus.BAD_REQUEST),

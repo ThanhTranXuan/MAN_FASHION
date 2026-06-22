@@ -10,8 +10,6 @@ import com.manfashion.springboot_be.exception.ErrorCode;
 import com.manfashion.springboot_be.service.User.UserService;
 import com.manfashion.springboot_be.util.UploadImage;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -27,14 +25,6 @@ public class UserController {
 
     private final UserService userService;
     private final UploadImage uploadImage;
-
-    @GetMapping
-    @PreAuthorize("hasAuthority('ADMIN')")
-    public ResponseEntity<Page<UserResponse>> getAllUsers(@RequestParam(required = false) String keyword,
-                                                          @RequestParam(required = false) String roleId,
-                                                          Pageable pageable) {
-        return ResponseEntity.ok(userService.getAllUsers(keyword, roleId, pageable));
-    }
 
     @GetMapping("/me")
     @PreAuthorize("hasAnyAuthority('USER','EMPLOYEE','ADMIN')")
