@@ -20,12 +20,10 @@ import {
   MdArrowBack,
   MdChevronRight,
   MdStorefront,
-  MdArticle,
 } from 'react-icons/md';
 import { useNavigate } from 'react-router-dom';
 
 import Clothe from 'assets/img/megamenu/clothe.png';
-import Blog from 'assets/img/megamenu/blog.png';
 
 const MotionIconButton = motion(IconButton);
 const MotionBox = motion(Box);
@@ -131,7 +129,7 @@ export default function MegaMenu({ categories, onClose }) {
             </Flex>
             {isMobile ? (
               <VStack align="start" spacing={0} w="100%">
-                {/* 🧭 Shop + Blogs (ẩn khi vào cấp 2 hoặc cấp 3) */}
+                {/* Điều hướng sản phẩm (ẩn khi vào cấp 2 hoặc cấp 3) */}
                 {currentParentId === null && currentSubParentId === null && (
                   <>
                     <VStack align="stretch" w="100%" spacing={2} mb={4}>
@@ -157,27 +155,6 @@ export default function MegaMenu({ categories, onClose }) {
                         <MdChevronRight size={22} />
                       </Flex>
 
-                      {/* Blogs */}
-                      <Flex
-                        align="center"
-                        justify="space-between"
-                        bg={itemBg}
-                        px={4}
-                        py={3}
-                        borderRadius="md"
-                        cursor="pointer"
-                        onClick={() => {
-                          navigate('/user/blog');
-                          onClose?.();
-                        }}
-                        _hover={{ bg: hoverBg }}
-                      >
-                        <HStack spacing={3}>
-                          <MdArticle size={22} />
-                          <Text fontWeight="semibold">Bài viết</Text>
-                        </HStack>
-                        <MdChevronRight size={22} />
-                      </Flex>
                     </VStack>
 
                     {/* Divider */}
@@ -425,39 +402,6 @@ export default function MegaMenu({ categories, onClose }) {
                     </Box>
                   </Box>
 
-                  <Box
-                    borderRadius="20px"
-                    shadow="md"
-                    bg="fashion.softSurface"
-                    _dark={{ bg: 'navy.700' }}
-                    cursor="pointer"
-                    overflow="hidden"
-                    _hover={{ shadow: 'lg', transform: 'translateY(-2px)' }}
-                    transition="all 0.2s"
-                    onClick={() => {
-                      navigate('/user/blog');
-                      onClose?.();
-                    }}
-                  >
-                    <Image
-                      src={Blog}
-                      alt="Bài viết phong cách"
-                      w="100%"
-                      h={{ md: '210px', xl: '250px' }}
-                      objectFit="contain"
-                      objectPosition="center"
-                      bg="fashion.pageBg"
-                      p={{ md: 1, xl: 2 }}
-                    />
-                    <Box p={{ md: 4, xl: 5 }}>
-                      <Text fontSize={{ md: 'xl', xl: '2xl' }} fontWeight="bold" mb={2}>
-                        Xem bài viết
-                      </Text>
-                      <Text fontSize={{ md: 'sm', xl: 'md' }} color="gray.500">
-                        Mẹo phối đồ, xu hướng và câu chuyện thời trang từ Trendify.
-                      </Text>
-                    </Box>
-                  </Box>
                 </VStack>
               </Grid>
             )}

@@ -58,7 +58,6 @@ export default function Dashboard(props) {
       '/order-management',
       '/return-management',
       '/coupon-management',
-      '/blog-management',
       '/chat-support',
       '/review-management',
     ];

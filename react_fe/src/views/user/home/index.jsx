@@ -8,9 +8,7 @@ import CollectionGridSection from './components/CollectionGridSection';
 import FeaturesSection from './components/FeaturesSection';
 import FashionShowcaseSection from './components/FashionShowcaseSection';
 import ProductSliderSection from './components/ProductSliderSection';
-import BlogSliderSection from './components/BlogSliderSection';
 import SubscribeSection from './components/SubscribeSection';
-import PromotionalBlogBanner from './components/PromotionalBlogBanner';
 
 import { useCart } from 'contexts/CartContext';
 import { useAppToast } from 'utils/ToastHelper';
@@ -100,8 +98,6 @@ export default function Home() {
         />
       ))}
 
-      <PromotionalBlogBanner />
-      <BlogSliderSection />
       <FeaturesSection />
       <SubscribeSection />
     </Box>

@@ -84,15 +84,7 @@ export default function Footer() {
             Terms of Use
           </Link>
         </ListItem>
-        <ListItem>
-          <Link
-            fontWeight="500"
-            color={textColor}
-            href="https://www.blog.simmmple.com/?ref=horizon-chakra-free"
-          >
-            Blog
-          </Link>
-        </ListItem> */}
+        */}
       </List>
     </Flex>
   );

@@ -6,22 +6,19 @@ import {
   MdShoppingCart,
   MdAssignmentReturn,
   MdLocalOffer,
-  MdArticle,
   MdDashboard,
   MdChat,
   MdRateReview,
 } from 'react-icons/md';
-import { FaUsersCog, FaUserTie } from 'react-icons/fa';
+import { FaUserTie } from 'react-icons/fa';
 import { BsBoxSeam } from 'react-icons/bs';
 
 // Admin Imports
 import MainDashboard from 'views/admin/default';
-import UserPage from 'views/admin/users';
 import EmployeePage from 'views/admin/employees';
 import CategoryPage from 'views/admin/categories';
 import ProductPage from 'views/admin/products';
 import CouponPage from 'views/admin/coupons';
-import BlogPage from 'views/admin/blogs';
 import OrderPage from 'views/admin/orders';
 import ReturnPage from 'views/admin/returns';
 import ChatPage from 'views/admin/chat';
@@ -35,8 +32,6 @@ import ProductDetail from 'views/user/product/detail';
 import AllReviews from 'views/user/product/AllReviews';
 import WriteReview from 'views/user/product/WriteReview';
 import Order from 'views/user/order';
-import BlogListPage from 'views/user/blog';
-import BlogDetailPage from 'views/user/blog/detail';
 import ResultPage from 'views/user/order/ResultPage';
 
 // Auth Imports
@@ -55,14 +50,6 @@ const routes = [
     icon: <Icon as={MdDashboard} w="20px" h="20px" color="inherit" />,
     component: <MainDashboard />,
     adminOnly: true, // 👈 chỉ ADMIN thấy
-  },
-  {
-    name: 'Quản Lý Người Dùng',
-    layout: '/admin',
-    path: '/user-management',
-    icon: <Icon as={FaUsersCog} w="20px" h="20px" color="inherit" />,
-    component: <UserPage />,
-    adminOnly: true,
   },
   {
     name: 'Quản Lý Nhân Viên',
@@ -108,13 +95,6 @@ const routes = [
     component: <CouponPage />,
   },
   {
-    name: 'Quản Lý Bài Viết',
-    layout: '/admin',
-    path: '/blog-management',
-    icon: <Icon as={MdArticle} w="20px" h="20px" color="inherit" />,
-    component: <BlogPage />,
-  },
-  {
     name: 'Hỗ Trợ Chat',
     layout: '/admin',
     path: '/chat-support',
@@ -143,18 +123,6 @@ const routes = [
     path: '/profile',
     icon: <Icon as={MdPerson} width="20px" height="20px" color="inherit" />,
     component: <Profile />,
-  },
-  {
-    name: 'Blog',
-    layout: '/user',
-    path: '/blog',
-    component: <BlogListPage />,
-  },
-  {
-    name: 'Blog Detail',
-    layout: '/user',
-    path: '/blog/detail/:slug',
-    component: <BlogDetailPage />,
   },
   {
     name: 'Product List',

@@ -1,5 +1,5 @@
 import { Box, SimpleGrid, Text } from '@chakra-ui/react';
-import { FaBlog, FaLock, FaShippingFast, FaShoppingCart } from 'react-icons/fa';
+import { FaLock, FaShippingFast, FaShoppingCart } from 'react-icons/fa';
 import AppContainer from 'components/ui/AppContainer';
 import { MotionFlex } from './MotionPrimitives';
 
@@ -19,17 +19,12 @@ const features = [
     desc: 'Hỗ trợ nhiều phương thức thanh toán với quy trình rõ ràng.',
     icon: FaLock,
   },
-  {
-    title: 'Blog phối đồ',
-    desc: 'Gợi ý xu hướng, cách phối và mẹo chăm sóc trang phục.',
-    icon: FaBlog,
-  },
 ];
 
 export default function FeaturesSection() {
   return (
     <AppContainer py={{ base: 10, md: 16 }}>
-      <SimpleGrid columns={{ base: 1, md: 2, xl: 4 }} spacing={4}>
+      <SimpleGrid columns={{ base: 1, md: 3 }} spacing={4}>
         {features.map((feature) => (
           <MotionFlex
             key={feature.title}

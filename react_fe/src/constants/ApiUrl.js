@@ -22,9 +22,6 @@ const ApiUrl = {
   CHANGE_PASSWORD: withBase('/api/users/me/password'),
   DELETE_ACCOUNT: withBase('/api/users/me'),
 
-  // ==== USER MANAGEMENT (admin) ====
-  ALL_USERS: withBase('/api/users'), // ?keyword=&roleId=
-
   // ==== PRODUCTS ====
   PRODUCTS: withBase('/api/products'),
   PRODUCT_FILTER_OPTIONS: withBase('/api/products/filter-options'),
@@ -64,13 +61,6 @@ const ApiUrl = {
   CREATE_CATEGORY: withBase('/api/categories'),
   UPDATE_CATEGORY: (id) => withBase(`/api/categories/${id}`),
   DELETE_CATEGORY: (id) => withBase(`/api/categories/${id}`),
-
-  // ==== BLOGS ====
-  BLOGS: withBase('/api/blogs'),
-  BLOG_DETAIL: (slug) => withBase(`/api/blogs/${slug}`),
-  CREATE_BLOG: withBase('/api/blogs'),
-  UPDATE_BLOG: (id) => withBase(`/api/blogs/${id}`),
-  DELETE_BLOG: (id) => withBase(`/api/blogs/${id}`),
 
   // ==== COUPONS ====
   COUPONS: withBase('/api/coupons'),

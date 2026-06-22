@@ -103,19 +103,6 @@ export default function HeroSection() {
               >
                 Khám phá ngay
               </Button>
-              <Button
-                size="lg"
-                variant="outline"
-                color="#0B0B0B"
-                borderColor="#0B0B0B"
-                borderRadius="0"
-                px={8}
-                h="54px"
-                _hover={{ bg: '#0B0B0B', color: 'white' }}
-                onClick={() => navigate('/user/blog')}
-              >
-                Xem lookbook
-              </Button>
             </HStack>
           </MotionFlex>
 
