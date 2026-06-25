@@ -65,8 +65,12 @@ export default function CategoryPage() {
       await CategoryService.softDelete(selectedToDelete.id);
       toast.success('Xóa danh mục thành công');
       await refreshCategories();
-    } catch {
-      toast.error('Lỗi khi xóa danh mục');
+    } catch (err) {
+      if (err?.response?.status === 409) {
+        toast.error('Không thể xóa danh mục vì vẫn còn sản phẩm bên trong');
+      } else {
+        toast.error('Lỗi khi xóa danh mục');
+      }
     } finally {
       setSelectedToDelete(null);
       onConfirmClose();

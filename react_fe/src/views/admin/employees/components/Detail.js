@@ -1,6 +1,5 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import {
-  Badge,
   Box,
   Button,
   Divider,
@@ -74,14 +73,6 @@ export default function Detail({ isOpen, onClose, employee }) {
             </GridItem>
             <GridItem>
               <InfoItem label="Vai trò" value={current.roleName || 'EMPLOYEE'} />
-            </GridItem>
-            <GridItem>
-              <Text fontSize="xs" color="gray.500" fontWeight="700" textTransform="uppercase">
-                Trạng thái
-              </Text>
-              <Badge mt={1} colorScheme={current.isActive === false ? 'red' : 'green'}>
-                {current.isActive === false ? 'Đã khóa' : 'Đang hoạt động'}
-              </Badge>
             </GridItem>
             <GridItem>
               <InfoItem
