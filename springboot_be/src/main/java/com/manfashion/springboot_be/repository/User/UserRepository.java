@@ -14,10 +14,10 @@ public interface UserRepository extends JpaRepository<User, Integer> , UserRepos
     Optional<User> findBySocialProviderAndSocialId(String socialProvider, String socialId);
 
     boolean existsByEmail(String email);
-    Page<User> findByRoleIdAndIsActiveTrue(Integer roleId, Pageable pageable);
+    Page<User> findByRoleIdAndDeletedAtIsNull(Integer roleId, Pageable pageable);
 
 
-    long countByRole_Id(Integer roleId);
-    long countByRole_Name(String roleName);
-    Page<User> findByRole_IdOrderByCreatedAtDesc(Integer roleId, Pageable pageable);
+    long countByRole_IdAndDeletedAtIsNull(Integer roleId);
+    long countByRole_NameAndDeletedAtIsNull(String roleName);
+    Page<User> findByRole_IdAndDeletedAtIsNullOrderByCreatedAtDesc(Integer roleId, Pageable pageable);
 }

@@ -25,9 +25,9 @@ public interface UserMapper {
     @Mapping(target = "phone", ignore = true)
     @Mapping(target = "avatarUrl", ignore = true)
     @Mapping(target = "address", ignore = true)
+    @Mapping(target = "deletedAt", ignore = true)
     @Mapping(target = "createdAt", ignore = true)
     @Mapping(target = "updatedAt", ignore = true)
-    @Mapping(target = "isActive", ignore = true)
     User toEntity(UserCreateRequest dto);
 
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
@@ -38,9 +38,9 @@ public interface UserMapper {
     @Mapping(target = "socialProvider", ignore = true)
     @Mapping(target = "socialId", ignore = true)
     @Mapping(target = "avatarUrl", ignore = true)
+    @Mapping(target = "deletedAt", ignore = true)
     @Mapping(target = "createdAt", ignore = true)
     @Mapping(target = "updatedAt", ignore = true)
-    @Mapping(target = "isActive", ignore = true)
     void updateProfile(UserUpdateProfileRequest dto, @MappingTarget User user);
 
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
@@ -53,8 +53,8 @@ public interface UserMapper {
     @Mapping(target = "phone", ignore = true)
     @Mapping(target = "fullName", ignore = true)
     @Mapping(target = "address", ignore = true)
+    @Mapping(target = "deletedAt", ignore = true)
     @Mapping(target = "createdAt", ignore = true)
     @Mapping(target = "updatedAt", ignore = true)
-    @Mapping(target = "isActive", ignore = true)
     void updateAvatar(UserUpdateAvatarRequest dto, @MappingTarget User user);
 }

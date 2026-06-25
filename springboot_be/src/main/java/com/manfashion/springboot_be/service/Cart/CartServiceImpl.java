@@ -103,9 +103,10 @@ public class CartServiceImpl implements CartService {
     }
 
     @Override
+    @Transactional
     public List<CartItemResponse> getCartItems(String userIdHex) {
         Cart cart = getOrCreateCart(userIdHex);
-        List<CartItem> items = cartItemRepo.findByCartIdOrderByCreatedAtDesc(cart.getId());
+        List<CartItem> items = purgeUnavailableItems(cart);
 
         return items.stream().map(this::buildCartItemResponse).toList();
     }
@@ -121,8 +122,9 @@ public class CartServiceImpl implements CartService {
                 .orElseThrow(() -> new AppException(ErrorCode.PRODUCT_NOT_FOUND));
         ProductVariant variant = variantRepo.findById(variantId)
                 .orElseThrow(() -> new AppException(ErrorCode.VARIANT_NOT_FOUND));
+        ensurePurchasable(product, variant);
 
-        List<CartItem> existing = cartItemRepo.findByCartIdOrderByCreatedAtDesc(cart.getId());
+        List<CartItem> existing = purgeUnavailableItems(cart);
 
         // 2. Tìm xem trong giỏ đã có item nào trùng variant chưa (So sánh ID của Variant)
         Optional<CartItem> duplicate = existing.stream()
@@ -164,11 +166,21 @@ public class CartServiceImpl implements CartService {
         if (!item.getCart().getId().equals(cart.getId())) {
             throw new AppException(ErrorCode.ITEM_NOT_IN_CART);
         }
+        if (isUnavailable(item)) {
+            cartItemRepo.delete(item);
+            throw new AppException(ErrorCode.CART_ITEM_NOT_FOUND);
+        }
         // Thay vì setVariantId, ta phải set nguyên cái Object Variant vào
         if (req.getVariantId() != null) {
             ProductVariant newVariant = variantRepo.findById(Integer.valueOf(req.getVariantId()))
                     .orElseThrow(() -> new AppException(ErrorCode.VARIANT_NOT_FOUND));
+            Product product = newVariant.getProduct();
+            if (product == null) {
+                throw new AppException(ErrorCode.PRODUCT_NOT_FOUND);
+            }
+            ensurePurchasable(product, newVariant);
             item.setVariant(newVariant);
+            item.setProduct(product);
         }
 
         if (req.getQuantity() != null && req.getQuantity() > 0) {
@@ -209,5 +221,39 @@ public class CartServiceImpl implements CartService {
     public void clear(String userIdHex) {
         Cart cart = getOrCreateCart(userIdHex);
         cartItemRepo.deleteByCartId(cart.getId());
+    }
+
+    private List<CartItem> purgeUnavailableItems(Cart cart) {
+        List<CartItem> items = cartItemRepo.findByCartIdOrderByCreatedAtDesc(cart.getId());
+        List<CartItem> unavailableItems = items.stream()
+                .filter(this::isUnavailable)
+                .toList();
+        if (!unavailableItems.isEmpty()) {
+            cartItemRepo.deleteAll(unavailableItems);
+            items.removeAll(unavailableItems);
+        }
+        return items;
+    }
+
+    private boolean isUnavailable(CartItem item) {
+        Product product = item.getProduct();
+        ProductVariant variant = item.getVariant();
+        return product == null
+                || variant == null
+                || product.getDeletedAt() != null
+                || Boolean.FALSE.equals(product.getIsActive())
+                || variant.getDeletedAt() != null;
+    }
+
+    private void ensurePurchasable(Product product, ProductVariant variant) {
+        if (product.getDeletedAt() != null || Boolean.FALSE.equals(product.getIsActive())) {
+            throw new AppException(ErrorCode.PRODUCT_IS_ACTIVE);
+        }
+        if (variant.getDeletedAt() != null) {
+            throw new AppException(ErrorCode.VARIANT_NOT_FOUND);
+        }
+        if (variant.getProduct() == null || !variant.getProduct().getId().equals(product.getId())) {
+            throw new AppException(ErrorCode.VARIANT_NOT_BELONG_TO_PRODUCT);
+        }
     }
 }

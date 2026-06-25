@@ -132,8 +132,15 @@ public class OrderServiceImpl implements OrderService {
 
             Product product = productRepo.findById(productId)
                     .orElseThrow(() -> new RuntimeException("Product not found: " + productId));
+            if (product.getDeletedAt() != null || Boolean.FALSE.equals(product.getIsActive())) {
+                throw new AppException(ErrorCode.PRODUCT_IS_ACTIVE);
+            }
             double priceVND = Optional.ofNullable(product.getPrice()).orElse(0.0);
             subtotal += quantity * priceVND;
+            String imageUrl = resolveOrderItemImage(OrderItem.builder()
+                    .product(product)
+                    .variant(variant)
+                    .build());
 
             // SỬA Ở ĐÂY: Dùng Object Product và Variant
             orderItems.add(OrderItem.builder()
@@ -141,6 +148,10 @@ public class OrderServiceImpl implements OrderService {
                     .variant(variant)
                     .quantity(quantity)
                     .price(priceVND)
+                    .productName(product.getName())
+                    .variantColor(variant.getColor())
+                    .variantSize(variant.getSize())
+                    .imageUrl(imageUrl)
                     .build());
 
             itemsForPayOS.add(PaymentLinkItem.builder()
@@ -160,7 +171,8 @@ public class OrderServiceImpl implements OrderService {
                     .orElseThrow(() -> new AppException(ErrorCode.VOUCHER_INVALID));
 
             LocalDateTime now = LocalDateTime.now();
-            if ((appliedCoupon.getStartDate() != null && now.isBefore(appliedCoupon.getStartDate()))
+            if (appliedCoupon.getDeletedAt() != null
+                    || (appliedCoupon.getStartDate() != null && now.isBefore(appliedCoupon.getStartDate()))
                     || (appliedCoupon.getEndDate() != null && now.isAfter(appliedCoupon.getEndDate()))) {
                 throw new AppException(ErrorCode.VOUCHER_INVALID);
             }

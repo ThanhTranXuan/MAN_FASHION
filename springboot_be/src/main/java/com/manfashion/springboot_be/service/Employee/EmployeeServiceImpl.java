@@ -18,6 +18,8 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
+
 @Service
 @RequiredArgsConstructor
 public class EmployeeServiceImpl implements EmployeeService {
@@ -33,7 +35,7 @@ public class EmployeeServiceImpl implements EmployeeService {
 
         Page<User> employees = (keyword != null && !keyword.isEmpty())
                 ? userRepo.searchUsers(roleId, keyword, pageable)
-                : userRepo.findByRoleIdAndIsActiveTrue(roleId, pageable);
+                : userRepo.findByRoleIdAndDeletedAtIsNull(roleId, pageable);
 
         return employees.map(employeeMapper::toResponse);
     }
@@ -57,6 +59,7 @@ public class EmployeeServiceImpl implements EmployeeService {
     @Transactional
     public EmployeeResponse updateEmployee(String id, EmployeeRequest req) {
         User user = userRepo.findById(Integer.parseInt(id))
+                .filter(existing -> existing.getDeletedAt() == null)
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
 
         employeeMapper.updateEmployee(req, user);
@@ -68,6 +71,7 @@ public class EmployeeServiceImpl implements EmployeeService {
     public void deleteEmployee(String id) {
         Integer employeeId = Integer.parseInt(id);
         User employee = userRepo.findById(employeeId)
+                .filter(existing -> existing.getDeletedAt() == null)
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
 
         if (employee.getRole() == null || !"EMPLOYEE".equals(employee.getRole().getName())) {
@@ -79,13 +83,14 @@ public class EmployeeServiceImpl implements EmployeeService {
             throw new AppException(ErrorCode.EMPLOYEE_DELETE_NOT_ALLOWED);
         }
 
-        employee.setIsActive(false);
+        employee.setDeletedAt(LocalDateTime.now());
         userRepo.save(employee);
     }
 
     @Override
     public EmployeeDetailResponse getEmployeeDetail(String userId) {
         User employee = userRepo.findById(Integer.parseInt(userId))
+                .filter(existing -> existing.getDeletedAt() == null)
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
 
         return EmployeeDetailResponse.builder()
@@ -94,7 +99,6 @@ public class EmployeeServiceImpl implements EmployeeService {
                 .email(employee.getEmail())
                 .phone(employee.getPhone())
                 .roleName(employee.getRole() == null ? null : employee.getRole().getName())
-                .isActive(employee.getIsActive())
                 .avatarUrl(employee.getAvatarUrl())
                 .address(employee.getAddress())
                 .createdAt(employee.getCreatedAt())

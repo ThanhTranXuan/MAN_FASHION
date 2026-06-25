@@ -42,8 +42,7 @@ public class AuthenticationServiceImpl implements AuthenticationService{
 
         User user = userRepository.findByEmail(request.getEmail())
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
-
-        ensureActive(user);
+        ensureNotDeleted(user);
 
         if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
             throw new AppException(ErrorCode.INVALID_PASSWORD);
@@ -80,8 +79,7 @@ public class AuthenticationServiceImpl implements AuthenticationService{
         String newAccess = jwtUtils.generateAccessToken(String.valueOf(userId), roleName);
         String newRefresh = jwtUtils.generateRefreshToken(String.valueOf(userId), roleName);
 
-        User user = userRepository.findById(userId).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
-        ensureActive(user);
+        User user = findActiveUser(userId);
 
         return AuthenticationResponse.builder().message("Token refreshed")
 
@@ -105,7 +103,7 @@ public class AuthenticationServiceImpl implements AuthenticationService{
 
         User user = userRepository.findBySocialProviderAndSocialId(GOOGLE_PROVIDER, token.getUid())
                 .orElseGet(() -> linkOrCreateGoogleUser(token));
-        ensureActive(user);
+        ensureNotDeleted(user);
 
         Role role = roleRepository.findById(user.getRole().getId())
                 .orElseThrow(() -> new AppException(ErrorCode.ROLE_NOT_FOUND));
@@ -125,6 +123,7 @@ public class AuthenticationServiceImpl implements AuthenticationService{
 
         if (existingByEmail.isPresent()) {
             User user = existingByEmail.get();
+            ensureNotDeleted(user);
             if (user.getSocialProvider() != null && !GOOGLE_PROVIDER.equalsIgnoreCase(user.getSocialProvider())) {
                 throw new AppException(ErrorCode.AUTHENTICATION_FAILED);
             }
@@ -157,15 +156,10 @@ public class AuthenticationServiceImpl implements AuthenticationService{
         return userRepository.save(newUser);
     }
 
-    private void ensureActive(User user) {
-        if (Boolean.FALSE.equals(user.getIsActive())) {
-            throw new AppException(ErrorCode.USER_INACTIVE);
-        }
-    }
-
     @Override
     public String forgotPassword(String email) {
         User user = userRepository.findByEmail(email).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
+        ensureNotDeleted(user);
         if (isGoogleAccount(user)) {
             throw new AppException(ErrorCode.GOOGLE_ACCOUNT_PASSWORD_MANAGED);
         }
@@ -199,7 +193,7 @@ public class AuthenticationServiceImpl implements AuthenticationService{
             throw new AppException(ErrorCode.TOKEN_EXPIRED);
         }
 
-        User user = userRepository.findById(reset.getUserId()).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
+        User user = findActiveUser(reset.getUserId());
         if (isGoogleAccount(user)) {
             throw new AppException(ErrorCode.GOOGLE_ACCOUNT_PASSWORD_MANAGED);
         }
@@ -211,6 +205,21 @@ public class AuthenticationServiceImpl implements AuthenticationService{
 
     private boolean isGoogleAccount(User user) {
         return user.getSocialProvider() != null && GOOGLE_PROVIDER.equalsIgnoreCase(user.getSocialProvider());
+    }
+
+    private User findActiveUser(Integer userId) {
+        return userRepository.findById(userId)
+                .map(user -> {
+                    ensureNotDeleted(user);
+                    return user;
+                })
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
+    }
+
+    private void ensureNotDeleted(User user) {
+        if (user.getDeletedAt() != null) {
+            throw new AppException(ErrorCode.USER_INACTIVE);
+        }
     }
 }
 

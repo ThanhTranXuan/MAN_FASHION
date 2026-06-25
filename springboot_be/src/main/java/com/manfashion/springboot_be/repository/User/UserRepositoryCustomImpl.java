@@ -20,7 +20,7 @@ public class UserRepositoryCustomImpl implements UserRepositoryCustom {
     @Override
     public Page<User> searchUsers(Integer roleId, String keyword, Pageable pageable) {
         BooleanBuilder builder  = new BooleanBuilder();
-        builder.and(user.isActive.isTrue());
+        builder.and(user.deletedAt.isNull());
         if (roleId != null) {
             builder.and(user.role.id.eq(roleId));
         }

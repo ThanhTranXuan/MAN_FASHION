@@ -12,6 +12,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.Optional;
 
 @Service
@@ -43,8 +44,7 @@ public class UserServiceImpl implements UserService {
     public UserResponse getUserById(String userIdStr) {
         Integer userId = Integer.valueOf(userIdStr);
 
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
+        User user = findActiveUser(userId);
 
         return userMapper.toResponseDTO(user);
     }
@@ -53,7 +53,9 @@ public class UserServiceImpl implements UserService {
     public Optional<UserResponse> updateProfile(String userIdStr, UserUpdateProfileRequest req) {
         Integer userId = Integer.valueOf(userIdStr);
 
-        return userRepository.findById(userId).map(existing -> {
+        return userRepository.findById(userId)
+                .filter(existing -> existing.getDeletedAt() == null)
+                .map(existing -> {
             userMapper.updateProfile(req, existing);
             User saved = userRepository.save(existing);
             return userMapper.toResponseDTO(saved);
@@ -63,7 +65,9 @@ public class UserServiceImpl implements UserService {
     @Override
     public Optional<UserResponse> updateAvatar(String userIdHex, UserUpdateAvatarRequest req) {
         Integer userId = Integer.parseInt(userIdHex);
-        return userRepository.findById(userId).map(user -> {
+        return userRepository.findById(userId)
+                .filter(user -> user.getDeletedAt() == null)
+                .map(user -> {
             userMapper.updateAvatar(req, user);
             return userMapper.toResponseDTO(userRepository.save(user));
         });
@@ -71,16 +75,14 @@ public class UserServiceImpl implements UserService {
     //delete
     @Override
     public void delete(String userIdHex) {
-        User user = userRepository.findById(Integer.parseInt(userIdHex))
-                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
-        user.setIsActive(false);
+        User user = findActiveUser(Integer.parseInt(userIdHex));
+        user.setDeletedAt(LocalDateTime.now());
         userRepository.save(user);
     }
     //change password
     public void changePassword(String userIdHex, UserChangePasswordRequest req) {
         Integer userId = Integer.parseInt(userIdHex);
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
+        User user = findActiveUser(userId);
 
         if (isGoogleAccount(user)) {
             throw new AppException(ErrorCode.GOOGLE_ACCOUNT_PASSWORD_MANAGED);
@@ -96,6 +98,12 @@ public class UserServiceImpl implements UserService {
 
     private boolean isGoogleAccount(User user) {
         return user.getSocialProvider() != null && "GOOGLE".equalsIgnoreCase(user.getSocialProvider());
+    }
+
+    private User findActiveUser(Integer userId) {
+        return userRepository.findById(userId)
+                .filter(user -> user.getDeletedAt() == null)
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
     }
 }
 

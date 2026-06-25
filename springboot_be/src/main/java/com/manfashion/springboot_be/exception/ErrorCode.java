@@ -89,6 +89,7 @@ public enum ErrorCode {
     CATEGORY_NOT_FOUND(5000, "error.category.not-found", HttpStatus.NOT_FOUND),
     CATEGORY_NAME_ALREADY_EXISTS(5001, "error.category.name.exists", HttpStatus.CONFLICT),
     CATEGORY_SLUG_ALREADY_EXISTS(5002, "error.category.slug.exists", HttpStatus.CONFLICT),
+    CATEGORY_HAS_PRODUCTS(5003, "error.category.has-products", HttpStatus.CONFLICT),
 
     // ========================
     // 6000-6999: FILE ERRORS

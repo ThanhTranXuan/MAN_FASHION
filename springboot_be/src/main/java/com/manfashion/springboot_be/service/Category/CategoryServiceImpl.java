@@ -7,6 +7,7 @@ import com.manfashion.springboot_be.exception.AppException;
 import com.manfashion.springboot_be.exception.ErrorCode;
 import com.manfashion.springboot_be.mapper.CategoryMapper;
 import com.manfashion.springboot_be.repository.Category.CategoryRepository;
+import com.manfashion.springboot_be.repository.Product.ProductRepository;
 import com.manfashion.springboot_be.util.SlugGenerator;
 import com.manfashion.springboot_be.util.UploadImage;
 import lombok.RequiredArgsConstructor;
@@ -30,6 +31,7 @@ public class CategoryServiceImpl implements CategoryService{
     private final SlugGenerator slugGenerator;
     private final CategoryMapper categoryMapper;
     private final UploadImage uploadImage;
+    private final ProductRepository productRepository;
 
 
     // =====================================================
@@ -151,6 +153,9 @@ public class CategoryServiceImpl implements CategoryService{
         collectIdsRecursive(id, ids);
 
         if (ids.isEmpty()) return false;
+        if (productRepository.countByCategoryIdInAndDeletedAtIsNull(ids) > 0) {
+            throw new AppException(ErrorCode.CATEGORY_HAS_PRODUCTS);
+        }
         categoryRepo.softDeleteByIds(ids, LocalDateTime.now());
 
         return true;

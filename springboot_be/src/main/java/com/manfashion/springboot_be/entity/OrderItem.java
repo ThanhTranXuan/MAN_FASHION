@@ -30,5 +30,17 @@ public class OrderItem {
     private Integer quantity;
     private Double price;
 
+    @Column(name = "product_name")
+    private String productName;
+
+    @Column(name = "variant_color")
+    private String variantColor;
+
+    @Column(name = "variant_size")
+    private String variantSize;
+
+    @Column(name = "image_url", columnDefinition = "TEXT")
+    private String imageUrl;
+
     // Bảng này trong SQL của bạn không có created_at / updated_at
 }
