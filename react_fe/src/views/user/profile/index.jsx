@@ -1,4 +1,4 @@
-// src/views/profile/ProfilePage.jsx
+
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import {
   Tabs,
@@ -43,12 +43,12 @@ export default function ProfilePage() {
   const [loadingOrders, setLoadingOrders] = useState(true);
   const [loadingReturns, setLoadingReturns] = useState(true);
 
-  // Pagination cho orders
+
   const [orderPage, setOrderPage] = useState(0);
   const [orderHasMore, setOrderHasMore] = useState(true);
   const [orderLoadingMore, setOrderLoadingMore] = useState(false);
 
-  // Pagination cho returns
+
   const [returnPage, setReturnPage] = useState(0);
   const [returnHasMore, setReturnHasMore] = useState(true);
   const [returnLoadingMore, setReturnLoadingMore] = useState(false);
@@ -60,12 +60,12 @@ export default function ProfilePage() {
   const brandColor = useColorModeValue('brand.500', 'brand.400');
   const borderColor = useColorModeValue('fashion.stone', 'navy.600');
 
-  // Cache sản phẩm dùng useRef để không reset mỗi lần render
+
   const productCacheRef = useRef({});
 
-  // -------------------------------
-  // Fetch Orders (có hỗ trợ append)
-  // -------------------------------
+
+
+
   const fetchOrders = useCallback(
     async (page = 0, append = false) => {
       try {
@@ -115,7 +115,7 @@ export default function ProfilePage() {
                     imageUrl: img,
                   };
                 } catch {
-                  // Nếu lỗi thì cứ trả item gốc
+
                   return {
                     ...item,
                     thumbnailUrl: resolveImageUrl(item.imageUrl, item.thumbnailUrl),
@@ -130,13 +130,13 @@ export default function ProfilePage() {
         setOrders((prev) => (append ? [...prev, ...enriched] : enriched));
         setOrderPage(page);
 
-        const isLast = res.data?.last || data.length === 0 || data.length < 10; // fallback nếu BE không trả "last"
+        const isLast = res.data?.last || data.length === 0 || data.length < 10;
 
         if (isLast) {
           setOrderHasMore(false);
         }
 
-        // Trả về list orders đã enrich để dùng cho fetchReturns lần đầu
+
         return append ? [] : enriched;
       } catch (err) {
         console.error(err);
@@ -150,13 +150,13 @@ export default function ProfilePage() {
         }
       }
     },
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+
     [],
   );
 
-  // -------------------------------
-  // Fetch Return Orders (có append)
-  // -------------------------------
+
+
+
   const fetchReturns = useCallback(
     async (page = 0, append = false, sourceOrders = null) => {
       try {
@@ -226,13 +226,13 @@ export default function ProfilePage() {
         }
       }
     },
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+
     [],
   );
 
-  // -------------------------------
-  // Load more handlers (scroll)
-  // -------------------------------
+
+
+
   const loadMoreOrders = () => {
     if (loadingOrders || orderLoadingMore || !orderHasMore) return;
     fetchOrders(orderPage + 1, true);
@@ -243,9 +243,9 @@ export default function ProfilePage() {
     fetchReturns(returnPage + 1, true);
   };
 
-  // -------------------------------
-  // Load initial data (user + orders + returns)
-  // -------------------------------
+
+
+
   useEffect(() => {
     if (loadingUser) return;
 
@@ -260,7 +260,7 @@ export default function ProfilePage() {
         const firstOrders = await fetchOrders(0, false);
         await fetchReturns(0, false, firstOrders);
       } catch {
-        // lỗi đã toast trong từng hàm
+
       }
     };
 
@@ -294,26 +294,26 @@ export default function ProfilePage() {
     fetchReturns,
   ]);
 
-  // Callback khi tạo return xong -> reload lại từ đầu
+
   const handleReturnSubmitted = async () => {
     try {
       const firstOrders = await fetchOrders(0, false);
       await fetchReturns(0, false, firstOrders);
     } catch {
-      // ignore
+
     }
   };
 
-  // -------------------------------
-  // Role logic
-  // -------------------------------
+
+
+
   const roleName = user?.roleName || 'GUEST';
   const isAdminOrEmployee = roleName === 'ADMIN' || roleName === 'EMPLOYEE';
   const isGoogleOnlyAccount = user?.socialProvider?.toUpperCase() === 'GOOGLE';
 
-  // -------------------------------
-  // Tabs hiển thị theo role
-  // -------------------------------
+
+
+
   const tabs = [
     {
       label: 'Lịch Sử Mua Hàng',
@@ -373,7 +373,7 @@ export default function ProfilePage() {
           w="100%"
           align="stretch"
         >
-          {/* === TabList === */}
+          {}
           <TabList
             flexDirection={{ base: 'row', md: 'column' }}
             overflowX={{ base: 'auto', md: 'visible' }}
@@ -415,7 +415,7 @@ export default function ProfilePage() {
             ))}
           </TabList>
 
-          {/* === TabPanels === */}
+          {}
           <TabPanels
             w="100%"
             p={{ base: 0, md: 6 }}

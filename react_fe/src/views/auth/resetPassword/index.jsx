@@ -44,31 +44,31 @@ function ResetPassword() {
       return;
     }
 
-    // 🔒 Rule 1: Độ dài tối thiểu
+
     if (password.length < 8) {
       toast.error('Mật khẩu phải có ít nhất 8 ký tự');
       return;
     }
 
-    // 🔒 Rule 2: Ít nhất 1 chữ in hoa
+
     if (!/[A-Z]/.test(password)) {
       toast.error('Mật khẩu phải chứa ít nhất 1 ký tự in hoa');
       return;
     }
 
-    // 🔒 Rule 3: Ít nhất 1 chữ in thường
+
     if (!/[a-z]/.test(password)) {
       toast.error('Mật khẩu phải chứa ít nhất 1 ký tự thường');
       return;
     }
 
-    // 🔒 Rule 4: Ít nhất 1 ký tự đặc biệt
+
     if (!/[^A-Za-z0-9]/.test(password)) {
       toast.error('Mật khẩu phải chứa ít nhất 1 ký tự đặc biệt');
       return;
     }
 
-    // 🔒 Rule 5: Mật khẩu khớp nhau
+
     if (password !== confirmPassword) {
       toast.error('Mật khẩu không khớp. Vui lòng kiểm tra lại.');
       return;
@@ -129,7 +129,7 @@ function ResetPassword() {
           mb={{ base: '20px', md: 'auto' }}
         >
           <FormControl>
-            {/* New Password */}
+            {}
             <FormLabel
               display="flex"
               ms="4px"
@@ -163,7 +163,7 @@ function ResetPassword() {
               </InputRightElement>
             </InputGroup>
 
-            {/* Confirm Password */}
+            {}
             <FormLabel
               display="flex"
               ms="4px"

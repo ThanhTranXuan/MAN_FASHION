@@ -36,13 +36,13 @@ export default function Form({ isOpen, onClose, reloadCoupons, coupon }) {
   const bgColor = useColorModeValue('white', 'navy.800');
   const headerBg = useColorModeValue('gray.100', 'navy.800');
 
-  // ✅ Helper format LocalDateTime string (yyyy-MM-ddT00:00:00)
+
   const toLocalDateTimeString = (dateStr) => {
     if (!dateStr) return null;
     return `${dateStr}T00:00:00`;
   };
 
-  // Load dữ liệu khi mở form
+
   useEffect(() => {
     if (isOpen) {
       if (coupon) {
@@ -76,7 +76,7 @@ export default function Form({ isOpen, onClose, reloadCoupons, coupon }) {
     }
   }, [coupon, isOpen]);
 
-  // ✅ Validate dữ liệu trước khi submit
+
   const validate = () => {
     const newErrors = {};
 
@@ -115,7 +115,7 @@ export default function Form({ isOpen, onClose, reloadCoupons, coupon }) {
       }
     }
 
-    // Validate ngày
+
     if (!startDate && endDate) {
       newErrors.startDate = 'Ngày bắt đầu là bắt buộc khi có ngày kết thúc';
     }

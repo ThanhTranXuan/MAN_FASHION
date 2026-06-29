@@ -21,14 +21,14 @@ import TopProductsTable from 'views/admin/default/components/TopProductsTable';
 import ProductCategorySummaryChart from 'views/admin/default/components/ProductCategorySummaryChart';
 import ReportService from 'services/ReportService';
 import { formatCurrencyVND } from 'utils/FormatHelper';
-import { useAppToast } from 'utils/ToastHelper'; // 🔥 dùng ToastHelper
+import { useAppToast } from 'utils/ToastHelper';
 
 export default function UserReports() {
   const brandColor = useColorModeValue('brand.500', 'white');
   const boxBg = useColorModeValue('secondaryGray.300', 'whiteAlpha.100');
-  const toast = useAppToast(); // 🔥 thay cho useToast
+  const toast = useAppToast();
 
-  // ⚡ State
+
   const [overview, setOverview] = useState(null);
 
   const [revenueSummary, setRevenueSummary] = useState(null);
@@ -40,7 +40,7 @@ export default function UserReports() {
   const [topProducts, setTopProducts] = useState([]);
   const [productCategorySummary, setProductCategorySummary] = useState([]);
 
-  // ⚙️ Load Data
+
   useEffect(() => {
     const loadAll = async () => {
       try {
@@ -76,12 +76,12 @@ export default function UserReports() {
     };
 
     loadAll();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+
   }, []);
 
   return (
     <Box>
-      {/* 🧭 1️⃣ Tổng quan */}
+      {}
       <SimpleGrid
         columns={{ base: 1, md: 2, lg: 3, '2xl': 6 }}
         gap="20px"
@@ -179,20 +179,20 @@ export default function UserReports() {
         />
       </SimpleGrid>
 
-      {/* 💰 2️⃣ Doanh thu + Khách hàng */}
+      {}
       <SimpleGrid columns={{ base: 1, md: 2, xl: 2 }} gap="20px" mb="20px">
         <TotalRevenue summary={revenueSummary} trend={revenueTrend} />
         <TotalCustomers summary={customerSummary} trend={customerTrend} />
       </SimpleGrid>
 
-      {/* 📊 3️⃣ Product performance */}
+      {}
       <SimpleGrid
         columns={{ base: 1, md: 5 }}
         gap="20px"
         mb="20px"
         alignItems="stretch"
       >
-        {/* 🛍 TOP PRODUCTS - chiếm 2/3 */}
+        {}
         <Box h="100%" gridColumn={{ base: 'span 1', md: 'span 3' }}>
           <TopProductsTable products={topProducts} />
         </Box>

@@ -19,7 +19,7 @@ export default function TotalRevenue({ summary, trend }) {
   const gridColor = useColorModeValue('#E2E8F0', '#2D3748');
   const lineColor = useColorModeValue('#B45309', '#FB923C');
 
-  // 👇 cho biết đang dark / light để truyền sang Apex
+
   const isDark = useColorModeValue(false, true);
 
   const { series, options } = useMemo(() => {
@@ -39,14 +39,14 @@ export default function TotalRevenue({ summary, trend }) {
           type: 'line',
           toolbar: { show: false },
           zoom: { enabled: false },
-          foreColor: textColorSecondary, // màu chữ mặc định cho chart
+          foreColor: textColorSecondary,
         },
         stroke: { curve: 'smooth', width: 3 },
         colors: [lineColor],
         xaxis: {
           categories: labels,
           labels: { style: { colors: textColorSecondary } },
-          // tắt cái tooltip nhỏ dưới trục X nếu thấy vướng
+
           tooltip: {
             enabled: false,
           },
@@ -65,10 +65,10 @@ export default function TotalRevenue({ summary, trend }) {
         },
         grid: { borderColor: gridColor, strokeDashArray: 4 },
         tooltip: {
-          theme: isDark ? 'dark' : 'light', // 🔥 tooltip chuyển đúng theme
+          theme: isDark ? 'dark' : 'light',
           style: {
             fontSize: '12px',
-            color: isDark ? '#F7FAFC' : '#1A202C', // màu chữ trong tooltip
+            color: isDark ? '#F7FAFC' : '#1A202C',
           },
           y: {
             formatter: (val) => formatCurrencyVND(val),

@@ -31,11 +31,11 @@ export default function OrderPage() {
   const [loadingRow, setLoadingRow] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
 
-  // 🆕 Cooldown state để chống spam reload WS
+
   const [lastReloadTime, setLastReloadTime] = useState(0);
   const wsReloadTimeoutRef = useRef(null);
 
-  // 📦 Load orders
+
   const loadOrders = useCallback(
     async (p = 0, { silent = false } = {}) => {
       try {
@@ -55,11 +55,11 @@ export default function OrderPage() {
         if (!silent) setIsLoading(false);
       }
     },
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+
     [searchInput, statusFilter],
   );
 
-  // ⏩ Load khi page/filter đổi
+
   useEffect(() => {
     loadOrders(page).then(() => {
       clearNotification('/admin/order-management');
@@ -67,21 +67,21 @@ export default function OrderPage() {
     });
   }, [page, statusFilter, loadOrders, clearNotification]);
 
-  // ------------------------------
-  // 🚨 WS RELOAD với cooldown 60s + debounce 300ms
-  // ------------------------------
+
+
+
   useEffect(() => {
     if (!refreshOrderSignal) return;
 
     const now = Date.now();
     const timeSinceLast = now - lastReloadTime;
 
-    // ==============================
-    // ⚙️ THÔNG SỐ TÙY CHỈNH  
-    // ==============================
-    const COOLDOWN = 60000; // ⏱️ Reload cách nhau tối thiểu 60 giây
-    const DEBOUNCE = 300; // ⏳ Gộp nhiều WS sát nhau
-    // ==============================
+
+
+
+    const COOLDOWN = 60000;
+    const DEBOUNCE = 300;
+
 
     if (timeSinceLast < COOLDOWN) {
       console.log(`⏭ WS ignored (cooldown ${Math.round(
@@ -119,7 +119,7 @@ export default function OrderPage() {
     );
   }, [latestOrderStatusEvent]);
 
-  // 🔁 Auto refresh mỗi 60 giây khi đang xem trang
+
   useEffect(() => {
     const interval = setInterval(() => {
       if (!navigator.onLine) return;
@@ -157,7 +157,7 @@ export default function OrderPage() {
         );
       }
     },
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+
     [],
   );
 

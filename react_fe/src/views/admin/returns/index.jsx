@@ -52,7 +52,7 @@ export default function ReturnPage() {
   const [rejectingReturn, setRejectingReturn] = useState(null);
   const [rejectReason, setRejectReason] = useState('');
 
-  // 🆕 Cooldown state
+
   const [lastReloadTime, setLastReloadTime] = useState(0);
   const wsReloadTimeoutRef = useRef(null);
   const updateStatusFilter = useCallback((nextStatus) => {
@@ -60,7 +60,7 @@ export default function ReturnPage() {
     setStatusFilter(nextStatus);
   }, []);
 
-  // 📦 Load returns
+
   const loadReturns = useCallback(
     async (p = 0, { silent = false } = {}) => {
       try {
@@ -80,7 +80,7 @@ export default function ReturnPage() {
         if (!silent) setIsLoading(false);
       }
     },
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+
     [searchKeyword, statusFilter],
   );
 
@@ -93,7 +93,7 @@ export default function ReturnPage() {
     return () => clearTimeout(timer);
   }, [searchInput]);
 
-  // ⏩ Load khi page/filter đổi
+
   useEffect(() => {
     loadReturns(page).then(() => {
       clearNotification('/admin/return-management');
@@ -101,21 +101,21 @@ export default function ReturnPage() {
     });
   }, [page, statusFilter, searchKeyword, loadReturns, clearNotification]);
 
-  // ------------------------------
-  // 🚨 WS RELOAD với cooldown 60s + debounce 300ms
-  // ------------------------------
+
+
+
   useEffect(() => {
     if (!refreshReturnSignal) return;
 
     const now = Date.now();
     const timeSinceLast = now - lastReloadTime;
 
-    // ==============================
-    // ⚙️ THÔNG SỐ TÙY CHỈNH
-    // ==============================
-    const COOLDOWN = 60000; // 1 phút
-    const DEBOUNCE = 300; // gom WS gần nhau
-    // ==============================
+
+
+
+    const COOLDOWN = 60000;
+    const DEBOUNCE = 300;
+
 
     if (timeSinceLast < COOLDOWN) {
       console.log(
@@ -149,7 +149,7 @@ export default function ReturnPage() {
     );
   }, [latestReturnStatusEvent]);
 
-  // 🔁 Auto refresh mỗi 60 giây
+
   useEffect(() => {
     const interval = setInterval(() => {
       if (!navigator.onLine) return;
@@ -190,7 +190,7 @@ export default function ReturnPage() {
           setRejectReason('');
         },
       }),
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+
     [statusFilter, page, loadReturns, loadingRow, updateStatusFilter],
   );
 

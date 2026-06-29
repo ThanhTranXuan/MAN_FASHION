@@ -33,7 +33,7 @@ export default function List({
 
   return (
     <Box minH={{ base: '360px', md: '520px' }} overflowX="auto" p={{ base: 2, md: 3 }} position="relative">
-      {/* 🔄 Loading overlay (chỉ phủ table body) */}
+      {}
       {isLoading && (
         <Flex
           position="absolute"

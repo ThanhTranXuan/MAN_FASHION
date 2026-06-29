@@ -18,7 +18,7 @@ import List from './components/List';
 import Columns from './components/Columns';
 
 export default function EmployeePage() {
-  // 🎨 UI
+
   const textColor = useColorModeValue('secondaryGray.900', 'white');
   const borderColor = useColorModeValue('gray.200', 'navy.700');
   const bgColor = useColorModeValue('white', 'navy.800');
@@ -26,7 +26,7 @@ export default function EmployeePage() {
 
   const toast = useAppToast();
 
-  // 🧠 State
+
   const [employees, setEmployees] = useState([]);
   const [page, setPage] = useState(0);
   const [totalPages, setTotalPages] = useState(1);
@@ -37,7 +37,7 @@ export default function EmployeePage() {
   const [isConfirmOpen, setIsConfirmOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
-  // 📦 Disclosure
+
   const { isOpen, onOpen, onClose } = useDisclosure();
   const {
     isOpen: isOpenDetails,
@@ -45,7 +45,7 @@ export default function EmployeePage() {
     onClose: onCloseDetails,
   } = useDisclosure();
 
-  // 📋 Load data
+
   const loadEmployees = useCallback(
     async (p = 0) => {
       try {
@@ -60,7 +60,7 @@ export default function EmployeePage() {
         setIsLoading(false);
       }
     },
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+
     [],
   );
 
@@ -68,7 +68,7 @@ export default function EmployeePage() {
     loadEmployees(page);
   }, [page, loadEmployees]);
 
-  // 🔍 Search filter (client-side)
+
   const filteredData = useMemo(() => {
     let data = employees;
     if (searchInput) {
@@ -83,7 +83,7 @@ export default function EmployeePage() {
     return data;
   }, [employees, searchInput]);
 
-  // ❌ Delete employee
+
   const handleDelete = async () => {
     if (!employeeToDelete?.id) return;
 
@@ -108,7 +108,7 @@ export default function EmployeePage() {
     }
   };
 
-  // 📊 Table columns
+
   const columns = useMemo(
     () =>
       Columns({
@@ -129,17 +129,17 @@ export default function EmployeePage() {
     [onOpen, onOpenDetails, textColor],
   );
 
-  // 🧾 Table setup
+
   const table = useReactTable({
     data: filteredData,
     columns,
     getCoreRowModel: getCoreRowModel(),
   });
 
-  // 🖼️ Render
+
   return (
     <Box>
-      {/* 🧩 Form (Add/Edit) */}
+      {}
       <Form
         isOpen={isOpen}
         onClose={() => {
@@ -150,7 +150,7 @@ export default function EmployeePage() {
         editingEmployee={editingEmployee}
       />
 
-      {/* 📋 Employee Detail */}
+      {}
       <Detail
         isOpen={isOpenDetails}
         onClose={() => {
@@ -160,7 +160,7 @@ export default function EmployeePage() {
         employee={selectedEmployee}
       />
 
-      {/* ⚠️ Confirm Delete */}
+      {}
       <ConfirmDialog
         isOpen={isConfirmOpen}
         onClose={() => setIsConfirmOpen(false)}
@@ -169,7 +169,7 @@ export default function EmployeePage() {
         message={`Bạn có chắc muốn ngừng hoạt động tài khoản ${employeeToDelete?.fullName}? Dữ liệu cũ vẫn được giữ lại.`}
       />
 
-      {/* 📦 Main Table */}
+      {}
       <Card
         flexDirection="column"
         w="100%"

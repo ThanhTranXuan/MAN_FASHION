@@ -1,4 +1,4 @@
-// src/components/cart/CartSidebar.jsx
+
 import {
   Drawer,
   DrawerBody,
@@ -58,7 +58,7 @@ export default function CartSidebar({ isOpen, onClose }) {
 
   const handleGoToPayment = () => {
     onClose();
-    navigate('/user/payment'); // nếu route thực tế là /user/order thì đổi lại
+    navigate('/user/payment');
   };
 
   const handleOpenVariant = async (item) => {

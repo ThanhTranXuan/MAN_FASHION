@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import {
   Box,
   Flex,
@@ -7,10 +7,8 @@ import {
   Text,
   useColorModeValue,
   CloseButton,
-  VStack,
-  HStack,
 } from '@chakra-ui/react';
-import { MdSearch, MdMic, MdMicOff, MdHistory } from 'react-icons/md';
+import { MdSearch, MdMic, MdMicOff } from 'react-icons/md';
 import { useNavigate } from 'react-router-dom';
 import { useAppToast } from 'utils/ToastHelper';
 import { AnimatePresence, motion } from 'framer-motion';
@@ -23,21 +21,27 @@ export default function SearchOverlay({ isOpen, onClose }) {
   const navigate = useNavigate();
   const toast = useAppToast();
   const recognitionRef = useRef(null);
+  const transcriptRef = useRef('');
+  const hasSearchedRef = useRef(false);
 
   const bg = useColorModeValue('fashion.softSurface', 'navy.900');
   const overlayBg = useColorModeValue('rgba(246,240,232,0.95)', 'rgba(11,20,55,0.95)');
   const borderColor = useColorModeValue('fashion.stone', 'navy.700');
-  const chipBg = useColorModeValue('fashion.softSurface', 'whiteAlpha.200');
-
-  // Lịch sử tìm kiếm mẫu
-  const searchHistory = ['Áo thun polo', 'Quần tây công sở', 'Giày sneaker nam'];
-  const popularSearches = ['Áo khoác', 'Áo sơ mi tay dài', 'Phụ kiện thời trang', 'Áo len'];
 
   const handleSearch = (q) => {
     const term = q || query;
     if (!term.trim()) return;
     navigate(`/user/product?q=${encodeURIComponent(term)}`);
     onClose();
+  };
+
+  const finishVoiceSearch = (text) => {
+    const term = String(text || '').trim();
+    if (!term || hasSearchedRef.current) return;
+
+    hasSearchedRef.current = true;
+    setQuery(term);
+    handleSearch(term);
   };
 
   const startRecording = () => {
@@ -53,10 +57,13 @@ export default function SearchOverlay({ isOpen, onClose }) {
 
     const recognition = new SpeechRecognition();
     recognitionRef.current = recognition;
+    transcriptRef.current = '';
+    hasSearchedRef.current = false;
 
     recognition.lang = 'vi-VN';
-    recognition.interimResults = false;
+    recognition.interimResults = true;
     recognition.maxAlternatives = 1;
+    recognition.continuous = false;
 
     // Reset query trước khi nghe mới
     setQuery('');
@@ -66,29 +73,43 @@ export default function SearchOverlay({ isOpen, onClose }) {
     };
 
     recognition.onresult = (event) => {
+      let interimTranscript = '';
       let finalTranscript = '';
+
       for (let i = event.resultIndex; i < event.results.length; ++i) {
+        const transcript = event.results[i][0].transcript;
         if (event.results[i].isFinal) {
-          finalTranscript += event.results[i][0].transcript;
+          finalTranscript += transcript;
+        } else {
+          interimTranscript += transcript;
         }
       }
 
-      const text = finalTranscript.trim();
+      const text = (finalTranscript || interimTranscript).trim();
       if (text) {
+        transcriptRef.current = text;
         setQuery(text);
-        // TRUYỀN TRỰC TIẾP text vào handleSearch, không đợi state
-        handleSearch(text);
+      }
+
+      if (finalTranscript.trim()) {
+        finishVoiceSearch(finalTranscript);
       }
     };
 
     recognition.onerror = (event) => {
       console.error('Speech recognition error:', event.error);
       setIsRecording(false);
+      if (event.error === 'not-allowed' || event.error === 'service-not-allowed') {
+        toast.error('Vui lòng cấp quyền micro để tìm kiếm bằng giọng nói.');
+      } else if (event.error === 'no-speech') {
+        toast.warning('Chưa nghe rõ giọng nói. Vui lòng thử lại.');
+      }
     };
 
     recognition.onend = () => {
       setIsRecording(false);
       recognitionRef.current = null;
+      finishVoiceSearch(transcriptRef.current);
     };
 
     try {
@@ -96,15 +117,31 @@ export default function SearchOverlay({ isOpen, onClose }) {
     } catch (e) {
       console.error('Lỗi khi bắt đầu mic:', e);
       setIsRecording(false);
+      recognitionRef.current = null;
     }
   };
 
   const stopRecording = () => {
     if (recognitionRef.current && isRecording) {
+      finishVoiceSearch(transcriptRef.current);
       recognitionRef.current.stop();
       setIsRecording(false);
     }
   };
+
+  useEffect(() => {
+    if (!isOpen && recognitionRef.current) {
+      recognitionRef.current.stop();
+      recognitionRef.current = null;
+      setIsRecording(false);
+    }
+  }, [isOpen]);
+
+  useEffect(() => () => {
+    if (recognitionRef.current) {
+      recognitionRef.current.stop();
+    }
+  }, []);
 
   return (
     <AnimatePresence>
@@ -139,13 +176,13 @@ export default function SearchOverlay({ isOpen, onClose }) {
         transition={{ duration: 0.26, ease: [0.22, 1, 0.36, 1] }}
       >
         {/* Nút đóng */}
-        <CloseButton 
+        <CloseButton
           position="relative"
           display="block"
           ml="auto"
           mb={3}
-          size="lg" 
-          onClick={onClose} 
+          size="lg"
+          onClick={onClose}
         />
 
         {/* Khung tìm kiếm chính */}
@@ -171,7 +208,7 @@ export default function SearchOverlay({ isOpen, onClose }) {
             onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
             autoFocus
           />
-          
+
           <IconButton
             aria-label="Voice search"
             icon={isRecording ? <MdMicOff size={24} /> : <MdMic size={24} />}
@@ -187,48 +224,6 @@ export default function SearchOverlay({ isOpen, onClose }) {
             Đang ghi âm... Nhấn lại icon mic để hoàn tất.
           </Text>
         )}
-
-        {/* Lịch sử & Gợi ý */}
-        <Flex mt={{ base: 6, md: 8 }} direction={{ base: 'column', md: 'row' }} gap={{ base: 6, md: 8 }}>
-          <Box flex={1}>
-            <Text fontWeight="bold" mb={4} color="gray.500">LỊCH SỬ TÌM KIẾM</Text>
-            <VStack align="stretch" spacing={3}>
-              {searchHistory.map((item, i) => (
-                <HStack 
-                  key={i} 
-                  cursor="pointer" 
-                  _hover={{ color: 'brand.500' }}
-                  onClick={() => handleSearch(item)}
-                >
-                  <MdHistory />
-                  <Text>{item}</Text>
-                </HStack>
-              ))}
-            </VStack>
-          </Box>
-          <Box flex={1}>
-            <Text fontWeight="bold" mb={4} color="gray.500">TÌM KIẾM PHỔ BIẾN</Text>
-            <Flex wrap="wrap" gap={2}>
-              {popularSearches.map((item, i) => (
-                <Box
-                  key={i}
-                  px={4}
-                  py={2}
-                  bg={chipBg}
-                  border="1px solid"
-                  borderColor={borderColor}
-                  borderRadius="full"
-                  fontSize="sm"
-                  cursor="pointer"
-                  _hover={{ bg: 'brand.500', color: 'white' }}
-                  onClick={() => handleSearch(item)}
-                >
-                  {item}
-                </Box>
-              ))}
-            </Flex>
-          </Box>
-        </Flex>
       </MotionBox>
 
       {/* Animation cho mic */}

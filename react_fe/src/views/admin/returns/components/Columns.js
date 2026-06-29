@@ -24,7 +24,7 @@ const STATUS_META = {
   COMPLETED: { label: 'COMPLETED', text: 'Hoàn Thành', color: 'green', emoji: '💰' },
 };
 
-// ✅ flow hợp lệ
+
 function getNextStatuses(current) {
   switch (current) {
     case 'REQUESTED':
@@ -80,7 +80,7 @@ export default function Columns({
       ),
     }),
 
-    // 🔽 Cột trạng thái có logic flow + loading
+
     columnHelper.accessor('status', {
       header: () => (
         <Flex justify="end">

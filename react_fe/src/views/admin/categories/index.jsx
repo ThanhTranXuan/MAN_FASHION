@@ -32,7 +32,7 @@ export default function CategoryPage() {
     onClose: onConfirmClose,
   } = useDisclosure();
 
-  // BUILD TREE
+
   const buildTree = (flat) => {
     const map = {};
     flat.forEach((c) => (map[c.id] = { ...c, children: [] }));

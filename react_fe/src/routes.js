@@ -13,7 +13,7 @@ import {
 import { FaUserTie } from 'react-icons/fa';
 import { BsBoxSeam } from 'react-icons/bs';
 
-// Admin Imports
+
 import MainDashboard from 'views/admin/default';
 import EmployeePage from 'views/admin/employees';
 import CategoryPage from 'views/admin/categories';
@@ -24,7 +24,7 @@ import ReturnPage from 'views/admin/returns';
 import ChatPage from 'views/admin/chat';
 import AdminReviews from 'views/admin/reviews';
 
-// User Imports
+
 import Home from 'views/user/home';
 import Profile from 'views/user/profile';
 import ProductList from 'views/user/product';
@@ -34,7 +34,7 @@ import WriteReview from 'views/user/product/WriteReview';
 import Order from 'views/user/order';
 import ResultPage from 'views/user/order/ResultPage';
 
-// Auth Imports
+
 import SignIn from 'views/auth/signIn';
 import SignUp from 'views/auth/signUp';
 import CheckEmailNotice from 'views/auth/checkEmailNotice';
@@ -42,14 +42,14 @@ import ResetPassword from 'views/auth/resetPassword';
 import ForgotPassword from 'views/auth/forgotPassword';
 
 const routes = [
-  // ================== ADMIN ROUTES ==================
+
   {
     name: 'Bảng Điều Khiển',
     layout: '/admin',
     path: '/default',
     icon: <Icon as={MdDashboard} w="20px" h="20px" color="inherit" />,
     component: <MainDashboard />,
-    adminOnly: true, // 👈 chỉ ADMIN thấy
+    adminOnly: true,
   },
   {
     name: 'Quản Lý Nhân Viên',
@@ -110,7 +110,7 @@ const routes = [
     component: <AdminReviews />,
   },
 
-  // ================== USER ROUTES ==================
+
   {
     name: 'Home',
     layout: '/user',
@@ -168,7 +168,7 @@ const routes = [
     component: <ResultPage />
   },
 
-  // ================== AUTH ROUTES ==================
+
   {
     name: 'Sign In',
     layout: '/auth',

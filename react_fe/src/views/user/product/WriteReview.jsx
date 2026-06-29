@@ -108,7 +108,7 @@ export default function WriteReview() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+
     if (formData.comment.length < 50) {
       return toast.warning('Bình luận phải có ít nhất 50 ký tự.');
     }
@@ -146,13 +146,13 @@ export default function WriteReview() {
   return (
     <Box bg={bgColor} minH="100vh" py={10} pt={{ base: '80px', md: '100px' }}>
       <Container maxW="800px">
-        {/* Header */}
+        {}
         <Flex align="center" mb={8}>
-          <IconButton 
-            icon={<MdArrowBack />} 
-            onClick={() => navigate(-1)} 
-            variant="ghost" 
-            mr={4} 
+          <IconButton
+            icon={<MdArrowBack />}
+            onClick={() => navigate(-1)}
+            variant="ghost"
+            mr={4}
             aria-label="Back"
           />
           <VStack align="start" spacing={0}>
@@ -171,7 +171,7 @@ export default function WriteReview() {
         >
           <form onSubmit={handleSubmit}>
             <VStack spacing={6} align="stretch">
-              {/* Rating */}
+              {}
               <FormControl isRequired>
                 <FormLabel fontWeight="bold">Xếp hạng</FormLabel>
                 <HStack spacing={1}>
@@ -191,7 +191,7 @@ export default function WriteReview() {
                 </HStack>
               </FormControl>
 
-              {/* Title */}
+              {}
               <FormControl isRequired>
                 <FormLabel fontWeight="bold">Tiêu đề bài đánh giá</FormLabel>
                 <Input
@@ -204,7 +204,7 @@ export default function WriteReview() {
                 <Text fontSize="xs" color="gray.500" mt={1}>Tóm tắt điểm chính trong đánh giá của bạn</Text>
               </FormControl>
 
-              {/* Comment */}
+              {}
               <FormControl isRequired>
                 <FormLabel fontWeight="bold">Bình luận của bạn</FormLabel>
                 <Textarea

@@ -29,7 +29,7 @@ export default function Row({
   onDeleteVariant,
 }) {
   const { user } = useUser();
-  const role = user?.roleName; // ADMIN | EMPLOYEE | USER
+  const role = user?.roleName;
   const isEmployee = role === 'EMPLOYEE';
 
   const isExpanded = expandedRows[product.id];
@@ -59,9 +59,9 @@ export default function Row({
 
   return (
     <>
-      {/* === Product Row === */}
+      {}
       <Tr _hover={{ bg: useColorModeValue('gray.50', 'whiteAlpha.50') }}>
-        {/* Thumbnail */}
+        {}
         <Td pl={depth * 4}>
           {thumbnailUrl && (
             <Image
@@ -75,7 +75,7 @@ export default function Row({
           )}
         </Td>
 
-        {/* Name */}
+        {}
         <Td
           onClick={() => toggleExpand(product.id)}
           _hover={{ cursor: 'pointer' }}
@@ -83,17 +83,17 @@ export default function Row({
           <Text fontWeight="600">{product.name}</Text>
         </Td>
 
-        {/* Price */}
+        {}
         <Td>{formatCurrencyVND(product.price)}</Td>
 
-        {/* Category */}
+        {}
         <Td>
           <Text fontSize="sm" color="gray.600">
             {product.categoryName || '—'}
           </Text>
         </Td>
 
-        {/* ACTIVE COLUMN - hidden if EMPLOYEE */}
+        {}
         {isEmployee ? (
           <Td></Td>
         ) : (
@@ -112,10 +112,10 @@ export default function Row({
           </Td>
         )}
 
-        {/* ACTION BUTTONS */}
+        {}
         <Td textAlign="right">
           <Flex justify="flex-end" gap={2}>
-            {/* Thêm Biến Thể — EMPLOYEE + ADMIN */}
+            {}
             <IconButton
               borderRadius="xl"
               aria-label="Add Variant"
@@ -125,7 +125,7 @@ export default function Row({
               onClick={() => onAddVariant(product)}
             />
 
-            {/* Edit — EMPLOYEE + ADMIN */}
+            {}
             <IconButton
               borderRadius="xl"
               aria-label="Edit"
@@ -149,12 +149,12 @@ export default function Row({
         </Td>
       </Tr>
 
-      {/* === Variant Rows === */}
+      {}
       {isExpanded &&
         (product.variants && product.variants.length > 0 ? (
           product.variants.map((v) => (
             <Tr key={v.id}>
-              {/* IMAGE BY COLOR */}
+              {}
               <Td>
                 {(() => {
                   const colorImg =
@@ -184,29 +184,29 @@ export default function Row({
                 })()}
               </Td>
 
-              {/* Color */}
+              {}
               <Td>
                 <Text fontWeight="500" textTransform="capitalize">
                   Màu sắc: {getColorLabel(v.color)}
                 </Text>
               </Td>
 
-              {/* Size */}
+              {}
               <Td>
                 <Text fontSize="sm">Kích cỡ: {v.size || '—'}</Text>
               </Td>
 
-              {/* Category empty column */}
+              {}
               <Td></Td>
 
-              {/* Stock */}
+              {}
               <Td>
                 <Text fontSize="sm" color="gray.600">
                   Tồn: {v.stock ?? 0} | Giá: {formatCurrencyVND(v.price)}
                 </Text>
               </Td>
 
-              {/* Actions */}
+              {}
               <Td textAlign="right">
                 <Flex justify="flex-end" gap={2}>
                   <IconButton

@@ -12,11 +12,11 @@ const toCategoryFormData = (data, file) => {
 };
 
 const CategoryService = {
-  // Public
+
   getAll: (params) => ApiClient.get(ApiUrl.CATEGORIES, { params }),
   getBySlug: (slug) => ApiClient.get(ApiUrl.CATEGORY_DETAIL(slug)),
 
-  // Admin/Employee
+
   create: (data, file) =>
     file
       ? uploadClient.post(ApiUrl.CREATE_CATEGORY, toCategoryFormData(data, file))

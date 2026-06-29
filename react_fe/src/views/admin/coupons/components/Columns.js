@@ -61,7 +61,7 @@ export default function Columns(
               setEditingCoupon(info.row.original);
               onOpen();
             }}
-            borderRadius="xl" 
+            borderRadius="xl"
           />
           <IconButton
             aria-label="Delete"
@@ -72,7 +72,7 @@ export default function Columns(
               setCouponToDelete(info.row.original);
               setIsConfirmOpen(true);
             }}
-            borderRadius="xl" 
+            borderRadius="xl"
           />
         </Flex>
       ),

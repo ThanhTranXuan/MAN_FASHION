@@ -26,7 +26,7 @@ export default function Columns({
   };
 
   const columns = [
-    // === Thumbnail ===
+
     columnHelper.accessor('thumbnail', {
       header: 'ẢNH',
       cell: (info) => (
@@ -36,7 +36,7 @@ export default function Columns({
       ),
     }),
 
-    // === Name ===
+
     columnHelper.accessor('name', {
       header: 'TÊN',
       cell: (info) => (
@@ -46,7 +46,7 @@ export default function Columns({
       ),
     }),
 
-    // === Price ===
+
     columnHelper.accessor('price', {
       header: 'GIÁ',
       cell: (info) => (
@@ -54,7 +54,7 @@ export default function Columns({
       ),
     }),
 
-    // === Category ===
+
     columnHelper.accessor('categoryId', {
       header: () => (
         <CategoryFilter
@@ -71,11 +71,11 @@ export default function Columns({
       ),
     }),
 
-    // === Active column (header & cell trống nếu EMPLOYEE) ===
+
     columnHelper.accessor('isActive', {
       header: () =>
         isEmployee ? (
-          <Text fontSize="12px"></Text> // header trống
+          <Text fontSize="12px"></Text>
         ) : (
           <ActiveFilter
             activeFilter={activeFilter}
@@ -84,7 +84,7 @@ export default function Columns({
         ),
       cell: (info) =>
         isEmployee ? (
-          <Text></Text> // cell trống
+          <Text></Text>
         ) : (
           <Text color={info.getValue() ? 'green.400' : 'red.400'}>
             {info.getValue() ? 'Hoạt Động' : 'Ngưng Hoạt Động'}
@@ -92,13 +92,13 @@ export default function Columns({
         ),
     }),
 
-    // === Actions ===
+
     columnHelper.display({
       id: 'actions',
       header: <Text align="right">THAO TÁC</Text>,
     }),
   ];
 
-  // 🔥 Remove "false" values (khi isEmployee = true)
+
   return columns.filter(Boolean);
 }

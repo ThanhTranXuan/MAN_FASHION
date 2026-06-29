@@ -19,7 +19,7 @@ export default function ImageGallery({
   activeImage,
   onImageChange,
 }) {
-  // ===== Data =====
+
   const items = useMemo(
     () => (images?.length ? images : fallback ? [{ url: fallback }] : []),
     [images, fallback]
@@ -40,7 +40,7 @@ export default function ImageGallery({
     setActive(initialIndex);
   }, [initialIndex]);
 
-  // ===== Auto-scroll thumbnail list =====
+
   useEffect(() => {
     const container = listRef.current;
     if (!container) return;
@@ -63,7 +63,7 @@ export default function ImageGallery({
     });
   }, [active, isMobile]);
 
-  // ===== Prev / Next =====
+
   const handlePrev = () => {
     if (items.length <= 1) return;
     const newIdx = active === 0 ? items.length - 1 : active - 1;
@@ -82,11 +82,11 @@ export default function ImageGallery({
     if (items[active]) setIsPreviewOpen(true);
   };
 
-  // ===== Thumbnail size config =====
+
   const thumbWidth = 88;
   const thumbHeight = 110;
 
-  // ===== Thumbnail List (responsive) =====
+
   const ThumbList = (
     <Box
       ref={listRef}
@@ -139,7 +139,7 @@ export default function ImageGallery({
     </Box>
   );
 
-  // ===== Layout =====
+
   return (
     <Box
       display="flex"
@@ -148,10 +148,10 @@ export default function ImageGallery({
       align="start"
       w="full"
     >
-      {/* Thumbnail left (desktop only) */}
+      {}
       {!isMobile && ThumbList}
 
-      {/* Main image */}
+      {}
       <Box
         borderWidth="1px"
         borderRadius="lg"
@@ -176,7 +176,7 @@ export default function ImageGallery({
           />
         )}
 
-        {/* Nav buttons */}
+        {}
         {items.length > 1 && (
           <>
             <IconButton
@@ -215,7 +215,7 @@ export default function ImageGallery({
         )}
       </Box>
 
-      {/* Thumbnail bottom (mobile only) */}
+      {}
       {isMobile && (
         <HStack
           justify="center"

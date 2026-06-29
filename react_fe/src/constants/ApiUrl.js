@@ -1,13 +1,13 @@
-// ApiUrl.js - centralized API endpoints with dynamic base URL
 
-// 🌐 Base URL - lấy từ .env hoặc fallback về localhost
+
+
 const BASE_URL = process.env.REACT_APP_API_BASE_URL || 'http://localhost:8080';
 
-// 🧩 Helper để build URL đầy đủ
+
 const withBase = (path) => `${BASE_URL}${path}`;
 
 const ApiUrl = {
-  // ==== AUTH ====
+
   REGISTER: withBase('/api/auth/register'),
   LOGIN: withBase('/api/auth/login'),
   SOCIAL_LOGIN: withBase('/api/auth/social-login'),
@@ -15,14 +15,14 @@ const ApiUrl = {
   FORGOT_PASSWORD: withBase('/api/auth/forgot-password'),
   RESET_PASSWORD: withBase('/api/auth/reset-password'),
 
-  // ==== USER ACCOUNT ====
+
   PROFILE: withBase('/api/users/me'),
   UPDATE_PROFILE: withBase('/api/users/me'),
   UPDATE_AVATAR: withBase('/api/users/me/avatar'),
   CHANGE_PASSWORD: withBase('/api/users/me/password'),
   DELETE_ACCOUNT: withBase('/api/users/me'),
 
-  // ==== PRODUCTS ====
+
   PRODUCTS: withBase('/api/products'),
   PRODUCT_FILTER_OPTIONS: withBase('/api/products/filter-options'),
   PRODUCT_DETAIL: (slug) => withBase(`/api/products/detail/${slug}`),
@@ -40,12 +40,12 @@ const ApiUrl = {
   DELETE_PRODUCT_VARIANT: (variantId) =>
     withBase(`/api/products/variants/${variantId}`),
 
-  // ==== HOMEPAGE ====
+
   HOME_OUTFIT_DAILY: withBase('/api/home/outfits/daily'),
   HOME_OUTFIT_RELAX: withBase('/api/home/outfits/relax'),
   HOME_OUTFIT_AFTER_WORK: withBase('/api/home/outfits/after-work'),
 
-  // ==== PRODUCT REVIEWS ====
+
   PRODUCT_REVIEWS: (productId) => withBase(`/api/v1/products/${productId}/reviews`),
   PRODUCT_REVIEWS_LATEST: (productId) => withBase(`/api/v1/products/${productId}/reviews/latest`),
   PRODUCT_REVIEWS_SUMMARY: (productId) => withBase(`/api/v1/products/${productId}/reviews/summary`),
@@ -55,58 +55,58 @@ const ApiUrl = {
   ADMIN_REVIEW_REPLY: (reviewId) => withBase(`/api/v1/admin/reviews/${reviewId}/reply`),
   ADMIN_REVIEW_DELETE: (reviewId) => withBase(`/api/v1/admin/reviews/${reviewId}`),
 
-  // ==== CATEGORIES ====
+
   CATEGORIES: withBase('/api/categories'),
   CATEGORY_DETAIL: (slug) => withBase(`/api/categories/${slug}`),
   CREATE_CATEGORY: withBase('/api/categories'),
   UPDATE_CATEGORY: (id) => withBase(`/api/categories/${id}`),
   DELETE_CATEGORY: (id) => withBase(`/api/categories/${id}`),
 
-  // ==== COUPONS ====
+
   COUPONS: withBase('/api/coupons'),
   UPDATE_COUPON: (id) => withBase(`/api/coupons/${id}`),
   DELETE_COUPON: (id) => withBase(`/api/coupons/${id}`),
 
-  // ==== CART ====
+
   CART: withBase('/api/cart'),
   UPDATE_CART_ITEM: (id) => withBase(`/api/cart/${id}`),
   REMOVE_CART_ITEM: (id) => withBase(`/api/cart/${id}`),
 
-  // ==== ORDERS ====
+
   ORDERS: withBase('/api/orders'),
   CREATE_ORDER: withBase('/api/orders'),
   MY_ORDERS: withBase('/api/orders/me'),
   UPDATE_ORDER_STATUS: (orderCode) =>
     withBase(`/api/orders/${orderCode}/status`),
-  // 🔍 Check có đơn mới sau timestamp (millis)
+
   ORDERS_HAS_NEW: withBase('/api/orders/has-new'),
 
-  // ==== RETURNS ====
+
   RETURNS: withBase('/api/returns'),
   MY_RETURNS: withBase('/api/returns/me'),
   UPDATE_RETURN_STATUS: (orderCode) =>
     withBase(`/api/returns/${orderCode}/status`),
-  // 🔍 Check có return mới sau timestamp
+
   RETURNS_HAS_NEW: withBase('/api/returns/has-new'),
 
-  // ==== CHAT ====
+
   CHAT_START: withBase('/api/chat/start'),
   CHAT_ME: withBase('/api/chat/me'),
   CHAT_MESSAGES: (id) => withBase(`/api/chat/${id}/messages`),
   CHAT_ALL_ADMIN: withBase('/api/chat/admin/conversations'),
-  CHAT_SEND_WS: '/app/chat/send', // WebSocket endpoint FE → BE
-  CHAT_TOPIC: (id) => `/topic/chat/${id}`, // WebSocket topic BE → FE
+  CHAT_SEND_WS: '/app/chat/send',
+  CHAT_TOPIC: (id) => `/topic/chat/${id}`,
 
-  // ==== NEWSLETTER ====
+
   NEWSLETTER_SUBSCRIBE: withBase('/api/v1/newsletter/subscribe'),
 
-  // ==== EMPLOYEES ====
+
   EMPLOYEES: withBase('/api/employees'),
   EMPLOYEE_DETAIL: (id) => withBase(`/api/employees/${id}`),
   UPDATE_EMPLOYEE: (id) => withBase(`/api/employees/${id}`),
   DELETE_EMPLOYEE: (id) => withBase(`/api/employees/${id}`),
 
-  // ==== REPORTS ====
+
   REPORT_OVERVIEW: withBase('/api/reports/overview'),
   REPORT_REVENUE_SUMMARY: withBase('/api/reports/revenue/summary'),
   REPORT_CUSTOMER_SUMMARY: withBase('/api/reports/customers/summary'),

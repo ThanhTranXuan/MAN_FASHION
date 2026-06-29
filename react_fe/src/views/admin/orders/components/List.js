@@ -24,7 +24,7 @@ export default function List({ table, isLoading }) {
 
   return (
     <Box minH={{ base: '360px', md: '520px' }} overflowX="auto" p={{ base: 2, md: 3 }} position="relative" bg={bgColor} borderRadius="10px">
-      {/* 🔄 Loading overlay */}
+      {}
       {isLoading && (
         <Flex
           position="absolute"

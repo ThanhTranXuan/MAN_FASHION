@@ -4,20 +4,20 @@ import ReactApexChart from "react-apexcharts";
 export default function PieChart({ chartData }) {
   if (!chartData) return null;
 
-  // 🧩 Nhận cả hai kiểu input: array hoặc object
+
   let series = [];
   let labels = [];
 
   if (Array.isArray(chartData)) {
-    // Trường hợp là mảng {categoryName, revenue}
+
     series = chartData.map((d) => d.revenue);
     labels = chartData.map((d) => d.categoryName);
   } else if (chartData.datasets && chartData.labels) {
-    // Trường hợp là object (Chart.js style)
+
     series = chartData.datasets[0].data;
     labels = chartData.labels;
   } else {
-    return null; // fallback nếu dữ liệu không hợp lệ
+    return null;
   }
 
   const chartOptions = {

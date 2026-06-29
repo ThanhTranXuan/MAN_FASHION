@@ -279,7 +279,7 @@ export default function Summary({
         Tóm Tắt Đơn Hàng
       </Heading>
 
-      {/* Order details luôn hiển thị */}
+      {}
       <Box
         mb={4}
         maxH="260px"
@@ -339,7 +339,7 @@ export default function Summary({
         </VStack>
       </Box>
 
-      {/* Coupon Code */}
+      {}
       <Box mb={4}>
         <Text fontWeight="semibold" mb={2}>
           Mã Giảm Giá
@@ -357,7 +357,7 @@ export default function Summary({
             onClick={handleApplyCoupon}
             isDisabled={applied}
             minW="100px"
-            color="white" // chữ luôn trắng
+            color="white"
           >
             {applied ? 'Đã Áp Dụng' : 'Áp Dụng'}
           </Button>
@@ -414,7 +414,7 @@ export default function Summary({
         )}
       </Box>
 
-      {/* Total Amount */}
+      {}
       <VStack
         spacing={3}
         align="stretch"
@@ -441,7 +441,7 @@ export default function Summary({
         </Flex>
       </VStack>
 
-      {/* Payment Method - cùng 1 dòng */}
+      {}
       <Box mb={4}>
         <Text fontWeight="semibold" mb={2}>
           Phương Thức Thanh Toán
@@ -468,7 +468,7 @@ export default function Summary({
         </RadioGroup>
       </Box>
 
-      {/* Order button */}
+      {}
       <Button
         bg="navy.900"
         size="lg"

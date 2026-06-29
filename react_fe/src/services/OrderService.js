@@ -1,11 +1,11 @@
-// services/OrderService.js
+
 import ApiClient from 'api/ApiClient';
 import ApiUrl from 'constants/ApiUrl';
 
 const OrderService = {
   create: async (data) => {
     const response = await ApiClient.post(ApiUrl.CREATE_ORDER, data);
-    return response.data.data; 
+    return response.data.data;
   },
 
   getMyOrders: (params) => ApiClient.get(ApiUrl.MY_ORDERS, { params }).then(res=>{ return { data: res.data.data };}),
@@ -14,7 +14,7 @@ const OrderService = {
       params: { status },
     }).then((res) => res.data.data),
 
-  // ADMIN
+
   getAllAdmin: (params) =>
     ApiClient.get(ApiUrl.ORDERS, {
       params: { sort: 'createdAt,desc', ...params },

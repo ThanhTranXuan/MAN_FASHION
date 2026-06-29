@@ -15,22 +15,39 @@ import {
 import { CalendarIcon } from "@chakra-ui/icons";
 import MiniCalendar from "components/calendar/MiniCalendar";
 
+const parseLocalDate = (dateString) => {
+  if (!dateString) return null;
+  const [year, month, day] = dateString.split("-").map(Number);
+  if (!year || !month || !day) return null;
+  return new Date(year, month - 1, day);
+};
+
+const formatLocalDate = (date) => {
+  const selectedDate = Array.isArray(date) ? date[0] : date;
+  if (!(selectedDate instanceof Date) || Number.isNaN(selectedDate.getTime())) return "";
+
+  const year = selectedDate.getFullYear();
+  const month = String(selectedDate.getMonth() + 1).padStart(2, "0");
+  const day = String(selectedDate.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
+};
+
 export function DatePicker({ label, value, onChange, isRequired = false }) {
   const [isOpen, setIsOpen] = useState(false);
   const textColor = useColorModeValue("secondaryGray.900", "white");
 
-  // ✅ Chuẩn hóa hiển thị: nếu có value hợp lệ → format dd/MM/yyyy
+
   let displayValue = "";
   if (value) {
-    const parsed = new Date(value);
-    if (!isNaN(parsed)) {
-      displayValue = parsed.toLocaleDateString("en-GB"); // dd/MM/yyyy
+    const parsed = parseLocalDate(value);
+    if (parsed && !Number.isNaN(parsed.getTime())) {
+      displayValue = parsed.toLocaleDateString("en-GB");
     }
   }
 
-  // ✅ Khi chọn ngày từ MiniCalendar
+
   const handleSelectDate = (date) => {
-    const formatted = date.toISOString().split("T")[0]; // yyyy-MM-dd
+    const formatted = formatLocalDate(date);
     onChange(formatted);
     setIsOpen(false);
   };
@@ -68,7 +85,7 @@ export function DatePicker({ label, value, onChange, isRequired = false }) {
         <PopoverContent w="auto" border="none" boxShadow="xl" p={2}>
           <PopoverBody>
             <MiniCalendar
-              value={value ? new Date(value) : new Date()}
+              value={parseLocalDate(value) || new Date()}
               onChange={handleSelectDate}
             />
           </PopoverBody>

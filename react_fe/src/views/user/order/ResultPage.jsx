@@ -1,4 +1,4 @@
-// src/views/user/order/ResultPage.jsx
+
 import {
   Box,
   Container,
@@ -30,8 +30,8 @@ export default function ResultPage() {
     return () => clearTimeout(timer);
   }, []);
 
-  const code = searchParams.get('code');        
-  const cancel = searchParams.get('cancel');     
+  const code = searchParams.get('code');
+  const cancel = searchParams.get('cancel');
 
   const isSuccess = code === '00' && cancel !== 'true';
 

@@ -37,7 +37,7 @@ export default function Columns({
     { label: 'CANCELLED', text: 'Đã Hủy', color: 'red.500', emoji: '❌' },
   ];
 
-  // Quy tắc chuyển trạng thái
+
   const getAllowedTransitions = (current) => {
     switch (current) {
       case 'PENDING':
@@ -201,7 +201,7 @@ export default function Columns({
       },
     }),
 
-    // === CỘT CHI TIẾT ===
+
     columnHelper.display({
       id: 'detail',
       header: <Text align="right">Hành Động</Text>,

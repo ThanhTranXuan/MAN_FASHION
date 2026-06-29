@@ -23,12 +23,12 @@ export default function ImageUploader({
   const [files, setFiles] = useState([]);
   const [previews, setPreviews] = useState([]);
 
-  // ✅ sync preview từ DB hoặc props (url / blob)
+
   useEffect(() => {
     if (Array.isArray(value)) setPreviews(value);
     else if (value) setPreviews([value]);
     else setPreviews([]);
-    // files không cần sync từ value, chỉ dùng để biết file mới user chọn
+
   }, [value]);
 
   const handleFiles = (selectedFiles) => {
@@ -85,7 +85,7 @@ export default function ImageUploader({
           onChange={(e) => handleFiles(e.target.files)}
         />
 
-        {/* 🔹 SINGLE: luôn hiển thị nếu có preview, KHÔNG check files.length */}
+        {}
         {!multiple && previews.length > 0 && (
           <Flex justify="center" mt={3}>
             <Box position="relative" display="inline-block">
@@ -93,7 +93,7 @@ export default function ImageUploader({
                 src={previews[0]}
                 width="100%"
                 maxW="360px"
-                // nếu project bạn support browser cũ, có thể bỏ aspectRatio
+
                 aspectRatio={16 / 9}
                 objectFit="cover"
                 borderRadius="md"
@@ -120,7 +120,7 @@ export default function ImageUploader({
           </Flex>
         )}
 
-        {/* 🔹 MULTI: grid preview */}
+        {}
         {multiple && previews.length > 0 && (
           <SimpleGrid columns={[2, 3, 4]} spacing={3} mt={2}>
             {previews.map((src, idx) => (
@@ -151,7 +151,7 @@ export default function ImageUploader({
           </SimpleGrid>
         )}
 
-        {/* 🔹 Không có ảnh nào */}
+        {}
         {previews.length === 0 && (
           <Text fontWeight="semibold">
             {multiple

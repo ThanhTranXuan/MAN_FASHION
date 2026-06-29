@@ -1,4 +1,4 @@
-// src/contexts/CartContext.jsx
+
 import {
   createContext,
   useContext,
@@ -42,7 +42,7 @@ export function CartProvider({ children }) {
 
   const usesServerCart = isAuthenticated && Boolean(user?.id);
 
-  // Guest dùng localStorage; mọi tài khoản đăng nhập dùng giỏ hàng trong DB.
+
   const canUseCart = true;
 
   const [cart, setCart] = useState({
@@ -56,7 +56,7 @@ export function CartProvider({ children }) {
     try {
       let data;
       if (usesServerCart) {
-        // Tài khoản đăng nhập: giỏ ở DB
+
         const res = await CartService.getAll();
         const items = Array.isArray(res.data.items ?? res.data)
           ? res.data.items ?? res.data
@@ -65,7 +65,7 @@ export function CartProvider({ children }) {
         const totalQuantity = items.reduce((s, i) => s + i.quantity, 0);
         data = { items, totalPrice, totalQuantity };
       } else {
-        // 👤 Guest: dùng localStorage
+
         data = await CartHelper.getCart();
       }
 
@@ -90,7 +90,7 @@ export function CartProvider({ children }) {
   const refreshCart = loadCart;
 
   const addItem = async (item, toast) => {
-    // Optimistic update
+
     setCart((prev) => {
       const exists = prev.items.find(
         (i) =>
@@ -118,7 +118,7 @@ export function CartProvider({ children }) {
       return { items, totalPrice, totalQuantity };
     });
 
-    // Gọi API / local tuỳ role
+
     try {
       if (usesServerCart) {
         await CartService.addItem({
@@ -136,7 +136,7 @@ export function CartProvider({ children }) {
     }
   };
 
-  // Giữ signature cũ: (id, color, size, qty, toast) để không vỡ chỗ khác
+
   const updateQuantity = async (id, _color, _size, qty, toast) => {
     setCart((prev) => {
       const items = prev.items.map((i) =>
@@ -157,14 +157,14 @@ export function CartProvider({ children }) {
     } catch (err) {
       console.error(err);
     } finally {
-      invalidateCheckoutSession();  
+      invalidateCheckoutSession();
       await refreshCart();
     }
   };
 
-  // 🎨 Đổi variant cho item (dùng trong CartSidebar + CartVariantModal)
+
   const updateVariant = async (item, newVariant, toast) => {
-    // Optimistic update
+
     setCart((prev) => {
       const items = prev.items.map((i) =>
         i.id === item.id
@@ -184,13 +184,13 @@ export function CartProvider({ children }) {
 
     try {
       if (usesServerCart) {
-        // BE cần support update variant cho cart item
+
         await CartService.updateItem(item.id, {
           variantId: newVariant.id,
         });
         toast?.success?.('Variant updated successfully!');
       } else {
-        // Guest: dùng helper, helper đã có toast
+
         await CartHelper.updateVariant(item, newVariant, toast);
       }
     } catch (err) {
@@ -198,7 +198,7 @@ export function CartProvider({ children }) {
       toast?.error?.('Failed to update variant.');
       await refreshCart();
     } finally {
-      invalidateCheckoutSession();  
+      invalidateCheckoutSession();
       await refreshCart();
     }
   };
@@ -234,7 +234,7 @@ export function CartProvider({ children }) {
       console.error('Error clearing cart:', err);
       setCart({ items: [], totalPrice: 0, totalQuantity: 0 });
     } finally {
-      invalidateCheckoutSession();  
+      invalidateCheckoutSession();
     }
   };
 

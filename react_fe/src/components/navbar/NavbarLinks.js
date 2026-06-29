@@ -82,16 +82,16 @@ export default function NavbarLinks() {
   const location = useLocation();
   const isAdminRoute = location.pathname.startsWith('/admin');
 
-  // ✅ Trang thanh toán user/payment
+
   const isPaymentRoute = location.pathname.startsWith('/user/payment');
 
-  // ✅ Guest hoặc USER mới được dùng cart
+
   const canUseCart = true;
 
-  // ✅ Chỉ hiển thị cart khi:
-  // - Không ở admin
-  // - Không ở trang thanh toán
-  // - Được phép dùng cart (guest + USER)
+
+
+
+
   const canShowCart = !isAdminRoute && !isPaymentRoute && canUseCart;
   const isStaffUser =
     isAuthenticated && ['ADMIN', 'EMPLOYEE'].includes(user?.roleName);
@@ -136,8 +136,8 @@ export default function NavbarLinks() {
   );
 
   return (
-    <Flex 
-      align="center" 
+    <Flex
+      align="center"
       gap="10px"
       bg={isAdminRoute ? menuBg : 'transparent'}
       p={isAdminRoute ? "10px" : "0"}
@@ -146,10 +146,10 @@ export default function NavbarLinks() {
     >
       {isAdminRoute && <SidebarResponsive routes={filteredRoutes} />}
 
-      {/* 🛒 Cart button 
-          - Ẩn ở admin route
-          - Ẩn ở trang thanh toán /user/payment
-          - Ẩn với ADMIN / EMPLOYEE (chỉ guest + USER dùng cart) */}
+      {
+
+
+}
       {canShowCart && (
         <>
           <Button
@@ -192,7 +192,7 @@ export default function NavbarLinks() {
         </>
       )}
 
-      {/* 👤 User / Login */}
+      {}
       {!user ? (
         <Button
           variant="ghost"
@@ -319,7 +319,7 @@ export default function NavbarLinks() {
         </Popover>
       )}
 
-      {/* 🔒 Confirm Dialog */}
+      {}
       <ConfirmDialog
         isOpen={isConfirmOpen}
         onClose={() => setIsConfirmOpen(false)}

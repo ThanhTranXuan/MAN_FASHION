@@ -24,7 +24,7 @@ export default function TopProductsTable({ products = [] }) {
 
   return (
     <Card flexDirection="column" w="100%" px="0px" h="100%">
-      {/* TITLE */}
+      {}
       <Flex px="25px" mb="8px" justifyContent="space-between" align="center">
         <Text color={textColor} fontSize="22px" fontWeight="700">
           Sản Phẩm Bán Chạy
@@ -42,7 +42,7 @@ export default function TopProductsTable({ products = [] }) {
           </Thead>
 
           <Tbody>
-            {/* 🌟 EMPTY STATE TRONG TABLE */}
+            {}
             {products.length === 0 ? (
               <Tr>
                 <Td colSpan={3} py="40px">

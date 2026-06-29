@@ -28,14 +28,14 @@ const getAvatarSrc = (...candidates) => {
 };
 
 const AdminMessageContent = ({ content }) => {
-  // Tự động chuyển các URL cloudinary thành markdown image
+
   const safeContent = content || "";
   const processedContent = safeContent
     .replace(
       /(https?:\/\/res\.cloudinary\.com\/[^\s]+)/g,
       (url) => `![](${url})`
     )
-    // Tùy chọn: xử lý link sản phẩm localhost giống user nếu cần
+
     .replace(
       /(http:\/\/localhost:3000\/user\/product\/detail\/[^\s]+)/g,
       (url) => {
@@ -98,7 +98,7 @@ export default function ChatPage() {
   const messagesContainerRef = useRef(null);
   const preventAutoScrollRef = useRef(false);
 
-  // 🎨 === Dark mode colors ===
+
   const textColor = useColorModeValue('secondaryGray.900', 'white');
   const appBg = useColorModeValue('gray.50', 'navy.900');
   const sidebarBg = useColorModeValue('white', 'navy.800');
@@ -114,7 +114,7 @@ export default function ChatPage() {
   const sendBtnBg = useColorModeValue('gray.100', 'navy.600');
   const sendBtnHover = useColorModeValue('gray.200', 'navy.500');
 
-  // ✅ Load conversations on first mount
+
   const loadConversations = useCallback(async () => {
     try {
       const res = await ChatService.allAdmin(0, 50);
@@ -130,14 +130,14 @@ export default function ChatPage() {
     if (conversations.length === 0) loadConversations();
   }, [conversations.length, loadConversations]);
 
-  // ✅ Record visit and clear "new chat" badge
+
   useEffect(() => {
     localStorage.setItem(ADMIN_LAST_VISIT_KEY, Date.now());
     setHasNewChat(false);
     return () => localStorage.setItem(ADMIN_LAST_VISIT_KEY, Date.now());
   }, [setHasNewChat]);
 
-  // Load messages when selecting a conversation
+
   useEffect(() => {
     if (!activeConversation) return;
 
@@ -149,11 +149,11 @@ export default function ChatPage() {
           MESSAGES_PAGE_SIZE,
         );
         const page = res.data;
-        // ĐẢO NGƯỢC mảng API trước khi đưa vào State
+
     const reversedMessages = page.content ? [...page.content].reverse() : [];
-    
-    setMessages(reversedMessages); // Thay vì setMessages(page.content || [])
-        // setMessages(page.content || []);
+
+    setMessages(reversedMessages);
+
         setMsgPage(0);
         setHasMoreMessages(!page.last);
         localStorage.setItem(
@@ -174,7 +174,7 @@ export default function ChatPage() {
     );
   }, [activeConversation, setMessages, setConversations]);
 
-  // 🔁 Load older messages when scrolling to top
+
   const handleLoadOlderMessages = async () => {
     if (!activeConversation || !hasMoreMessages || loadingOlder) return;
     const nextPage = msgPage + 1;
@@ -216,7 +216,7 @@ export default function ChatPage() {
     }
   };
 
-  // 🔽 Auto scroll to latest message (except when loading older)
+
   useEffect(() => {
     const el = messagesContainerRef.current;
     if (!el) return;
@@ -227,7 +227,7 @@ export default function ChatPage() {
     el.scrollTop = el.scrollHeight;
   }, [messages]);
 
-  // Send message
+
   const handleSend = () => {
     if (!input.trim() || !activeConversation) return;
     sendMessage(activeConversation.id, input.trim(), 'SHOP');
@@ -245,7 +245,7 @@ export default function ChatPage() {
       overflow="hidden"
       boxShadow="sm"
     >
-      {/* Sidebar: conversation list */}
+      {}
       <Box
         w={{ base: '100%', lg: '320px' }}
         h={{ base: '220px', lg: 'auto' }}
@@ -288,7 +288,7 @@ export default function ChatPage() {
         </VStack>
       </Box>
 
-      {/* Chat panel */}
+      {}
       <Flex
         flex="1"
         minH={0}
@@ -304,7 +304,7 @@ export default function ChatPage() {
           </Flex>
         ) : (
           <>
-            {/* Header */}
+            {}
             <Flex p={3} gap={3} align="center" borderBottomWidth="1px" borderColor={inputBorderColor}>
               <Avatar
                 size="sm"
@@ -321,7 +321,7 @@ export default function ChatPage() {
               <Text fontWeight="bold">{activeConversation.userName}</Text>
             </Flex>
 
-            {/* Message list */}
+            {}
             <VStack
               ref={messagesContainerRef}
               flex="1"
@@ -334,13 +334,13 @@ export default function ChatPage() {
               {messages.map((m) => {
                 const isEmployee = m.senderType === 'EMPLOYEE';
                 const isBot = m.senderType === 'BOT';
-                const isAdminSide = isEmployee || isBot; // EMPLOYEE + BOT on the right
+                const isAdminSide = isEmployee || isBot;
 
                 const bubbleBg = isBot
-                  ? 'green.500' // bot bubble color
+                  ? 'green.500'
                   : isEmployee
-                    ? 'blue.500' // employee bubble color
-                    : 'gray.200'; // user bubble color
+                    ? 'blue.500'
+                    : 'gray.200';
 
                 const bubbleColor = isAdminSide ? 'white' : 'gray.900';
 
@@ -352,7 +352,7 @@ export default function ChatPage() {
                     justify={isAdminSide ? 'flex-end' : 'flex-start'}
                     maxW="full"
                   >
-                    {/* Left avatar (user) */}
+                    {}
                     {!isAdminSide && (
                       <Avatar
                         size="sm"
@@ -386,11 +386,11 @@ export default function ChatPage() {
                           Trendify Bot
                         </Text>
                       )}
-                      {/* Thay thế <Text>{m.content}</Text> bằng component mới */}
+                      {}
                       <AdminMessageContent content={m.content} />
                     </Box>
 
-                    {/* Right avatar (employee + bot) */}
+                    {}
                     {isAdminSide && (
                       <Avatar
                         size="sm"
@@ -419,7 +419,7 @@ export default function ChatPage() {
               )}
             </VStack>
 
-            {/* Input box */}
+            {}
             <Flex
               p={3}
               borderTopWidth="1px"

@@ -20,7 +20,7 @@ export default function ReviewItem({ review }) {
   return (
     <Box py={5}>
       <Flex direction={{ base: 'column', md: 'row' }} gap={4}>
-        {/* User Info */}
+        {}
         <Box w={{ base: '100%', md: '200px' }}>
           <HStack mb={2}>
             <Avatar size="sm" name={review.userFullName} src={review.userAvatarUrl} />
@@ -34,7 +34,7 @@ export default function ReviewItem({ review }) {
           </Text>
         </Box>
 
-        {/* Review Content */}
+        {}
         <Box flex="1">
           <HStack mb={2} spacing={3}>
             <StarRating rating={review.rating} />

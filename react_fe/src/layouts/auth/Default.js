@@ -1,9 +1,9 @@
-// Chakra imports
+
 import { Box, Flex, Icon, Text, useColorModeValue } from '@chakra-ui/react';
 
 import PropTypes from 'prop-types';
 import React from 'react';
-// Assets
+
 import { FaChevronLeft } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
 
@@ -17,7 +17,7 @@ function AuthIllustration(props) {
     'linear-gradient(90deg, rgba(246,240,232,0.94) 0%, rgba(246,240,232,0.82) 48%, rgba(246,240,232,0.68) 100%)',
     'linear-gradient(90deg, rgba(11,20,55,0.96) 0%, rgba(11,20,55,0.88) 52%, rgba(11,20,55,0.76) 100%)',
   );
-  // Chakra color mode
+
   return (
     <Flex position="relative" h="max-content" minH="100vh" bg={pageBg} overflow="hidden">
       <Box
@@ -117,7 +117,7 @@ function AuthIllustration(props) {
     </Flex>
   );
 }
-// PROPS
+
 
 AuthIllustration.propTypes = {
   illustrationBackground: PropTypes.string,

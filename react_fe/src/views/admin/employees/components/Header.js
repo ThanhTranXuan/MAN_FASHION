@@ -1,5 +1,5 @@
 import React from 'react';
-import { Flex, Text, IconButton, useColorModeValue }  from '@chakra-ui/react'; 
+import { Flex, Text, IconButton, useColorModeValue }  from '@chakra-ui/react';
 import { MdAdd } from 'react-icons/md';
 import { SearchBar } from 'components/navbar/searchBar/SearchBar';
 

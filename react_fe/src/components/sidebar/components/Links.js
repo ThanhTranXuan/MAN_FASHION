@@ -1,4 +1,4 @@
-/* eslint-disable */
+
 import React from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
 import {
@@ -19,7 +19,7 @@ export function SidebarLinks(props) {
 
   const { hasNewOrder, hasNewReturn, hasNewReview, clearNotification } =
     useNotification();
-  const { hasNewChat, setHasNewChat } = useChat(); // 🔴 NEW
+  const { hasNewChat, setHasNewChat } = useChat();
 
   let activeColor = useColorModeValue('gray.700', 'white');
   let activeIcon = useColorModeValue('brand.500', 'white');
@@ -54,14 +54,14 @@ export function SidebarLinks(props) {
 
       if (route.layout !== '/admin') return null;
 
-      // ================================
-      // BADGE LOGIC
-      // ================================
+
+
+
       const isOrderRoute = route.path === '/order-management';
       const isReturnRoute = route.path === '/return-management';
       const isReviewRoute = route.path === '/review-management';
 
-      // 👉 tùy path chat của bạn: '/chat', '/chat-support', ...
+
       const isChatRoute =
         route.path === '/chat' || route.path === '/chat-support';
 
@@ -88,7 +88,7 @@ export function SidebarLinks(props) {
               position="relative"
             >
               <Flex w="100%" alignItems="center">
-                {/* ICON */}
+                {}
                 <Box
                   color={
                     activeRoute(route.path.toLowerCase())
@@ -101,7 +101,7 @@ export function SidebarLinks(props) {
                   {route.icon}
                 </Box>
 
-                {/* LABEL */}
+                {}
                 <Text
                   me="auto"
                   color={
@@ -114,7 +114,7 @@ export function SidebarLinks(props) {
                   {route.name}
                 </Text>
 
-                {/* 🔥 BADGE */}
+                {}
                 {showBadge && (
                   <Circle size="10px" bg="brand.400" mr="8px" mb="12px" />
                 )}

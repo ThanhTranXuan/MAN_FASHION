@@ -73,7 +73,7 @@ export default function ReturnOrderTab({
               p={5}
               boxShadow="0 6px 20px rgba(15, 23, 42, 0.05)"
             >
-              {/* Header */}
+              {}
               <Flex justify="space-between" align="center" mb={4}>
                 <Box>
                   <Text fontWeight="bold" fontSize="lg">
@@ -86,7 +86,7 @@ export default function ReturnOrderTab({
                 <StatusBadge status={ro.status} px={3} py={1} />
               </Flex>
 
-              {/* Items */}
+              {}
               <VStack spacing={3} align="stretch" divider={<Divider />}>
                 {ro.items?.map((item) => (
                   <Flex

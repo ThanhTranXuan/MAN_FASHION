@@ -22,7 +22,7 @@ export default function Header({
       </Text>
 
       <Flex gap={3} align="center" w={{ base: '100%', md: 'auto' }}>
-        {/* Search theo return/order code */}
+        {}
         <SearchBar
           placeholder="Tìm kiếm đơn hoàn trả..."
           value={searchInput}

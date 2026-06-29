@@ -49,9 +49,9 @@ export default function ImagePreview({
       <ModalContent bg="transparent" boxShadow="none">
         <ModalCloseButton color={textColor} size="lg" zIndex={10} />
         <ModalBody bg={bgColor} borderRadius="20px">
-          {/* ✅ Image viewer */}
+          {}
           <Flex position="relative" align="center" justify="center" w="full">
-            {/* Chevron Left */}
+            {}
             {images.length > 1 && (
               <IconButton
                 aria-label="Previous"
@@ -69,7 +69,7 @@ export default function ImagePreview({
               />
             )}
 
-            {/* Main Image */}
+            {}
             <Box w="full" textAlign="center">
               <Image
                 src={images[currentIndex]}
@@ -81,7 +81,7 @@ export default function ImagePreview({
               />
             </Box>
 
-            {/* Chevron Right */}
+            {}
             {images.length > 1 && (
               <IconButton
                 aria-label="Next"
@@ -100,7 +100,7 @@ export default function ImagePreview({
             )}
           </Flex>
 
-          {/* ✅ Thumbnails */}
+          {}
           {images.length > 1 && (
             <>
               <Divider my={4} />

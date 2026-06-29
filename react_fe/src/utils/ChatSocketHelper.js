@@ -1,4 +1,4 @@
-// src/utils/ChatSocketHelper.js
+
 import { Client } from '@stomp/stompjs';
 import SockJS from 'sockjs-client';
 import AuthService from 'services/AuthService';
@@ -8,11 +8,11 @@ const BASE_URL = process.env.REACT_APP_API_BASE_URL || 'http://localhost:8080';
 
 let stompClient = null;
 let pendingSubscriptions = [];
-const subscribedTopics = new Map(); // Map<topic, callback>
+const subscribedTopics = new Map();
 
 function connect() {
   if (stompClient && stompClient.active) {
-    return; // already connecting/connected
+    return;
   }
   const token = AuthService.getAccessToken();
   stompClient = new Client({
@@ -28,7 +28,7 @@ function connect() {
       stompClient.subscribe(topic, callback);
     });
 
-    // Subscribe any pending topics that were registered before connection
+
     const queued = pendingSubscriptions;
     pendingSubscriptions = [];
     queued.forEach(({ topic, callback }) => {
@@ -45,7 +45,7 @@ function connect() {
 
   stompClient.onWebSocketClose = () => {
     console.log('🔌 Chat WebSocket disconnected');
-    // auto-reconnect nhờ reconnectDelay, không cần làm gì thêm
+
   };
 
   stompClient.activate();
@@ -69,16 +69,16 @@ function subscribe(topic, callback) {
   }
 
   if (!stompClient || !stompClient.active) {
-    // Not connected yet – ensure connection is started and queue the subscription
+
     if (!stompClient) {
       connect();
     }
     pendingSubscriptions.push({ topic, callback });
   } else if (!stompClient.connected) {
-    // Connection in progress – queue the subscription
+
     pendingSubscriptions.push({ topic, callback });
   } else {
-    // Already connected – subscribe immediately
+
     stompClient.subscribe(topic, callback);
     subscribedTopics.set(topic, callback);
   }
@@ -86,7 +86,7 @@ function subscribe(topic, callback) {
 
 function sendMessage(conversationId, content, chatMode = 'BOT') {
   console.log('📤 sendMessage:', { conversationId, content, chatMode });
-  
+
   if (!stompClient || !stompClient.connected || !content.trim()) {
     console.warn('❌ Cannot send - check connection:', {
       hasClient: !!stompClient,
@@ -95,7 +95,7 @@ function sendMessage(conversationId, content, chatMode = 'BOT') {
     });
     return;
   }
-  
+
   try {
     stompClient.publish({
       destination: ApiUrl.CHAT_SEND_WS,
@@ -107,7 +107,7 @@ function sendMessage(conversationId, content, chatMode = 'BOT') {
   }
 }
 
-// 👉 Gán object vào biến trước rồi mới export default để hết warning ESLint
+
 const ChatSocketHelper = {
   connect,
   disconnect,

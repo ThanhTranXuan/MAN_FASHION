@@ -46,14 +46,14 @@ function Pagination({ page, totalPages, onPageChange, isDisabled = false }) {
       rowGap={2}
       px={{ base: 2, md: 0 }}
     >
-      {/* Prev */}
+      {}
       {page > 0 && (
         <Button size="sm" isDisabled={isDisabled} onClick={() => handlePageChange(page - 1)}>
           &lt;
         </Button>
       )}
 
-      {/* First page */}
+      {}
       {start > 1 && (
         <>
           <Button size="sm" isDisabled={isDisabled} onClick={() => handlePageChange(0)}>
@@ -67,7 +67,7 @@ function Pagination({ page, totalPages, onPageChange, isDisabled = false }) {
         </>
       )}
 
-      {/* Page numbers around current page */}
+      {}
       {pageNumbers.map((p) => (
         <Button
           key={p}
@@ -81,7 +81,7 @@ function Pagination({ page, totalPages, onPageChange, isDisabled = false }) {
         </Button>
       ))}
 
-      {/* Last page */}
+      {}
       {end < totalPages && (
         <>
           {end < totalPages - 1 && (
@@ -95,14 +95,14 @@ function Pagination({ page, totalPages, onPageChange, isDisabled = false }) {
         </>
       )}
 
-      {/* Next */}
+      {}
       {page < totalPages - 1 && (
         <Button size="sm" isDisabled={isDisabled} onClick={() => handlePageChange(page + 1)}>
           &gt;
         </Button>
       )}
 
-      {/* Input for ... */}
+      {}
       {showInput && (
         <Input
           size="sm"

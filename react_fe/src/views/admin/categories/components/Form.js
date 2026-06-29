@@ -36,7 +36,7 @@ export default function Form({
   const bgColor = useColorModeValue('white', 'navy.800');
   const headerBg = useColorModeValue('gray.100', 'navy.800');
 
-  // ✅ Sync category prop khi mở modal
+
   useEffect(() => {
     if (category) {
       setName(category.name || '');
@@ -56,7 +56,7 @@ export default function Form({
     setLoading(true);
 
     try {
-      // 🔹 Nếu là cập nhật
+
       if (category) {
         const payload = {
           name,
@@ -67,7 +67,7 @@ export default function Form({
         await CategoryService.update(category.id, payload, file);
         toast.success('Đã cập nhật danh mục thành công');
       } else {
-        // 🔹 Nếu là tạo mới
+
         const payload = {
           name,
           thumbnailUrl: thumbnailPreview[0] || '',

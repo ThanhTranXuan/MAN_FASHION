@@ -60,11 +60,11 @@ export default function PurchaseHistoryTab({
 
   const filteredOrders = useMemo(() => {
   return orders.filter(order => {
-    // Ẩn nếu: là VIETQR và đang PENDING
+
     if (order.paymentMethod === 'VIETQR' && order.status === 'PENDING') {
       return false;
     }
-    // Các trường hợp còn lại: hiện hết (COD bất kỳ, VIETQR đã PAID trở lên)
+
     return true;
   });
 }, [orders]);
@@ -135,12 +135,12 @@ export default function PurchaseHistoryTab({
     }
   };
 
-  // --- Infinite scroll handler ---
+
   const handleScroll = (e) => {
     if (!onLoadMore || !hasMore || loadingMore || isLoading) return;
 
     const { scrollTop, scrollHeight, clientHeight } = e.target;
-    // Khi còn <80px là chạm đáy => load thêm
+
     if (scrollHeight - scrollTop - clientHeight < 80) {
       onLoadMore();
     }
@@ -159,7 +159,7 @@ export default function PurchaseHistoryTab({
       <EmptyState title="Bạn chưa có đơn hàng" description="Các đơn hàng đã đặt sẽ xuất hiện tại đây." />
     );
   }
-  
+
 
   return (
     <Box>
@@ -167,12 +167,12 @@ export default function PurchaseHistoryTab({
         Lịch Sử Mua Hàng
       </Heading>
 
-      {/* Container có scroll */}
+      {}
       <Box
         maxH="500px"
         overflowY="auto"
         onScroll={handleScroll}
-        pr={2} // tránh che nội dung bởi scrollbar
+        pr={2}
       >
         <VStack align="stretch" spacing={6}>
           {filteredOrders.map((order) => (
@@ -206,7 +206,7 @@ export default function PurchaseHistoryTab({
               p={5}
               boxShadow="0 6px 20px rgba(15, 23, 42, 0.05)"
             >
-              {/* Header */}
+              {}
               <Flex justify="space-between" align="center" mb={4}>
                 <Box>
                   <Text fontWeight="bold" fontSize="lg">
@@ -219,7 +219,7 @@ export default function PurchaseHistoryTab({
                 <StatusBadge status={order.status} px={3} py={1} />
               </Flex>
 
-              {/* Items */}
+              {}
               <VStack spacing={4} align="stretch" divider={<Divider />}>
                 {order.items.map((item) => (
                   <Flex
@@ -302,7 +302,7 @@ export default function PurchaseHistoryTab({
 
               <Divider my={4} />
 
-              {/* Footer actions */}
+              {}
               <Flex
                 justify="space-between"
                 align={{ base: 'flex-start', md: 'center' }}
@@ -364,7 +364,7 @@ export default function PurchaseHistoryTab({
           ))}
         </VStack>
 
-        {/* Loading + trạng thái cuối list */}
+        {}
         {loadingMore && (
           <Flex justify="center" py={4}>
             <Spinner size="md" />
@@ -380,7 +380,7 @@ export default function PurchaseHistoryTab({
         )}
       </Box>
 
-      {/* 🧾 Return dialog */}
+      {}
       <Modal
         isOpen={isOpen}
         onClose={onClose}

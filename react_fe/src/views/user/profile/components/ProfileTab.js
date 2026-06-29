@@ -41,12 +41,12 @@ export default function ProfileTab({ user }) {
 
   useEffect(() => {
     if (user) {
-      // ✅ Parse combined address string into 4 fields
+
       let addressStreet = '';
       let addressWard = '';
       let addressDistrict = '';
       let addressCity = '';
-      
+
       if (user.address) {
         const parts = user.address.split(', ');
         addressStreet = parts[0] || '';
@@ -54,7 +54,7 @@ export default function ProfileTab({ user }) {
         addressDistrict = parts[2] || '';
         addressCity = parts[3] || '';
       }
-      
+
       setFormData({
         avatarUrl: user.avatarUrl || '',
         fullName: user.fullName || '',
@@ -75,26 +75,26 @@ export default function ProfileTab({ user }) {
 
   const handleSubmit = async () => {
     try {
-      // ✅ Combine 4 address fields into 1 string
+
       const addressParts = [
         formData.addressStreet,
         formData.addressWard,
         formData.addressDistrict,
         formData.addressCity
       ].filter(Boolean);
-      
+
       const combinedAddress = addressParts.join(', ');
-      
+
       const updateData = {
         fullName: formData.fullName,
         phone: formData.phone,
         address: combinedAddress
       };
-      
+
       await ProfileService.updateProfile(updateData);
       toast.success('Cập nhật hồ sơ thành công');
-      
-      // ✅ Refresh user context to reload updated data
+
+
       if (refreshUser) {
         await refreshUser();
       }
@@ -136,7 +136,7 @@ export default function ProfileTab({ user }) {
       borderColor={borderColor}
       w="100%"
     >
-      {/* Avatar + Basic Info */}
+      {}
       <Flex direction="column" align="center" justify="center" mb={8}>
         <Box position="relative" w="140px" h="140px">
           <Avatar
@@ -186,7 +186,7 @@ export default function ProfileTab({ user }) {
 
       <Divider my={6} borderColor={borderColor} />
 
-      {/* Personal Information */}
+      {}
       <Box p={4} bg={sectionBg} borderRadius="12px" mb={6} border="1px solid" borderColor={borderColor}>
         <Text fontSize="lg" fontWeight="bold" mb={4}>
           Thông Tin Cá Nhân
@@ -225,7 +225,7 @@ export default function ProfileTab({ user }) {
         </SimpleGrid>
       </Box>
 
-      {/* Address Information */}
+      {}
       <Box p={4} bg={sectionBg} borderRadius="12px" border="1px solid" borderColor={borderColor}>
         <Text fontSize="lg" fontWeight="bold" mb={4}>
           Địa Chỉ

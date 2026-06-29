@@ -351,7 +351,7 @@ export default function ChatWidget({ hidden = false }) {
   const [isOpen, setIsOpen] = useState(false);
   const [isWidgetHidden, setIsWidgetHidden] = useState(false);
   const [input, setInput] = useState('');
-  const [chatMode, setChatMode] = useState('BOT'); // 'BOT' | 'SHOP'
+  const [chatMode, setChatMode] = useState('BOT');
   const [guestBotConversationId] = useState(() => {
     const storageKey = 'trendify:guestBotConversationId';
     const existingId = localStorage.getItem(storageKey);
@@ -361,10 +361,10 @@ export default function ChatWidget({ hidden = false }) {
     return newId;
   });
 
-  // Popup background
+
   const bg = useColorModeValue('white', 'navy.800');
 
-  // 🎨 Input area colors (sync với ChatPage)
+
   const inputBg = useColorModeValue('white', 'navy.700');
   const inputBorderColor = useColorModeValue('gray.200', 'whiteAlpha.400');
   const sendBtnBg = useColorModeValue('gray.100', 'navy.600');
@@ -405,17 +405,17 @@ export default function ChatWidget({ hidden = false }) {
     setIsOpen(false);
   }, [hidden, setIsChatOpen]);
 
-  // ✅ Auto-scroll to bottom when messages arrive (FIXED: Messages must show at bottom)
+
   useEffect(() => {
     window.requestAnimationFrame(() => scrollMessagesToBottom('smooth'));
   }, [userMessages, botMessages, isBotLoading]);
 
-  // Original open popup scroll
+
   useEffect(() => {
     if (isOpen) window.requestAnimationFrame(() => scrollMessagesToBottom('auto'));
   }, [isOpen]);
 
-  // ✅ Auto-scroll when switching between BOT and SHOP tabs
+
   useEffect(() => {
     window.requestAnimationFrame(() => scrollMessagesToBottom('auto'));
   }, [chatMode]);
@@ -450,7 +450,7 @@ export default function ChatWidget({ hidden = false }) {
       window.removeEventListener('trendify:hide-chat', handleHideChat);
       window.removeEventListener('trendify:show-chat', handleShowChat);
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+
   }, [setIsChatOpen]);
 
   useEffect(() => {
@@ -467,7 +467,7 @@ export default function ChatWidget({ hidden = false }) {
       }
     };
     initChat();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+
   }, [
     isOpen,
     isAuthenticated,
@@ -483,7 +483,7 @@ export default function ChatWidget({ hidden = false }) {
     }
   }, [isStaff, chatMode]);
 
-  // Cho phép mở ChatWidget từ bên ngoài (VD: nút "Chat now" ở ProductDetail)
+
   useEffect(() => {
     const handleExternalOpen = () => {
       if (!isOpen) {
@@ -495,7 +495,7 @@ export default function ChatWidget({ hidden = false }) {
     return () => {
       window.removeEventListener('trendify:open-chat', handleExternalOpen);
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+
   }, [isOpen]);
 
   const handleSend = () => {
@@ -523,8 +523,8 @@ export default function ChatWidget({ hidden = false }) {
 
     const trimmed = input.trim();
 
-    // ✅ Send message WITHOUT gắn [SHOP] vào content
-    // Backend sẽ handle chatChannel/chatMode logic
+
+
     sendMessage(conversationId, trimmed, chatMode);
     setInput('');
   };
@@ -548,7 +548,7 @@ export default function ChatWidget({ hidden = false }) {
       maximumFractionDigits: 0,
     }).format(Number(value || 0));
 
-  // eslint-disable-next-line no-unused-vars
+
   const ProductCards = ({ products = [] }) => {
     if (!Array.isArray(products) || products.length === 0) return null;
 
@@ -598,8 +598,7 @@ export default function ChatWidget({ hidden = false }) {
     );
   };
 
-  // MARKDOWN MESSAGE RENDERER
-  // eslint-disable-next-line no-unused-vars
+
   const MessageContent = ({ content }) => {
     const safeContent = content || "";
     const processedContent = safeContent
@@ -666,7 +665,7 @@ export default function ChatWidget({ hidden = false }) {
 
   return (
     <>
-      {/* Floating Button */}
+      {}
       <AnimatePresence>
         {!isWidgetHidden && (
           <MotionBox
@@ -704,23 +703,25 @@ export default function ChatWidget({ hidden = false }) {
         )}
       </AnimatePresence>
 
-      {/* Chat Popup */}
+      {}
       <AnimatePresence>
         {isOpen && (
           <MotionBox
             position="fixed"
-            bottom={{ base: '78px', sm: '90px' }}
+            top={{ base: '12px', sm: 'auto' }}
+            bottom={{ base: '76px', sm: '90px' }}
             right={{ base: '12px', sm: '24px' }}
             left={{ base: '12px', sm: 'auto' }}
             w={{ base: 'auto', sm: '390px' }}
-            h={{ base: 'min(560px, calc(100dvh - 104px))', sm: '560px' }}
-            maxH="calc(100dvh - 104px)"
+            h={{ base: 'auto', sm: '560px' }}
+            maxH={{ base: 'none', sm: 'calc(100dvh - 104px)' }}
             bg={bg}
             borderRadius="10px"
             boxShadow="0 18px 48px rgba(15, 23, 42, 0.18)"
             zIndex="2100"
             display="flex"
             flexDir="column"
+            minH={0}
             overflow="hidden"
             fontFamily="'TT Commons Pro', Inter, system-ui, sans-serif"
             initial={{ opacity: 0, y: 18 }}
@@ -728,7 +729,7 @@ export default function ChatWidget({ hidden = false }) {
             exit={{ opacity: 0, y: 14 }}
             transition={{ duration: 0.24, ease: [0.22, 1, 0.36, 1] }}
           >
-          {/* Header */}
+          {}
           <Flex
             align="center"
             justify="space-between"
@@ -736,6 +737,7 @@ export default function ChatWidget({ hidden = false }) {
             py={3}
             bg="brand.500"
             borderTopRadius="10px"
+            flexShrink={0}
           >
             <Flex align="center" gap={3}>
               <Flex
@@ -767,7 +769,7 @@ export default function ChatWidget({ hidden = false }) {
             </Flex>
 
             <Flex align="center" gap={2}>
-              {/* Toggle BOT / SHOP */}
+              {}
               {!isStaff && <Box
                 bg="whiteAlpha.200"
                 borderRadius="full"
@@ -815,10 +817,11 @@ export default function ChatWidget({ hidden = false }) {
             </Flex>
           </Flex>
 
-          {/* Messages */}
+          {}
           <Flex
             ref={messagesContainerRef}
             flex="1"
+            minH={0}
             px={4}
             py={4}
             overflowY="auto"
@@ -828,13 +831,13 @@ export default function ChatWidget({ hidden = false }) {
           >
             <VStack spacing={4} align="stretch">
               {[...(chatMode === 'BOT' ? botMessages : userMessages)].reverse().map((m) => {
-                // ✅ FIXED: Properly distinguish message types
+
                 const isMine = m.senderType === 'USER';
                 const isBot = m.senderType === 'BOT';
                 const isAdmin = m.senderType === 'ADMIN';
                 const isEmployee = m.senderType === 'EMPLOYEE';
 
-                // Determine colors based on sender type
+
                 let bgColor = botBgColor;
                 let textColor = botTextColor;
                 let borderColor = botBorderColor;
@@ -942,13 +945,14 @@ export default function ChatWidget({ hidden = false }) {
             </VStack>
           </Flex>
 
-          {/* Input */}
+          {}
           <Flex
             p={3}
             borderTopWidth="1px"
             gap={2}
             bg={inputBg}
             borderColor={inputBorderColor}
+            flexShrink={0}
           >
             <Input
               size="md"

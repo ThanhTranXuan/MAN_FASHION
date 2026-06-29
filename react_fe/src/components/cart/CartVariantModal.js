@@ -35,10 +35,10 @@ export default function CartVariantModal({
   const [selectedColor, setSelectedColor] = useState(item.color);
   const [selectedSize, setSelectedSize] = useState(item.size);
 
-  // 🖼️ Lấy danh sách ảnh (chỉ tính lại khi item.images thay đổi)
+
   const productImages = useMemo(() => item.images || [], [item.images]);
 
-  // 🖼️ Ảnh hiển thị theo màu chọn (ưu tiên ảnh có color trùng)
+
   const displayImage = useMemo(() => {
     if (selectedColor) {
       const match = productImages.find(
@@ -46,13 +46,13 @@ export default function CartVariantModal({
       );
       if (match) return match.url;
     }
-    // fallback: ảnh thumbnail hoặc ảnh đầu tiên
+
     const thumb =
       productImages.find((img) => img.isThumbnail) || productImages[0];
     return thumb?.url || item.imageUrl || item.thumbnailUrl;
   }, [selectedColor, productImages, item.imageUrl, item.thumbnailUrl]);
 
-  // 🎨 Danh sách color & size khả dụng
+
   const availableColors = useMemo(
     () => [...new Set(productVariants.map((v) => v.color).filter(Boolean))],
     [productVariants],
@@ -92,7 +92,7 @@ export default function CartVariantModal({
     });
   }, [productVariants]);
 
-  // 🧠 Xác định stock cho từng size
+
   const sizeStatus = useMemo(() => {
     const map = {};
     availableSizes.forEach((s) => {
@@ -135,7 +135,7 @@ export default function CartVariantModal({
         </ModalHeader>
 
         <ModalBody py={5}>
-          {/* 🖼 Header info */}
+          {}
           <Flex gap={4} align="center" mb={5}>
             <Image
               src={resolveImageUrl(displayImage)}
@@ -162,7 +162,7 @@ export default function CartVariantModal({
             </Box>
           </Flex>
 
-          {/* 🎨 Color picker */}
+          {}
           {availableColors.length > 0 && (
             <Box mb={5}>
               <Text fontWeight="semibold" mb={2} color={textColor}>
@@ -212,7 +212,7 @@ export default function CartVariantModal({
             </Box>
           )}
 
-          {/* 📏 Size picker */}
+          {}
           {availableSizes.length > 0 && (
             <Box>
               <Text fontWeight="semibold" mb={2} color={textColor}>

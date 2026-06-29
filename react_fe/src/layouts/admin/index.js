@@ -1,4 +1,4 @@
-// src/views/admin/Dashboard.jsx
+
 import React, { useState, useEffect } from 'react';
 import { Box, Portal, useDisclosure } from '@chakra-ui/react';
 import {
@@ -13,7 +13,7 @@ import Navbar from 'components/navbar/NavbarAdmin.js';
 import Footer from 'components/footer/FooterAdmin.js';
 import { SidebarContext } from 'contexts/SidebarContext';
 import routes from 'routes.js';
-import { useUser } from 'contexts/UserContext';   // ✅ chỉ dùng UserContext
+import { useUser } from 'contexts/UserContext';
 import { useAppToast } from 'utils/ToastHelper';
 import { AnimatePresence, motion } from 'framer-motion';
 
@@ -27,14 +27,14 @@ export default function Dashboard(props) {
   const location = useLocation();
   const navigate = useNavigate();
   const toast = useAppToast();
-  const { user, isAuthenticated, loadingUser } = useUser();   // ✅ lấy từ context
+  const { user, isAuthenticated, loadingUser } = useUser();
   const [accessibleRoutes, setAccessibleRoutes] = useState([]);
 
-  // ======================================================
-  // 🔐 ROLE CHECK + ROUTE FILTERING
-  // ======================================================
+
+
+
   useEffect(() => {
-    if (loadingUser) return; // đợi context load xong
+    if (loadingUser) return;
 
     if (!isAuthenticated || !user) {
       toast.warning('Please sign in first.');
@@ -75,9 +75,9 @@ export default function Dashboard(props) {
     setAccessibleRoutes(filtered);
   }, [user, isAuthenticated, loadingUser, navigate, toast]);
 
-  // ======================================================
-  // 📌 GET ACTIVE ROUTE
-  // ======================================================
+
+
+
   const getActiveRoute = (routes, pathname) => {
     for (let route of routes) {
       if (route.collapse || route.category) {
@@ -92,9 +92,9 @@ export default function Dashboard(props) {
 
   const activeRoute = getActiveRoute(routes, location.pathname);
 
-  // ======================================================
-  // 📌 RENDER ROUTES
-  // ======================================================
+
+
+
   const getRoutesComponents = (routes) =>
     routes.map((route, key) => {
       if (route.layout === '/admin') {
@@ -106,9 +106,9 @@ export default function Dashboard(props) {
       return null;
     });
 
-  // ======================================================
-  // 📌 LAYOUT
-  // ======================================================
+
+
+
   return (
     <Box>
       <SidebarContext.Provider value={{ toggleSidebar, setToggleSidebar }}>

@@ -39,7 +39,7 @@ export default function FiltersDrawer({
   const [currentParent, setCurrentParent] = useState(null);
   const [currentSubParent, setCurrentSubParent] = useState(null);
 
-  // 🎨 Theme
+
   const bgColor = useColorModeValue('white', 'navy.800');
   const labelColor = useColorModeValue('gray.800', 'gray.100');
   const subTextColor = useColorModeValue('gray.600', 'gray.400');
@@ -50,7 +50,7 @@ export default function FiltersDrawer({
 
   useEffect(() => setLocal(values), [values]);
 
-  // 🧭 Category helpers
+
   const getChildren = (parentId) =>
     categories.filter((c) => c.parentId === parentId);
   const parents = useMemo(
@@ -77,11 +77,11 @@ export default function FiltersDrawer({
           Bộ Lọc
         </DrawerHeader>
 
-        {/* === BODY === */}
+        {}
         <DrawerBody overflowY="auto" pb={4}>
           <VStack align="stretch" spacing={6}>
             <Accordion allowMultiple border="none">
-              {/* ✅ Category */}
+              {}
               <AccordionItem border="none" mb={4}>
                 <AccordionButton
                   _hover={{ bg: 'transparent' }}
@@ -98,7 +98,7 @@ export default function FiltersDrawer({
 
                 <AccordionPanel px={0} pt={3}>
                   <VStack align="stretch" spacing={2}>
-                    {/* Level 1 */}
+                    {}
                     {currentParent === null &&
                       parents.map((p) => (
                         <Flex
@@ -134,7 +134,7 @@ export default function FiltersDrawer({
                         </Flex>
                       ))}
 
-                    {/* Level 2 */}
+                    {}
                     {currentParent !== null && currentSubParent === null && (
                       <>
                         <Flex
@@ -197,7 +197,7 @@ export default function FiltersDrawer({
                       </>
                     )}
 
-                    {/* Level 3 */}
+                    {}
                     {currentSubParent !== null && (
                       <>
                         <Flex
@@ -256,7 +256,7 @@ export default function FiltersDrawer({
                 </AccordionPanel>
               </AccordionItem>
 
-              {/* 🎨 Color */}
+              {}
               <AccordionItem border="none" mb={4}>
                 <AccordionButton
                   _hover={{ bg: 'transparent' }}
@@ -308,13 +308,13 @@ export default function FiltersDrawer({
                 </AccordionPanel>
               </AccordionItem>
 
-              {/* 📏 Size — last accordion (no border) */}
+              {}
               <AccordionItem border="none">
                 <AccordionButton
                   _hover={{ bg: 'transparent' }}
                   px={0}
                   py={2}
-                  // ❌ No border bottom here
+
                 >
                   <Box flex="1" textAlign="left">
                     Kích Cỡ
@@ -344,7 +344,7 @@ export default function FiltersDrawer({
           </VStack>
         </DrawerBody>
 
-        {/* === FOOTER === */}
+        {}
         <DrawerFooter
           borderTop="1px solid"
           borderColor={borderColor}

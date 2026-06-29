@@ -74,13 +74,13 @@ export default function ProductPage() {
   const [imageList, setImageList] = useState([]);
   const [isConfirmOpen, setIsConfirmOpen] = useState(false);
 
-  // FILTERS
+
   const [categoryFilter, setCategoryFilter] = useState(null);
   const [activeFilter, setActiveFilter] = useState(null);
 
-  // ---------------------------
-  // LOAD STATS
-  // ---------------------------
+
+
+
   const loadStats = useCallback(async () => {
     try {
       setIsLoadingStats(true);
@@ -91,12 +91,12 @@ export default function ProductPage() {
     } finally {
       setIsLoadingStats(false);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+
   }, []);
 
-  // ---------------------------
-  // LOAD PRODUCTS
-  // ---------------------------
+
+
+
   const loadData = useCallback(
     async (p = 0) => {
       try {
@@ -116,7 +116,7 @@ export default function ProductPage() {
         setIsLoadingProducts(false);
       }
     },
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+
     [searchInput, categoryFilter, activeFilter],
   );
 
@@ -125,9 +125,9 @@ export default function ProductPage() {
     loadData(page);
   }, [loadStats, loadData, page]);
 
-  // ---------------------------
-  // DELETE
-  // ---------------------------
+
+
+
   const handleDelete = async () => {
     if (!deleteItem) return;
 
@@ -157,9 +157,9 @@ export default function ProductPage() {
     }
   };
 
-  // ---------------------------
-  // EXPAND ROW
-  // ---------------------------
+
+
+
   const toggleExpand = async (productId) => {
     setExpandedRows((prev) => ({ ...prev, [productId]: !prev[productId] }));
 
@@ -179,9 +179,9 @@ export default function ProductPage() {
     }
   };
 
-  // ---------------------------
-  // COLUMNS
-  // ---------------------------
+
+
+
   const columns = useMemo(
     () =>
       Columns({
@@ -220,7 +220,7 @@ export default function ProductPage() {
 
   return (
     <Box>
-      {/* Stats */}
+      {}
       <SimpleGrid columns={{ base: 1, md: 3 }} gap="20px" mb="20px">
         {isLoadingStats
           ? Array.from({ length: 3 }).map((_, i) => (
@@ -250,7 +250,7 @@ export default function ProductPage() {
             ))}
       </SimpleGrid>
 
-      {/* Forms */}
+      {}
       <ImagePreview
         isOpen={isImageOpen}
         onClose={onImageClose}
@@ -290,7 +290,7 @@ export default function ProductPage() {
         message={`Bạn có chắc muốn xóa ${deleteItem?.name}?`}
       />
 
-      {/* Table */}
+      {}
       <Card
         ref={tableTopRef}
         w="100%"

@@ -1,4 +1,4 @@
-// Daily Traffic Dashboards Default
+
 
 export const barChartDataDailyTraffic = [
   {
@@ -103,7 +103,7 @@ export const barChartOptionsDailyTraffic = {
   },
 };
 
-// Consumption Users Reports
+
 
 export const barChartDataConsumption = [
   {
@@ -249,7 +249,7 @@ export const pieChartOptions = {
 
 export const pieChartData = [63, 25, 12];
 
-// Total Spent Default
+
 
 export const lineChartDataTotalSpent = [
   {

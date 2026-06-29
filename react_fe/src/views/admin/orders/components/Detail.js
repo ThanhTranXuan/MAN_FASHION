@@ -145,7 +145,7 @@ export default function Detail({ isOpen, onClose, order }) {
             </Box>
           </Flex>
 
-          {/* 🧠 Loading state */}
+          {}
           {loading ? (
             <Flex justify="center" align="center" minH="150px">
               <Spinner size="lg" color="brand.500" />

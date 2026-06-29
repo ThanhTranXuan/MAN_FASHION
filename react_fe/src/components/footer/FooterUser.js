@@ -1,4 +1,4 @@
-/*eslint-disable*/
+
 import React, { useState } from 'react';
 import {
   Box,
@@ -24,7 +24,7 @@ import {
 import { FaInstagram, FaYoutube } from 'react-icons/fa';
 import { FaTiktok } from 'react-icons/fa6';
 
-// ─── Nhóm link helper ────────────────────────────────────────
+
 function FooterGroup({ title, links }) {
   const headingColor = useColorModeValue('gray.500', 'gray.400');
   const linkColor = useColorModeValue('gray.700', 'gray.300');
@@ -58,7 +58,7 @@ function FooterGroup({ title, links }) {
   );
 }
 
-// ─── FooterUser ──────────────────────────────────────────────
+
 export default function FooterUser() {
   const navigate = useNavigate();
   const toast = useAppToast();
@@ -137,17 +137,17 @@ export default function FooterUser() {
 
   return (
     <Box as="footer" bg={bg} borderTop="1px solid" borderColor={borderTop}>
-      {/* ── Main content ── */}
+      {}
       <Box maxW="1280px" mx="auto" px={{ base: 5, md: 10 }} py={{ base: 10, md: 14 }}>
 
-        {/* ── Top: Link groups + Newsletter ── */}
+        {}
         <Flex
           direction={{ base: 'column', md: 'row' }}
           gap={{ base: 10, md: 8 }}
           justify="space-between"
           mb={10}
         >
-          {/* Link groups */}
+          {}
           <SimpleGrid
             columns={{ base: 1, sm: 2, md: 3 }}
             spacing={{ base: 8, md: 10 }}
@@ -158,7 +158,7 @@ export default function FooterUser() {
             ))}
           </SimpleGrid>
 
-          {/* Newsletter */}
+          {}
           <Box flex="1" minW={{ md: '220px' }} maxW={{ md: '300px' }}>
             <Text
               fontSize="xs"
@@ -205,7 +205,7 @@ export default function FooterUser() {
 
         <Divider borderColor={divider} mb={7} />
 
-        {/* ── Shipping notice ── */}
+        {}
         <Flex
           align="center"
           gap={3}
@@ -223,7 +223,7 @@ export default function FooterUser() {
           </Text>
         </Flex>
 
-        {/* ── Company info ── */}
+        {}
         <Box mb={6}>
           <Text fontSize="xs" fontWeight="700" color={mutedColor} mb={2} letterSpacing="wide">
             ĐIỀU KHOẢN SỬ DỤNG
@@ -256,7 +256,7 @@ export default function FooterUser() {
 
         <Divider borderColor={divider} mb={6} />
 
-        {/* ── Bottom bar: Copyright + Social ── */}
+        {}
         <Flex
           direction={{ base: 'column', md: 'row' }}
           justify="space-between"
@@ -267,7 +267,7 @@ export default function FooterUser() {
             Bản quyền thuộc Công ty TNHH Trendify Việt Nam. Bảo lưu mọi quyền. &copy; {new Date().getFullYear()}
           </Text>
 
-          {/* Social icons */}
+          {}
           <HStack spacing={4}>
             <Link href="https://facebook.com" isExternal _hover={{ color: iconHover }}>
               <Icon as={MdFacebook} boxSize={6} color={textColor} transition="color 0.15s" />

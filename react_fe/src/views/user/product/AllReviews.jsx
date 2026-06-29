@@ -28,7 +28,7 @@ export default function AllReviews() {
   const location = useLocation();
   const toast = useAppToast();
   const { isAuthenticated } = useUser();
-  
+
   const [reviews, setReviews] = useState([]);
   const [summary, setSummary] = useState(null);
   const [product, setProduct] = useState(null);
@@ -59,7 +59,7 @@ export default function AllReviews() {
         const res = await ReviewService.getReviews(productId, page, 10);
         setReviews(res.data.content || []);
         setTotalPages(res.data.totalPages || 0);
-        
+
         const summaryRes = await ReviewService.getReviewSummary(productId);
         setSummary(summaryRes.data);
       } catch (err) {
@@ -95,13 +95,13 @@ export default function AllReviews() {
   return (
     <Box bg={bgColor} minH="100vh" py={10} pt={{ base: '80px', md: '100px' }}>
       <Container maxW="1000px">
-        {/* Header */}
+        {}
         <Flex align="center" mb={8}>
-          <IconButton 
-            icon={<MdArrowBack />} 
-            onClick={() => navigate(-1)} 
-            variant="ghost" 
-            mr={4} 
+          <IconButton
+            icon={<MdArrowBack />}
+            onClick={() => navigate(-1)}
+            variant="ghost"
+            mr={4}
             aria-label="Back"
           />
           <VStack align="start" spacing={0}>
@@ -110,27 +110,27 @@ export default function AllReviews() {
           </VStack>
         </Flex>
 
-        {/* Summary Card */}
+        {}
         {summary && (
           <Box bg={cardBg} borderRadius="2xl" p={8} mb={8} boxShadow="sm">
             <Flex direction={{ base: 'column', md: 'row' }} gap={10} align="center">
-              {/* Average */}
+              {}
               <VStack spacing={2} align="center" minW="200px">
                 <Text fontSize="5xl" fontWeight="bold">{summary.averageRating.toFixed(1)}</Text>
                 <StarRating rating={summary.averageRating} size={6} />
                 <Text color="gray.500">{summary.totalReviews} đánh giá</Text>
               </VStack>
 
-              {/* Bars */}
+              {}
               <Box flex="1" w="100%">
                 {[5, 4, 3, 2, 1].map((star) => (
                   <Flex key={star} align="center" mb={2}>
                     <Text w="50px" fontSize="sm" fontWeight="bold">{star} sao</Text>
                     <Box flex="1" mx={4}>
-                      <Progress 
-                        value={summary.totalReviews > 0 ? (summary.ratingCounts[star] / summary.totalReviews) * 100 : 0} 
-                        size="sm" 
-                        colorScheme="yellow" 
+                      <Progress
+                        value={summary.totalReviews > 0 ? (summary.ratingCounts[star] / summary.totalReviews) * 100 : 0}
+                        size="sm"
+                        colorScheme="yellow"
                         borderRadius="full"
                         bg="gray.100"
                         _dark={{ bg: 'whiteAlpha.100' }}
@@ -143,11 +143,11 @@ export default function AllReviews() {
                 ))}
               </Box>
 
-              {/* Write Review CTA */}
+              {}
               <VStack spacing={4} minW="200px">
-                <Button 
-                  colorScheme="brand" 
-                  w="100%" 
+                <Button
+                  colorScheme="brand"
+                  w="100%"
                   onClick={handleWriteReview}
                 >
                   Viết bài đánh giá
@@ -157,7 +157,7 @@ export default function AllReviews() {
           </Box>
         )}
 
-        {/* Reviews List */}
+        {}
         <Box bg={cardBg} borderRadius="2xl" p={8} boxShadow="sm">
           {reviews.length === 0 ? (
             <Text textAlign="center" py={10} color="gray.500">Chưa có đánh giá nào.</Text>
@@ -169,7 +169,7 @@ export default function AllReviews() {
             </VStack>
           )}
 
-          {/* Pagination */}
+          {}
           {totalPages > 1 && (
             <Flex justify="center" mt={10} gap={2}>
               {Array.from({ length: totalPages }).map((_, i) => (

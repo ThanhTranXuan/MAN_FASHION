@@ -21,13 +21,13 @@ export default function ReviewSection({ productId, slug }) {
 
   useEffect(() => {
     if (!productId) return;
-    
+
     const load = async () => {
       setLoading(true);
       try {
         const latestRes = await ReviewService.getLatestReviews(productId, 3);
         setReviews(latestRes.data || []);
-        
+
         const summaryRes = await ReviewService.getReviewSummary(productId);
         setTotalReviews(summaryRes.data.totalReviews || 0);
       } catch (err) {
@@ -66,9 +66,9 @@ export default function ReviewSection({ productId, slug }) {
       <Flex justify="space-between" align="center" mb={6}>
         <Text fontSize="xl" fontWeight="bold">Đánh giá</Text>
         {totalReviews > 0 && (
-          <Button 
-            variant="link" 
-            colorScheme="brand" 
+          <Button
+            variant="link"
+            colorScheme="brand"
             size="sm"
             onClick={() => navigate(`/user/product/${productId}/reviews`)}
           >
@@ -80,10 +80,10 @@ export default function ReviewSection({ productId, slug }) {
       {reviews.length === 0 ? (
         <Box py={10} textAlign="center" bg={emptyBg} border="1px solid" borderColor={borderColor} borderRadius="lg">
           <Text color="gray.500">Chưa có đánh giá nào cho sản phẩm này.</Text>
-          <Button 
-            mt={4} 
-            colorScheme="brand" 
-            variant="outline" 
+          <Button
+            mt={4}
+            colorScheme="brand"
+            variant="outline"
             size="sm"
             onClick={handleWriteReview}
           >
@@ -97,12 +97,12 @@ export default function ReviewSection({ productId, slug }) {
               <ReviewItem key={review.id} review={review} />
             ))}
           </VStack>
-          
+
           {totalReviews > 3 && (
             <Flex justify="flex-end" mt={4}>
-              <Button 
-                variant="link" 
-                colorScheme="brand" 
+              <Button
+                variant="link"
+                colorScheme="brand"
                 size="sm"
                 onClick={() => navigate(`/user/product/${productId}/reviews`)}
               >

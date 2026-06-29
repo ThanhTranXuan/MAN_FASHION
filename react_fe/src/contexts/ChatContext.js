@@ -56,28 +56,28 @@ const mergeMessagesById = (currentMessages, incomingMessages) => {
   );
 };
 
-// const ADMIN_LAST_VISIT_KEY = 'chat:adminLastVisit';
+
 
 export function ChatProvider({ children }) {
   const { isAuthenticated, user } = useUser();
 
-  // ====== ADMIN / STAFF ======
+
   const [conversations, setConversations] = useState([]);
   const [activeConversation, setActiveConversation] = useState(null);
   const [messages, setMessages] = useState([]);
 
-  // ====== USER WIDGET ======
+
   const [userConversation, setUserConversation] = useState(null);
   const [userMessages, setUserMessages] = useState([]);
   const [userHasUnread, setUserHasUnread] = useState(false);
-  const [isChatOpen, setIsChatOpen] = useState(false); // user popup open/close
+  const [isChatOpen, setIsChatOpen] = useState(false);
   const [botMessages, setBotMessages] = useState([]);
   const [isBotLoading, setIsBotLoading] = useState(false);
   const [latestProductSuggestions, setLatestProductSuggestions] = useState([]);
-  // ====== ADMIN BADGE ======
+
   const [hasNewChat, setHasNewChat] = useState(false);
 
-  // ====== REFS ======
+
   const activeConvIdRef = useRef(null);
   const isChatOpenRef = useRef(false);
   const subscribedConvIdsRef = useRef(new Set());
@@ -133,7 +133,7 @@ export function ChatProvider({ children }) {
     localStorage.setItem(botSuggestionsKey, JSON.stringify(latestProductSuggestions));
   }, [latestProductSuggestions, botSuggestionsKey]);
 
-  // ====== CONNECT WS ======
+
   useEffect(() => {
     if (!isAuthenticated) return;
     ChatSocketHelper.connect();
@@ -142,9 +142,9 @@ export function ChatProvider({ children }) {
     };
   }, [isAuthenticated]);
 
-    // File: ChatContext.js
 
-// ====== ADMIN: SUBSCRIBE MỖI CONVERSATION ======
+
+
 useEffect(() => {
   if (!isStaff || conversations.length === 0) return;
 
@@ -152,27 +152,27 @@ useEffect(() => {
     if (subscribedConvIdsRef.current.has(conv.id)) return;
 
     ChatSocketHelper.subscribe(ApiUrl.CHAT_TOPIC(conv.id), (msg) => {
-      // 1. Nhận gói tin từ Backend
+
       const eventData = JSON.parse(msg.body);
-      
-      // 2. Kiểm tra đúng loại sự kiện và BÓC PAYLOAD (Bức thư nằm trong phong bì)
+
+
       if (eventData.type === 'NEW_MESSAGE') {
-        const newMessage = eventData.payload; // Đây mới là dữ liệu ChatMessageResponse thực sự
+        const newMessage = eventData.payload;
         const convId = conv.id;
         const isActive = activeConvIdRef.current === convId;
         const isOnChatPage = window.location.pathname.includes('/admin/chat-support');
 
-        // ✅ Cập nhật KHUNG CHAT đang mở
+
         if (isActive && isOnChatPage) {
           setMessages((prev) => {
-            // Chống trùng (đề phòng Admin nhắn tin, API và WS cùng về)
+
             if (prev.some(m => m.id === newMessage.id)) return prev;
-            // Admin dùng mảng ASC (cũ trên, mới dưới) -> Append vào cuối
+
             return [...prev, newMessage];
           });
         }
 
-        // ✅ Cập nhật SIDEBAR (Tin nhắn cuối) - KHÔNG GỌI API REFRESH
+
         setConversations((prevOld) => {
           let newList = [...prevOld];
           const idx = newList.findIndex((c) => c.id === convId);
@@ -181,16 +181,16 @@ useEffect(() => {
               ...newList[idx],
               lastMessageText: newMessage.content,
               lastMessageAt: newMessage.createdAt,
-              // Tăng số chưa đọc nếu Admin đang ở phòng khác
+
               unread: (!isActive || !isOnChatPage) ? (newList[idx].unread || 0) + 1 : 0
             };
-            // Sắp xếp lại danh sách phòng: Mới nhất lên đầu
+
             return newList.sort((a, b) => new Date(b.lastMessageAt) - new Date(a.lastMessageAt));
           }
           return newList;
         });
 
-        // 3. Thông báo chung cho Admin
+
         if (!isOnChatPage || !isActive) {
           setHasNewChat(true);
         }
@@ -215,7 +215,7 @@ useEffect(() => {
     });
   }, [isStaff]);
 
-  // ====== USER: SUBSCRIBE CONVERSATION CỦA USER ======
+
   useEffect(() => {
     if (!isAuthenticated || !userConversation?.id) return;
     if (lastUserConvIdRef.current === userConversation.id) return;
@@ -225,8 +225,8 @@ useEffect(() => {
     ChatSocketHelper.subscribe(ApiUrl.CHAT_TOPIC(convId), async (msg) => {
       const eventData = JSON.parse(msg.body);
       const data = eventData.type === 'NEW_MESSAGE' ? eventData.payload : eventData;
-      
-      // ✅ DEBUG: Log incoming message structure
+
+
       console.log('📨 Received message from WebSocket:', {
         senderType: data.senderType,
         senderName: data.senderName,
@@ -236,13 +236,13 @@ useEffect(() => {
         chatChannel: data.chatChannel,
       });
 
-      // 1. Optimistic update → tin mới hiện ngay ở dưới cùng
+
       setUserMessages((prev) => {
         if (prev.some((m) => m.id === data.id)) return prev;
         return mergeMessagesById(prev, [data]);
       });
 
-      // 2. Silent refresh history từ API (page 0)
+
       try {
         const res = await ChatService.messages(convId, 0, 50);
         const page = res.data;
@@ -252,9 +252,9 @@ useEffect(() => {
         console.error('❌ Failed to refresh user messages:', err);
       }
 
-      // 3. Badge ở floating button
+
       if (isChatOpenRef.current) {
-        // Nếu popup đang mở → coi như đã đọc
+
         if (chatLastReadKey) {
           localStorage.setItem(chatLastReadKey, Date.now());
         }
@@ -302,18 +302,18 @@ useEffect(() => {
         );
       }
       ChatSocketHelper.sendMessage(conversationId, content, 'SHOP');
-      // KHÔNG CẦN OPTIMISTIC UI NỮA:
-      // WebSocket server sẽ echo lại message (cùng ID thật).
-      // Khi nhận được message từ WS, state messages/userMessages sẽ tự động được append.
+
+
+
     } else {
-      // LUỒNG BOT: Lưu vào ngăn kéo botMessages
+
       setBotMessages((prev) => [tempMsg, ...prev]);
       setIsBotLoading(true);
 
       try {
         const currentUserIdHex = user?.id ? user.id.toString(16) : "UNKNOWN";
         const res = await ChatService.botChat(conversationId, content, currentUserIdHex);
-        
+
         const botReply = res.data?.data || res.data;
         const suggestions = Array.isArray(botReply?.products) && botReply.products.length
           ? botReply.products.map((product, index) => ({
@@ -325,8 +325,8 @@ useEffect(() => {
         if (suggestions.length > 0) {
           setLatestProductSuggestions(suggestions);
         }
-        
-        // LUỒNG BOT: Trả lời cũng lưu vào ngăn kéo botMessages
+
+
         setBotMessages((prev) => [botReply, ...prev]);
       } catch (err) {
         console.error('Bot API Error:', err);
@@ -336,7 +336,7 @@ useEffect(() => {
           err.code === 'ECONNABORTED' || status === 408 || status === 504
             ? 'Trợ lý phản hồi hơi chậm. Bạn thử gửi lại câu hỏi ngắn hơn hoặc thử lại sau ít phút nhé.'
             : serverMessage || 'Hiện tại trợ lý đang phản hồi chậm. Bạn thử lại sau ít phút nhé, hoặc hỏi ngắn hơn để mình hỗ trợ nhanh hơn.';
-        setBotMessages((prev) => [{ // Lỗi cũng hiển thị ở tab Bot
+        setBotMessages((prev) => [{
           id: `err-${Date.now()}`,
           content: fallbackMessage,
           senderType: 'BOT',
@@ -353,7 +353,7 @@ useEffect(() => {
   return (
     <ChatContext.Provider
       value={{
-        // admin
+
         conversations,
         setConversations,
         activeConversation,
@@ -364,7 +364,7 @@ useEffect(() => {
         hasNewChat,
         setHasNewChat,
 
-        // user widget
+
         userConversation,
         setUserConversation,
         userMessages,
@@ -373,7 +373,7 @@ useEffect(() => {
         setUserHasUnread,
         isChatOpen,
         setIsChatOpen,
-        botMessages,         // THÊM DÒNG NÀY
+        botMessages,
         setBotMessages,
         isBotLoading,
         latestProductSuggestions,

@@ -2,16 +2,16 @@ import './assets/css/App.css';
 import { Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { Box, ChakraProvider } from '@chakra-ui/react';
 import { AnimatePresence, motion } from 'framer-motion';
-// Thêm dòng này vào đầu file src/App.js
+
 import ResultPage from 'views/user/order/ResultPage';
 import initialTheme from './theme/theme';
 
-// 🧩 Layouts
+
 import AuthLayout from './layouts/auth';
 import AdminLayout from './layouts/admin';
 import UserLayout from 'layouts/user';
 
-// 🧩 Providers
+
 import { UserProvider } from 'contexts/UserContext';
 import { CartProvider } from 'contexts/CartContext';
 import { CategoryProvider } from 'contexts/CategoryContext';
@@ -48,10 +48,10 @@ export default function Main() {
                     transition={{ duration: 0.22, ease: [0.22, 1, 0.36, 1] }}
                   >
                     <Routes location={location}>
-                  {/* Đón khách khi thanh toán thành công */}
+                  {}
                   <Route path="/payment/success" element={<ResultPage />} />
-                  
-                  {/* Đón khách khi họ nhấn Huỷ thanh toán */}
+
+                  {}
                   <Route path="/payment/cancel" element={<ResultPage />} />
                   <Route path="auth/*" element={<AuthLayout />} />
                   <Route path="user/*" element={<UserLayout />} />
@@ -62,7 +62,7 @@ export default function Main() {
                     }
                   />
 
-                  {/* Điều hướng mặc định */}
+                  {}
                   <Route path="/" element={<Navigate to="/user" replace />} />
                     </Routes>
                   </MotionBox>

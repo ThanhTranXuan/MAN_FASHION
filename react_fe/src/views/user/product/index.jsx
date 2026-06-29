@@ -45,7 +45,7 @@ export default function ProductListPage() {
   const lastSyncedSearchRef = useRef(searchParams.toString());
   const syncingFromUrlRef = useRef(false);
 
-  // 🧩 Category context
+
   const { categories, loading: loadingCats } = useCategories();
 
   const [keyword, setKeyword] = useState(searchParams.get('q') || '');
@@ -75,10 +75,10 @@ export default function ProductListPage() {
   const searchBg = useColorModeValue('#FFFDF8', 'navy.800');
   const searchBorder = useColorModeValue('#D8C7B3', 'gray.600');
 
-  // 🆕 Dùng để chống “chèn data” từ request cũ
+
   const latestRequestId = useRef(0);
 
-  // Sync state when URL changes from voice search, Back, or Forward.
+
   useEffect(() => {
     const nextSearch = searchParams.toString();
     if (nextSearch === lastSyncedSearchRef.current) return;
@@ -96,9 +96,9 @@ export default function ProductListPage() {
     setPage(Number(searchParams.get('page') || 0));
   }, [searchParams]);
 
-  // ==========================================
-  // 🔍 Debounce search
-  // ==========================================
+
+
+
   useEffect(() => {
     const timer = setTimeout(() => {
       setDebouncedKeyword(keyword.trim());
@@ -107,18 +107,18 @@ export default function ProductListPage() {
     return () => clearTimeout(timer);
   }, [keyword]);
 
-  // ==========================================
-  // 🔁 Reset filter khi đổi category
-  // ==========================================
+
+
+
   useEffect(() => {
     setColor('');
     setSize([]);
     setPage(0);
   }, [categorySlug]);
 
-  // ==========================================
-  // 🧩 Build query
-  // ==========================================
+
+
+
   const query = useMemo(
     () => ({
       keyword: debouncedKeyword || undefined,
@@ -177,9 +177,9 @@ export default function ProductListPage() {
     return null;
   };
 
-  // ==========================================
-  // 🌐 Update URL params (slug nằm ở useParams)
-  // ==========================================
+
+
+
   useEffect(() => {
     const params = new URLSearchParams();
     if (keyword) params.set('q', keyword);
@@ -201,11 +201,11 @@ export default function ProductListPage() {
     }
   }, [keyword, color, size, outfitKey, sort, page, setSearchParams]);
 
-  // ==========================================
-  // 📦 Fetch products – ĐÃ CHẶN REQUEST CŨ
-  // ==========================================
+
+
+
   const fetchData = useCallback(async () => {
-    const currentId = ++latestRequestId.current; // tăng id mỗi lần gọi
+    const currentId = ++latestRequestId.current;
     setLoading(true);
 
     try {
@@ -227,14 +227,14 @@ export default function ProductListPage() {
 
       const response = await ProductService.getAll(query);
 
-      // ❗ Nếu đã có request mới hơn → bỏ qua result này
+
       if (currentId !== latestRequestId.current) {
         return;
       }
 
       setPageData(response.data);
     } finally {
-      // ❗ Chỉ tắt loading nếu đây là request mới nhất
+
       if (currentId === latestRequestId.current) {
         setLoading(false);
       }
@@ -267,9 +267,9 @@ export default function ProductListPage() {
     window.scrollTo({ top: 0, behavior: "smooth" });
   }, [page]);
 
-  // ==========================================
-  // 🧭 Breadcrumbs
-  // ==========================================
+
+
+
   const breadcrumbTrail = useMemo(() => {
     const trail = [
       { name: 'Trang Chủ', path: '/' },
@@ -300,7 +300,7 @@ export default function ProductListPage() {
     return trail;
   }, [categorySlug, categories]);
 
-  // Hàm reset filter khi đang ở empty state
+
   const handleClearFilters = () => {
     setKeyword('');
     setDebouncedKeyword('');
@@ -310,13 +310,13 @@ export default function ProductListPage() {
     setSearchParams({});
   };
 
-  // ==========================================
-  // 🧩 RENDER
-  // ==========================================
+
+
+
   return (
     <Box bg={pageBg} minH="100vh">
     <AppContainer py={{ base: 6, md: 10 }}>
-      {/* 🔗 Breadcrumb + Search */}
+      {}
       <Flex
         mt={3}
         direction={{ base: 'column', md: 'row' }}
@@ -325,7 +325,7 @@ export default function ProductListPage() {
         gap={{ base: 3, md: 4 }}
         w="full"
       >
-        {/* 🧭 Breadcrumb */}
+        {}
         <Breadcrumb
           fontWeight="medium"
           fontSize="sm"
@@ -357,7 +357,7 @@ export default function ProductListPage() {
           })}
         </Breadcrumb>
 
-        {/* 🔍 Search */}
+        {}
         <Box
           borderWidth="1px"
           borderColor={searchBorder}
@@ -386,7 +386,7 @@ export default function ProductListPage() {
         </Box>
       </Flex>
 
-      {/* 🧩 Category chips */}
+      {}
       {loadingCats ? (
         <Text>Đang tải danh mục...</Text>
       ) : (
@@ -421,12 +421,12 @@ export default function ProductListPage() {
           onSizes={(value) => { setSize(value); setPage(0); }}
         />
         <Box flex="1" minW={0}>
-      {/* 🔽 Filters */}
+      {}
       <Flex justify="space-between" align="center">
         <Flex align="center">
           <SortMenu sort={sort} setSort={setSort} setPage={setPage} />
 
-          {/* 🏷️ Active filters */}
+          {}
           <HStack spacing={2} ms={5} wrap="wrap">
             {color && (
               <Tag size="md" borderRadius="full">
@@ -457,7 +457,7 @@ export default function ProductListPage() {
         </Button>
       </Flex>
 
-      {/* 🧾 Product grid + EMPTY STATE */}
+      {}
       <Box mt={4} borderRadius="xl" bg={bg} border="1px solid" borderColor={border} px={{ base: 3, md: 5 }}>
         {loading ? (
           <SimpleGrid columns={{ base: 2, md: 3, xl: 4 }} spacing={{ base: 3, md: 5 }} py={5}>

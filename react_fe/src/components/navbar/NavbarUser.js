@@ -1,4 +1,4 @@
-// src/components/navbar/NavbarUser.jsx
+
 import {
   Text,
   Flex,
@@ -96,7 +96,7 @@ function CategoryThumbnail({ category, fallbackCategory }) {
   );
 }
 
-// ─── CategoryItem: mỗi danh mục cấp 1 có hover dropdown ───
+
 function CategoryItem({ cat, children, allCategories, onNavigate, colors }) {
   const [open, setOpen] = useState(false);
   const timerRef = useRef(null);
@@ -195,7 +195,7 @@ function CategoryItem({ cat, children, allCategories, onNavigate, colors }) {
                         fallbackCategory={cat}
                       />
                     </Box>
-                    
+
                     <Text
                       fontWeight="bold"
                       fontSize="md"
@@ -239,7 +239,7 @@ function CategoryItem({ cat, children, allCategories, onNavigate, colors }) {
   );
 }
 
-// ─── NavbarUser ───────────────────────────────────────────
+
 export default function NavbarUser() {
   const navbarBg = useColorModeValue('fashion.cream', 'navy.800');
   const navbarBorder = useColorModeValue('rgba(11,20,55,0.1)', 'navy.600');
@@ -258,9 +258,9 @@ export default function NavbarUser() {
 
   const { categories, loading } = useCategories();
 
-  // Cấp 1
+
   const parentCategories = categories.filter((c) => !c.parentId);
-  // Lấy con theo cha
+
   const getChildren = (parentId) =>
     categories.filter((c) => c.parentId === parentId);
 
@@ -278,7 +278,7 @@ export default function NavbarUser() {
 
   return (
     <>
-      {/* CSS animation cho dropdown */}
+      {}
       <style>{`
         @keyframes dropdownFadeIn {
           from { opacity: 0; transform: translateX(-50%) translateY(-6px); }
@@ -305,7 +305,7 @@ export default function NavbarUser() {
           mx="auto"
           maxW="1440px"
         >
-          {/* ━━━ LEFT: Logo (flex: 1) ━━━ */}
+          {}
           <Box flex="1" display="flex" alignItems="center">
             <Image
               src={logo}
@@ -319,7 +319,7 @@ export default function NavbarUser() {
             />
           </Box>
 
-          {/* ━━━ CENTER: Danh mục (Desktop) ━━━ */}
+          {}
           {!isMobile && !loading && parentCategories.length > 0 && (
             <Flex
               as="nav"
@@ -342,14 +342,14 @@ export default function NavbarUser() {
             </Flex>
           )}
 
-          {/* ━━━ RIGHT: Icons (flex: 1, justify-end) ━━━ */}
+          {}
           <Flex
             flex="1"
             align="center"
             justify="flex-end"
             gap={1}
           >
-            {/* Search Icon */}
+            {}
             <IconButton
               aria-label="Tìm kiếm"
               icon={<Icon as={MdSearch} boxSize={6} />}
@@ -363,7 +363,7 @@ export default function NavbarUser() {
               }}
               size="md"
             />
-            {/* Icon 3 gạch – ngay bên trái giỏ hàng */}
+            {}
             <IconButton
               aria-label="Mở danh mục"
               icon={<Icon as={MdMenu} boxSize={6} />}
@@ -378,13 +378,13 @@ export default function NavbarUser() {
               display={{ base: 'inline-flex', md: 'none' }}
             />
 
-            {/* Cart + Dark mode + Avatar */}
+            {}
             <NavbarLinks />
           </Flex>
         </Flex>
 
       </Box>
-      {/* ━━━ MegaMenu ━━━ */}
+      {}
       <AnimatePresence>
         {isMegaMenuOpen && !loading && (
           <MegaMenu

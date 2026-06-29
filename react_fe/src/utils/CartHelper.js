@@ -1,7 +1,7 @@
 const CART_KEY = 'guest_cart';
 
 export const CartHelper = {
-  // 🧩 Thêm sản phẩm cho GUEST (localStorage)
+
   async addItem(product, toast) {
     try {
       const stored = localStorage.getItem(CART_KEY);
@@ -44,7 +44,7 @@ export const CartHelper = {
     }
   },
 
-  // 🧩 Cập nhật số lượng (GUEST)
+
   async updateQuantity(cartItemId, quantity, toast) {
     try {
       const stored = localStorage.getItem(CART_KEY);
@@ -62,7 +62,7 @@ export const CartHelper = {
     }
   },
 
-  // 🧩 Cập nhật variant (GUEST)
+
   async updateVariant(item, newVariant, toast) {
     try {
       const stored = localStorage.getItem(CART_KEY);
@@ -83,7 +83,7 @@ export const CartHelper = {
     }
   },
 
-  // 🧩 Xóa item (GUEST)
+
   async removeItem(cartItemId) {
     try {
       const stored = localStorage.getItem(CART_KEY);
@@ -96,7 +96,7 @@ export const CartHelper = {
     }
   },
 
-  // 🧩 Lấy giỏ GUEST
+
   async getCart() {
     const stored = localStorage.getItem(CART_KEY);
     const cart = stored ? JSON.parse(stored) : [];

@@ -1,6 +1,6 @@
 export const linkStyles = {
     components: {
-      
+
       Link: {
           baseStyle: {
             textDecoration: "none",

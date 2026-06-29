@@ -1,4 +1,4 @@
-/*eslint-disable*/
+
 import React from 'react';
 import {
   Flex,
@@ -43,10 +43,10 @@ export default function Footer() {
       </Text>
       <List display="flex">
         <ListItem
-          // me={{
-          //   base: '20px',
-          //   md: '44px',
-          // }}
+
+
+
+
         >
           <Link
             fontWeight="500"
@@ -56,35 +56,35 @@ export default function Footer() {
             Hỗ Trợ
           </Link>
         </ListItem>
-        {/* <ListItem
-          me={{
-            base: '20px',
-            md: '44px',
-          }}
-        >
-          <Link
-            fontWeight="500"
-            color={textColor}
-            href="https://www.simmmple.com/licenses?ref=horizon-chakra-free"
-          >
-            License
-          </Link>
-        </ListItem>
-        <ListItem
-          me={{
-            base: '20px',
-            md: '44px',
-          }}
-        >
-          <Link
-            fontWeight="500"
-            color={textColor}
-            href="https://simmmple.com/terms-of-service?ref=horizon-chakra-free"
-          >
-            Terms of Use
-          </Link>
-        </ListItem>
-        */}
+        {
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+}
       </List>
     </Flex>
   );

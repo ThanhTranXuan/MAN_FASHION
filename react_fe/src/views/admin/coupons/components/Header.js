@@ -1,5 +1,5 @@
 import React from 'react';
-import { Flex, Text, Button, useColorModeValue }  from '@chakra-ui/react'; 
+import { Flex, Text, Button, useColorModeValue }  from '@chakra-ui/react';
 
 import { SearchBar } from 'components/navbar/searchBar/SearchBar';
 

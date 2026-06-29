@@ -1,4 +1,4 @@
-// src/contexts/UserContext.jsx
+
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import AuthService from 'services/AuthService';
 import ProfileService from 'services/ProfileService';
@@ -13,7 +13,7 @@ const UserContext = createContext({
 });
 
 export const UserProvider = ({ children }) => {
-  const [user, setUser] = useState(null); // full profile từ /api/users/me
+  const [user, setUser] = useState(null);
   const [loadingUser, setLoadingUser] = useState(true);
 
   const fetchUserProfile = async () => {
@@ -26,7 +26,7 @@ export const UserProvider = ({ children }) => {
 
     setLoadingUser(true);
     try {
-      const res = await ProfileService.getProfile(); // GET /api/users/me
+      const res = await ProfileService.getProfile();
       setUser(res.data.data);
     } catch (err) {
       console.error('❌ Failed to load user profile:', err);
@@ -38,12 +38,12 @@ export const UserProvider = ({ children }) => {
   };
 
   useEffect(() => {
-    // khi app mount, nếu có access token thì gọi API lấy user
+
     fetchUserProfile();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+
   }, []);
 
-  // 🚪 Logout
+
   const logout = () => {
     AuthService.logout();
     setUser(null);

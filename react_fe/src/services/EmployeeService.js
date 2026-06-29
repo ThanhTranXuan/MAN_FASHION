@@ -2,7 +2,7 @@ import ApiClient from 'api/ApiClient';
 import ApiUrl from 'constants/ApiUrl';
 
 const EmployeeService = {
-  // admin actions
+
   getAll: (params) => ApiClient.get(ApiUrl.EMPLOYEES, { params }).then(res=>{ return { data: res.data.data };}),
   getById: (id) =>
     ApiClient.get(ApiUrl.EMPLOYEE_DETAIL(id)).then(res=>{ return { data: res.data.data };}),

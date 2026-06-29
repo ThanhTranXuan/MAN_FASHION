@@ -65,9 +65,9 @@ function Sidebar(props) {
   );
 }
 
-// ===============================
-// SIDEBAR RESPONSIVE
-// ===============================
+
+
+
 export function SidebarResponsive(props) {
   let sidebarBackgroundColor = useColorModeValue('white', 'navy.800');
   let menuColor = useColorModeValue('gray.900', 'white');

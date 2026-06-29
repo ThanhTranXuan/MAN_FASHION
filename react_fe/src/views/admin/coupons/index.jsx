@@ -12,12 +12,12 @@ import CouponService from 'services/CouponService';
 export default function CouponPage() {
   const toast = useAppToast();
 
-  // 🎨 UI
+
   const borderColor = useColorModeValue('gray.200', 'navy.700');
   const bgColor = useColorModeValue('white', 'navy.800');
   const headerBg = useColorModeValue('gray.100', 'navy.800');
 
-  // 🧠 State
+
   const [coupons, setCoupons] = useState([]);
   const [page, setPage] = useState(0);
   const [totalPages, setTotalPages] = useState(1);
@@ -27,10 +27,10 @@ export default function CouponPage() {
   const [isConfirmOpen, setIsConfirmOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
-  // 📦 Disclosure
+
   const { isOpen, onOpen, onClose } = useDisclosure();
 
-  // 📋 Load coupons
+
   const loadCoupons = useCallback(async (p = 0) => {
     try {
       setIsLoading(true);
@@ -51,14 +51,14 @@ export default function CouponPage() {
     } finally {
       setIsLoading(false);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+
   }, []);
 
   useEffect(() => {
     loadCoupons(page);
   }, [loadCoupons, page, searchInput]);
 
-  // ❌ Delete
+
   const handleDelete = async () => {
     try {
       await CouponService.delete(couponToDelete.id);
@@ -70,22 +70,22 @@ export default function CouponPage() {
     }
   };
 
-  // 🔁 Reload sau khi thêm/sửa
+
   const handleReload = () => {
     loadCoupons(page);
     onClose();
   };
 
-  // 🧱 Columns
+
   const columns = useMemo(
     () => Columns(onOpen, setEditingCoupon, setCouponToDelete, setIsConfirmOpen),
     [onOpen],
   );
 
-  // 🖼️ Render
+
   return (
     <Box>
-      {/* 🧩 Form thêm/sửa */}
+      {}
       <Form
         isOpen={isOpen}
         onClose={() => {
@@ -96,7 +96,7 @@ export default function CouponPage() {
         coupon={editingCoupon}
       />
 
-      {/* ⚠️ Xác nhận xóa */}
+      {}
       <ConfirmDialog
         isOpen={isConfirmOpen}
         onClose={() => setIsConfirmOpen(false)}
@@ -105,7 +105,7 @@ export default function CouponPage() {
         message={`Bạn có chắc muốn xóa mã "${couponToDelete?.code}"?`}
       />
 
-      {/* 📋 Bảng chính */}
+      {}
       <Card w="100%" borderRadius="16px" boxShadow="md" bg={bgColor}>
         <Header
           searchInput={searchInput}

@@ -1,4 +1,4 @@
-// Chakra imports
+
 import {
   Box,
   Button,
@@ -31,7 +31,7 @@ import routes from "routes.js";
 export default function AuthNavbar(props) {
   const { logo, logoText, secondary, sidebarWidth, ...rest } = props;
   const { colorMode } = useColorMode();
-  // Menu States
+
   const {
     isOpen: isOpenPages,
     onOpen: onOpenPages,
@@ -56,7 +56,7 @@ export default function AuthNavbar(props) {
     onClose: onCloseEcommerce,
   } = useDisclosure();
 
-  // Menus
+
   let authObject = {};
   routes.map((route) => {
     if (route.items) {
@@ -89,7 +89,7 @@ export default function AuthNavbar(props) {
     });
   });
 
-  // Chakra color mode
+
 
   const textColor = useColorModeValue("gray.700", "#fff");
   let menuBg = useColorModeValue("white", "navy.900");
@@ -130,7 +130,7 @@ export default function AuthNavbar(props) {
           <Box
             w='1px'
             h='20px'
-            //  bg={useColorModeValue("gray.700", "white")}
+
           />
         </Stack>
         <Text fontsize='sm' mt='3px'>
@@ -138,15 +138,15 @@ export default function AuthNavbar(props) {
         </Text>
       </Link>
     );
-    // mainText = useColorModeValue("gray.700", "gray.200");
-    // navbarBg = useColorModeValue("white", "navy.800");
-    // navbarShadow = useColorModeValue(
-    //   "0px 7px 23px rgba(0, 0, 0, 0.05)",
-    //   "none"
-    // );
-    // bgButton = useColorModeValue("gray.700", "white");
-    // colorButton = useColorModeValue("white", "gray.700");
-    // navbarPosition = "fixed";
+
+
+
+
+
+
+
+
+
   }
 
   const createPagesLinks = (routes) => {
@@ -172,7 +172,7 @@ export default function AuthNavbar(props) {
               mb='6px'
               cursor='default'>
               <IconBox bg='blue.500' color='white' h='30px' w='30px'>
-                {/* <RocketIcon color='inherit' /> */}
+                {}
               </IconBox>
               <Text fontWeight='bold' fontSize='sm' color={textColor}>
                 Extra
@@ -411,7 +411,7 @@ export default function AuthNavbar(props) {
                 direction='column'
                 justify='center'
                 align='center'
-                // bgImage={bgCard}
+
                 minW='200px'
                 maxW='200px'
                 minH='230px'

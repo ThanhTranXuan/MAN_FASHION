@@ -1,4 +1,4 @@
-import { Flex, Text, Image }  from '@chakra-ui/react'; 
+import { Flex, Text, Image }  from '@chakra-ui/react';
 
 import { motion } from 'framer-motion';
 

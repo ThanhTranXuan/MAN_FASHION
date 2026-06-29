@@ -18,7 +18,7 @@ export default function CategoryFilter({
   borderColor,
   brandColor,
 }) {
-  // 🧠 Build tree structure
+
   const buildTree = (list) => {
     const map = {};
     const roots = [];
@@ -38,7 +38,7 @@ export default function CategoryFilter({
 
   const categoryTree = buildTree(categories);
 
-  // 🧭 Recursive render (now using slug)
+
   const renderTree = (nodes, level = 1) =>
     nodes.map((node) => {
       const isLeaf = !node.children || node.children.length === 0;
@@ -50,7 +50,7 @@ export default function CategoryFilter({
             ps={level * 2}
             py={1.5}
             onClick={() => {
-              if (isLeaf) setCategoryFilter(node.slug); // ✅ dùng slug thay vì id
+              if (isLeaf) setCategoryFilter(node.slug);
             }}
           >
             <Flex w="100%" justify="space-between" align="center">
@@ -93,7 +93,7 @@ export default function CategoryFilter({
         maxH="300px"
         overflowY="auto"
       >
-        {/* All Option */}
+        {}
         <MenuItem
           bg={bgColor}
           _hover={{ bg: 'transparent', color: brandColor }}
@@ -110,7 +110,7 @@ export default function CategoryFilter({
           </Flex>
         </MenuItem>
 
-        {/* Tree Categories */}
+        {}
         {categories.length > 0 ? (
           renderTree(categoryTree)
         ) : (

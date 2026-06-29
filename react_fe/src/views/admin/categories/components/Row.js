@@ -69,7 +69,7 @@ export default function Row({
 
         <Td textAlign="right">
           <Flex justify="flex-end" gap={2}>
-            {/* Add Subcategory — EMPLOYEE + ADMIN */}
+            {}
             <IconButton
               aria-label="Add Subcategory"
               size="sm"
@@ -79,7 +79,7 @@ export default function Row({
               onClick={() => onAdd(cat)}
             />
 
-            {/* Edit — EMPLOYEE + ADMIN */}
+            {}
             <IconButton
               aria-label="Edit"
               size="sm"
@@ -89,7 +89,7 @@ export default function Row({
               onClick={() => onEdit(cat)}
             />
 
-            {/* Delete — chỉ ADMIN */}
+            {}
             {!isEmployee && (
               <IconButton
                 aria-label="Delete"

@@ -29,7 +29,7 @@ import ReviewSection from './components/review/ReviewSection';
 import { StarRating } from './components/review/ReviewItem';
 import ProductCard from './components/ProductCard';
 
-// ─── RelatedProducts ────────────────────────────────────────
+
 function RelatedProducts({ categorySlug, currentProductId }) {
   const navigate = useNavigate();
   const [products, setProducts] = useState([]);
@@ -48,7 +48,7 @@ function RelatedProducts({ categorySlug, currentProductId }) {
           setProducts(data || []);
         }
       } catch {
-        // silent fail – section không hiển thị
+
       } finally {
         if (!cancelled) setLoading(false);
       }
@@ -78,7 +78,7 @@ function RelatedProducts({ categorySlug, currentProductId }) {
   );
 }
 
-// ─── ProductDetail ───────────────────────────────────────────
+
 export default function ProductDetail() {
   const { slug } = useParams();
   const navigate = useNavigate();
@@ -114,7 +114,7 @@ export default function ProductDetail() {
             null,
         );
 
-        // Load review summary
+
         try {
           const summaryRes = await ReviewService.getReviewSummary(data.id);
           setReviewSummary(summaryRes.data);
@@ -129,7 +129,7 @@ export default function ProductDetail() {
       }
     };
     load();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+
   }, [slug]);
 
   const variants = useMemo(() => product?.variants || [], [product]);
@@ -233,14 +233,14 @@ export default function ProductDetail() {
 
   if (!product) return null;
 
-  // Category slug từ product để dùng cho RelatedProducts
+
   const relatedCategorySlug = product.categorySlug || null;
 
   return (
     <Box bg={pageBg} minH="100vh">
       <Box maxW="1600px" mx="auto" px={{ base: 4, md: 6, xl: 10 }} py={{ base: 4, md: 8 }}>
 
-        {/* ── Breadcrumb ── */}
+        {}
         <Breadcrumb
           fontWeight="medium"
           fontSize="sm"
@@ -269,7 +269,7 @@ export default function ProductDetail() {
           </BreadcrumbItem>
         </Breadcrumb>
 
-        {/* ── Main: Gallery + Info ── */}
+        {}
         <Grid
           templateColumns={{ base: '1fr', xl: '1.15fr 0.85fr' }}
           gap={{ base: 8, xl: 12 }}
@@ -328,14 +328,14 @@ export default function ProductDetail() {
 
             <Divider borderColor={dividerColor} />
 
-              {/* Mô tả */}
+              {}
             {product.description && (
               <Text color={descColor} fontSize="sm" lineHeight="1.75">
                 {product.description}
               </Text>
             )}
 
-              {/* 🎨 Colors */}
+              {}
             {colors.length > 0 && (
               <Box w="100%">
                 <Text fontWeight="semibold" fontSize="sm" mb={2} color={textColor}>
@@ -366,7 +366,7 @@ export default function ProductDetail() {
               </Box>
             )}
 
-              {/* 📏 Sizes */}
+              {}
             {allSizes.length > 0 && (
               <Box w="100%">
                 <Text fontWeight="semibold" fontSize="sm" mb={2} color={textColor}>
@@ -414,7 +414,7 @@ export default function ProductDetail() {
               </Text>
             )}
 
-              {/* 🛒 Quantity + Add to cart */}
+              {}
             <Box w="100%">
               <HStack spacing={3} mt={2}>
                   <HStack
@@ -465,7 +465,7 @@ export default function ProductDetail() {
 
             <Divider borderColor={dividerColor} />
 
-              {/* 🛡️ Commitments */}
+              {}
             <SimpleGrid columns={2} spacing={3} w="100%">
                 <Flex align="center" gap={2}>
                   <Icon as={MdLocalShipping} boxSize={5} color={brandColor} flexShrink={0} />
@@ -502,7 +502,7 @@ export default function ProductDetail() {
           </VStack>
         </Grid>
 
-        {/* ── Related products ── */}
+        {}
         <RelatedProducts
           categorySlug={relatedCategorySlug}
           currentProductId={product.id}

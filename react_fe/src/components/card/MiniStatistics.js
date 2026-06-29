@@ -1,5 +1,5 @@
-// Chakra imports
-// Chakra imports
+
+
 import {
   Flex,
   Stat,
@@ -8,9 +8,9 @@ import {
   useColorModeValue,
   Text,
 } from "@chakra-ui/react";
-// Custom components
+
 import Card from "components/card/Card.js";
-// Custom icons
+
 import React from "react";
 
 export default function Default(props) {

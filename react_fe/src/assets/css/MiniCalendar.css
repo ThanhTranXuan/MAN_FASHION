@@ -1,4 +1,4 @@
-/* LIGHT MODE + GENERAL */
+
 
 .react-calendar {
   border: unset;
@@ -100,7 +100,7 @@ abbr[title] {
   color: white;
 }
 
-/* DARK MODE */
+
 
 body.chakra-ui-dark .react-calendar {
   border-radius: 30px;

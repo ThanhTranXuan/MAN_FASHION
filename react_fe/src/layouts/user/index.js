@@ -54,10 +54,10 @@ export default function UserLayout() {
 
   return (
     <Box minH="100vh" bg={bgColor}>
-      {/* 🧭 Navbar trên đầu (bỏ Portal để nằm trong flow layout) */}
+      {}
       <NavbarUser isOpen={isOpen} onToggle={onToggle} />
 
-      {/* 🧩 Nội dung chính */}
+      {}
       <Box mx="auto" minH="100vh" pt="0">
         <AnimatePresence mode="wait" initial={false}>
           <MotionBox
@@ -75,10 +75,10 @@ export default function UserLayout() {
         </AnimatePresence>
       </Box>
 
-      {/* 📍 Footer */}
+      {}
       <FooterUser />
 
-      {/* Floating Chat */}
+      {}
       <ChatWidget hidden={hideChatbot} />
     </Box>
   );

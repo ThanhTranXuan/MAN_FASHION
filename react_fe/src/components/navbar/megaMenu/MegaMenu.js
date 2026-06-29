@@ -93,7 +93,7 @@ export default function MegaMenu({ categories, onClose }) {
       >
         <Box position="absolute" inset={0} onClick={onClose} />
 
-        {/* Content */}
+        {}
         <MotionBox
           position="relative"
           w="100%"
@@ -129,11 +129,11 @@ export default function MegaMenu({ categories, onClose }) {
             </Flex>
             {isMobile ? (
               <VStack align="start" spacing={0} w="100%">
-                {/* Điều hướng sản phẩm (ẩn khi vào cấp 2 hoặc cấp 3) */}
+                {}
                 {currentParentId === null && currentSubParentId === null && (
                   <>
                     <VStack align="stretch" w="100%" spacing={2} mb={4}>
-                      {/* Shop */}
+                      {}
                       <Flex
                         align="center"
                         justify="space-between"
@@ -157,7 +157,7 @@ export default function MegaMenu({ categories, onClose }) {
 
                     </VStack>
 
-                    {/* Divider */}
+                    {}
                     <Divider
                       borderColor={navbarBorder}
                       borderWidth="1px"
@@ -166,16 +166,16 @@ export default function MegaMenu({ categories, onClose }) {
                   </>
                 )}
 
-                {/* 🗂 Category Section */}
+                {}
                 <Box w="100%" pt={4}>
-                  {/* Level 1 */}
+                  {}
                   {currentParentId === null &&
                     parents.map((p, index) => (
                       <Flex
                         key={p.id}
                         justify="space-between"
                         align="center"
-                        bg={itemBg} // 👉 chỉ cấp 1 có nền xám
+                        bg={itemBg}
                         _hover={{ bg: hoverBg }}
                         px={4}
                         py={3}
@@ -197,10 +197,10 @@ export default function MegaMenu({ categories, onClose }) {
                       </Flex>
                     ))}
 
-                  {/* Level 2 */}
+                  {}
                   {currentParentId !== null && currentSubParentId === null && (
                     <VStack w="100%" spacing={1}>
-                      {/* Back */}
+                      {}
                       <Flex
                         w="100%"
                         align="center"
@@ -225,13 +225,13 @@ export default function MegaMenu({ categories, onClose }) {
                         </Text>
                       </Flex>
 
-                      {/* Danh mục cấp 2 */}
+                      {}
                       {getChildren(currentParentId).map((c2) => (
                         <Box key={c2.id} w="100%">
                           <Flex
                             justify="space-between"
                             align="center"
-                            // ❌ bỏ bg, chỉ giữ hover
+
                             _hover={{ bg: hoverBg }}
                             px={4}
                             py={3}
@@ -254,7 +254,7 @@ export default function MegaMenu({ categories, onClose }) {
                             )}
                           </Flex>
 
-                          {/* Collapse cấp 3 */}
+                          {}
                           <Collapse in={expanded[c2.id]} animateOpacity>
                             <VStack align="start" pl={6} spacing={1} mt={1}>
                               <Text
@@ -287,7 +287,7 @@ export default function MegaMenu({ categories, onClose }) {
                 </Box>
               </VStack>
             ) : (
-              // 🖥️ Desktop giữ nguyên
+
               <Grid
                 templateColumns={{ md: 'repeat(3, minmax(0, 1fr)) 1.35fr', xl: `repeat(${desktopParentColumns}, minmax(0, 1fr)) 1.45fr` }}
                 gap={{ md: 7, xl: 9 }}
@@ -366,7 +366,7 @@ export default function MegaMenu({ categories, onClose }) {
                   </VStack>
                 ))}
 
-                {/* Extra column */}
+                {}
                 <VStack align="stretch" spacing={4} pl={{ md: 3, xl: 5 }}>
                   <Box
                     borderRadius="20px"
