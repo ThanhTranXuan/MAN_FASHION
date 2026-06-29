@@ -18,7 +18,7 @@ public class CouponController {
 
     private final CouponServiceImpl couponService;
 
-    // 🎟️ GET all coupons (public)
+
     @GetMapping
     public ApiResponse<Page<CouponResponse>> getAllCoupons(
             @RequestParam(required = false) String keyword,
@@ -32,7 +32,7 @@ public class CouponController {
                 .build();
     }
 
-    // ➕ CREATE new coupon (ADMIN/EMPLOYEE only)
+
     @PostMapping
     @PreAuthorize("hasAnyAuthority('ADMIN','EMPLOYEE')")
     public ApiResponse<CouponResponse> createCoupon(@RequestBody CouponRequest request) {
@@ -44,7 +44,7 @@ public class CouponController {
                 .build();
     }
 
-    // ♻️ UPDATE coupon (ADMIN/EMPLOYEE only)
+
     @PutMapping("/{id}")
     @PreAuthorize("hasAnyAuthority('ADMIN','EMPLOYEE')")
     public ApiResponse<CouponResponse> updateCoupon(
@@ -59,13 +59,13 @@ public class CouponController {
                 .build();
     }
 
-    // 🗑️ DELETE coupon (ADMIN/EMPLOYEE only)
+
     @DeleteMapping("/{id}")
     @PreAuthorize("hasAnyAuthority('ADMIN','EMPLOYEE')")
     public ResponseEntity<Void> deleteCoupon(@PathVariable String id) {
         couponService.softDeleteCoupon(id);
 
-        // Trả về 204 No Content: Xoá thành công và không cần body trả về
+
         return ResponseEntity.noContent().build();
     }
 }

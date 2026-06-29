@@ -41,7 +41,7 @@ public class PayOSWebhookController {
             WebhookData data = payOS.webhooks().verify(webhook);
 
             Long paymentOrderCode = data.getOrderCode();
-            String code = data.getCode(); // "00" = thành công
+            String code = data.getCode();
             String desc = data.getDesc();
 
             log.info("PayOS Webhook → paymentOrderCode: {}, code: {}, desc: {}", paymentOrderCode, code, desc);
@@ -67,26 +67,26 @@ public class PayOSWebhookController {
                     return ResponseEntity.ok("OK");
                 }
 
-                // XÓA GIỎ HÀNG
-                // Kiểm tra 2 lớp: Order có chứa thông tin User không? Và User đó có ID không?
+
+
                 if (order.getUser() != null && order.getUser().getId() != null) {
                     try {
-                        // 1. Lấy ID an toàn (đi vòng qua object User)
+
                         String currentUserId = order.getUser().getId().toString();
 
-                        // 2. Thực thi xóa
+
                         cartService.clear(currentUserId);
                         log.info("Đã xóa giỏ hàng user {}", currentUserId);
 
                     } catch (Exception e) {
-                        // 3. Catch lỗi nhưng KHÔNG throw (ném) ra ngoài, để luồng thanh toán vẫn đi tiếp
+
                         log.error("Lỗi xóa giỏ hàng cho user {}: {}", order.getUser().getId(), e.getMessage());
                     }
                 } else {
                     log.warn("Bỏ qua bước xóa giỏ hàng do Đơn hàng {} không liên kết với User nào.", order.getId());
                 }
 
-                // PUSH REALTIME CHO ADMIN
+
                 messaging.convertAndSend("/topic/new-order", (Object) Map.of(
                         "code", order.getOrderCode(),
                         "total", order.getFinalTotal(),
@@ -96,7 +96,7 @@ public class PayOSWebhookController {
                         "type", "PAID"
                 ));
 
-                // GỬI EMAIL XÁC NHẬN
+
                 sendSuccessEmail(order);
 
                 log.info("ĐƠN HÀNG {} ĐÃ THANH TOÁN THÀNH CÔNG!", order.getOrderCode());
@@ -108,9 +108,9 @@ public class PayOSWebhookController {
             return ResponseEntity.ok("OK");
 
         } catch (Exception e) {
-            // ❗ QUAN TRỌNG: KHÔNG TRẢ 400 NỮA
+
             log.error("Lỗi xử lý webhook PayOS", e);
-            // Trả 200 để PayOS không coi webhook là "chết"
+
             return ResponseEntity.ok("OK");
         }
     }

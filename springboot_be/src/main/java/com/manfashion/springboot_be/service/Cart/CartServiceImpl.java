@@ -29,39 +29,39 @@ public class CartServiceImpl implements CartService {
     private final ProductImageRepository imageRepo;
     private final CartItemRepository cartItemRepo;
     private final UserRepository userRepo;
-    // Inject Mapper đã làm ở bước trước
+
     private final CartItemMapper cartItemMapper;
 
-    // =====================================================
-    // 🧩 Helper: Lấy hoặc tạo mới giỏ hàng cho user
-    // =====================================================
+
+
+
     private Cart getOrCreateCart(String userIdStr) {
-        // Chuyển String từ Security token thành Integer theo chuẩn DB của bạn
+
         Integer userId = Integer.valueOf(userIdStr);
 
         return cartRepo.findByUserId(userId)
                 .orElseGet(() -> {
-                    // 1. Tìm User thật từ DB (hoặc dùng userRepo.getReferenceById(userId) cho tối ưu hiệu suất)
+
                     User user = userRepo.findById(userId)
                             .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
 
-                    // 2. Tạo Cart mới và gán Object User vào
+
                     Cart newCart = Cart.builder()
                             .user(user)
                             .build();
 
-                    // 3. Lưu vào Database
+
                     return cartRepo.save(newCart);
                 });
     }
 
-    // =====================================================
-    // 🧱 Helper: Xử lý gom dữ liệu và gọi Mapper
-    // =====================================================
+
+
+
     private CartItemResponse buildCartItemResponse(CartItem item) {
-        Product product = item.getProduct(); // Lấy thẳng Object Product từ CartItem
+        Product product = item.getProduct();
         String thumbnailUrl = null;
-        ProductVariant variant = item.getVariant(); // Lấy thẳng Object Variant từ CartItem
+        ProductVariant variant = item.getVariant();
 
         if (product != null) {
             thumbnailUrl = resolveCartItemImage(product, variant);
@@ -117,7 +117,7 @@ public class CartServiceImpl implements CartService {
         Integer productId = Integer.valueOf(req.getProductId());
         Integer variantId = Integer.valueOf(req.getVariantId());
 
-        // 1. Tìm Product và Variant thật trong DB
+
         Product product = productRepo.findById(productId)
                 .orElseThrow(() -> new AppException(ErrorCode.PRODUCT_NOT_FOUND));
         ProductVariant variant = variantRepo.findById(variantId)
@@ -126,7 +126,7 @@ public class CartServiceImpl implements CartService {
 
         List<CartItem> existing = purgeUnavailableItems(cart);
 
-        // 2. Tìm xem trong giỏ đã có item nào trùng variant chưa (So sánh ID của Variant)
+
         Optional<CartItem> duplicate = existing.stream()
                 .filter(ci -> ci.getVariant() != null && ci.getVariant().getId().equals(variantId))
                 .findFirst();
@@ -136,11 +136,11 @@ public class CartServiceImpl implements CartService {
             ci.setQuantity(ci.getQuantity() + Math.max(1, req.getQuantity()));
             cartItemRepo.save(ci);
         } else {
-            // 3. Khởi tạo CartItem mới bằng CÁC OBJECT thay vì ID
+
             CartItem newItem = CartItem.builder()
-                    .cart(cart)         // Gán object cart
-                    .product(product)   // Gán object product
-                    .variant(variant)   // Gán object variant
+                    .cart(cart)
+                    .product(product)
+                    .variant(variant)
                     .quantity(Math.max(1, req.getQuantity()))
                     .build();
             cartItemRepo.save(newItem);
@@ -170,7 +170,7 @@ public class CartServiceImpl implements CartService {
             cartItemRepo.delete(item);
             throw new AppException(ErrorCode.CART_ITEM_NOT_FOUND);
         }
-        // Thay vì setVariantId, ta phải set nguyên cái Object Variant vào
+
         if (req.getVariantId() != null) {
             ProductVariant newVariant = variantRepo.findById(Integer.valueOf(req.getVariantId()))
                     .orElseThrow(() -> new AppException(ErrorCode.VARIANT_NOT_FOUND));

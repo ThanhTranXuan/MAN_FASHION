@@ -46,8 +46,8 @@ public class ReportServiceImpl implements ReportService {
                 .totalRevenue(rev != null ? rev : 0.0)
                 .totalEmployees(userRepo.countByRole_IdAndDeletedAtIsNull(empRole.getId()))
                 .totalCustomers(orderRepo.countDistinctUsersByStatusNot("CANCELLED"))
-                .totalCategories(categoryRepo.count())
-                .totalProducts(productRepo.count())
+                .totalCategories(categoryRepo.countByDeletedAtIsNull())
+                .totalProducts(productRepo.countByDeletedAtIsNull())
                 .totalOrders(orderRepo.count())
                 .build();
     }

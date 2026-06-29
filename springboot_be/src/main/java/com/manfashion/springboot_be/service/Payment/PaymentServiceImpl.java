@@ -28,7 +28,7 @@ public class PaymentServiceImpl implements PaymentService {
                                  String qrCodeUrl,
                                  Double amountVND) {
 
-        // Kiểm tra trùng lặp (tránh tạo 2 lần nếu retry)
+
         if (paymentRepo.existsByPaymentOrderCode(paymentOrderCode)) {
             log.warn("Payment đã tồn tại với paymentOrderCode: {}", paymentOrderCode);
             return paymentRepo.findByPaymentOrderCode(paymentOrderCode)

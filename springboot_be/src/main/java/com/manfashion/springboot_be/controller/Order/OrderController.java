@@ -29,7 +29,7 @@ public class OrderController {
         return (principal instanceof String) ? (String) principal : null;
     }
 
-    // 📃 GET all orders (ADMIN/EMPLOYEE)
+
     @GetMapping
     @PreAuthorize("hasAnyAuthority('ADMIN','EMPLOYEE')")
     public ApiResponse<Page<OrderResponse>> getAllOrders(
@@ -45,7 +45,7 @@ public class OrderController {
                 .build();
     }
 
-    // 🔍 Check new orders
+
     @GetMapping("/has-new")
     @PreAuthorize("hasAnyAuthority('ADMIN','EMPLOYEE')")
     public ApiResponse<Boolean> hasNewOrders(@RequestParam("since") long since) {
@@ -58,7 +58,7 @@ public class OrderController {
                 .build();
     }
 
-    // 🛒 CREATE order
+
     @PostMapping
     @PreAuthorize("hasAnyAuthority('GUEST','USER','ADMIN','EMPLOYEE')")
     public ApiResponse<OrderResponse> createOrder(@RequestBody OrderRequest req) {
@@ -75,7 +75,7 @@ public class OrderController {
                 .build();
     }
 
-    // 📄 GET my orders
+
     @GetMapping("/me")
     @PreAuthorize("hasAnyAuthority('USER','ADMIN','EMPLOYEE')")
     public ApiResponse<Page<OrderResponse>> getMyOrders(
@@ -90,7 +90,7 @@ public class OrderController {
                 .build();
     }
 
-    // 🔄 UPDATE status
+
     @PatchMapping("/{orderCode}/status")
     @PreAuthorize("hasAnyAuthority('USER','EMPLOYEE','ADMIN')")
     public ApiResponse<OrderResponse> updateOrderStatus(
@@ -117,7 +117,7 @@ public class OrderController {
                 .build();
     }
 
-    // ❌ Cancel order
+
     @PatchMapping("/cancel/{orderCode}")
     @PreAuthorize("hasAnyAuthority('USER','ADMIN','EMPLOYEE')")
     public ApiResponse<String> cancelOrder(@PathVariable String orderCode) {

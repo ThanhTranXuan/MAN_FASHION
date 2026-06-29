@@ -6,7 +6,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
 public interface OrderService {
-    // ================== NGHIỆP VỤ USER ==================
+
 
     OrderResponse createFromCart(Integer userId, OrderRequest req);
 
@@ -17,7 +17,7 @@ public interface OrderService {
     void cancelPendingOrder(String orderCode);
     void cancelPendingOrderByUser(Integer userId, String orderCode);
 
-    // ================== NGHIỆP VỤ ADMIN ==================
+
 
     OrderResponse updateStatus(String orderCode, String status);
 

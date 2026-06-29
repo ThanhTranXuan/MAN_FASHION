@@ -16,6 +16,7 @@ import java.util.Optional;
 @Repository
 public interface CategoryRepository extends JpaRepository<Category,Integer> {
     Page<Category> findByDeletedAtIsNull(Pageable pageable);
+    long countByDeletedAtIsNull();
 
     List<Category> findByParentId(Integer parentId);
 
@@ -28,9 +29,9 @@ public interface CategoryRepository extends JpaRepository<Category,Integer> {
     List<Category> findByParentIdIsNullAndDeletedAtIsNull();
 
     List<Category> findByParentIdAndDeletedAtIsNull(Integer parentId);
-    // ==========================================================
-    // HÀM BỔ SUNG THÊM ĐỂ PHỤC VỤ NGHIỆP VỤ XOÁ MỀM ĐỆ QUY
-    // ==========================================================
+
+
+
     @Modifying
     @Transactional
     @Query("UPDATE Category c SET c.deletedAt = :now WHERE c.id IN :ids")

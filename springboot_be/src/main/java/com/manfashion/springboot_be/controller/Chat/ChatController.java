@@ -2,7 +2,7 @@ package com.manfashion.springboot_be.controller.Chat;
 
 import com.manfashion.springboot_be.DTO.ApiResponse.ApiResponse;
 import com.manfashion.springboot_be.DTO.Chat.*;
-//import com.manfashion.springboot_be.service.Chat.ChatService;
+
 import com.manfashion.springboot_be.entity.ChatConversation;
 import com.manfashion.springboot_be.mapper.ChatMapper;
 import com.manfashion.springboot_be.service.Chat.ChatService;
@@ -24,9 +24,9 @@ public class ChatController {
 
     private final ChatService chatService;
     private final ChatMapper chatMapper;
-    // ======================================================
-    // 🔐 Helper: Lấy userId từ JWT (REST HTTP)
-    // ======================================================
+
+
+
     private Integer getCurrentUserId() {
         var context = SecurityContextHolder.getContext();
         if (context == null || context.getAuthentication() == null) {
@@ -35,13 +35,13 @@ public class ChatController {
 
         String principal = (String) context.getAuthentication().getPrincipal();
         try {
-            // Ép kiểu từ String (Token) sang Integer (MySQL ID)
+
             return Integer.valueOf(principal);
         } catch (NumberFormatException e) {
             throw new RuntimeException("❌ Invalid Integer ID in token: " + principal);
         }
     }
-    // 1. Khởi tạo Chat
+
     private boolean isStaff(Authentication auth) {
         return auth != null && auth.getAuthorities().stream()
                 .anyMatch(r -> r.getAuthority().equals("ADMIN") || r.getAuthority().equals("EMPLOYEE"));
@@ -57,7 +57,7 @@ public class ChatController {
                 .build();
     }
 
-    // 2. Lấy phòng chat hiện tại (Dành cho User)
+
     @GetMapping("/me")
     public ApiResponse<ChatConversationSummary> getMyConversation() {
         Integer userId = getCurrentUserId();
@@ -68,7 +68,7 @@ public class ChatController {
                 .build();
     }
 
-    // 3. Lấy lịch sử tin nhắn (Phân trang)
+
     @GetMapping("/{conversationId}/messages")
     public ApiResponse<Page<ChatMessageResponse>> getMessages(
             @PathVariable Integer conversationId,
@@ -83,7 +83,7 @@ public class ChatController {
                 .build();
     }
 
-    // 4. Admin lấy danh sách phòng chat
+
     @GetMapping("/admin/conversations")
     @PreAuthorize("hasAnyAuthority('ADMIN','EMPLOYEE')")
     public ApiResponse<Page<ChatConversationSummary>> getAllForStaff(
@@ -96,7 +96,7 @@ public class ChatController {
                 .build();
     }
 
-    // 5. Gửi tin nhắn qua REST API (Chuẩn thiết kế mới của FE)
+
     @PostMapping("/send")
     public ApiResponse<ChatMessageResponse> sendMessageREST(
             @RequestBody ChatMessageRequest req,
@@ -104,7 +104,7 @@ public class ChatController {
     ) {
         Integer senderId = getCurrentUserId();
 
-        // Phân quyền: Xác định ai đang gửi
+
         String senderType = isStaff(auth) ? "EMPLOYEE" : "USER";
 
         ChatMessageResponse savedMessage = chatService.processAndBroadcastMessage(
@@ -120,7 +120,7 @@ public class ChatController {
                 .build();
     }
 
-    // 6. Đánh dấu đã đọc
+
     @PutMapping("/mark-read")
     public ApiResponse<Map<String, Boolean>> markRead(@RequestBody MarkReadRequest req, Authentication auth) {
         Integer userId = getCurrentUserId();
@@ -132,16 +132,16 @@ public class ChatController {
     }
 
 
-    @MessageMapping("/chat/send") // Phải khớp chính xác với FE gửi lên
+    @MessageMapping("/chat/send")
     public void handleWebSocketMessage(@Payload ChatMessageRequest req, Authentication auth) {
-        // 1. Trích xuất senderId từ Principal (đã cấu hình trong WebSocketConfig)
+
         Integer senderId = Integer.valueOf((String) auth.getPrincipal());
 
-        // 2. Xác định vai trò để gán senderType
+
         String senderType = isStaff(auth) ? "EMPLOYEE" : "USER";
 
-        // 3. Gọi Service để lưu vào MySQL và Broadcast ngược lại
-        // Dùng đúng hàm chatService mà bạn đã viết logic xử lý
+
+
         chatService.processAndBroadcastMessage(
                 Integer.valueOf(req.getConversationId()),
                 senderId,

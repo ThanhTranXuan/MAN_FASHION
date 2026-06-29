@@ -14,5 +14,5 @@ public class RevenueSummaryResponse {
     private long currentMonthOrders;
     private double previousMonthRevenue;
     private long previousMonthOrders;
-    private double growthRate; // %
+    private double growthRate;
 }

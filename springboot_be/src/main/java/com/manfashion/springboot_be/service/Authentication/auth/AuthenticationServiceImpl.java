@@ -72,7 +72,7 @@ public class AuthenticationServiceImpl implements AuthenticationService{
         if (!jwtUtils.validateJwtToken(refreshToken)) {
             throw new AppException(ErrorCode.INVALID_REFRESH_TOKEN);
         }
-        //tai sao khong new integer
+
         Integer userId = Integer.parseInt(jwtUtils.getUserIdFromJwtToken(refreshToken));
         String roleName = jwtUtils.getRoleFromJwtToken(refreshToken);
 

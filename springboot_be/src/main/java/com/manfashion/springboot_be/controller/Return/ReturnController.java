@@ -20,7 +20,7 @@ public class ReturnController {
 
     private final ReturnOrderService returnService;
 
-    // Helper: Lấy ID người dùng đang đăng nhập (Xác thực xem ai đang gọi API)
+
     private String getCurrentUserId() {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         if (auth == null) return null;
@@ -28,7 +28,7 @@ public class ReturnController {
         return (principal instanceof String) ? (String) principal : null;
     }
 
-    // 📃 GET all return orders (ADMIN/EMPLOYEE only, with optional filters)
+
     @GetMapping
     @PreAuthorize("hasAnyAuthority('ADMIN','EMPLOYEE')")
     public ApiResponse<Page<ReturnOrderResponse>> getAllReturns(Pageable pageable,
@@ -56,7 +56,7 @@ public class ReturnController {
         return null;
     }
 
-    // 🔍 Check new returns since timestamp (ADMIN/EMPLOYEE)
+
     @GetMapping("/has-new")
     @PreAuthorize("hasAnyAuthority('ADMIN','EMPLOYEE')")
     public ApiResponse<Boolean> hasNewReturns(@RequestParam("since") long since) {
@@ -68,7 +68,7 @@ public class ReturnController {
                 .build();
     }
 
-    // 🔄 UPDATE return order status (ADMIN/EMPLOYEE only)
+
     @PatchMapping("/{orderCode}/status")
     @PreAuthorize("hasAnyAuthority('ADMIN','EMPLOYEE')")
     public ApiResponse<ReturnOrderResponse> updateReturnStatus(@PathVariable String orderCode,
@@ -84,10 +84,10 @@ public class ReturnController {
                 .build();
     }
 
-    // 🔄 REQUEST a return (USER only)
+
     @PostMapping
     @PreAuthorize("hasAnyAuthority('USER','ADMIN','EMPLOYEE')")
-    @ResponseStatus(HttpStatus.CREATED) // Trả về HTTP Status 201 Created
+    @ResponseStatus(HttpStatus.CREATED)
     public ApiResponse<ReturnOrderResponse> requestReturn(@RequestBody ReturnOrderRequest req) {
         String userId = getCurrentUserId();
         if (userId == null) {
@@ -102,7 +102,7 @@ public class ReturnController {
                 .build();
     }
 
-    // 📄 GET my return orders (USER only)
+
     @GetMapping("/me")
     @PreAuthorize("hasAnyAuthority('USER','ADMIN','EMPLOYEE')")
     public ApiResponse<Page<ReturnOrderResponse>> getMyReturns(Pageable pageable) {

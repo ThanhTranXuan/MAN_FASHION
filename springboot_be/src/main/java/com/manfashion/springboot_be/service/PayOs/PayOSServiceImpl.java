@@ -21,7 +21,7 @@ public class PayOSServiceImpl implements PayOSService {
     private final PayOS payOS;
     private final PayOSConfig config;
 
-    // Giữ nguyên logic sinh sequence trong class Impl vì đây là chi tiết kỹ thuật nội bộ
+
     private static final AtomicLong sequence = new AtomicLong(System.currentTimeMillis() % 10000);
 
     @Override
@@ -32,9 +32,9 @@ public class PayOSServiceImpl implements PayOSService {
             CreatePaymentLinkRequest request = CreatePaymentLinkRequest.builder()
                     .orderCode(paymentOrderCode)
                     .amount((long) Math.round(amountVND))
-                    .description("Thanh toan don ") // <= 25 ký tự
+                    .description("Thanh toan don ")
                     .items(items != null && !items.isEmpty() ? items : List.of(
-                            // Cần đảm bảo PaymentLinkItem.builder() có tồn tại trong SDK bạn đang dùng
+
                             PaymentLinkItem.builder()
                                     .name("Trendify")
                                     .quantity(1)
@@ -51,11 +51,11 @@ public class PayOSServiceImpl implements PayOSService {
 
             String vietQrCodeUrl;
             if (rawQr != null && rawQr.startsWith("data:image")) {
-                vietQrCodeUrl = rawQr; // base64 → frontend dùng trực tiếp
+                vietQrCodeUrl = rawQr;
             } else if (rawQr != null && rawQr.contains("qr.payos.vn")) {
-                vietQrCodeUrl = rawQr; // URL thật
+                vietQrCodeUrl = rawQr;
             } else {
-                // Fallback cực mạnh → chắc chắn hiển thị
+
                 vietQrCodeUrl = "https://api.qrserver.com/v1/create-qr-code/?size=500x500&data=" +
                         URLEncoder.encode(checkoutUrl, StandardCharsets.UTF_8);
             }
@@ -70,7 +70,7 @@ public class PayOSServiceImpl implements PayOSService {
 
         } catch (Exception e) {
             log.error("Lỗi khi tạo payment link với PayOS cho đơn {}: {}", orderCode, e.getMessage());
-            // Nên throw một Custom Exception (vd: PaymentGatewayException) thay vì RuntimeException chung chung
+
             throw new RuntimeException("Thanh toán tạm thời không khả dụng", e);
         }
     }

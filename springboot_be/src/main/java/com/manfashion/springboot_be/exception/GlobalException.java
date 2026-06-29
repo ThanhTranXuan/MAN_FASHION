@@ -11,7 +11,7 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import com.manfashion.springboot_be.DTO.ApiResponse.ApiResponse;
-//import com.manfashion.springboot_be.util.language.I18n;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -19,7 +19,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @RequiredArgsConstructor
 public class GlobalException {
-//    private final I18n i18n;
+
     private String resolveMessage(String messageKey) {
         if ("error.system.general".equals(messageKey)) {
             return "Đã xảy ra lỗi hệ thống. Vui lòng thử lại sau.";
@@ -52,7 +52,7 @@ public class GlobalException {
 
         Map<String, String> errors = new HashMap<>();
 
-        // Lấy tất cả lỗi
+
         ex.getBindingResult().getAllErrors().forEach(error -> {
             String field = ((FieldError) error).getField();
             String defaultMessage = error.getDefaultMessage();
@@ -65,7 +65,7 @@ public class GlobalException {
             errors.put(field, errorCode.getMessageKey());
         });
 
-        // Lấy code + message của **field lỗi đầu tiên**
+
         ErrorCode firstErrorCode = ex.getBindingResult().getAllErrors().isEmpty()
                 ? ErrorCode.INVALID_REQUEST
                 : Arrays.stream(ErrorCode.values())

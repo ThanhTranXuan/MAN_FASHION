@@ -27,7 +27,7 @@ public class JwtUtils {
         return Keys.hmacShaKeyFor(jwtSecret.getBytes());
     }
 
-    // ✅ Tạo Access Token (15 phút hết hạn)
+
     public String generateAccessToken(String userId, String role) {
         return Jwts.builder()
                 .setSubject(userId)
@@ -38,7 +38,7 @@ public class JwtUtils {
                 .compact();
     }
 
-    // ✅ Tạo Refresh Token (7 ngày hết hạn)
+
     public String generateRefreshToken(String userId, String role) {
         return Jwts.builder()
                 .setSubject(userId)
@@ -49,7 +49,7 @@ public class JwtUtils {
                 .compact();
     }
 
-    // ✅ Lấy userId từ token
+
     public String getUserIdFromJwtToken(String token) {
         Claims claims = Jwts.parserBuilder()
                 .setSigningKey(getSigningKey())
@@ -59,7 +59,7 @@ public class JwtUtils {
         return claims.getSubject();
     }
 
-    // ✅ Lấy role từ token
+
     public String getRoleFromJwtToken(String token) {
         Claims claims = Jwts.parserBuilder()
                 .setSigningKey(getSigningKey())
@@ -69,7 +69,7 @@ public class JwtUtils {
         return claims.get("role", String.class);
     }
 
-    // ✅ Kiểm tra token có hợp lệ không
+
     public boolean validateJwtToken(String token) {
         try {
             Jwts.parserBuilder()

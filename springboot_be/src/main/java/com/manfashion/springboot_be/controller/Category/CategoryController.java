@@ -23,13 +23,13 @@ public class CategoryController {
 
     private final CategoryService categoryService;
 
-    // 🗂️ GET all categories (public)
+
     @GetMapping
     public ResponseEntity<Page<CategoryResponse>> getCategories(Pageable pageable) {
         return ResponseEntity.ok(categoryService.getAllCategories(pageable));
     }
 
-    // 🔍 GET category by slug (public)
+
     @GetMapping("/{slug}")
     public ApiResponse<CategoryResponse> getCategoryBySlug(@PathVariable String slug) {
         CategoryResponse categoryResponse = categoryService.getBySlug(slug);
@@ -40,7 +40,7 @@ public class CategoryController {
                 .build();
     }
 
-    // ➕ CREATE new category (ADMIN/EMPLOYEE only)
+
     @PostMapping(consumes = "application/json")
     @PreAuthorize("hasAnyAuthority('ADMIN','EMPLOYEE')")
     public ApiResponse<CategoryResponse> createCategory(@RequestBody CategoryRequest request) {
@@ -65,12 +65,12 @@ public class CategoryController {
                 .build();
     }
 
-    // ♻️ UPDATE category (ADMIN/EMPLOYEE only)
+
     @PutMapping(value = "/{id}", consumes = "application/json")
     @PreAuthorize("hasAnyAuthority('ADMIN','EMPLOYEE')")
     public ApiResponse<CategoryResponse> updateCategory(@PathVariable String id, @RequestBody CategoryRequest request) {
         CategoryResponse updatedCategory = categoryService.updateCategory(id, request)
-                // Nếu dự án có AppException thì dùng như UserController, nếu không bạn có thể đổi thành RuntimeException
+
                 .orElseThrow(() -> new AppException(ErrorCode.CATEGORY_NOT_FOUND));
 
         return ApiResponse.<CategoryResponse>builder()
@@ -94,7 +94,7 @@ public class CategoryController {
                 .build();
     }
 
-    // 🗑️ DELETE (soft delete) category (ADMIN only)
+
     @DeleteMapping("/{id}")
     @PreAuthorize("hasAuthority('ADMIN')")
     public ResponseEntity<Void> deleteCategory(@PathVariable String id) {

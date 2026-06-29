@@ -11,7 +11,7 @@ import java.util.Map;
 @RestController
 @RequestMapping("/api/v1/speech")
 public class SpeechController {
-    
+
     @Value("${google.speech.api.key:}")
     private String apiKey;
 
@@ -20,32 +20,32 @@ public class SpeechController {
         if (apiKey == null || apiKey.isEmpty()) {
             return ResponseEntity.badRequest().body(Map.of("error", "Chưa cấu hình nhận diện giọng nói"));
         }
-        
+
         String base64Audio = request.get("audio");
         if (base64Audio == null || base64Audio.isEmpty()) {
             return ResponseEntity.badRequest().body(Map.of("error", "Không có dữ liệu âm thanh"));
         }
 
-        // Bỏ data URI prefix nếu có (vd: "data:audio/webm;base64,")
+
         if (base64Audio.contains(",")) {
             base64Audio = base64Audio.substring(base64Audio.indexOf(",") + 1);
         }
 
         RestTemplate restTemplate = new RestTemplate();
         String url = "https://speech.googleapis.com/v1/speech:recognize?key=" + apiKey;
-        
+
         Map<String, Object> body = new HashMap<>();
         Map<String, Object> config = new HashMap<>();
         config.put("encoding", "WEBM_OPUS");
-        config.put("sampleRateHertz", 48000); // Thường thu từ trình duyệt là 48kHz
+        config.put("sampleRateHertz", 48000);
         config.put("languageCode", "vi-VN");
-        
+
         Map<String, Object> audio = new HashMap<>();
         audio.put("content", base64Audio);
-        
+
         body.put("config", config);
         body.put("audio", audio);
-        
+
         try {
             Map response = restTemplate.postForObject(url, body, Map.class);
             return ResponseEntity.ok(response);

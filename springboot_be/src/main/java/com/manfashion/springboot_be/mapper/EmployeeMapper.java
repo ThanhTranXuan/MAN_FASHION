@@ -14,7 +14,7 @@ public interface EmployeeMapper {
     @Mapping(target = "roleName", expression = "java(user.getRole() != null ? user.getRole().getName() : null)")
     EmployeeResponse toResponse(User user);
 
-    // Không map trường password từ Request vào Entity tại đây để xử lý mã hóa riêng
+
     @Mapping(target = "password", ignore = true)
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "role", ignore = true)

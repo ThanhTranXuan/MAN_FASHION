@@ -42,5 +42,5 @@ public class OrderItem {
     @Column(name = "image_url", columnDefinition = "TEXT")
     private String imageUrl;
 
-    // Bảng này trong SQL của bạn không có created_at / updated_at
+
 }

@@ -8,7 +8,7 @@ import org.mapstruct.Mapping;
 @Mapper(componentModel = "spring")
 public interface OrderItemMapper {
 
-    // MapStruct tự động map trường "id" của OrderItem sang "id" của OrderItemResponse
+
 
     @Mapping(source = "product.id", target = "productId")
     @Mapping(target = "productName", expression = "java(item.getProductName() != null ? item.getProductName() : (item.getProduct() != null ? item.getProduct().getName() : null))")

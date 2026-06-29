@@ -29,40 +29,40 @@ public class JwtAuthFilter extends OncePerRequestFilter {
         String path = request.getServletPath();
         boolean isPublicBotRequest = path.startsWith("/api/v1/bot/");
 
-        // 🟢 Bỏ qua xác thực cho các endpoint đăng nhập/đăng ký
+
         if (path.startsWith("/api/auth/")) {
             filterChain.doFilter(request, response);
             return;
         }
 
-        // 🔍 Lấy Authorization header
+
         String header = request.getHeader("Authorization");
 
-        // Kiểm tra header có "Bearer <token>" không
+
         if (header != null && header.startsWith("Bearer ")) {
 
-            // Tách token từ "Bearer <token>"
+
             String token = header.substring(7);
 
             try {
-                // ✅ Xác thực token
+
                 if (jwtUtils.validateJwtToken(token)) {
                     String userId = jwtUtils.getUserIdFromJwtToken(token);
                     String role = jwtUtils.getRoleFromJwtToken(token);
 
-                    // 🔑 Tạo Authentication object
+
                     UsernamePasswordAuthenticationToken authentication =
                             new UsernamePasswordAuthenticationToken(
-                                    userId,                              // Principal (user ID)
-                                    null,                                // Credentials (không cần)
-                                    List.of(new SimpleGrantedAuthority(role))  // Authorities (role)
+                                    userId,
+                                    null,
+                                    List.of(new SimpleGrantedAuthority(role))
                             );
 
-                    // 📌 Lưu vào SecurityContext (các controller có thể lấy được)
+
                     SecurityContextHolder.getContext().setAuthentication(authentication);
                 }
             }
-            // ❌ Token hết hạn
+
             catch (io.jsonwebtoken.ExpiredJwtException ex) {
                 if (isPublicBotRequest) {
                     setGuestAuthentication();
@@ -74,7 +74,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
                 response.getWriter().write("{\"error\": \"Access token expired\"}");
                 return;
             }
-            // ❌ Token không hợp lệ
+
             catch (Exception ex) {
                 if (isPublicBotRequest) {
                     setGuestAuthentication();
@@ -87,11 +87,11 @@ public class JwtAuthFilter extends OncePerRequestFilter {
                 return;
             }
         } else {
-            // ✅ Không có token → coi là Guest user
+
             setGuestAuthentication();
         }
 
-        // ➡️ Tiếp tục xử lý request
+
         filterChain.doFilter(request, response);
     }
 

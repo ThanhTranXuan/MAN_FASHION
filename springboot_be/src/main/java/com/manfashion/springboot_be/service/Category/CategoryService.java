@@ -11,22 +11,22 @@ import java.util.List;
 import java.util.Optional;
 
 public interface CategoryService {
-    // ➕ Tạo category
+
     CategoryResponse createCategory(CategoryRequest req);
 
     CategoryResponse createCategory(CategoryRequest req, MultipartFile file) throws IOException;
 
-    // ✏️ Cập nhật category
+
     Optional<CategoryResponse> updateCategory(String idHex, CategoryRequest req);
 
     Optional<CategoryResponse> updateCategory(String idHex, CategoryRequest req, MultipartFile file) throws IOException;
 
-    // 📃 Lấy tất cả category
+
     Page<CategoryResponse> getAllCategories(Pageable pageable);
 
-    // 🔍 Lấy theo slug
+
     CategoryResponse getBySlug(String slug);
 
-    // 🗑️ Xóa mềm (kéo theo xóa cả danh mục con)
+
     boolean softDeleteCategory(String idHex);
 }

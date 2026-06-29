@@ -83,7 +83,7 @@ public class ProductImageServiceImpl implements ProductImageService {
             try {
                 uploadImage.deleteImage(image.getUrl());
             } catch (Exception ignored) {
-                // Do not block the database update if Cloudinary cleanup fails.
+
             }
         }
 

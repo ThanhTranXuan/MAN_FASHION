@@ -115,7 +115,7 @@ public class OrderServiceImpl implements OrderService {
                 throw new RuntimeException("Variant is no longer available");
             }
 
-            // SỬA Ở ĐÂY: Dùng getProduct().getId()
+
             if (!variant.getProduct().getId().equals(productId)) {
                 throw new RuntimeException("Variant does not belong to the specified product");
             }
@@ -142,7 +142,7 @@ public class OrderServiceImpl implements OrderService {
                     .variant(variant)
                     .build());
 
-            // SỬA Ở ĐÂY: Dùng Object Product và Variant
+
             orderItems.add(OrderItem.builder()
                     .product(product)
                     .variant(variant)
@@ -163,7 +163,7 @@ public class OrderServiceImpl implements OrderService {
 
         double discountPercent = 0.0;
         double discountValue = 0.0;
-        Coupon appliedCoupon = null; // Tạo biến lưu object Coupon
+        Coupon appliedCoupon = null;
 
         if (req.getCouponId() != null && !req.getCouponId().isBlank()) {
             Integer couponId = Integer.valueOf(req.getCouponId());
@@ -196,7 +196,7 @@ public class OrderServiceImpl implements OrderService {
 
         String orderCode = generateUniqueDisplayCode();
 
-        // SỬA Ở ĐÂY: Truyền Object User và Coupon vào
+
         Order order = Order.builder()
                 .orderCode(orderCode)
                 .user(userId == null ? null : User.builder().id(userId).build())
@@ -218,7 +218,7 @@ public class OrderServiceImpl implements OrderService {
         orderRepo.save(order);
 
         for (OrderItem oi : orderItems) {
-            // SỬA Ở ĐÂY: Map Object Order thay vì ID
+
             oi.setOrder(order);
             orderItemRepo.save(oi);
         }
@@ -401,7 +401,7 @@ public class OrderServiceImpl implements OrderService {
 
 
 
-    // ================== HELPER METHODS ==================
+
 
     private void publishOrderStatus(Order order) {
         Map<String, Object> event = new java.util.HashMap<>();
@@ -473,7 +473,7 @@ public class OrderServiceImpl implements OrderService {
     }
 
     private OrderResponse toResponse(Order o, List<OrderItem> items, Payment preloadedPayment, Map<Integer, List<ProductImage>> imagesByProductId) {
-        // SỬA Ở ĐÂY: Get qua liên kết Object
+
         var itemResponses = items.stream()
                 .map(item -> orderItemMapper.toResponse(
                         item,
@@ -525,7 +525,7 @@ public class OrderServiceImpl implements OrderService {
 
     private void rollbackStock(List<OrderItem> orderItems) {
         for (OrderItem oi : orderItems) {
-            // SỬA Ở ĐÂY: Lấy ID từ Object Variant
+
             variantRepo.findById(oi.getVariant().getId()).ifPresent(variant -> {
                 variantRepo.incrementStock(variant.getId(), oi.getQuantity());
             });

@@ -11,7 +11,7 @@ import java.util.List;
 @Mapper(componentModel = "spring")
 public interface ProductMapper {
 
-    // Chuyển từ Entity sang Response DTO để trả về cho Client
+
     @Mapping(target = "categoryName", expression = "java(product.getCategory() != null ? product.getCategory().getName() : null)")
     @Mapping(target = "categoryId", expression = "java(product.getCategory() != null ? product.getCategory().getId() : null)")
     @Mapping(target = "salePrice", ignore = true)
@@ -39,10 +39,10 @@ public interface ProductMapper {
         }
     }
 
-    // Chuyển từ Request DTO sang Entity để lưu vào Database (Create)
+
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "slug", ignore = true)
-    @Mapping(target = "category", ignore = true) // Sẽ set thủ công trong Service bằng CategoryId
+    @Mapping(target = "category", ignore = true)
     @Mapping(target = "variants", ignore = true)
     @Mapping(target = "images", ignore = true)
     @Mapping(target = "createdAt", ignore = true)
@@ -50,7 +50,7 @@ public interface ProductMapper {
     @Mapping(target = "deletedAt", ignore = true)
     Product toEntity(ProductRequest dto);
 
-    // Cập nhật Entity hiện có từ DTO (Update)
+
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "slug", ignore = true)
@@ -61,14 +61,14 @@ public interface ProductMapper {
     @Mapping(target = "updatedAt", ignore = true)
     @Mapping(target = "deletedAt", ignore = true)
     void updateProductFromRequest(ProductRequest dto, @MappingTarget Product product);
-    // =====================================================
-    // 🎨 MAPPER CHO PRODUCT VARIANT
-    // =====================================================
+
+
+
 
     ProductVariantResponse toVariantResponseDTO(ProductVariant variant);
 
     @Mapping(target = "id", ignore = true)
-    @Mapping(target = "product", ignore = true) // Sẽ set thủ công trong Service
+    @Mapping(target = "product", ignore = true)
     @Mapping(target = "createdAt", ignore = true)
     @Mapping(target = "updatedAt", ignore = true)
     @Mapping(target = "deletedAt", ignore = true)
@@ -82,10 +82,10 @@ public interface ProductMapper {
     @Mapping(target = "deletedAt", ignore = true)
     void updateVariantFromRequest(ProductVariantRequest dto, @MappingTarget ProductVariant variant);
 
-    // =====================================================
-    // 🖼️ MAPPER CHO PRODUCT IMAGE (Dùng cho ProductImageService)
-    // =====================================================
 
-    @Mapping(target = "productId", source = "product.id") // Lấy ID từ Object Product cha
+
+
+
+    @Mapping(target = "productId", source = "product.id")
     ProductImageResponse toImageResponseDTO(ProductImage image);
 }

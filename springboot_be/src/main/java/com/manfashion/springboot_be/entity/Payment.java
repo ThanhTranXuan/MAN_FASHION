@@ -18,17 +18,17 @@ public class Payment {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id; // Đổi ObjectId (MongoDB) thành Integer tự tăng (MySQL)
+    private Integer id;
 
-    // Khóa ngoại liên kết với bảng orders (Như đã thống nhất dùng Integer)
+
     @Column(name = "order_id")
     private Integer orderId;
 
     @Column(name = "payment_order_code")
     private Long paymentOrderCode;
 
-    // Các đường link VNPay / PayOS / Momo thường rất dài, vượt quá 255 ký tự mặc định của VARCHAR.
-    // Nên ép kiểu dưới Database là TEXT để không bị lỗi "Data too long for column".
+
+
     @Column(name = "payment_link", columnDefinition = "TEXT")
     private String paymentLink;
 
@@ -36,7 +36,7 @@ public class Payment {
     private String qrCodeUrl;
 
     @Column(name = "payment_status", length = 50)
-    private String paymentStatus; // Mặc định: PAID, FAILED, REFUNDED
+    private String paymentStatus;
 
     @Column(name = "payment_method", length = 30)
     private String paymentMethod;
@@ -56,12 +56,12 @@ public class Payment {
     @Column(name = "failure_reason", columnDefinition = "TEXT")
     private String failureReason;
 
-    // Thay thế @CreatedDate của MongoDB bằng Hibernate Annotation
+
     @CreationTimestamp
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
 
-    // Thay thế @LastModifiedDate của MongoDB
+
     @UpdateTimestamp
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;

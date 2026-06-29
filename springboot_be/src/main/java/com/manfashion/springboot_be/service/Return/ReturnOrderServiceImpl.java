@@ -36,8 +36,8 @@ import java.util.*;
 @RequiredArgsConstructor
 public class ReturnOrderServiceImpl implements ReturnOrderService {
 
-    // Các Repository này phải extends JpaRepository<Entity, Integer>
-    // Riêng ReturnOrderRepository cần extends thêm JpaSpecificationExecutor<ReturnOrder>
+
+
     private final ReturnOrderRepository returnRepo;
     private final ReturnItemRepository returnItemRepo;
     private final OrderRepository orderRepo;
@@ -49,27 +49,27 @@ public class ReturnOrderServiceImpl implements ReturnOrderService {
     private final SimpMessagingTemplate messaging;
     private final ReturnOrderMapper returnOrderMapper;
 
-    // =====================================================
-    // 🟢 USER REQUEST RETURN
-    // =====================================================
+
+
+
     @Override
-    @Transactional // Đảm bảo nếu lỗi ở bất kỳ bước nào, toàn bộ dữ liệu sẽ được rollback
+    @Transactional
     public ReturnOrderResponse requestReturn(String userId, ReturnOrderRequest req) {
-        Integer uId = Integer.valueOf(userId); // Ép kiểu từ token String sang Integer của DB
-        // [THÊM MỚI]: Tìm Object User từ database
+        Integer uId = Integer.valueOf(userId);
+
         User user = userRepository.findById(uId)
                 .orElseThrow(() -> new RuntimeException("User not found"));
-        // 1. Kiểm tra đơn hàng có tồn tại và thuộc về user này không
+
         Order order = orderRepo.findByOrderCodeAndUserId(req.getOrderCode(), uId)
                 .orElseThrow(() -> new RuntimeException("Order not found or not owned by user"));
 
         List<OrderItem> orderItems = orderItemRepo.findByOrderId(order.getId());
         List<ReturnItem> createdItems = new ArrayList<>();
 
-        // 2. Tạo mã trả hàng mới
+
         String returnCode = codeGenerator.generate().replace("ORD-", "RET-");
 
-        // 3. Tạo record ReturnOrder
+
         ReturnOrder ro = ReturnOrder.builder()
                 .returnCode(returnCode)
                 .order(order)
@@ -77,18 +77,18 @@ public class ReturnOrderServiceImpl implements ReturnOrderService {
                 .reason(req.getReason())
                 .note(req.getNote())
                 .status("REQUESTED")
-                .refundAmount(0.0) // Sẽ tính lại sau
+                .refundAmount(0.0)
                 .createdAt(LocalDateTime.now())
                 .updatedAt(LocalDateTime.now())
                 .build();
 
-        // Lưu trước để lấy ID tự tăng từ DB cho các ReturnItem
-//        ro = returnRepo.save(ro);
+
+
 
         final ReturnOrder savedRo = returnRepo.save(ro);
-        // 4. Xử lý danh sách sản phẩm trả về
+
         if (req.getItems() == null || req.getItems().isEmpty()) {
-            // Nếu không truyền list items -> User muốn trả lại toàn bộ đơn hàng
+
             for (OrderItem oi : orderItems) {
                 createdItems.add(returnItemRepo.save(
                         ReturnItem.builder()
@@ -102,7 +102,7 @@ public class ReturnOrderServiceImpl implements ReturnOrderService {
                 ));
             }
         } else {
-            // Nếu có truyền list items -> Chỉ trả lại một phần
+
             for (ReturnItemRequest r : req.getItems()) {
                 Integer requestedOrderItemId = Integer.valueOf(r.getOrderItemId());
 
@@ -113,7 +113,7 @@ public class ReturnOrderServiceImpl implements ReturnOrderService {
                                 ReturnItem.builder()
                                         .returnOrder(savedRo)
                                         .orderItem(oi)
-                                        // Đảm bảo số lượng trả không vượt quá số lượng đã mua
+
                                         .quantity(Math.min(r.getQuantity(), oi.getQuantity()))
                                         .unitPrice(Optional.ofNullable(r.getUnitPrice()).orElse(oi.getPrice()))
                                         .status("PENDING")
@@ -123,15 +123,15 @@ public class ReturnOrderServiceImpl implements ReturnOrderService {
             }
         }
 
-        // 5. Tính toán tổng tiền hoàn trả
+
         double refund = createdItems.stream()
                 .mapToDouble(i -> i.getQuantity() * i.getUnitPrice())
                 .sum();
 
         ro.setRefundAmount(refund);
-        returnRepo.save(ro); // Cập nhật lại số tiền vào DB
+        returnRepo.save(ro);
 
-        // 6. Cập nhật trạng thái đơn hàng gốc
+
         order.setStatus("RETURN");
         orderRepo.save(order);
         Map<String, Object> orderStatusEvent = Map.of(
@@ -149,7 +149,7 @@ public class ReturnOrderServiceImpl implements ReturnOrderService {
                 (Object) orderStatusEvent
         );
 
-        // 7. Gửi Email thông báo cho khách hàng
+
         sendMailWithTemplate(
                 order.getEmail(),
                 order.getFullName(),
@@ -160,7 +160,7 @@ public class ReturnOrderServiceImpl implements ReturnOrderService {
                 "http://localhost:3000/user/profile"
         );
 
-        // 8. Bắn WebSocket thông báo cho Admin có đơn trả hàng mới (đã sửa)
+
         messaging.convertAndSend("/topic/new-return", (Object) Map.of(
                 "code", ro.getReturnCode(),
                 "timestamp", System.currentTimeMillis()
@@ -176,9 +176,9 @@ public class ReturnOrderServiceImpl implements ReturnOrderService {
         return returnOrderMapper.toResponse(ro, createdItems);
     }
 
-    // =====================================================
-    // 🟣 ADMIN UPDATE STATUS
-    // =====================================================
+
+
+
     @Override
     @Transactional
     public ReturnOrderResponse updateStatus(
@@ -209,7 +209,7 @@ public class ReturnOrderServiceImpl implements ReturnOrderService {
         ro.setUpdatedAt(LocalDateTime.now());
         returnRepo.save(ro);
 
-        // Nếu trạng thái là COMPLETED => Hoàn trả lại số lượng tồn kho (Stock)
+
         if (s.equals("COMPLETED") && !"COMPLETED".equals(previousStatus)) {
             List<ReturnItem> items = returnItemRepo.findByReturnOrderId(ro.getId());
             for (ReturnItem i : items) {
@@ -222,7 +222,7 @@ public class ReturnOrderServiceImpl implements ReturnOrderService {
             }
         }
 
-        // Tìm đơn hàng gốc để lấy email khách hàng
+
         Order order = orderRepo.findById(ro.getOrder().getId())
                 .orElseThrow(() -> new RuntimeException("Original order not found"));
 
@@ -250,9 +250,9 @@ public class ReturnOrderServiceImpl implements ReturnOrderService {
         return returnOrderMapper.toResponse(ro, items);
     }
 
-    // =====================================================
-    // 📃 ADMIN GET ALL (Hỗ trợ filter động với Specification)
-    // =====================================================
+
+
+
     @Override
     public Page<ReturnOrderResponse> getAll(String code, String status, Pageable pageable) {
         Specification<ReturnOrder> spec = (root, query, cb) -> {
@@ -270,7 +270,7 @@ public class ReturnOrderServiceImpl implements ReturnOrderService {
             }
 
             if (status != null && !status.isBlank()) {
-                // Lọc chính xác trạng thái
+
                 predicates.add(cb.equal(root.get("status"), status));
             }
 
@@ -285,9 +285,9 @@ public class ReturnOrderServiceImpl implements ReturnOrderService {
         });
     }
 
-    // =====================================================
-    // 👤 USER: GET BY USER ID
-    // =====================================================
+
+
+
     @Override
     public Page<ReturnOrderResponse> getByUserId(String userId, Pageable pageable) {
         Integer uId = Integer.valueOf(userId);
@@ -299,9 +299,9 @@ public class ReturnOrderServiceImpl implements ReturnOrderService {
         });
     }
 
-    // =====================================================
-    // 🔍 CHECK NEW RETURNS (Dùng cho Polling)
-    // =====================================================
+
+
+
     @Override
     public boolean hasNewReturnsAfter(long sinceMillis) {
         if (sinceMillis <= 0) return false;
@@ -314,9 +314,9 @@ public class ReturnOrderServiceImpl implements ReturnOrderService {
         return returnRepo.existsByCreatedAtAfter(since);
     }
 
-    // =====================================================
-    // 🧱 HELPER MAPPING & EMAIL (PRIVATE METHODS)
-    // =====================================================
+
+
+
     private void sendMailWithTemplate(
             String email,
             String name,

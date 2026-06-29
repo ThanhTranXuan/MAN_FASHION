@@ -38,13 +38,13 @@ import java.util.stream.Collectors;
 public class ProductServiceImpl implements ProductService{
     private final ProductRepository productRepository;
     private final CategoryRepository categoryRepository;
-    private final ProductVariantRepository variantRepository; // Phục vụ cho hàm softDelete
-    private final ProductImageRepository imageRepository;     // Phục vụ cho hàm softDelete
+    private final ProductVariantRepository variantRepository;
+    private final ProductImageRepository imageRepository;
     private final ProductReviewRepository reviewRepository;
     private final ProductMapper productMapper;
     private final SlugGenerator slugGenerator;
     private final UploadImage uploadImage;
-//    private final CategoryService categoryService;
+
 
     private ProductResponse toResponseWithRating(Product product) {
         return addRatings(List.of(product)).get(0);
@@ -85,32 +85,32 @@ public class ProductServiceImpl implements ProductService{
         }
         return slug;
     }
-//    @Override
-//    public List<ProductStatsResponse> getStatsByCategory() {
-//        List<Category> parents = categoryRepository.findByParentIdIsNullAndDeletedAtIsNull(); // Yêu cầu có hàm này trong CategoryRepo
-//        return parents.stream().map(parent -> {
-//            List<Integer> allIds = categoryService.getCategoryAndChildrenIds(parent.getSlug());
-//            long count = productRepository.countByCategoryIdInAndDeletedAtIsNull(allIds);
-//
-//            return ProductStatsResponse.builder()
-//                    .categoryId(parent.getId().toString())
-//                    .categoryName(parent.getName())
-//                    .count(count)
-//                    .build();
-//        }).toList();
-//    }
 
-//    @Override
-//    public Page<ProductResponse> getAllProducts(String keyword, String categorySlug, String color, List<String> sizes, Boolean inStock, Boolean active, String sort, Pageable pageable) {
-//        List<Integer> categoryIds = null;
-//        if (categorySlug != null && !categorySlug.trim().isEmpty()) {
-//            categoryIds = categoryService.getCategoryAndChildrenIds(categorySlug);
-//            if (categoryIds.isEmpty()) return Page.empty(pageable);
-//        }
-//
-//        Page<Product> products = productRepository.searchAllProducts(keyword, categoryIds, color, sizes, inStock, active, sortOption, pageable);
-//        return products.map(productMapper::toResponseDTO);
-//    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
     @Override
     public ProductResponse getBySlug(String slug) {
@@ -126,17 +126,17 @@ public class ProductServiceImpl implements ProductService{
         return toResponseWithRating(product);
     }
 
-//    @Override
-//    public List<ProductResponse> searchForChatBot(String keyword, String gender, String categorySlug, String color, List<String> sizes, int limit) {
-//        List<Integer> categoryIds = null;
-//        if (categorySlug != null && !categorySlug.trim().isEmpty()) {
-//            categoryIds = categoryService.getCategoryAndChildrenIds(categorySlug);
-//            if (categoryIds.isEmpty()) return Collections.emptyList();
-//        }
-//
-//        List<Product> products = productRepository.searchForChatBot(keyword, categoryIds, color, sizes, limit);
-//        return products.stream().map(productMapper::toResponseDTO).toList();
-//    }
+
+
+
+
+
+
+
+
+
+
+
 
     @Override
     @Transactional
@@ -161,12 +161,12 @@ public class ProductServiceImpl implements ProductService{
         Product product = productRepository.findById(Integer.parseInt(id))
                 .orElseThrow(() -> new AppException(ErrorCode.PRODUCT_NOT_FOUND));
 
-        // Cập nhật Slug nếu tên đổi
+
         if (!Objects.equals(product.getName(), req.getName())) {
             product.setSlug(generateUniqueSlug(req.getName()));
         }
 
-        // Cập nhật Category nếu có gửi lên
+
         if (req.getCategoryId() != null &&
                 (product.getCategory() == null || !req.getCategoryId().equals(product.getCategory().getId()))) {
             Category category = categoryRepository.findById(Integer.valueOf(req.getCategoryId()))
@@ -241,14 +241,14 @@ public class ProductServiceImpl implements ProductService{
             imageRepository.save(i);
         });
     }
-    // Giả định bạn đã inject CategoryRepository, ProductRepository, ProductMapper vào đây
 
-    // =====================================================
-// 🛠️ HÀM HELPER: Lấy ID của danh mục và toàn bộ con cháu
-// =====================================================
+
+
+
+
     private List<Integer> getCategoryAndChildrenIds(String slug) {
         List<Integer> ids = new ArrayList<>();
-        // Dùng đúng hàm Repo bạn đã định nghĩa để tìm danh mục cha theo slug
+
         categoryRepository.findBySlugAndDeletedAtIsNull(slug).ifPresent(category -> {
             collectIdsRecursive(category.getId(), ids);
         });
@@ -257,26 +257,26 @@ public class ProductServiceImpl implements ProductService{
 
     private void collectIdsRecursive(Integer parentId, List<Integer> ids) {
         ids.add(parentId);
-        // Dùng đúng hàm Repo bạn đã định nghĩa để lấy danh sách con chưa bị xoá mềm
+
         List<Category> children = categoryRepository.findByParentIdAndDeletedAtIsNull(parentId);
         for (Category child : children) {
             collectIdsRecursive(child.getId(), ids);
         }
     }
 
-    // =====================================================
-// 📊 1. Thống kê số lượng sản phẩm theo danh mục cha
-// =====================================================
+
+
+
     @Override
     public List<ProductStatsResponse> getStatsByCategory() {
-        // Dùng đúng hàm Repo lấy các danh mục gốc (không có parent)
+
         List<Category> parents = categoryRepository.findByParentIdIsNullAndDeletedAtIsNull();
 
         return parents.stream().map(parent -> {
-            // Gọi hàm helper ở trên thay vì gọi qua categoryService
+
             List<Integer> allIds = this.getCategoryAndChildrenIds(parent.getSlug());
 
-            // Truy vấn database để đếm (chỉ đếm khi mảng allIds không rỗng để tránh lỗi SQL IN (empty))
+
             long count = 0;
             if (!allIds.isEmpty()) {
                 count = productRepository.countByCategoryIdInAndDeletedAtIsNull(allIds);
@@ -284,32 +284,32 @@ public class ProductServiceImpl implements ProductService{
 
             return ProductStatsResponse.builder()
                     .categoryId(String.valueOf(parent.getId()))
-                    .name(parent.getName()) // Mượn trường 'name' để lưu tên của Category
-                    .description(String.valueOf(count)) // Mượn trường 'description' để chứa kết quả đếm (count)
-                    .price(0.0) // Bài toán đếm số lượng không có giá tiền, gán mặc định là 0
+                    .name(parent.getName())
+                    .description(String.valueOf(count))
+                    .price(0.0)
                     .isActive(true)
                     .build();
         }).toList();
     }
 
-    // =====================================================
-// 📃 2. Lấy danh sách sản phẩm (có phân trang & filter)
-// =====================================================
+
+
+
     @Override
     public Page<ProductResponse> getAllProducts(String keyword, String categorySlug, String color, List<String> sizes, Boolean inStock, Boolean active, String sort, Pageable pageable) {
         List<Integer> categoryIds = null;
 
         if (categorySlug != null && !categorySlug.trim().isEmpty()) {
-            // Gọi hàm helper để lấy toàn bộ nhánh category
+
             categoryIds = this.getCategoryAndChildrenIds(categorySlug);
 
-            // Nghiệp vụ: Nếu truyền slug tào lao không có trong DB -> Trả về mảng rỗng luôn, không cần tốn công gọi DB
+
             if (categoryIds.isEmpty()) {
                 return Page.empty(pageable);
             }
         }
 
-        // Gửi mảng categoryIds xuống DB để query bằng mệnh đề IN (...)
+
         Page<Product> products = productRepository.searchAllProducts(keyword, categoryIds, color, sizes, inStock, active, sort, pageable);
 
         Map<String, ProductResponse> responsesById = addRatings(products.getContent()).stream()
@@ -320,15 +320,15 @@ public class ProductServiceImpl implements ProductService{
         ));
     }
 
-    // =====================================================
-// 🤖 3. Tìm kiếm sản phẩm dành cho ChatBot
-// =====================================================
+
+
+
     @Override
     public List<ProductResponse> searchForChatBot(String keyword, String gender, String categorySlug, String color, List<String> sizes, int limit) {
         List<Integer> categoryIds = null;
 
         if (categorySlug != null && !categorySlug.trim().isEmpty()) {
-            // Tương tự, gọi hàm helper
+
             categoryIds = this.getCategoryAndChildrenIds(categorySlug);
 
             if (categoryIds.isEmpty()) {
@@ -340,9 +340,9 @@ public class ProductServiceImpl implements ProductService{
         return addRatings(products);
     }
 
-    // =====================================================
-    // 🔗 4. Lấy danh sách sản phẩm tương tự
-    // =====================================================
+
+
+
     @Override
     public List<ProductResponse> getSimilarProducts(String id, int limit) {
         Product current = productRepository.findById(Integer.parseInt(id))

@@ -9,9 +9,9 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class SenderInfo {
 
-    private Integer userId; // Trỏ về ID trong bảng duy nhất 'users'
+    private Integer userId;
 
-    private String name; // Tên hiển thị (Admin, Employee, hoặc tên Khách)
+    private String name;
 
-    private String avatar; // Link ảnh đại diện (Ví dụ link Cloudinary)
+    private String avatar;
 }

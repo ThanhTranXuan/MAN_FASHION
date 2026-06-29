@@ -30,7 +30,7 @@ public class ChatServiceImpl implements ChatService {
     private final ChatMessageRepository messageRepo;
     private final SimpMessagingTemplate messagingTemplate;
     private final UserRepository userRepository;
-    private final ChatMapper chatMapper; // Inject thêm Mapper
+    private final ChatMapper chatMapper;
 
     @Override
     @Transactional
@@ -55,7 +55,7 @@ public class ChatServiceImpl implements ChatService {
         User sender = userRepository.findById(senderId)
                 .orElseThrow(() -> new RuntimeException("User không tồn tại"));
 
-        // 1. Lưu tin nhắn vào MySQL
+
         boolean isStaff = "EMPLOYEE".equalsIgnoreCase(senderType);
         ensureConversationAccess(conversation, senderId, isStaff);
 
@@ -67,15 +67,15 @@ public class ChatServiceImpl implements ChatService {
         message.setCreatedAt(LocalDateTime.now());
         ChatMessage savedMessage = messageRepo.save(message);
 
-        // 2. CẬP NHẬT PHÒNG CHAT (Rất quan trọng để Sort cho Admin)
+
         conversation.setLastMessageText(content);
         conversation.setLastMessageAt(savedMessage.getCreatedAt());
         conversationRepo.save(conversation);
 
-        // 3. Dùng chung Mapper để WebSocket trả về DTO y hệt như gọi API GET /messages
+
         ChatMessageResponse responseDto = chatMapper.toMessageResponse(savedMessage);
 
-        // 4. Bắn qua WebSocket
+
         WsEventPayload wsPayload = new WsEventPayload("NEW_MESSAGE", responseDto);
         messagingTemplate.convertAndSend("/topic/chat/" + conversationId, wsPayload);
         if ("USER".equalsIgnoreCase(senderType)) {
@@ -87,9 +87,9 @@ public class ChatServiceImpl implements ChatService {
             ));
         }
 
-        // 5. Trả về cho API POST
-        // (Lưu ý: API POST của bạn đang khai báo trả về MessageDetailResponse,
-        // bạn nên đổi return type của Controller/Service thành ChatMessageResponse luôn cho đồng nhất toàn hệ thống).
+
+
+
         return responseDto;
     }
 
@@ -102,7 +102,7 @@ public class ChatServiceImpl implements ChatService {
         Pageable pageable = PageRequest.of(page, Math.min(Math.max(size, 1), 50));
         Page<ChatMessage> messagePage = messageRepo.findByConversationIdOrderByCreatedAtDesc(conversationId, pageable);
 
-        // Map Page<Entity> -> Page<DTO>
+
         return messagePage.map(chatMapper::toMessageResponse);
     }
 
@@ -117,8 +117,8 @@ public class ChatServiceImpl implements ChatService {
     @Override
     @Transactional
     public void markConversationAsRead(Integer conversationId, Integer userId, boolean isStaff) {
-        // Thực thi logic đánh dấu đã đọc (Ví dụ: Update status các message của người khác thành READ)
-        // Hiện tại có thể để trống hoặc thêm query vào Repository sau
+
+
         ChatConversation conversation = conversationRepo.findById(conversationId)
                 .orElseThrow(() -> new RuntimeException("Conversation not found"));
         ensureConversationAccess(conversation, userId, isStaff);

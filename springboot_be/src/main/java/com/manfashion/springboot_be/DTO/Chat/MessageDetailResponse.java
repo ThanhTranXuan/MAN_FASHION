@@ -10,15 +10,15 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 public class MessageDetailResponse {
 
-    private Integer messageId; // ID của tin nhắn trong MySQL
+    private Integer messageId;
 
-    private Integer conversationId; // ID của phòng chat
+    private Integer conversationId;
 
-    private SenderInfo sender; // Object chứa thông tin người gửi
+    private SenderInfo sender;
 
-    private String content; // Nội dung chat
+    private String content;
 
-    private LocalDateTime timestamp; // Thời gian gửi
+    private LocalDateTime timestamp;
 
-    private String status; // Các trạng thái: "SENT", "DELIVERED", "READ"
+    private String status;
 }

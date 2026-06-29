@@ -68,11 +68,11 @@ public class ProductRepositoryCustomImpl implements ProductRepositoryCustom {
         if (keyword != null && !keyword.isBlank()) {
             String kw = keyword.trim().toLowerCase();
             BooleanBuilder keywordBuilder = new BooleanBuilder();
-            
+
             keywordBuilder.or(product.name.lower().contains(kw))
                           .or(product.category.name.lower().contains(kw))
                           .or(product.description.lower().contains(kw));
-            
+
             builder.and(keywordBuilder);
         }
 

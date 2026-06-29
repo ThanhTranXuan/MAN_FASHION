@@ -57,15 +57,15 @@ public class ProductSearchService {
 
         List<ProductResponse> results;
 
-        // Ưu tiên 1: Tìm có size + category
+
         results = productService.searchForChatBot(keyword.trim(), null, categorySlug, null, sizes, 10);
 
-        // Ưu tiên 2: Bỏ size, giữ category
+
         if (results.isEmpty()) {
             results = productService.searchForChatBot(keyword.trim(), null, categorySlug, null, null, 15);
         }
 
-        // Ưu tiên 3: Tìm rộng ra toàn bộ (vẫn giữ category nếu có)
+
         if (results.isEmpty()) {
             results = productService.searchForChatBot(keyword.trim(), null, null, null, null, 20);
         }
@@ -86,7 +86,7 @@ public class ProductSearchService {
                 .collect(Collectors.toList());
     }
 
-    // THÊM METHOD MỚI ĐỂ CHUYỂN PRODUCT → MAP
+
     private Map<String, Object> convertProductToMap(Product p,
                                                     Category category,
                                                     List<ProductVariant> variants,

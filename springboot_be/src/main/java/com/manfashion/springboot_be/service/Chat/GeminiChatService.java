@@ -863,6 +863,70 @@ public class GeminiChatService {
         if ("EMPLOYEE".equals(role) && isSensitiveStatsIntent(message)) return ADMIN_ONLY_MESSAGE;
 
         AdminChatbotStatsResponse stats = statsService.getDashboardSummary();
+        String value = normalize(message);
+        if ("EMPLOYEE".equals(role)) {
+            return answerEmployeeStatsIntent(value, stats);
+        }
+
+        String productStockAnswer = answerProductStockIntent(message);
+        if (productStockAnswer != null) return productStockAnswer;
+
+        if (containsAny(value, "bao nhieu san pham", "so luong san pham", "tong san pham")) {
+            return "Hiện có %d sản phẩm trong kho.".formatted(stats.getTotalProducts());
+        }
+        if (containsAny(value, "bao nhieu bien the", "so luong bien the", "tong bien the")) {
+            return "Hiện có %d biến thể sản phẩm.".formatted(stats.getTotalVariants());
+        }
+        if (containsAny(value, "tong ton kho", "hang trong kho", "mat hang trong kho", "ton kho")) {
+            return "Tổng tồn kho hiện tại là %d sản phẩm.".formatted(stats.getTotalStock());
+        }
+        if (containsAny(value, "sap het hang", "gan het hang")) {
+            return stats.getLowStockItems().isEmpty()
+                    ? "Hiện không có sản phẩm sắp hết hàng."
+                    : "Các sản phẩm sắp hết hàng:\n- " + String.join("\n- ", stats.getLowStockItems());
+        }
+        if (containsAny(value, "doanh thu hom nay")) {
+            return "Doanh thu hôm nay là %s.".formatted(formatMoney(stats.getRevenueToday()));
+        }
+        if (containsAny(value, "doanh thu thang nay", "thang nay")) {
+            return "Doanh thu tháng này là %s.".formatted(formatMoney(stats.getRevenueThisMonth()));
+        }
+        if (containsAny(value, "tong doanh thu", "doanh thu")) {
+            return "Tổng doanh thu là %s.".formatted(formatMoney(stats.getTotalRevenue()));
+        }
+        if (containsAny(value, "don moi nhat")) {
+            return "Đơn mới nhất: %s.".formatted(stats.getLatestOrder());
+        }
+        if (containsAny(value, "don pending", "don cho xu ly", "don dang cho", "don can xu ly")) {
+            return "Hiện có %d đơn chờ xử lý.".formatted(stats.getPendingOrders());
+        }
+        if (containsAny(value, "don paid", "don da thanh toan", "da thanh toan")) {
+            return "Hiện có %d đơn đã thanh toán.".formatted(stats.getPaidOrders());
+        }
+        if (containsAny(value, "don completed", "don hoan thanh")) {
+            return "Hiện có %d đơn hoàn thành.".formatted(stats.getCompletedOrders());
+        }
+        if (containsAny(value, "don cancelled", "don bi huy", "don da huy")) {
+            return "Hiện có %d đơn đã hủy.".formatted(stats.getCancelledOrders());
+        }
+        if (containsAny(value, "don return", "don hoan tra", "don tra lai")) {
+            return "Hiện có %d đơn hoàn trả.".formatted(stats.getReturnOrders());
+        }
+        if (containsAny(value, "bao nhieu don", "so luong don", "tong don", "tong so don")) {
+            return "Hiện có %d đơn hàng.".formatted(stats.getTotalOrders());
+        }
+        if (containsAny(value, "bao nhieu khach hang", "so luong khach hang", "tong khach hang")) {
+            return "Hiện có %d khách hàng.".formatted(stats.getTotalCustomers());
+        }
+        if (containsAny(value, "bao nhieu nhan vien", "so luong nhan vien", "tong nhan vien")) {
+            return "Hiện có %d nhân viên.".formatted(stats.getTotalEmployees());
+        }
+        if (containsAny(value, "danh gia moi", "danh gia cho", "danh gia chua duyet")) {
+            return "Hiện có %d đánh giá chờ duyệt.".formatted(stats.getPendingReviews());
+        }
+        if (containsAny(value, "yeu cau hoan tra", "hoan tra cho xu ly")) {
+            return "Hiện có %d yêu cầu hoàn trả chờ xử lý.".formatted(stats.getPendingReturnRequests());
+        }
         if ("EMPLOYEE".equals(role)) {
             return "Hiện có %d đơn chờ xử lý, %d đơn đã thanh toán, %d yêu cầu hoàn trả chờ xử lý và %d đánh giá chờ duyệt."
                     .formatted(
@@ -891,6 +955,74 @@ public class GeminiChatService {
                 formatMoney(stats.getTotalRevenue()), stats.getTotalCustomers(), stats.getTotalEmployees(),
                 stats.getPendingReviews(), stats.getPendingReturnRequests(), stats.getLatestOrder()
         ) + "\nChỉ sử dụng các số liệu trên, không tự suy đoán thêm.";
+    }
+
+    private String answerEmployeeStatsIntent(String value, AdminChatbotStatsResponse stats) {
+        if (containsAny(value, "don paid", "don da thanh toan", "da thanh toan")) {
+            return "Hiện có %d đơn đã thanh toán.".formatted(stats.getPaidOrders());
+        }
+        if (containsAny(value, "danh gia moi", "danh gia cho", "danh gia chua duyet")) {
+            return "Hiện có %d đánh giá chờ duyệt.".formatted(stats.getPendingReviews());
+        }
+        if (containsAny(value, "yeu cau hoan tra", "hoan tra cho xu ly")) {
+            return "Hiện có %d yêu cầu hoàn trả chờ xử lý.".formatted(stats.getPendingReturnRequests());
+        }
+        return "Hiện có %d đơn chờ xử lý.".formatted(stats.getPendingOrders());
+    }
+
+    private String answerProductStockIntent(String message) {
+        String value = normalize(message);
+        if (!containsAny(value, "ton kho", "hang ton", "con bao nhieu", "con hang")) return null;
+        if (containsAny(value, "tong ton kho", "hang trong kho", "mat hang trong kho")) return null;
+
+        List<Product> products = productRepository.findAllWithVariantsForAdmin();
+        Optional<Product> directMatch = products.stream()
+                .filter(product -> normalize(product.getName()).length() >= 4)
+                .filter(product -> value.contains(normalize(product.getName())))
+                .max(Comparator.comparingInt(product -> normalize(product.getName()).length()));
+
+        Product product = directMatch.orElseGet(() -> {
+            String keyword = extractProductStockKeyword(message);
+            if (keyword.length() < 3) return null;
+            return products.stream()
+                    .filter(item -> normalize(item.getName()).contains(keyword))
+                    .findFirst()
+                    .orElse(null);
+        });
+
+        if (product == null) {
+            return "Bạn muốn kiểm tra tồn kho của sản phẩm nào? Vui lòng nhập rõ tên sản phẩm.";
+        }
+
+        long totalStock = product.getVariants().stream()
+                .filter(variant -> variant.getDeletedAt() == null)
+                .mapToLong(variant -> variant.getStock() == null ? 0 : variant.getStock())
+                .sum();
+
+        String variants = product.getVariants().stream()
+                .filter(variant -> variant.getDeletedAt() == null)
+                .map(variant -> "- %s/%s: %d"
+                        .formatted(
+                                nullToEmpty(variant.getColor()).isBlank() ? "Không màu" : variant.getColor(),
+                                nullToEmpty(variant.getSize()).isBlank() ? "Không size" : variant.getSize(),
+                                variant.getStock() == null ? 0 : variant.getStock()
+                        ))
+                .collect(Collectors.joining("\n"));
+
+        if (variants.isBlank()) {
+            return "%s hiện có tổng tồn kho là %d sản phẩm và chưa có biến thể đang hoạt động."
+                    .formatted(product.getName(), totalStock);
+        }
+        return "%s hiện có tổng tồn kho là %d sản phẩm:\n%s"
+                .formatted(product.getName(), totalStock, variants);
+    }
+
+    private String extractProductStockKeyword(String message) {
+        return normalize(message)
+                .replaceAll("\\b(san pham|mat hang|hang ton|ton kho|trong kho|con bao nhieu|co bao nhieu|bao nhieu|con hang|so luong|cua|la|hien|dang|nay|do)\\b", " ")
+                .replaceAll("[^a-z0-9 ]", " ")
+                .replaceAll("\\s+", " ")
+                .trim();
     }
 
     private String formatRecentOrders(Integer userId) {
@@ -1043,7 +1175,8 @@ public class GeminiChatService {
                 "thong ke", "bao cao", "dashboard", "tong quan",
                 "doanh thu", "tong doanh thu",
                 "bao nhieu san pham", "so luong san pham", "tong san pham",
-                "mat hang trong kho", "hang trong kho", "ton kho", "sap het hang", "gan het hang",
+                "mat hang trong kho", "hang trong kho", "hang ton", "ton kho",
+                "con bao nhieu hang", "con hang", "sap het hang", "gan het hang",
                 "bao nhieu bien the", "so luong bien the",
                 "bao nhieu don", "so luong don", "tong don", "tong so don",
                 "don pending", "don cho xu ly", "don dang cho", "don can xu ly",

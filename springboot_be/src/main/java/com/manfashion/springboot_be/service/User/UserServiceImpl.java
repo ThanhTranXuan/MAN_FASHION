@@ -23,7 +23,7 @@ public class UserServiceImpl implements UserService {
     private final RoleRepository roleRepository;
     private final PasswordEncoder passwordEncoder;
     private final UserMapper userMapper;
-    //create
+
     @Override
     public UserResponse createUser(UserCreateRequest request) {
         if (userRepository.existsByEmail(request.getEmail())) {
@@ -39,7 +39,7 @@ public class UserServiceImpl implements UserService {
 
         return userMapper.toResponseDTO(userRepository.save(user));
     }
-    //getById
+
     @Override
     public UserResponse getUserById(String userIdStr) {
         Integer userId = Integer.valueOf(userIdStr);
@@ -48,7 +48,7 @@ public class UserServiceImpl implements UserService {
 
         return userMapper.toResponseDTO(user);
     }
-    //update
+
     @Override
     public Optional<UserResponse> updateProfile(String userIdStr, UserUpdateProfileRequest req) {
         Integer userId = Integer.valueOf(userIdStr);
@@ -61,7 +61,7 @@ public class UserServiceImpl implements UserService {
             return userMapper.toResponseDTO(saved);
         });
     }
-    //updateAvatar
+
     @Override
     public Optional<UserResponse> updateAvatar(String userIdHex, UserUpdateAvatarRequest req) {
         Integer userId = Integer.parseInt(userIdHex);
@@ -72,14 +72,14 @@ public class UserServiceImpl implements UserService {
             return userMapper.toResponseDTO(userRepository.save(user));
         });
     }
-    //delete
+
     @Override
     public void delete(String userIdHex) {
         User user = findActiveUser(Integer.parseInt(userIdHex));
         user.setDeletedAt(LocalDateTime.now());
         userRepository.save(user);
     }
-    //change password
+
     public void changePassword(String userIdHex, UserChangePasswordRequest req) {
         Integer userId = Integer.parseInt(userIdHex);
         User user = findActiveUser(userId);

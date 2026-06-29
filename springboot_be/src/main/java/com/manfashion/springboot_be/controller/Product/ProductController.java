@@ -27,7 +27,7 @@ public class ProductController {
     private final ProductImageService productImageService;
     private final ProductVariantService productVariantService;
 
-    // get statistic
+
     @GetMapping("/stats")
     public ApiResponse<List<ProductStatsResponse>>getStatsByCategory(){
         List<ProductStatsResponse> stats = productService.getStatsByCategory();
@@ -36,7 +36,7 @@ public class ProductController {
                 .data(stats)
                 .build();
     }
-    // 🛍️ GET all products (public)
+
     @GetMapping
     public ApiResponse<Page<ProductResponse>> getAllProducts(
             @RequestParam(required = false) String keyword,
@@ -56,7 +56,7 @@ public class ProductController {
                 .build();
     }
 
-    // 🔍 GET product by slug (public)
+
     @GetMapping("/filter-options")
     public ApiResponse<ProductFilterOptionsResponse> getFilterOptions() {
         return ApiResponse.<ProductFilterOptionsResponse>builder()
@@ -73,7 +73,7 @@ public class ProductController {
                 .build();
     }
 
-    // 🔎 GET product by internal ID (ADMIN/EMPLOYEE only)
+
     @GetMapping("/{id}")
     @PreAuthorize("hasAnyAuthority('ADMIN','EMPLOYEE','USER')")
     public ApiResponse<ProductResponse> getProductById(@PathVariable String id) {
@@ -83,7 +83,7 @@ public class ProductController {
                 .build();
     }
 
-    // 🤖 GET products for chatbot
+
     @GetMapping("/search-for-chat")
     public ApiResponse<List<ProductResponse>> searchProductsForChat(
             @RequestParam(required = false) String keyword,
@@ -101,12 +101,12 @@ public class ProductController {
                 .build();
     }
 
-    // 🔗 GET similar products
+
     @GetMapping("/{id}/similar")
     public ApiResponse<List<ProductResponse>> getSimilarProducts(
             @PathVariable String id,
             @RequestParam(defaultValue = "8") int limit) {
-        
+
         List<ProductResponse> results = productService.getSimilarProducts(id, limit);
         return ApiResponse.<List<ProductResponse>>builder()
                 .message("product.similar.success")
@@ -114,10 +114,10 @@ public class ProductController {
                 .build();
     }
 
-    // ➕ CREATE new product (ADMIN/EMPLOYEE only)
+
     @PostMapping
     @PreAuthorize("hasAnyAuthority('ADMIN','EMPLOYEE')")
-    @ResponseStatus(HttpStatus.CREATED) // Đảm bảo trả về HTTP Status 201
+    @ResponseStatus(HttpStatus.CREATED)
     public ApiResponse<ProductResponse> createProduct(@RequestBody ProductRequest req) {
         ProductResponse createdProduct = productService.create(req);
 
@@ -127,7 +127,7 @@ public class ProductController {
                 .build();
     }
 
-    // ♻️ UPDATE product (ADMIN/EMPLOYEE only)
+
     @PutMapping("/{id}")
     @PreAuthorize("hasAnyAuthority('ADMIN','EMPLOYEE')")
     public ApiResponse<ProductResponse> updateProduct(@PathVariable String id, @RequestBody ProductRequest req) {
@@ -137,7 +137,7 @@ public class ProductController {
                 .build();
     }
 
-    // ✅ TOGGLE product active status (ADMIN only)
+
     @PatchMapping("/{id}/active")
     @PreAuthorize("hasAuthority('ADMIN')")
     public ApiResponse<ProductResponse> patchActiveStatus(@PathVariable String id, @RequestBody Map<String, Boolean> body) {
@@ -149,7 +149,7 @@ public class ProductController {
                 .build();
     }
 
-    // 🗑️ DELETE product (ADMIN only)
+
     @DeleteMapping("/{id}")
     @PreAuthorize("hasAuthority('ADMIN')")
     public ApiResponse<Void> delete(@PathVariable String id) {
@@ -157,11 +157,11 @@ public class ProductController {
 
         return ApiResponse.<Void>builder()
                 .message("product.delete.success")
-                // Không cần truyền .data() vì kiểu trả về là Void
+
                 .build();
     }
 
-    // 📦 UPLOAD product images (ADMIN/EMPLOYEE only)
+
     @PostMapping(value = "/{id}/images", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @PreAuthorize("hasAnyAuthority('ADMIN','EMPLOYEE')")
     public ApiResponse<List<ProductImageResponse>> uploadImages(
@@ -176,7 +176,7 @@ public class ProductController {
                 .build();
     }
 
-    // 🎨 ADD a new product variant (ADMIN/EMPLOYEE only)
+
     @PostMapping("/{id}/variants")
     @PreAuthorize("hasAnyAuthority('ADMIN','EMPLOYEE')")
     @ResponseStatus(HttpStatus.CREATED)
@@ -189,7 +189,7 @@ public class ProductController {
                 .build();
     }
 
-    // 📝 UPDATE a product variant (ADMIN/EMPLOYEE only)
+
     @PutMapping("/variants/{variantId}")
     @PreAuthorize("hasAnyAuthority('ADMIN','EMPLOYEE')")
     public ApiResponse<ProductVariantResponse> updateVariant(@PathVariable String variantId, @RequestBody ProductVariantRequest req) {
@@ -199,7 +199,7 @@ public class ProductController {
                 .build();
     }
 
-    // 🗑️ DELETE a product variant (ADMIN only)
+
     @DeleteMapping("/variants/{variantId}")
     @PreAuthorize("hasAuthority('ADMIN')")
     public ApiResponse<Void> deleteVariant(@PathVariable String variantId) {

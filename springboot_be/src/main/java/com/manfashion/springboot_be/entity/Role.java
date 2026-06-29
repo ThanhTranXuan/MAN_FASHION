@@ -30,7 +30,7 @@ public class Role {
     @UpdateTimestamp
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
-    // One-To-Many relationship
+
     @OneToMany(mappedBy = "role")
     @Builder.Default
     private List<User> users = new ArrayList<>();

@@ -44,7 +44,7 @@ public class BotController {
             try {
                 return Integer.valueOf(principal);
             } catch (NumberFormatException ignored) {
-                // Fall through to direct Authorization parsing below.
+
             }
         }
 
@@ -120,7 +120,7 @@ public class BotController {
                     conversationId, currentUserId, role, userMessage);
             BotChatResponse botReply = botService.askBot(botSessionId, userMessage, currentUserId, role);
 
-            // Đóng gói DTO khớp với Frontend ReactJS
+
             Map<String, Object> response = new HashMap<>();
             response.put("id", UUID.randomUUID().toString());
             response.put("type", botReply.getType());

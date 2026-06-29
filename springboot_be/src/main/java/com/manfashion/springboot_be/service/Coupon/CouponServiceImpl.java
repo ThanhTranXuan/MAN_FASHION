@@ -23,9 +23,9 @@ public class CouponServiceImpl implements CouponService {
 
 
 
-    // =====================================================
-    // ➕ Create
-    // =====================================================
+
+
+
     @Override
     public CouponResponse createCoupon(CouponRequest dto) {
         if (couponRepository.findByCode(dto.getCode()).isPresent()) {
@@ -45,9 +45,9 @@ public class CouponServiceImpl implements CouponService {
         return couponMapper.toResponseDTO(couponRepository.save(c));
     }
 
-    // =====================================================
-    // ✏️ Update
-    // =====================================================
+
+
+
     @Override
     public CouponResponse updateCoupon(String idHex, CouponRequest dto) {
         Integer id = Integer.parseInt(idHex);
@@ -63,9 +63,9 @@ public class CouponServiceImpl implements CouponService {
         return couponMapper.toResponseDTO(couponRepository.save(c));
     }
 
-    // =====================================================
-    // 📃 Get All (có filter keyword, không lấy deleted)
-    // =====================================================
+
+
+
     @Override
     public Page<CouponResponse> getAllCoupons(String keyword, Pageable pageable) {
         Page<Coupon> page;
@@ -79,9 +79,9 @@ public class CouponServiceImpl implements CouponService {
         return page.map(couponMapper::toResponseDTO);
     }
 
-    // =====================================================
-    // 🗑️ Soft Delete
-    // =====================================================
+
+
+
     @Override
     public void softDeleteCoupon(String idHex) {
         Integer id = Integer.parseInt(idHex);

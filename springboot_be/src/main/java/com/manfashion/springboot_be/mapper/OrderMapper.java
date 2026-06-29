@@ -11,7 +11,7 @@ import java.util.List;
 @Mapper(componentModel = "spring")
 public interface OrderMapper {
 
-    // MapStruct tự động map trường "id" của Order sang "id" của OrderResponse
+
 
     @Mapping(source = "user.id", target = "userId")
     @Mapping(source = "coupon.id", target = "couponId")

@@ -35,5 +35,5 @@ public class ChatMessage {
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
 
-    // Bảng này SQL thiết kế dạng append-only (chỉ thêm mới), không có updated_at
+
 }

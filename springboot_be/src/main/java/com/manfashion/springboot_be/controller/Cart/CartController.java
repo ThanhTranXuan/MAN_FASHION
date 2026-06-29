@@ -21,7 +21,7 @@ public class CartController {
 
     private final CartService cartService;
 
-    // Helper: Lấy ID của user đang đăng nhập (Xác thực: biết ai đang gửi yêu cầu)
+
     private String getCurrentUserId() {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         if (auth == null) {
@@ -31,7 +31,7 @@ public class CartController {
         return (principal instanceof String) ? (String) principal : null;
     }
 
-    // 🛒 GET all cart items for current user
+
     @GetMapping
     public ApiResponse<List<CartItemResponse>> getAllCartItems() {
         String userId = getCurrentUserId();
@@ -43,7 +43,7 @@ public class CartController {
                 .build();
     }
 
-    // ➕ ADD item to cart
+
     @PostMapping
     public ApiResponse<List<CartItemResponse>> addCartItem(@RequestBody CartItemRequest req) {
         String userId = getCurrentUserId();
@@ -55,7 +55,7 @@ public class CartController {
                 .build();
     }
 
-    // ♻️ UPDATE cart item quantity or details
+
     @PutMapping("/{id}")
     public ApiResponse<List<CartItemResponse>> updateCartItem(@PathVariable String id, @RequestBody CartItemRequest req) {
         String userId = getCurrentUserId();
@@ -67,17 +67,17 @@ public class CartController {
                 .build();
     }
 
-    // ❌ REMOVE item from cart
+
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> removeCartItem(@PathVariable String id) {
         String userId = getCurrentUserId();
         cartService.removeItem(userId, id);
 
-        // Trả về 204 No Content giống form xoá bên Category
+
         return ResponseEntity.noContent().build();
     }
 
-    // 🗑️ CLEAR entire cart
+
     @DeleteMapping
     public ResponseEntity<Void> clearCart() {
         String userId = getCurrentUserId();

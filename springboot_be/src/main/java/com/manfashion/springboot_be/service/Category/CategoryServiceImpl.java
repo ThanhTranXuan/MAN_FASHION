@@ -34,9 +34,9 @@ public class CategoryServiceImpl implements CategoryService{
     private final ProductRepository productRepository;
 
 
-    // =====================================================
-    // 🔗 Sinh slug duy nhất
-    // =====================================================
+
+
+
     private String generateUniqueSlug(String input) {
         String baseSlug = slugGenerator.toSlug(input);
         String slug = baseSlug;
@@ -47,9 +47,9 @@ public class CategoryServiceImpl implements CategoryService{
         return slug;
     }
 
-    // =====================================================
-    // ➕ Tạo category
-    // =====================================================
+
+
+
     @Override
     public CategoryResponse createCategory(CategoryRequest req) {
         try {
@@ -69,13 +69,13 @@ public class CategoryServiceImpl implements CategoryService{
             thumbnailUrl = uploadImage.uploadImage(file);
         }
 
-        // Luồng chuẩn bị dữ liệu: Tìm đối tượng cha từ database nếu client truyền parentId
+
         if (StringUtils.hasText(req.getParentId())) {
             Integer parentId = Integer.parseInt(req.getParentId());
             parentCategory = categoryRepo.findById(parentId).orElse(null);
         }
 
-        // Tạo đối tượng, chỉ cần móc cha vào là xong, JPA lo phần còn lại
+
         Category category = Category.builder()
                 .name(req.getName())
                 .slug(slug)
@@ -86,9 +86,9 @@ public class CategoryServiceImpl implements CategoryService{
         return categoryMapper.toResponseDTO(categoryRepo.save(category));
     }
 
-    // =====================================================
-    // ✏️ Cập nhật category
-    // =====================================================
+
+
+
     @Override
     public Optional<CategoryResponse> updateCategory(String idHex, CategoryRequest req) {
         try {
@@ -136,17 +136,17 @@ public class CategoryServiceImpl implements CategoryService{
         });
     }
 
-    // =====================================================
-    // 📃 Lấy tất cả category
-    // =====================================================
+
+
+
     public Page<CategoryResponse> getAllCategories(Pageable pageable) {
         return categoryRepo.findByDeletedAtIsNull(pageable)
                 .map(categoryMapper::toResponseDTO);
     }
 
-    // =====================================================
-    // 🗑️ Xóa mềm (cả con)
-    // =====================================================
+
+
+
     public boolean softDeleteCategory(String idHex) {
         Integer id = Integer.parseInt(idHex);
         List<Integer> ids = new ArrayList<>();
@@ -169,9 +169,9 @@ public class CategoryServiceImpl implements CategoryService{
         }
     }
 
-    // =====================================================
-    // 🔍 Lấy theo slug
-    // =====================================================
+
+
+
     public CategoryResponse getBySlug(String slug) {
         Category category = categoryRepo.findBySlugAndDeletedAtIsNull(slug)
                 .orElseThrow(() -> new AppException(ErrorCode.CATEGORY_NOT_FOUND));

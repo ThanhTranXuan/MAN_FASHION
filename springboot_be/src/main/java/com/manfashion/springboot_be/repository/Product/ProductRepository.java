@@ -14,7 +14,7 @@ public interface ProductRepository extends JpaRepository<Product,Integer> ,Produ
     long countByDeletedAtIsNull();
     Optional<Product> findBySlugAndDeletedAtIsNull(String slug);
     long countByCategoryIdInAndDeletedAtIsNull(List<Integer> categoryIds);
-    // API 1: Tìm kiếm theo từ khóa
+
     @Query("SELECT p FROM Product p LEFT JOIN FETCH p.variants WHERE " +
             "(LOWER(p.name) LIKE LOWER(concat('%', :keyword, '%')) OR " +
             "LOWER(p.description) LIKE LOWER(concat('%', :keyword, '%'))) " +
@@ -45,26 +45,35 @@ public interface ProductRepository extends JpaRepository<Product,Integer> ,Produ
             """)
     List<Product> findActiveBotCandidates(Pageable pageable);
 
+    @Query("""
+            SELECT DISTINCT p FROM Product p
+            LEFT JOIN FETCH p.category
+            LEFT JOIN FETCH p.variants
+            WHERE p.deletedAt IS NULL
+            ORDER BY p.name ASC
+            """)
+    List<Product> findAllWithVariantsForAdmin();
+
     @Query(value = """
             SELECT
-                c.id AS category_id,
-                c.name AS category_name,
+                COALESCE(c.id, 0) AS category_id,
+                COALESCE(c.name, 'Chưa phân loại') AS category_name,
                 COUNT(DISTINCT p.id) AS product_count,
                 COALESCE(SUM(CASE WHEN v.deleted_at IS NULL THEN v.stock ELSE 0 END), 0) AS total_stock
-            FROM categories c
-            LEFT JOIN products p
-                ON p.category_id = c.id
-                AND p.deleted_at IS NULL
-                AND p.is_active = true
+            FROM products p
+            LEFT JOIN categories c
+                ON c.id = p.category_id
+                AND c.deleted_at IS NULL
             LEFT JOIN product_variants v
                 ON v.product_id = p.id
                 AND v.deleted_at IS NULL
-            GROUP BY c.id, c.name
-            ORDER BY product_count DESC, total_stock DESC, c.name ASC
+            WHERE p.deleted_at IS NULL
+            GROUP BY COALESCE(c.id, 0), COALESCE(c.name, 'Chưa phân loại')
+            ORDER BY product_count DESC, total_stock DESC, category_name ASC
             """, nativeQuery = true)
     List<Object[]> getProductCategorySummary();
 
-    // API 3: Sản phẩm tương tự
+
     @Query("SELECT p FROM Product p WHERE p.category.id = :categoryId AND p.id != :productId " +
            "AND p.isActive = true AND p.deletedAt IS NULL ORDER BY p.createdAt DESC")
     List<Product> findSimilarProducts(@Param("categoryId") Integer categoryId, @Param("productId") Integer productId, org.springframework.data.domain.Pageable pageable);
