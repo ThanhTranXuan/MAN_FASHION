@@ -23,7 +23,6 @@ import { useNotification } from 'contexts/NotificationContext';
 const STATUS_META = {
   PENDING: { label: 'Chờ duyệt', color: 'yellow' },
   APPROVED: { label: 'Đã duyệt', color: 'green' },
-  REJECTED: { label: 'Từ chối', color: 'red' },
 };
 
 export default function AdminReviews() {
@@ -87,6 +86,7 @@ export default function AdminReviews() {
   };
 
   const renderStatus = (status) => {
+    if (status === 'REJECTED') return null;
     const meta = STATUS_META[status] || { label: status || '-', color: 'gray' };
     return <Badge colorScheme={meta.color}>{meta.label}</Badge>;
   };
@@ -101,7 +101,6 @@ export default function AdminReviews() {
               <option value="">Tất cả trạng thái</option>
               <option value="PENDING">Chờ duyệt</option>
               <option value="APPROVED">Đã duyệt</option>
-              <option value="REJECTED">Từ chối</option>
             </Select>
             <Select value={ratingFilter} onChange={(e) => { setPage(0); setRatingFilter(e.target.value); }} w="140px">
               <option value="">Tất cả sao</option>
@@ -213,32 +212,21 @@ export default function AdminReviews() {
                   <Divider my={4} />
 
                   <Flex justify="flex-end" gap={2} flexWrap="wrap">
-                    <Button
-                      size="sm"
-                      colorScheme="green"
-                      variant="outline"
-                      onClick={() =>
-                        runAction(
-                          () => ReviewService.approveReview(review.id),
-                          'Đã duyệt đánh giá',
-                        )
-                      }
-                    >
-                      Duyệt
-                    </Button>
-                    <Button
-                      size="sm"
-                      colorScheme="red"
-                      variant="outline"
-                      onClick={() =>
-                        runAction(
-                          () => ReviewService.rejectReview(review.id),
-                          'Đã từ chối đánh giá',
-                        )
-                      }
-                    >
-                      Từ chối
-                    </Button>
+                    {review.status !== 'APPROVED' && (
+                      <Button
+                        size="sm"
+                        colorScheme="green"
+                        variant="outline"
+                        onClick={() =>
+                          runAction(
+                            () => ReviewService.approveReview(review.id),
+                            'Đã duyệt đánh giá',
+                          )
+                        }
+                      >
+                        Duyệt
+                      </Button>
+                    )}
                     <Button
                       size="sm"
                       colorScheme="gray"

@@ -22,6 +22,7 @@ const columnHelper = createColumnHelper();
 export default function Columns({
   onUpdateStatus,
   onOpenDetail,
+  onReturnFlowAction,
   statusFilter,
   setStatusFilter,
   loadingRow,
@@ -33,7 +34,7 @@ export default function Columns({
     { label: 'SHIPPED', text: 'Đang Giao', color: 'purple.500', emoji: '🚚' },
     { label: 'DELIVERED', text: 'Đã Giao', color: 'blue.500', emoji: '📦' },
     { label: 'COMPLETED', text: 'Hoàn Thành', color: 'green.500', emoji: '✅' },
-    { label: 'RETURN', text: 'Hoàn Trả', color: 'orange.400', emoji: '↩️' },
+    { label: 'RETURN', text: 'Yêu cầu trả hàng', color: 'orange.400', emoji: '↩️' },
     { label: 'CANCELLED', text: 'Đã Hủy', color: 'red.500', emoji: '❌' },
   ];
 
@@ -46,8 +47,6 @@ export default function Columns({
         return ['SHIPPED'];
       case 'SHIPPED':
         return ['DELIVERED', 'CANCELLED'];
-      case 'RETURN':
-        return ['CANCELLED', 'COMPLETED'];
       default:
         return [];
     }
@@ -141,6 +140,25 @@ export default function Columns({
           }
         };
 
+        if (current?.label === 'RETURN') {
+          return (
+            <Button
+              size="sm"
+              fontWeight="600"
+              colorScheme="orange"
+              variant="outline"
+              borderRadius="md"
+              isLoading={isLoading}
+              onClick={() => onReturnFlowAction?.(order)}
+            >
+              <Flex align="center" gap={2}>
+                <Text fontSize="lg">{current?.emoji}</Text>
+                <Text>{current?.text}</Text>
+              </Flex>
+            </Button>
+          );
+        }
+
         return (
           <Menu>
             <MenuButton
@@ -204,7 +222,7 @@ export default function Columns({
 
     columnHelper.display({
       id: 'detail',
-      header: <Text align="right">Hành Động</Text>,
+      header: <Text align="right">Xem chi tiết đơn</Text>,
       cell: (info) => {
         const order = info.row.original;
         return (

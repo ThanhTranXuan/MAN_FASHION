@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState } from 'react';
 import {
   Box,
   Heading,
@@ -57,17 +57,6 @@ export default function PurchaseHistoryTab({
   const textColor = useColorModeValue('secondaryGray.900', 'white');
   const cardBg = useColorModeValue('fashion.softSurface', 'navy.800');
   const borderColor = useColorModeValue('fashion.stone', 'navy.700');
-
-  const filteredOrders = useMemo(() => {
-  return orders.filter(order => {
-
-    if (order.paymentMethod === 'VIETQR' && order.status === 'PENDING') {
-      return false;
-    }
-
-    return true;
-  });
-}, [orders]);
 
   const canReviewOrder = (status) =>
     ['COMPLETED', 'DELIVERED'].includes(String(status || '').toUpperCase());
@@ -175,7 +164,7 @@ export default function PurchaseHistoryTab({
         pr={2}
       >
         <VStack align="stretch" spacing={6}>
-          {filteredOrders.map((order) => (
+          {orders.map((order) => (
             (() => {
               const subtotal =
                 Number(order.subtotal) ||

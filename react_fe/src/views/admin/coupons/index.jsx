@@ -22,6 +22,7 @@ export default function CouponPage() {
   const [page, setPage] = useState(0);
   const [totalPages, setTotalPages] = useState(1);
   const [searchInput, setSearchInput] = useState('');
+  const [searchKeyword, setSearchKeyword] = useState('');
   const [editingCoupon, setEditingCoupon] = useState(null);
   const [couponToDelete, setCouponToDelete] = useState(null);
   const [isConfirmOpen, setIsConfirmOpen] = useState(false);
@@ -37,7 +38,7 @@ export default function CouponPage() {
       const res = await CouponService.getAll({
         page: p,
         size: 8,
-        keyword: searchInput || undefined,
+        keyword: searchKeyword || undefined,
       });
 
       const data = res.data?.content || res.content || [];
@@ -47,16 +48,25 @@ export default function CouponPage() {
       setTotalPages(pages);
     } catch (err) {
       console.error(err);
-      toast.error('Failed to load coupons');
+      toast.error('Tải danh sách mã giảm giá thất bại');
     } finally {
       setIsLoading(false);
     }
 
-  }, []);
+  }, [searchKeyword, toast]);
 
   useEffect(() => {
     loadCoupons(page);
-  }, [loadCoupons, page, searchInput]);
+  }, [loadCoupons, page]);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setPage(0);
+      setSearchKeyword(searchInput.trim());
+    }, 300);
+
+    return () => clearTimeout(timer);
+  }, [searchInput]);
 
 
   const handleDelete = async () => {

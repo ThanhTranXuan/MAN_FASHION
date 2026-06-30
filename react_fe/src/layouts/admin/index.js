@@ -91,6 +91,7 @@ export default function Dashboard(props) {
   };
 
   const activeRoute = getActiveRoute(routes, location.pathname);
+  const isChatSupportRoute = location.pathname === '/admin/chat-support';
 
 
 
@@ -123,7 +124,7 @@ export default function Dashboard(props) {
           minHeight="100vh"
           height="100%"
           overflowX="hidden"
-          overflowY="auto"
+          overflowY={isChatSupportRoute ? 'hidden' : 'auto'}
           position="relative"
           maxHeight="100%"
           w={{ base: '100%', xl: 'calc(100% - 280px)' }}
@@ -148,7 +149,7 @@ export default function Dashboard(props) {
               mx="auto"
               p={{ base: '12px', sm: '16px', md: '24px' }}
               pt={{ base: '124px', sm: '116px', md: '104px' }}
-              minH="calc(100vh - 120px)"
+              minH={isChatSupportRoute ? 'auto' : 'calc(100vh - 120px)'}
               maxW="100%"
               sx={{ overflowAnchor: 'none' }}
               initial={{ opacity: 0, y: 8 }}
@@ -172,7 +173,7 @@ export default function Dashboard(props) {
             </MotionBox>
           </AnimatePresence>
 
-          <Footer />
+          {!isChatSupportRoute && <Footer />}
         </Box>
       </SidebarContext.Provider>
     </Box>

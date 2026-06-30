@@ -16,7 +16,6 @@ import {
   MdExpandMore,
   MdExpandLess,
 } from 'react-icons/md';
-import { useUser } from 'contexts/UserContext';
 
 export default function Row({
   cat,
@@ -28,10 +27,6 @@ export default function Row({
   onDelete,
   renderChildren,
 }) {
-  const { user } = useUser();
-  const role = user?.roleName;
-  const isEmployee = role === 'EMPLOYEE';
-
   const isExpanded = expandedRows[cat.id];
 
   return (
@@ -90,16 +85,14 @@ export default function Row({
             />
 
             {}
-            {!isEmployee && (
-              <IconButton
-                aria-label="Delete"
-                size="sm"
-                icon={<MdDelete />}
-                colorScheme="red"
-                borderRadius="xl"
-                onClick={() => onDelete(cat)}
-              />
-            )}
+            <IconButton
+              aria-label="Delete"
+              size="sm"
+              icon={<MdDelete />}
+              colorScheme="red"
+              borderRadius="xl"
+              onClick={() => onDelete(cat)}
+            />
           </Flex>
         </Td>
       </Tr>

@@ -19,6 +19,7 @@ import { Image, Link } from '@chakra-ui/react';
 import { resolveImageUrl } from 'utils/ImageHelper';
 
 const ADMIN_LAST_VISIT_KEY = 'chat:adminLastVisit';
+const STAFF_CHAT_UNREAD_KEY = 'chat:staffUnreadConversations';
 const MESSAGES_PAGE_SIZE = 30;
 const getAvatarSrc = (...candidates) => {
   const avatar = candidates.find(
@@ -78,6 +79,20 @@ const AdminMessageContent = ({ content }) => {
   );
 };
 
+const readStoredUnread = () => {
+  try {
+    return JSON.parse(localStorage.getItem(STAFF_CHAT_UNREAD_KEY) || '{}');
+  } catch {
+    return {};
+  }
+};
+
+const clearStoredUnread = (conversationId) => {
+  const unreadMap = readStoredUnread();
+  delete unreadMap[conversationId];
+  localStorage.setItem(STAFF_CHAT_UNREAD_KEY, JSON.stringify(unreadMap));
+};
+
 export default function ChatPage() {
   const {
     conversations,
@@ -97,6 +112,7 @@ export default function ChatPage() {
 
   const messagesContainerRef = useRef(null);
   const preventAutoScrollRef = useRef(false);
+  const activeConversationIdRef = useRef(null);
 
 
   const textColor = useColorModeValue('secondaryGray.900', 'white');
@@ -119,7 +135,11 @@ export default function ChatPage() {
     try {
       const res = await ChatService.allAdmin(0, 50);
       const page = res.data;
-      const list = (page.content || []).map((c) => ({ ...c, unread: 0 }));
+      const unreadMap = readStoredUnread();
+      const list = (page.content || []).map((c) => ({
+        ...c,
+        unread: Number(unreadMap[c.id] || 0),
+      }));
       setConversations(list);
     } catch (err) {
       console.error('Failed to load conversations:', err);
@@ -139,25 +159,44 @@ export default function ChatPage() {
 
 
   useEffect(() => {
-    if (!activeConversation) return;
+    const conversationId = activeConversation?.id ? String(activeConversation.id) : null;
+    activeConversationIdRef.current = conversationId;
+
+    if (!conversationId) {
+      setMessages([]);
+      return;
+    }
+
+    setMessages([]);
+    setMsgPage(0);
+    setHasMoreMessages(false);
 
     const loadMessages = async () => {
       try {
         const res = await ChatService.messages(
-          activeConversation.id,
+          conversationId,
           0,
           MESSAGES_PAGE_SIZE,
         );
+        if (activeConversationIdRef.current !== conversationId) return;
+
         const page = res.data;
 
-    const reversedMessages = page.content ? [...page.content].reverse() : [];
+        const reversedMessages = page.content
+          ? [...page.content]
+              .reverse()
+              .map((message) => ({
+                ...message,
+                conversationId: message.conversationId ?? conversationId,
+              }))
+          : [];
 
-    setMessages(reversedMessages);
+        setMessages(reversedMessages);
 
         setMsgPage(0);
         setHasMoreMessages(!page.last);
         localStorage.setItem(
-          `chat:lastRead:${activeConversation.id}`,
+          `chat:lastRead:${conversationId}`,
           Date.now(),
         );
       } catch (err) {
@@ -169,14 +208,16 @@ export default function ChatPage() {
 
     setConversations((prev) =>
       prev.map((c) =>
-        c.id === activeConversation.id ? { ...c, unread: 0 } : c,
+        String(c.id) === conversationId ? { ...c, unread: 0 } : c,
       ),
     );
+    clearStoredUnread(conversationId);
   }, [activeConversation, setMessages, setConversations]);
 
 
   const handleLoadOlderMessages = async () => {
     if (!activeConversation || !hasMoreMessages || loadingOlder) return;
+    const conversationId = String(activeConversation.id);
     const nextPage = msgPage + 1;
 
     setLoadingOlder(true);
@@ -185,12 +226,17 @@ export default function ChatPage() {
       const prevScrollHeight = el?.scrollHeight || 0;
 
       const res = await ChatService.messages(
-        activeConversation.id,
+        conversationId,
         nextPage,
         MESSAGES_PAGE_SIZE,
       );
+      if (activeConversationIdRef.current !== conversationId) return;
+
       const page = res.data;
-      const older = page.content || [];
+      const older = (page.content || []).map((message) => ({
+        ...message,
+        conversationId: message.conversationId ?? conversationId,
+      }));
 
       preventAutoScrollRef.current = true;
       setMessages((prev) => [...older, ...prev]);
@@ -230,14 +276,17 @@ export default function ChatPage() {
 
   const handleSend = () => {
     if (!input.trim() || !activeConversation) return;
-    sendMessage(activeConversation.id, input.trim(), 'SHOP');
+    const conversationId = String(activeConversation.id);
+    activeConversationIdRef.current = conversationId;
+    sendMessage(conversationId, input.trim(), 'SHOP');
     setInput('');
   };
 
   return (
     <Flex
-      h={{ base: '72vh', lg: '80vh' }}
-      minH={{ base: '560px', lg: '640px' }}
+      h={{ base: 'calc(100vh - 148px)', md: 'calc(100vh - 152px)' }}
+      maxH={{ base: 'calc(100vh - 148px)', md: 'calc(100vh - 152px)' }}
+      minH={0}
       direction={{ base: 'column', lg: 'row' }}
       bg={appBg}
       color={textColor}
@@ -248,7 +297,8 @@ export default function ChatPage() {
       {}
       <Box
         w={{ base: '100%', lg: '320px' }}
-        h={{ base: '220px', lg: 'auto' }}
+        h={{ base: '180px', lg: '100%' }}
+        minH={0}
         flexShrink={0}
         borderRightWidth={{ base: 0, lg: '1px' }}
         borderBottomWidth={{ base: '1px', lg: 0 }}
@@ -299,13 +349,20 @@ export default function ChatPage() {
         borderTopRightRadius={{ base: 0, lg: '2xl' }}
       >
         {!activeConversation ? (
-          <Flex flex="1" align="center" justify="center">
+          <Flex flex="1" minH={0} align="center" justify="center">
             <Text color={emptyTextColor}>Chọn một cuộc hội thoại</Text>
           </Flex>
         ) : (
           <>
             {}
-            <Flex p={3} gap={3} align="center" borderBottomWidth="1px" borderColor={inputBorderColor}>
+            <Flex
+              p={3}
+              gap={3}
+              align="center"
+              borderBottomWidth="1px"
+              borderColor={inputBorderColor}
+              flexShrink={0}
+            >
               <Avatar
                 size="sm"
                 name={activeConversation.userName}
@@ -325,20 +382,27 @@ export default function ChatPage() {
             <VStack
               ref={messagesContainerRef}
               flex="1"
+              minH={0}
               overflowY="auto"
               spacing={4}
               p={4}
               align="stretch"
               onScroll={handleMessagesScroll}
             >
-              {messages.map((m) => {
+              {messages
+                .filter((m) => {
+                  if (!activeConversation?.id || !m.conversationId) return true;
+                  return String(m.conversationId) === String(activeConversation.id);
+                })
+                .map((m) => {
+                const isAdmin = m.senderType === 'ADMIN';
                 const isEmployee = m.senderType === 'EMPLOYEE';
                 const isBot = m.senderType === 'BOT';
-                const isAdminSide = isEmployee || isBot;
+                const isAdminSide = isAdmin || isEmployee || isBot;
 
                 const bubbleBg = isBot
                   ? 'green.500'
-                  : isEmployee
+                  : isAdmin || isEmployee
                     ? 'blue.500'
                     : 'gray.200';
 
@@ -346,7 +410,7 @@ export default function ChatPage() {
 
                 return (
                   <Flex
-                    key={m.id || `${m.senderType}-${m.createdAt}`}
+                    key={m.id || `${m.conversationId || activeConversation.id}-${m.senderType}-${m.createdAt}`}
                     gap={2}
                     align="flex-end"
                     justify={isAdminSide ? 'flex-end' : 'flex-start'}
@@ -426,6 +490,7 @@ export default function ChatPage() {
               gap={2}
               bg={inputBg}
               borderColor={inputBorderColor}
+              flexShrink={0}
             >
               <Input
                 placeholder="Nhập tin nhắn của bạn..."

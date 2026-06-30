@@ -29,6 +29,7 @@ import Pagination from 'components/pagination/Pagination';
 import Header from './components/Header';
 import Columns from './components/Columns';
 import List from './components/List';
+import Detail from './components/Detail';
 import ReturnOrderService from 'services/ReturnOrderService';
 
 export default function ReturnPage() {
@@ -51,6 +52,8 @@ export default function ReturnPage() {
   const [loadingRow, setLoadingRow] = useState(null);
   const [rejectingReturn, setRejectingReturn] = useState(null);
   const [rejectReason, setRejectReason] = useState('');
+  const [selectedReturn, setSelectedReturn] = useState(null);
+  const [isDetailOpen, setIsDetailOpen] = useState(false);
 
 
   const [lastReloadTime, setLastReloadTime] = useState(0);
@@ -189,6 +192,10 @@ export default function ReturnPage() {
           setRejectingReturn(returnOrder);
           setRejectReason('');
         },
+        onOpenDetail: (returnOrder) => {
+          setSelectedReturn(returnOrder);
+          setIsDetailOpen(true);
+        },
       }),
 
     [statusFilter, page, loadReturns, loadingRow, updateStatusFilter],
@@ -226,6 +233,12 @@ export default function ReturnPage() {
           onPageChange={setPage}
         />
       )}
+
+      <Detail
+        isOpen={isDetailOpen}
+        onClose={() => setIsDetailOpen(false)}
+        returnOrder={selectedReturn}
+      />
 
       <Modal
         isOpen={Boolean(rejectingReturn)}

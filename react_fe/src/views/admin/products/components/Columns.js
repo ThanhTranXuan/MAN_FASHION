@@ -3,7 +3,6 @@ import { Text } from '@chakra-ui/react';
 import CategoryFilter from 'views/admin/products/components/CategoryFilter';
 import ActiveFilter from 'views/admin/products/components/ActiveFilter';
 import { formatCurrencyVND } from 'utils/FormatHelper';
-import { useUser } from 'contexts/UserContext';
 
 const columnHelper = createColumnHelper();
 
@@ -17,9 +16,6 @@ export default function Columns({
   borderColor,
   brandColor,
 }) {
-  const { user } = useUser();
-  const isEmployee = user?.roleName === 'EMPLOYEE';
-
   const getCategoryName = (id) => {
     const c = categories.find((cat) => cat.id === id);
     return c ? c.name : '-';
@@ -74,22 +70,14 @@ export default function Columns({
 
     columnHelper.accessor('isActive', {
       header: () =>
-        isEmployee ? (
-          <Text fontSize="12px"></Text>
-        ) : (
-          <ActiveFilter
-            activeFilter={activeFilter}
-            setActiveFilter={setActiveFilter}
-          />
-        ),
+        <ActiveFilter
+          activeFilter={activeFilter}
+          setActiveFilter={setActiveFilter}
+        />,
       cell: (info) =>
-        isEmployee ? (
-          <Text></Text>
-        ) : (
-          <Text color={info.getValue() ? 'green.400' : 'red.400'}>
-            {info.getValue() ? 'Hoạt Động' : 'Ngưng Hoạt Động'}
-          </Text>
-        ),
+        <Text color={info.getValue() ? 'green.400' : 'red.400'}>
+          {info.getValue() ? 'Hoạt Động' : 'Ngưng Hoạt Động'}
+        </Text>,
     }),
 
 

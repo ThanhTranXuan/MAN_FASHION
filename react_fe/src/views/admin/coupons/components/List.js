@@ -72,7 +72,7 @@ export default function List({ coupons, columns, borderColor, headerBg, isLoadin
             <Tr>
               <Td colSpan={columns.length} textAlign="center" py={8}>
                 <Text color="gray.500" fontSize="sm">
-                  No coupons found.
+                  Không tìm thấy mã giảm giá phù hợp.
                 </Text>
               </Td>
             </Tr>

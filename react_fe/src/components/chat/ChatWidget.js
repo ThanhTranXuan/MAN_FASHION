@@ -836,6 +836,9 @@ export default function ChatWidget({ hidden = false }) {
                 const isBot = m.senderType === 'BOT';
                 const isAdmin = m.senderType === 'ADMIN';
                 const isEmployee = m.senderType === 'EMPLOYEE';
+                const senderDisplayName = isEmployee
+                  ? `${m.senderName || 'Nhân viên'} - nhân viên hỗ trợ`
+                  : m.senderName;
 
 
                 let bgColor = botBgColor;
@@ -880,8 +883,7 @@ export default function ChatWidget({ hidden = false }) {
                           mb={1}
                           fontWeight="bold"
                         >
-                          {m.senderName}
-                          {m.chatChannel === 'SHOP' && ' (Cửa hàng)'}
+                          {senderDisplayName}
                           {isBot && ' (Trợ lý)'}
                         </Text>
                       )}

@@ -26,9 +26,6 @@ const ReviewService = {
   approveReview: (reviewId) =>
     ApiClient.patch(ApiUrl.ADMIN_REVIEW_APPROVE(reviewId)).then(unwrap),
 
-  rejectReview: (reviewId) =>
-    ApiClient.patch(ApiUrl.ADMIN_REVIEW_REJECT(reviewId)).then(unwrap),
-
   replyReview: (reviewId, adminReply) =>
     ApiClient.patch(ApiUrl.ADMIN_REVIEW_REPLY(reviewId), { adminReply }).then(unwrap),
 

@@ -25,7 +25,7 @@ export default function StatusFilter({ statusFilter, setStatusFilter }) {
     { label: 'Đã Giao', value: 'DELIVERED' },
     { label: 'Hoàn Thành', value: 'COMPLETED' },
     { label: 'Đã Hủy', value: 'CANCELLED' },
-    { label: 'Hoàn Trả', value: 'RETURN' },
+    { label: 'Yêu cầu trả hàng', value: 'RETURN' },
   ];
 
   return (

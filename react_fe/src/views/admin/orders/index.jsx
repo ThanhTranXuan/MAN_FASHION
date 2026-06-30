@@ -151,9 +151,11 @@ export default function OrderPage() {
         toast.success('Cập nhật trạng thái đơn hàng thành công');
       } catch (err) {
         console.error(err);
+        const message = err.response?.data?.message;
         toast.error(
-          err.response?.data?.message ||
-            'Cập nhật trạng thái đơn hàng thất bại',
+          message === 'error.order.status.final'
+            ? 'Đơn hàng này đã được yêu cầu trả hàng. Vui lòng sang mục Quản lý hoàn trả để hoàn tất quy trình.'
+            : message || 'Cập nhật trạng thái đơn hàng thất bại',
         );
       }
     },
@@ -169,12 +171,17 @@ export default function OrderPage() {
           setSelectedOrder(order);
           setIsDetailOpen(true);
         },
+        onReturnFlowAction: () => {
+          toast.warning(
+            'Đơn hàng này đã được yêu cầu trả hàng. Vui lòng sang mục Quản lý hoàn trả để hoàn tất quy trình.',
+          );
+        },
         statusFilter,
         setStatusFilter,
         loadingRow,
         setLoadingRow,
       }),
-    [statusFilter, handleUpdateStatus, loadingRow],
+    [statusFilter, handleUpdateStatus, loadingRow, toast],
   );
 
   const table = useReactTable({

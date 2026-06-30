@@ -99,7 +99,10 @@ export default function Detail({ isOpen, onClose, order }) {
       case 'UNPAID': return 'Chưa thanh toán';
       case 'FAILED': return 'Thất bại';
       case 'REFUNDED': return 'Đã hoàn tiền';
-      case 'RETURN': return 'Hoàn trả';
+      case 'RETURN': return 'Yêu cầu trả hàng';
+      case 'RETURN_REQUESTED': return 'Yêu cầu trả hàng';
+      case 'REQUEST_RETURN': return 'Yêu cầu trả hàng';
+      case 'REFUND_REQUESTED': return 'Yêu cầu trả hàng';
       default: return translateOrderStatus(status);
     }
   };

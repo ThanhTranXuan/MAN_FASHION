@@ -8,9 +8,11 @@ import {
   MenuItem,
   Button,
   HStack,
+  IconButton,
 } from '@chakra-ui/react';
 import { createColumnHelper } from '@tanstack/react-table';
 import { ChevronDownIcon } from '@chakra-ui/icons';
+import { MdInfoOutline } from 'react-icons/md';
 import StatusFilter from './StatusFilter';
 import { formatCurrencyVND } from 'utils/FormatHelper';
 
@@ -45,6 +47,7 @@ export default function Columns({
   loadingRow,
   setLoadingRow,
   onReject,
+  onOpenDetail,
 }) {
   return [
     columnHelper.accessor('returnCode', {
@@ -172,6 +175,26 @@ export default function Columns({
                 )}
               </Menu>
             </HStack>
+          </Flex>
+        );
+      },
+    }),
+    columnHelper.display({
+      id: 'detail',
+      header: <Text align="right">Xem chi tiết đơn</Text>,
+      cell: (info) => {
+        const returnOrder = info.row.original;
+        return (
+          <Flex justify="flex-end">
+            <IconButton
+              icon={<MdInfoOutline style={{ fontSize: '20px' }} />}
+              size="sm"
+              colorScheme="blue"
+              variant="ghost"
+              aria-label="Xem chi tiết đơn hoàn"
+              borderRadius={10}
+              onClick={() => onOpenDetail?.(returnOrder)}
+            />
           </Flex>
         );
       },

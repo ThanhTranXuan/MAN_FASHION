@@ -16,6 +16,7 @@ const BOT_HISTORY_KEY_PREFIX = 'trendify:botMessages:v2';
 const BOT_SUGGESTIONS_KEY_PREFIX = 'trendify:latestProductSuggestions:v2';
 const CHAT_LAST_READ_KEY_PREFIX = 'chat:lastReadAt';
 const GUEST_BOT_STORAGE_SCOPE = 'guest';
+const STAFF_CHAT_UNREAD_KEY = 'chat:staffUnreadConversations';
 
 const getChatUserKey = (user) => {
   if (!user) return null;
@@ -33,27 +34,62 @@ const safeJsonParse = (value, fallback) => {
   }
 };
 
-const mergeMessagesById = (currentMessages, incomingMessages) => {
+const incrementStoredStaffUnread = (conversationId) => {
+  if (!conversationId) return;
+  const current = safeJsonParse(localStorage.getItem(STAFF_CHAT_UNREAD_KEY), {});
+  current[conversationId] = Number(current[conversationId] || 0) + 1;
+  localStorage.setItem(STAFF_CHAT_UNREAD_KEY, JSON.stringify(current));
+};
+
+const normalizeId = (value) =>
+  value === undefined || value === null ? null : String(value);
+
+const getMessageConversationId = (message, fallbackConversationId = null) =>
+  normalizeId(
+    message?.conversationId ??
+      message?.conversation?.id ??
+      message?.chatId ??
+      fallbackConversationId,
+  );
+
+const mergeMessagesById = (
+  currentMessages,
+  incomingMessages,
+  { conversationId = null, sortDirection = 'desc' } = {},
+) => {
+  const targetConversationId = normalizeId(conversationId);
   const merged = [...currentMessages];
 
   incomingMessages.forEach((incoming) => {
     if (!incoming) return;
+    const incomingConversationId = getMessageConversationId(incoming, targetConversationId);
+    if (targetConversationId && incomingConversationId !== targetConversationId) return;
+
+    const normalizedIncoming = incomingConversationId
+      ? { ...incoming, conversationId: incoming.conversationId ?? incomingConversationId }
+      : incoming;
+
     const existingIndex = merged.findIndex((message) => {
-      if (message.id && incoming.id && message.id === incoming.id) return true;
+      const messageConversationId = getMessageConversationId(message, targetConversationId);
+      if (targetConversationId && messageConversationId !== targetConversationId) return false;
+      if (message.id && normalizedIncoming.id && message.id === normalizedIncoming.id) return true;
       return (
         String(message.id || '').startsWith('temp-shop-') &&
-        message.senderType === incoming.senderType &&
-        message.content === incoming.content
+        messageConversationId === incomingConversationId &&
+        message.senderType === normalizedIncoming.senderType &&
+        message.content === normalizedIncoming.content
       );
     });
 
-    if (existingIndex >= 0) merged[existingIndex] = incoming;
-    else merged.push(incoming);
+    if (existingIndex >= 0) merged[existingIndex] = normalizedIncoming;
+    else merged.push(normalizedIncoming);
   });
 
-  return merged.sort(
-    (a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0),
-  );
+  return merged.sort((a, b) => {
+    const left = new Date(a.createdAt || 0).getTime();
+    const right = new Date(b.createdAt || 0).getTime();
+    return sortDirection === 'asc' ? left - right : right - left;
+  });
 };
 
 
@@ -149,7 +185,8 @@ useEffect(() => {
   if (!isStaff || conversations.length === 0) return;
 
   conversations.forEach((conv) => {
-    if (subscribedConvIdsRef.current.has(conv.id)) return;
+    const topicConversationId = normalizeId(conv.id);
+    if (!topicConversationId || subscribedConvIdsRef.current.has(topicConversationId)) return;
 
     ChatSocketHelper.subscribe(ApiUrl.CHAT_TOPIC(conv.id), (msg) => {
 
@@ -158,29 +195,38 @@ useEffect(() => {
 
       if (eventData.type === 'NEW_MESSAGE') {
         const newMessage = eventData.payload;
-        const convId = conv.id;
-        const isActive = activeConvIdRef.current === convId;
+        const messageConversationId = getMessageConversationId(
+          newMessage,
+          topicConversationId,
+        );
+        const normalizedMessage = {
+          ...newMessage,
+          conversationId: newMessage.conversationId ?? messageConversationId,
+        };
+        const isActive = normalizeId(activeConvIdRef.current) === messageConversationId;
         const isOnChatPage = window.location.pathname.includes('/admin/chat-support');
 
 
         if (isActive && isOnChatPage) {
-          setMessages((prev) => {
-
-            if (prev.some(m => m.id === newMessage.id)) return prev;
-
-            return [...prev, newMessage];
-          });
+          setMessages((prev) =>
+            mergeMessagesById(prev, [normalizedMessage], {
+              conversationId: messageConversationId,
+              sortDirection: 'asc',
+            }),
+          );
         }
 
 
         setConversations((prevOld) => {
           let newList = [...prevOld];
-          const idx = newList.findIndex((c) => c.id === convId);
+          const idx = newList.findIndex(
+            (c) => normalizeId(c.id) === messageConversationId,
+          );
           if (idx !== -1) {
             newList[idx] = {
               ...newList[idx],
-              lastMessageText: newMessage.content,
-              lastMessageAt: newMessage.createdAt,
+              lastMessageText: normalizedMessage.content,
+              lastMessageAt: normalizedMessage.createdAt,
 
               unread: (!isActive || !isOnChatPage) ? (newList[idx].unread || 0) + 1 : 0
             };
@@ -197,7 +243,7 @@ useEffect(() => {
       }
     });
 
-    subscribedConvIdsRef.current.add(conv.id);
+    subscribedConvIdsRef.current.add(topicConversationId);
   });
 }, [isStaff, conversations]);
 
@@ -209,6 +255,31 @@ useEffect(() => {
       if (eventData.type !== 'NEW_SUPPORT_MESSAGE') return;
 
       const isOnChatPage = window.location.pathname.includes('/admin/chat-support');
+      const conversationId = normalizeId(eventData.conversationId);
+      const isActive = normalizeId(activeConvIdRef.current) === conversationId;
+
+      setConversations((previous) => {
+        const index = previous.findIndex(
+          (conversation) => normalizeId(conversation.id) === conversationId,
+        );
+        if (index === -1) {
+          incrementStoredStaffUnread(conversationId);
+          return previous;
+        }
+        if (subscribedConvIdsRef.current.has(conversationId)) return previous;
+
+        const next = [...previous];
+        next[index] = {
+          ...next[index],
+          lastMessageAt: eventData.createdAt || new Date().toISOString(),
+          unread: isOnChatPage && isActive ? 0 : (next[index].unread || 0) + 1,
+        };
+
+        return next.sort(
+          (a, b) => new Date(b.lastMessageAt || 0) - new Date(a.lastMessageAt || 0),
+        );
+      });
+
       if (!isOnChatPage) {
         setHasNewChat(true);
       }
@@ -276,11 +347,15 @@ useEffect(() => {
  const sendMessage = async (conversationId, content, chatMode) => {
     if (!content.trim()) return;
 
+    const targetConversationId = normalizeId(conversationId);
+    if (!targetConversationId) return;
+
     const finalMode = chatMode || 'BOT';
     const isShopMessage = finalMode === 'SHOP';
 
     const tempMsg = {
       id: `temp-${Date.now()}`,
+      conversationId: targetConversationId,
       content: content,
       senderType: isShopMessage && isStaff
         ? (user?.roleName || 'EMPLOYEE')
@@ -291,17 +366,29 @@ useEffect(() => {
     };
 
     if (isShopMessage) {
-      if (!isStaff) {
+      const optimisticMessage = {
+        ...tempMsg,
+        id: `temp-shop-${Date.now()}`,
+        senderType: isStaff ? (user?.roleName || 'EMPLOYEE') : 'USER',
+      };
+
+      if (isStaff) {
+        if (normalizeId(activeConvIdRef.current) === targetConversationId) {
+          setMessages((prev) =>
+            mergeMessagesById(prev, [optimisticMessage], {
+              conversationId: targetConversationId,
+              sortDirection: 'asc',
+            }),
+          );
+        }
+      } else {
         setUserMessages((prev) =>
-          mergeMessagesById(prev, [
-            {
-              ...tempMsg,
-              id: `temp-shop-${Date.now()}`,
-            },
-          ]),
+          mergeMessagesById(prev, [optimisticMessage], {
+            conversationId: targetConversationId,
+          }),
         );
       }
-      ChatSocketHelper.sendMessage(conversationId, content, 'SHOP');
+      ChatSocketHelper.sendMessage(targetConversationId, content, 'SHOP');
 
 
 
@@ -312,7 +399,7 @@ useEffect(() => {
 
       try {
         const currentUserIdHex = user?.id ? user.id.toString(16) : "UNKNOWN";
-        const res = await ChatService.botChat(conversationId, content, currentUserIdHex);
+        const res = await ChatService.botChat(targetConversationId, content, currentUserIdHex);
 
         const botReply = res.data?.data || res.data;
         const suggestions = Array.isArray(botReply?.products) && botReply.products.length

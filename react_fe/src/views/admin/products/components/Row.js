@@ -13,7 +13,6 @@ import { MdAdd, MdEdit, MdDelete } from 'react-icons/md';
 import { useAppToast } from 'utils/ToastHelper';
 import ProductService from 'services/ProductService';
 import { formatCurrencyVND } from 'utils/FormatHelper';
-import { useUser } from 'contexts/UserContext';
 import { getColorLabel } from 'utils/ColorNameHelper';
 
 export default function Row({
@@ -28,10 +27,6 @@ export default function Row({
   onEditVariant,
   onDeleteVariant,
 }) {
-  const { user } = useUser();
-  const role = user?.roleName;
-  const isEmployee = role === 'EMPLOYEE';
-
   const isExpanded = expandedRows[product.id];
   const toast = useAppToast();
   const [active, setActive] = useState(product.isActive);
@@ -94,23 +89,19 @@ export default function Row({
         </Td>
 
         {}
-        {isEmployee ? (
-          <Td></Td>
-        ) : (
-          <Td>
-            <Switch
-              colorScheme="green"
-              isChecked={active}
-              onChange={handleActiveToggle}
-              size="lg"
-              sx={{
-                'span.chakra-switch__track': {
-                  bg: active ? switchColor : 'gray.400',
-                },
-              }}
-            />
-          </Td>
-        )}
+        <Td>
+          <Switch
+            colorScheme="green"
+            isChecked={active}
+            onChange={handleActiveToggle}
+            size="lg"
+            sx={{
+              'span.chakra-switch__track': {
+                bg: active ? switchColor : 'gray.400',
+              },
+            }}
+          />
+        </Td>
 
         {}
         <Td textAlign="right">
@@ -135,16 +126,14 @@ export default function Row({
               onClick={() => onEdit(product)}
             />
 
-            {!isEmployee && (
-              <IconButton
-                borderRadius="xl"
-                aria-label="Delete"
-                size="sm"
-                icon={<MdDelete />}
-                colorScheme="red"
-                onClick={() => onDelete(product)}
-              />
-            )}
+            <IconButton
+              borderRadius="xl"
+              aria-label="Delete"
+              size="sm"
+              icon={<MdDelete />}
+              colorScheme="red"
+              onClick={() => onDelete(product)}
+            />
           </Flex>
         </Td>
       </Tr>
@@ -218,16 +207,14 @@ export default function Row({
                     onClick={() => onEditVariant(v, product)}
                   />
 
-                  {!isEmployee && (
-                    <IconButton
-                      borderRadius="xl"
-                      aria-label="Delete Variant"
-                      size="sm"
-                      icon={<MdDelete />}
-                      colorScheme="red"
-                      onClick={() => onDeleteVariant(v)}
-                    />
-                  )}
+                  <IconButton
+                    borderRadius="xl"
+                    aria-label="Delete Variant"
+                    size="sm"
+                    icon={<MdDelete />}
+                    colorScheme="red"
+                    onClick={() => onDeleteVariant(v)}
+                  />
                 </Flex>
               </Td>
             </Tr>
