@@ -12,6 +12,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 public class ChatMessageResponse {
     private String id;
+    private Integer conversationId;
     private String senderType;
     private String senderName;
     private String senderAvatarUrl;

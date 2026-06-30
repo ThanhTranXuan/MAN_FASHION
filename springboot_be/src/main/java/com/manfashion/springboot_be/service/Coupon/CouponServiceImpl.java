@@ -70,8 +70,9 @@ public class CouponServiceImpl implements CouponService {
     public Page<CouponResponse> getAllCoupons(String keyword, Pageable pageable) {
         Page<Coupon> page;
 
-        if (keyword != null && !keyword.isBlank()) {
-            page = couponRepository.findByCodeContainingIgnoreCaseAndDeletedAtIsNullOrderByCreatedAtDesc(keyword, pageable);
+        String normalizedKeyword = keyword == null ? "" : keyword.trim();
+        if (!normalizedKeyword.isBlank()) {
+            page = couponRepository.findByCodeContainingIgnoreCaseAndDeletedAtIsNullOrderByCreatedAtDesc(normalizedKeyword, pageable);
         } else {
             page = couponRepository.findByDeletedAtIsNullOrderByCreatedAtDesc(pageable);
         }

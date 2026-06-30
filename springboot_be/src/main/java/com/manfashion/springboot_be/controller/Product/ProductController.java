@@ -139,7 +139,7 @@ public class ProductController {
 
 
     @PatchMapping("/{id}/active")
-    @PreAuthorize("hasAuthority('ADMIN')")
+    @PreAuthorize("hasAnyAuthority('ADMIN','EMPLOYEE')")
     public ApiResponse<ProductResponse> patchActiveStatus(@PathVariable String id, @RequestBody Map<String, Boolean> body) {
         Boolean isActive = body.get("isActive");
 
@@ -151,7 +151,7 @@ public class ProductController {
 
 
     @DeleteMapping("/{id}")
-    @PreAuthorize("hasAuthority('ADMIN')")
+    @PreAuthorize("hasAnyAuthority('ADMIN','EMPLOYEE')")
     public ApiResponse<Void> delete(@PathVariable String id) {
         productService.softDelete(id);
 
@@ -201,7 +201,7 @@ public class ProductController {
 
 
     @DeleteMapping("/variants/{variantId}")
-    @PreAuthorize("hasAuthority('ADMIN')")
+    @PreAuthorize("hasAnyAuthority('ADMIN','EMPLOYEE')")
     public ApiResponse<Void> deleteVariant(@PathVariable String variantId) {
         productVariantService.deleteVariant(variantId);
 

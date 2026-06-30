@@ -96,7 +96,7 @@ public class CategoryController {
 
 
     @DeleteMapping("/{id}")
-    @PreAuthorize("hasAuthority('ADMIN')")
+    @PreAuthorize("hasAnyAuthority('ADMIN','EMPLOYEE')")
     public ResponseEntity<Void> deleteCategory(@PathVariable String id) {
         boolean deleted = categoryService.softDeleteCategory(id);
         if (!deleted) {

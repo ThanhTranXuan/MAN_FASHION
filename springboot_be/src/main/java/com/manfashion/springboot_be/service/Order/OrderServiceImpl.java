@@ -367,10 +367,6 @@ public class OrderServiceImpl implements OrderService {
         Specification<Order> spec = (root, query, cb) -> {
             List<Predicate> predicates = new ArrayList<>();
 
-            Predicate notPending = cb.notEqual(root.get("status"), "PENDING");
-            Predicate isCod = cb.equal(root.get("paymentMethod"), "COD");
-            predicates.add(cb.or(notPending, isCod));
-
             if (code != null && !code.isBlank()) {
                 String pattern = "%" + code.toLowerCase() + "%";
                 predicates.add(cb.or(
